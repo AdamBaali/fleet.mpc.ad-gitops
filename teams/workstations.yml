@@ -4,6 +4,8 @@ queries:
 agent_options:
 controls:
 software:
+  packages:
+    - path: ../lib/macos/software/munki.yml
 team_settings:
   secrets:
     - secret: "$FLEET_WORKSTATIONS_ENROLL_SECRET"
