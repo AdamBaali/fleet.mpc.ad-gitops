@@ -1,14 +1,18 @@
 - name: Windows Secure Boot CA 2023 migration state
   automations_enabled: false
   description: |
-    Per-host migration state for KB5025885 / CVE-2023-24932. Three rows
-    per host, one per boot binary.
+    Per-host migration state for KB5025885 / CVE-2023-24932. Three
+    rows per host, one per boot binary.
 
-    Optional firmware signals from snapshot-windows-ca-2023.ps1 are
-    LEFT JOINed via file_lines. When the snapshot file is absent, the
-    firmware_db_has_ca_2023 and esp_bootmgr_issuer columns are NULL
-    and the verdict falls back to the registry + file signal logic.
-    Snapshot path: C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
+    Firmware signals from snapshot-windows-ca-2023.ps1 are optional.
+    When the snapshot file is absent, the `firmware_db_has_ca_2023`
+    and `esp_bootmgr_issuer` columns read `run snapshot script` so
+    the action is obvious, and the verdict falls back to the
+    registry + file signal logic.
+
+    Snapshot path:
+      C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
+    Run via: Fleet > Controls > Scripts > snapshot-windows-ca-2023.ps1
 
     compliance_verdict:
       compliant_via_files            OS-side file signed by CA 2023
@@ -18,7 +22,7 @@
       errored                        UEFICA2023Error != 0
       not_started_ready_to_trigger   firmware DB has CA 2023, never triggered (snapshot)
       not_started_cu_missing         firmware DB lacks CA 2023, no CU yet (snapshot)
-      not_started                    no other signals
+      not_started                    no other signals (run snapshot for refinement)
   discard_data: false
   interval: 86400
   logging: snapshot
@@ -36,6 +40,7 @@
     )
     SELECT
       expected_paths.path,
+      a.issuer_name,
       CASE
         WHEN a.issuer_name LIKE '%Windows UEFI CA 2023%' THEN 'migrated'
         WHEN a.issuer_name LIKE '%Production PCA 2011%' THEN 'not_migrated'
@@ -48,8 +53,11 @@
       (SELECT data FROM registry
        WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
          AND name = 'WindowsUEFICA2023Capable') AS reg_capable,
-      snap.firmware_db_has_ca_2023,
-      snap.esp_bootmgr_issuer,
+      (SELECT data FROM registry
+       WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
+         AND name = 'UEFICA2023Error') AS reg_error,
+      COALESCE(snap.firmware_db_has_ca_2023, 'run snapshot script') AS firmware_db_has_ca_2023,
+      COALESCE(snap.esp_bootmgr_issuer,      'run snapshot script') AS esp_bootmgr_issuer,
       CASE
         WHEN a.issuer_name LIKE '%Windows UEFI CA 2023%'
           THEN 'compliant_via_files'
