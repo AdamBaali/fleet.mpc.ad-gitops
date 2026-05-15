@@ -19,14 +19,19 @@ remaining trusted.
 ## What's in this repo
 
 ```
-.
-├── report-windows-ca-2023.yml          # Fleet diagnostic report (osquery, daily snapshot)
-├── migrate-windows-ca-2023.ps1         # Idempotent remediation (write path)
-├── verify-windows-ca-2023.ps1          # Read-only firmware-level inspection
-└── CONTEXT.md                          # This file
+lib/windows/
+├── reports/
+│   ├── windows-ca-2023.reports.yml         # CA 2023 migration state (daily snapshot)
+│   └── windows-yellowkey.reports.yml       # YellowKey OS + BitLocker exposure
+└── scripts/
+    ├── migrate-windows-ca-2023.ps1         # CA 2023 idempotent remediation
+    ├── verify-windows-ca-2023.ps1          # CA 2023 firmware-level inspection
+    ├── mitigate-windows-yellowkey.ps1      # YellowKey: reagentc /disable, opt-in marker
+    ├── unmitigate-windows-yellowkey.ps1    # YellowKey: reagentc /enable
+    └── verify-windows-yellowkey.ps1        # YellowKey: WinRE + BitLocker inspection
 ```
 
-Drop into a Fleet GitOps repo and reference from the relevant `controls.scripts` / `reports` arrays.
+Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
 
 ## How detection works
 
@@ -207,6 +212,65 @@ Out of scope for this migration but tracked here so the trust-chain context stay
 - **BitUnlocker (CVE-2025-48804)** is mitigated by the CA 2023 migration this repo ships. TPM + PIN also defeats it independently because the TPM will not unseal the VMK without the PIN. Two independent paths to closure.
 - **Intune policy gap (Fleet PR #43915, still open against upstream).** Intune currently sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require), so TPM + PIN cannot be enforced via Intune today. Until the PR lands, TPM + PIN enforcement needs a custom CSP profile or scripted BCD configuration.
 - **Stacked controls for hosts that handle sensitive data:** complete the CA 2023 migration (this repo), enforce TPM + PIN where feasible, and `reagentc /disable` if WinRE is not needed locally. Each control closes a different attack path.
+
+## YellowKey mitigation pattern in this repo
+
+Shipped alongside the CA 2023 trio because customers asked. Same shape:
+detect, mitigate, verify.
+
+| File | Purpose |
+|------|---------|
+| `windows-yellowkey.reports.yml` | Daily snapshot of OS + BitLocker state per host. Surfaces who is exposed. |
+| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, key protector types, opt-in marker state. |
+| `mitigate-windows-yellowkey.ps1` | `reagentc /disable`. Gated by a per-host registry marker. |
+| `unmitigate-windows-yellowkey.ps1` | `reagentc /enable`. Reverses the mitigation. No marker required. |
+
+**Opt-in marker (per-host gate):**
+
+```
+HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1 (DWORD)
+```
+
+The mitigate script refuses to disable WinRE unless the admin sets this
+value on the host first. Two reasons:
+
+1. `reagentc /disable` is destructive at fleet scale -- a misconfigured
+   Fleet policy or label could nuke recovery across thousands of hosts.
+2. WinRE is the right choice for some hosts (laptops with no in-tooling
+   recovery) and the wrong choice for others (servers, kiosks, hosts
+   with off-host imaging). Admins, not scripts, make that call.
+
+Set the marker on a host either by hand (Registry Editor) or via Fleet:
+target a script that writes the value to a labelled subset, e.g.
+`yellowkey-mitigated` label.
+
+**Trade-offs of disabling WinRE:**
+
+- Push-button reset stops working (`Settings > Recovery > Reset this PC`).
+- BitLocker recovery flow inside WinRE is gone -- recovery key is still
+  honoured at the boot manager, but the WinRE-driven flow is not.
+- System Restore from boot and Recovery Drive image restore are gone.
+- Re-enable with `unmitigate-windows-yellowkey.ps1` before any of these
+  operations is needed.
+
+**Script exit codes (`mitigate-windows-yellowkey.ps1`):**
+
+| Code | Meaning |
+|------|---------|
+| 0 | WinRE disabled (action taken or already disabled) |
+| 2 | Opt-in marker missing; no action taken |
+| 3 | OS not affected (Windows 10 etc.); no action taken |
+| 4 | reagentc returned non-zero, or post-state check failed |
+
+**Script exit codes (`unmitigate-windows-yellowkey.ps1`):**
+
+| Code | Meaning |
+|------|---------|
+| 0 | WinRE enabled (action taken or already enabled) |
+| 4 | reagentc returned non-zero, or post-state check failed |
+
+**Verify script:** always exits 0 unless PowerShell errors. Output is
+the deliverable.
 
 ## Open items
 

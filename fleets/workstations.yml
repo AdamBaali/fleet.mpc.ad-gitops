@@ -2,11 +2,15 @@ name: "💻 Workstations"
 policies:
 reports:
   - path: ../lib/windows/reports/windows-ca-2023.reports.yml
+  - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 agent_options:
 controls:
   scripts:
     - path: ../lib/windows/scripts/migrate-windows-ca-2023.ps1
     - path: ../lib/windows/scripts/verify-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/unmitigate-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
 software:
   packages:
     - path: ../lib/macos/software/munki.yml
