@@ -21,14 +21,15 @@ remaining trusted.
 ```
 lib/windows/
 ├── reports/
-│   ├── windows-ca-2023.reports.yml         # CA 2023 migration state (daily snapshot)
-│   └── windows-yellowkey.reports.yml       # YellowKey OS + BitLocker exposure
+│   ├── windows-ca-2023.reports.yml          # CA 2023 migration state (daily snapshot)
+│   └── windows-yellowkey.reports.yml        # YellowKey OS + BitLocker exposure
 └── scripts/
-    ├── migrate-windows-ca-2023.ps1         # CA 2023 idempotent remediation
-    ├── verify-windows-ca-2023.ps1          # CA 2023 firmware-level inspection
-    ├── mitigate-windows-yellowkey.ps1      # YellowKey: reagentc /disable, opt-in marker
-    ├── unmitigate-windows-yellowkey.ps1    # YellowKey: reagentc /enable
-    └── verify-windows-yellowkey.ps1        # YellowKey: WinRE + BitLocker inspection
+    ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
+    ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection
+    ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
+    ├── mitigate-windows-yellowkey.ps1       # YellowKey: reagentc /disable, opt-in marker
+    ├── unmitigate-windows-yellowkey.ps1     # YellowKey: reagentc /enable
+    └── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection
 ```
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
@@ -240,9 +241,10 @@ value on the host first. Two reasons:
    recovery) and the wrong choice for others (servers, kiosks, hosts
    with off-host imaging). Admins, not scripts, make that call.
 
-Set the marker on a host either by hand (Registry Editor) or via Fleet:
-target a script that writes the value to a labelled subset, e.g.
-`yellowkey-mitigated` label.
+Set the marker via `set-yellowkey-allow-mitigation.ps1` targeted at a
+labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
+Registry Editor on one-off hosts. Clear with
+`Remove-ItemProperty -Path HKLM:\SOFTWARE\Fleet\YellowKey -Name AllowMitigation`.
 
 **Trade-offs of disabling WinRE:**
 
