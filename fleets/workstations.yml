@@ -1,0 +1,15 @@
+name: "💻 Workstations"
+policies:
+reports:
+  - path: ../lib/windows/reports/windows-ca-2023.reports.yml
+agent_options:
+controls:
+  scripts:
+    - path: ../lib/windows/scripts/migrate-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/verify-windows-ca-2023.ps1
+software:
+  packages:
+    - path: ../lib/macos/software/munki.yml
+settings:
+  secrets:
+    - secret: "$FLEET_WORKSTATIONS_ENROLL_SECRET"
