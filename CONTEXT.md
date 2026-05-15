@@ -1,0 +1,183 @@
+# Windows Secure Boot CA 2023 migration — context
+
+Context for Claude Code working on the CA 2023 detection and remediation pattern in this repo. Read this first.
+
+## Problem
+
+Microsoft is replacing the **Windows Production PCA 2011** certificate with **Windows UEFI CA 2023** across the Secure Boot trust chain. Same root cause drives two problems:
+
+1. **CVE-2023-24932 (BlackLotus)** — bootkit swaps `bootmgfw.efi` for a vulnerable version signed by the still-trusted PCA 2011 cert, bypasses BitLocker on next boot.
+2. **PCA 2011 expiry (June 2026)** — anything still chained to PCA 2011 stops receiving Secure Boot servicing.
+
+Microsoft ships the fix as one coordinated migration via KB5025885: `AvailableUpdates = 0x5944` triggers cert update + boot manager update + DBX revocation. Patching alone is not enough. Windows Server does not auto-migrate. Even on auto-rolling clients, the migration runs in a multi-reboot state machine and customers want visibility.
+
+## What's in this repo
+
+```
+.
+├── report-windows-ca-2023.yml          # Fleet diagnostic report (osquery, daily snapshot)
+├── migrate-windows-ca-2023.ps1         # Idempotent remediation (write path)
+├── verify-windows-ca-2023.ps1          # Read-only firmware-level inspection
+└── CONTEXT.md                          # This file
+```
+
+Drop into a Fleet GitOps repo and reference from the relevant `controls.scripts` / `reports` arrays.
+
+## How detection works
+
+The migration runs in two layers that can drift:
+
+| Layer | What it is | Where to look |
+|-------|------------|---------------|
+| **Firmware-level** | The cert lives in firmware DB; boot manager on the EFI System Partition | `mountvol S: /s` then read `S:\EFI\Microsoft\Boot\bootmgfw.efi`. Only PowerShell with admin can see this. osquery cannot. |
+| **OS-side staging** | `C:\Windows\Boot\EFI\bootmgfw.efi` and friends — copied to ESP at next servicing pass | `authenticode` table. Osquery sees this. |
+| **Registry state machine** | Microsoft's own per-host servicing status | `HKLM\...\SecureBoot\Servicing` keys. Osquery sees this. |
+
+**File signatures alone produce false negatives.** A host can be fully migrated at firmware level while the OS-side `bootmgfw.efi` still shows PCA 2011 — Windows Update refreshes the staging copy on its own cycle. The registry servicing state is the authoritative answer for "has firmware migrated."
+
+The report combines both signals:
+
+- `compliant_via_files` — OS-side binary signed by CA 2023 (best case)
+- `compliant_via_registry` — registry says `Updated`, files may still lag (firmware is done)
+- `in_progress` — registry says `InProgress` (servicing running)
+- `errored` — `UEFICA2023Error != 0` (Event ID 1801 / 1803)
+- `not_started` — none of the above
+
+Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1` — it reads the firmware DB and ESP boot manager directly to confirm.
+
+## Registry servicing state machine
+
+`HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing`:
+
+| Value | Meanings |
+|-------|----------|
+| `WindowsUEFICA2023Capable` | `0` = not capable (no CU), `1` = capable, `2` = migrated |
+| `UEFICA2023Status` | `NotStarted`, `InProgress`, `Updated` |
+| `UEFICA2023Error` | `0` or absent = no error; non-zero = errored |
+
+`HKLM:\SYSTEM\CurrentControlSet\Control\Secureboot`:
+
+| Value | Meanings |
+|-------|----------|
+| `AvailableUpdates` | `0x5944` = full migration trigger; `0x4100` = reboot pending; `0` = cleared after task picked it up |
+
+## Migration trigger
+
+`Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Secureboot -Name AvailableUpdates -Value 0x5944 -Type DWord` then `Start-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Secure-Boot-Update"`.
+
+Microsoft clears `AvailableUpdates` to `0` once the task picks it up. Re-trigger by re-setting and re-starting.
+
+Multi-reboot. Sometimes 2 reboots, sometimes more. The script is idempotent — safe to re-run after each reboot.
+
+## Script exit codes
+
+`migrate-windows-ca-2023.ps1`:
+
+| Code | Meaning |
+|------|---------|
+| 0 | Migration complete, in progress, or just triggered |
+| 2 | Secure Boot not enabled (or check failed — BIOS/legacy) |
+| 3 | CU too old, OR Secure-Boot-Update task failed to start |
+| 4 | `UEFICA2023Error != 0` — manual investigation needed |
+| 5 | Reboot pending |
+| 6 | Boot file missing or signature unreadable — remediation skipped |
+
+`verify-windows-ca-2023.ps1`: always exits 0 unless PowerShell itself errors. The output is the deliverable.
+
+## Known gotchas
+
+1. **ESP boot manager is the real one.** `C:\Windows\Boot\EFI\bootmgfw.efi` is a staging copy. Firmware loads from `\Device\HarddiskVolumeX\EFI\Microsoft\Boot\bootmgfw.efi` on the ESP. Use `mountvol S: /s` to mount it temporarily, then `mountvol S: /d` to dismount.
+2. **Servicing state and file signatures drift.** Expect `Updated` registry state with PCA 2011 files for hours-to-days after migration. Not a bug.
+3. **PCA 2011 expiry is June 2026.** Anything still chained to PCA 2011 after that date stops receiving Secure Boot servicing entirely. Plan rollout backwards from there.
+4. **Recovery media built before migration breaks after DBX revocation.** Rebuild WinRE / install media against CA 2023 sources before pushing migration broadly.
+5. **OEM caveats:**
+   - **Lenovo** — CA 2023 already in firmware fleet-wide. Lowest risk.
+   - **Dell** — SupportAssist OSRI USB and BIOSConnect break post-migration. No firm Dell timeline yet. Test before rolling.
+   - **HP / ASUS** — minimal guidance from vendor. Test per-model.
+6. **Intune Error 65000 on Win10/11 Pro** — was an MS bug, fixed Jan 27 2026. CSP was Enterprise-only by mistake.
+7. **Hotpatch hosts on Win11 24H2** — reboot less, so the multi-reboot state machine stalls at Stage 4 for weeks. Expected.
+
+## Style guide for any updates
+
+Fleet "no fluff, no fear" style:
+
+- Short, declarative sentences. Active voice.
+- Sentence case headings. No title case.
+- No em dashes — replace with commas, colons, or new sentences.
+- Banned words: very, really, actually, basically, essentially, just, powerful, seamless, revolutionary, game-changing.
+- Use "hosts" not "endpoints" or "agents".
+- Use "BitLocker" only for Windows BitLocker contexts; "disk encryption" generally.
+- Copy-ready outputs over explanatory prose.
+- Don't add comments that restate the code. Add comments that explain *why* a non-obvious choice was made.
+
+PowerShell specifics:
+
+- `$ErrorActionPreference = 'Stop'` for scripts that mutate (migrate). `'Continue'` for read-only (verify).
+- Empty catch blocks are not allowed. Always surface `$_.Exception.Message`.
+- Use `$null -ne $var` not `if ($var)` for value checks — `0` is falsey in PowerShell.
+- Use `-TaskPath` and `-TaskName` as separate parameters. Never pass a fully qualified task path in `-TaskName`.
+- Structured key:value output via the `Write-State` helper. Width 30 for migrate, 32 for verify (existing convention).
+
+osquery / SQL specifics:
+
+- Drive reports from an expected set with `LEFT JOIN authenticode`, not from `authenticode` directly. Missing files must produce rows.
+- Use `IFNULL(..., '0')` defensively on registry sub-queries.
+- Backslashes in paths are literal in osquery's SQLite — no escaping needed.
+
+## What's been tested
+
+| Item | Status |
+|------|--------|
+| Report query against dogfood | ✅ Returned 3 distinct states across 4/5 responding hosts |
+| Single-pass file inspection logic | ✅ Lint-checked, no empty catches, no boolean coercion |
+| `-TaskPath` / `-TaskName` split | ✅ Matches Microsoft's documented API |
+| Migrate script against a real `not_started` host | ❌ Not yet — primary next step |
+| Verify script against a `compliant_via_registry` host | ❌ Not yet — confirms firmware/ESP hypothesis |
+| Behaviour on Server 2019/2022 | ❌ Unknown — Server doesn't auto-migrate but should respond to manual trigger |
+| Behaviour on Hotpatch (24H2) hosts | ❌ Unknown — state machine known to stall |
+
+## Related upstream work
+
+- **fleetdm/fleet#45474** — CSA pattern issue. Has dogfood test results table.
+- **fleetdm/fleet#45510** — Upstream PR adding these to Fleet's `it-and-security/lib/windows/`. Different path layout than this repo. Two rounds of CodeRabbit review applied. Awaiting human review from `@allenhouchins`.
+- **fleetdm/fleet#42318** — Open Fleet bug. Fleet sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require). Blocks BitLocker TPM+PIN as defence-in-depth. PR #43915 has the fix.
+
+CVE / KB references:
+- **CVE-2023-24932** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
+- **KB5025885** — https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
+- **MS Secure Boot Playbook (Feb 2026)** — https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+
+## Open items
+
+1. Run `verify-windows-ca-2023.ps1` on a `compliant_via_registry` host to confirm the ESP/firmware DB hypothesis.
+2. Run `migrate-windows-ca-2023.ps1` against a `not_started` host. Expect preflight failure (exit 2/3) on a host without CU, or migration triggered (exit 0).
+3. Re-run report after migration to confirm state transitions cleanly.
+4. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped.
+5. Test on Server 2019/2022.
+6. Consider follow-up: a teardown script that re-runs `Set-ItemProperty AvailableUpdates 0x5944` if a host gets stuck mid-migration after CU update.
+
+## Working with Claude Code
+
+When making changes:
+
+- Read this file before editing the scripts.
+- Run the lint checks at the bottom of this section before committing.
+- Verdict logic in the report YAML mirrors the decision tree in `migrate-windows-ca-2023.ps1`. Update both together if you change one.
+- Keep `interval: 86400` (daily snapshot). Faster intervals hammer osquery for no gain — registry state doesn't change minute-to-minute.
+
+Quick lint check from repo root:
+
+```bash
+for f in *.ps1; do
+  echo "=== $f ==="
+  grep -n 'catch *{ *}' "$f" && echo "  empty catch found" || echo "  ok: no empty catches"
+  grep -nE 'if \(\$[a-zA-Z]+(Status|Error|Capable|Available)\)' "$f" && echo "  boolean coercion" || echo "  ok: explicit null"
+  grep -n 'Start-ScheduledTask.*-TaskName.*\\Microsoft' "$f" && echo "  qualified path in TaskName" || echo "  ok: TaskPath/TaskName split"
+done
+```
+
+PowerShell linting (if `Invoke-ScriptAnalyzer` available):
+
+```bash
+pwsh -c "Invoke-ScriptAnalyzer -Path . -Recurse -Severity Warning"
+```

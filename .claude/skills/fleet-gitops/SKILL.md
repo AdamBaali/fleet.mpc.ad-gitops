@@ -9,22 +9,25 @@ You are helping with Fleet GitOps configuration files: $ARGUMENTS
 
 This repository keeps GitOps files at the root:
 
-- `default.yml` — global settings, org_settings, and `controls` that apply to all teams (including `windows_enabled_and_configured`).
-- `teams/*.yml` — one file per Fleet team (e.g. `teams/workstations.yml`).
-- `lib/` — reusable assets referenced from `default.yml` and team files, organized by platform:
-  - `lib/all/` — `agent-options/`, `labels/`, `queries/`, `icons/` shared across platforms.
-  - `lib/macos/` — `configuration-profiles/` (`.mobileconfig`), `declaration-profiles/` (DDM JSON), `enrollment-profiles/`, `policies/`, `queries/`, `scripts/`, `software/`, `commands/`, `misc/`.
-  - `lib/windows/` — `configuration-profiles/` (CSP `.xml`), `policies/`, `queries/`, `scripts/`, `software/`.
-  - `lib/linux/` — `policies/`, `queries/`, `scripts/`, `software/`.
+- `default.yml` — global settings, `org_settings`, and `controls` that apply to all hosts ("All fleets").
+- `fleets/*.yml` — one file per Fleet fleet (e.g. `fleets/workstations.yml`). Fleet-scoped settings go under `settings:` (not `team_settings:`).
+- `lib/` — reusable assets referenced from `default.yml` and fleet files, organized by platform:
+  - `lib/all/` — `agent-options/`, `labels/`, `icons/`, shared assets across platforms.
+  - `lib/macos/` — `configuration-profiles/` (`.mobileconfig`), `declaration-profiles/` (DDM JSON), `enrollment-profiles/`, `policies/`, `reports/`, `scripts/`, `software/`, `commands/`, `misc/`.
+  - `lib/windows/` — `configuration-profiles/` (CSP `.xml`), `policies/`, `reports/`, `scripts/`, `software/`.
+  - `lib/linux/` — `policies/`, `reports/`, `scripts/`, `software/`.
   - `lib/ios/`, `lib/ipados/` — `configuration-profiles/`, `declaration-profiles/`.
 
-Reference these assets from `default.yml` or `teams/*.yml` using relative paths (e.g. `../lib/macos/software/munki.yml`). Apply the following constraints for all work in this session.
+Reference these assets from `default.yml` or `fleets/*.yml` using relative paths (e.g. `../lib/macos/software/munki.yml`). Apply the following constraints for all work in this session.
 
-## Queries & Reports
+## Reports
 
-- Only use **Fleet tables and supported columns** when writing osquery queries or Fleet reports.
-- Do not reference tables or columns that are not present in the Fleet schema for the target platform.
-- Validate table and column names against the Fleet schema before including them in a query:
+Reports replace the old top-level `queries:` array. Define each snapshot or scheduled query under a `reports:` array in `default.yml` or `fleets/*.yml`.
+
+- File naming convention: `*.reports.yml` in `lib/<platform>/reports/`.
+- Reference via `- path: ../lib/<platform>/reports/<name>.reports.yml` or `- paths: ../lib/<platform>/reports/*.reports.yml`.
+- Only use **Fleet tables and supported columns**. Do not reference tables or columns absent from the Fleet schema for the target platform.
+- Validate table and column names against the Fleet schema before shipping:
   - https://github.com/fleetdm/fleet/tree/main/schema
 
 ## Configuration Profiles
