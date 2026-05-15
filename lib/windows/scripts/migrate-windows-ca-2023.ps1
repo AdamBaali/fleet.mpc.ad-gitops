@@ -3,8 +3,15 @@
     Migrates a Windows host to Secure Boot CA 2023 trust chain (KB5025885).
 
 .DESCRIPTION
-    Closes CVE-2023-24932 / BlackLotus boot manager swap vulnerability and
-    ensures continued Secure Boot servicing past PCA 2011 expiry (June 2026).
+    Closes the PCA-2011-trusted boot manager attack surface:
+      - CVE-2023-24932 (BlackLotus) bootkit swap
+      - CVE-2025-48804 (BitUnlocker) downgrade attack on TPM-only BitLocker
+    Both attacks rely on PCA 2011 staying trusted in the firmware DB. The
+    DBX revocation step (part of AvailableUpdates = 0x5944) closes both.
+
+    Also ensures continued Secure Boot servicing past PCA 2011 expiry
+    (October 2026). Does NOT mitigate YellowKey (WinRE NTFS transaction
+    log bypass, May 2026) -- that path needs TPM + PIN, not a cert swap.
 
     Verifies completion by checking BOTH:
       - File signatures on disk (bootmgfw.efi, winload.efi, winresume.efi)
@@ -161,8 +168,13 @@ if ($migratedCount -eq 3 -and ($null -eq $regError -or $regError -eq 0)) {
 # Errored state: do not retry
 if ($null -ne $regError -and $regError -ne 0) {
     Write-Output "FAIL: UEFICA2023Error = $regError. Manual investigation required."
-    Write-Output "      Check Event Viewer > System for Event ID 1801 (DB update blocked)"
-    Write-Output "      or 1803 (no PK-signed KEK)."
+    Write-Output "      Check Event Viewer > System for:"
+    Write-Output "        1036 = PCA 2023 added to DB (success)"
+    Write-Output "        1037 = PCA 2011 added to DBX (success)"
+    Write-Output "        1795 = generic DB/DBX update event (see KB5016061)"
+    Write-Output "        1799 = boot manager signed by CA 2023 applied (success)"
+    Write-Output "        1801 = DB update blocked"
+    Write-Output "        1803 = no PK-signed KEK"
     exit 4
 }
 

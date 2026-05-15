@@ -4,12 +4,17 @@ Context for Claude Code working on the CA 2023 detection and remediation pattern
 
 ## Problem
 
-Microsoft is replacing the **Windows Production PCA 2011** certificate with **Windows UEFI CA 2023** across the Secure Boot trust chain. Same root cause drives two problems:
+Microsoft is replacing the **Windows Production PCA 2011** certificate with **Windows UEFI CA 2023** across the Secure Boot trust chain. Same root cause drives three problems:
 
 1. **CVE-2023-24932 (BlackLotus)** — bootkit swaps `bootmgfw.efi` for a vulnerable version signed by the still-trusted PCA 2011 cert, bypasses BitLocker on next boot.
-2. **PCA 2011 expiry (June 2026)** — anything still chained to PCA 2011 stops receiving Secure Boot servicing.
+2. **CVE-2025-48804 (BitUnlocker)** — downgrade attack: an attacker with brief physical access drops a pre-July-2025 boot manager onto the ESP, which firmware still trusts because PCA 2011 is in DB and not revoked in DBX. Decrypts a TPM-only BitLocker volume in under 5 minutes. Patched in July 2025 CU, but the patch alone does not close the path. DBX revocation closes the path.
+3. **PCA 2011 expiry (October 2026)** — anything still chained to PCA 2011 stops receiving Secure Boot servicing.
 
 Microsoft ships the fix as one coordinated migration via KB5025885: `AvailableUpdates = 0x5944` triggers cert update + boot manager update + DBX revocation. Patching alone is not enough. Windows Server does not auto-migrate. Even on auto-rolling clients, the migration runs in a multi-reboot state machine and customers want visibility.
+
+The repo's migrate/verify scripts target this single migration. Completing it
+closes BlackLotus and BitUnlocker simultaneously, because both depend on PCA 2011
+remaining trusted.
 
 ## What's in this repo
 
@@ -61,6 +66,31 @@ Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1`
 |-------|----------|
 | `AvailableUpdates` | `0x5944` = full migration trigger; `0x4100` = reboot pending; `0` = cleared after task picked it up |
 
+Microsoft also documents granular bitmask values for staged rollouts. The repo
+uses `0x5944` for the all-in-one trigger because it is the only value KB5025885
+recommends for fleet-wide deployment and it remains idempotent across reboots:
+
+| Value | Mitigation step |
+|-------|-----------------|
+| `0x140` | Install CA 2023 to DB + update boot manager (Mitigations 1+2) |
+| `0x80`  | Add PCA 2011 to DBX (Mitigation 3, revocation) |
+| `0x200` | Apply SVN update to firmware (Mitigation 4) |
+| `0x280` | Mitigations 3+4 combined |
+| `0x5944` | Full migration (all four mitigations) |
+
+## Event IDs to monitor
+
+In `Event Viewer > Windows Logs > System`:
+
+| ID | Meaning |
+|----|---------|
+| `1036` | PCA 2023 added to DB (success) |
+| `1037` | PCA 2011 added to DBX (revocation success) |
+| `1795` | Generic DB / DBX update event (see KB5016061) |
+| `1799` | Boot manager signed by CA 2023 applied (success) |
+| `1801` | DB update blocked |
+| `1803` | No PK-signed KEK present |
+
 ## Migration trigger
 
 `Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Secureboot -Name AvailableUpdates -Value 0x5944 -Type DWord` then `Start-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Secure-Boot-Update"`.
@@ -84,15 +114,36 @@ Multi-reboot. Sometimes 2 reboots, sometimes more. The script is idempotent — 
 
 `verify-windows-ca-2023.ps1`: always exits 0 unless PowerShell itself errors. The output is the deliverable.
 
+## Microsoft enforcement timeline
+
+Three separate 2011 certs are involved, each with a different expiry:
+
+| Cert | Expiry |
+|------|--------|
+| Microsoft UEFI CA 2011 (third-party UEFI loaders) | June 2026 |
+| Microsoft Windows Production PCA 2011 (boot manager signing) | October 2026 |
+| Microsoft Corporation KEK CA 2011 (Key Exchange Key) | October 19, 2026 |
+
+Microsoft staggers user-visible enforcement in three phases:
+
+| Phase | Start | Behaviour |
+|-------|-------|-----------|
+| Initial | May 13 2026 (Win10), May 16 2026 (Win11) | Yellow advisory banner |
+| Intermediate | Q3 2026 | Orange banner + full-screen notifications |
+| Enforcement | October 2026 | KEK 2011 expires; non-migrated hosts stop receiving Secure Boot servicing |
+
+Plan rollout backwards from the Enforcement Phase. The repo defaults assume
+the goal is migration well ahead of October 2026.
+
 ## Known gotchas
 
 1. **ESP boot manager is the real one.** `C:\Windows\Boot\EFI\bootmgfw.efi` is a staging copy. Firmware loads from `\Device\HarddiskVolumeX\EFI\Microsoft\Boot\bootmgfw.efi` on the ESP. Use `mountvol S: /s` to mount it temporarily, then `mountvol S: /d` to dismount.
 2. **Servicing state and file signatures drift.** Expect `Updated` registry state with PCA 2011 files for hours-to-days after migration. Not a bug.
-3. **PCA 2011 expiry is June 2026.** Anything still chained to PCA 2011 after that date stops receiving Secure Boot servicing entirely. Plan rollout backwards from there.
+3. **PCA 2011 expiry is October 2026, not June 2026.** June 2026 is the third-party `Microsoft UEFI CA 2011`. The Windows boot-signing PCA 2011 expires in October 2026, same month as the KEK CA 2011. Anything still chained to PCA 2011 after October 2026 stops receiving Secure Boot servicing.
 4. **Recovery media built before migration breaks after DBX revocation.** Rebuild WinRE / install media against CA 2023 sources before pushing migration broadly.
 5. **OEM caveats:**
-   - **Lenovo** — CA 2023 already in firmware fleet-wide. Lowest risk.
-   - **Dell** — SupportAssist OSRI USB and BIOSConnect break post-migration. No firm Dell timeline yet. Test before rolling.
+   - **Lenovo** — CA 2023 and KEK 2K CA 2023 already in firmware fleet-wide. Lowest risk. Lenovo's published verification checks `db` for both `Windows UEFI CA 2023` and `Microsoft UEFI CA 2023`, plus `KEK` for `Microsoft Corporation KEK 2K CA 2023`. Verify script mirrors that pattern.
+   - **Dell** — committed to BIOS updates for all sustaining platforms by end of 2025. New platforms since late 2024 ship with both 2011 and 2023 certs. SupportAssist OSRI USB and BIOSConnect break post-migration. Test before rolling.
    - **HP / ASUS** — minimal guidance from vendor. Test per-model.
 6. **Intune Error 65000 on Win10/11 Pro** — was an MS bug, fixed Jan 27 2026. CSP was Enterprise-only by mistake.
 7. **Hotpatch hosts on Win11 24H2** — reboot less, so the multi-reboot state machine stalls at Stage 4 for weeks. Expected.
@@ -144,8 +195,17 @@ osquery / SQL specifics:
 
 CVE / KB references:
 - **CVE-2023-24932** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
+- **CVE-2025-48804 (BitUnlocker)** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-48804
 - **KB5025885** — https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
 - **MS Secure Boot Playbook (Feb 2026)** — https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+
+## Adjacent BitLocker bypass threats
+
+Out of scope for this migration but tracked here so the trust-chain context stays joined up:
+
+- **YellowKey (May 2026, no CVE yet)** — abuses NTFS transaction log replay in WinRE. Attacker drops crafted `FsTx` files on a USB or the ESP, reboots into WinRE, holds CTRL, gets a shell with read access to the BitLocker volume. Affects Windows 11 and Server 2022/2025. Windows 10 is not affected. No patch as of May 2026. **Mitigation is TPM + PIN.** TPM-only BitLocker is exposed. CA 2023 migration does **not** close this path.
+- **TPM-only BitLocker is the common factor.** Both BitUnlocker and YellowKey assume the TPM unseals the VMK at boot without user interaction. TPM + PIN defeats both because the TPM will not unseal without the PIN. Tracking this here so admins know the migration scripts close one path (downgrade-via-PCA-2011) but TPM + PIN policy closes both.
+- **Intune policy gap (Fleet PR #43915, still open against upstream).** Intune currently sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require), so TPM + PIN cannot be enforced via Intune today. Until the PR lands, TPM + PIN enforcement needs a custom CSP profile or scripted BCD configuration.
 
 ## Open items
 
