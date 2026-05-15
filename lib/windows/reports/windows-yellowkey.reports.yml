@@ -1,0 +1,57 @@
+- name: Windows YellowKey BitLocker bypass exposure
+  automations_enabled: false
+  description: |
+    Identifies Windows hosts exposed to the YellowKey BitLocker bypass
+    (disclosed May 12 2026, no CVE, no patch as of May 2026).
+
+    YellowKey requires WinRE enabled plus BitLocker on the system
+    volume. Windows 10 is not affected. Mitigation is `reagentc
+    /disable`. TPM + PIN does NOT help (researcher-confirmed).
+
+    The report drives from os_version with a LEFT JOIN on
+    bitlocker_info, so every host produces at least one row even if
+    no BitLocker volumes are present.
+
+    yellowkey_os_exposure:
+      - not_affected            Windows 10 (vulnerable WinRE component absent)
+      - affected_if_winre_on    Windows 11 / Server 2022 / Server 2025
+      - unknown                 OS not in affected list, investigate manually
+
+    bitlocker_state:
+      - protected               BitLocker protecting this volume
+      - unprotected             BitLocker not protecting this volume
+      - decrypting              in transition
+      - no_bitlocker_volume     no row from bitlocker_info for this host
+      - unknown                 unrecognised state, investigate manually
+
+    Run verify-windows-yellowkey.ps1 to confirm WinRE state and key
+    protector configuration before deciding to mitigate per-host.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: windows
+  query: |
+    SELECT
+      ov.name AS os_name,
+      ov.build AS os_build,
+      b.drive_letter,
+      b.protection_status,
+      b.conversion_status,
+      b.encryption_method,
+      CASE
+        WHEN ov.name LIKE '%Windows 10%'  THEN 'not_affected'
+        WHEN ov.name LIKE '%Windows 11%'  THEN 'affected_if_winre_on'
+        WHEN ov.name LIKE '%Server 2022%' THEN 'affected_if_winre_on'
+        WHEN ov.name LIKE '%Server 2025%' THEN 'affected_if_winre_on'
+        ELSE 'unknown'
+      END AS yellowkey_os_exposure,
+      CASE
+        WHEN b.drive_letter IS NULL    THEN 'no_bitlocker_volume'
+        WHEN b.protection_status = 1   THEN 'protected'
+        WHEN b.protection_status = 0   THEN 'unprotected'
+        WHEN b.conversion_status = 3   THEN 'decrypting'
+        ELSE 'unknown'
+      END AS bitlocker_state
+    FROM os_version ov
+    LEFT JOIN bitlocker_info b ON 1=1;

@@ -43,22 +43,40 @@ try {
 
 # --- Firmware DB: is CA 2023 trusted? ---
 Write-Output ""
-Write-Output "--- Firmware DB ---"
+Write-Output "--- Firmware DB (allow list) ---"
 try {
     $dbBytes = (Get-SecureBootUEFI db).bytes
     $dbText  = [Text.Encoding]::ASCII.GetString($dbBytes)
-    Write-State "CA 2023 present"  ($dbText -match 'Windows UEFI CA 2023')
+    Write-State "Windows UEFI CA 2023" ($dbText -match 'Windows UEFI CA 2023')
+    Write-State "Microsoft UEFI CA 2023" ($dbText -match 'Microsoft UEFI CA 2023')
     Write-State "PCA 2011 present" ($dbText -match 'Microsoft Windows Production PCA 2011')
     Write-State "DB size (bytes)"  $dbBytes.Length
 } catch {
     Write-State "DB read" "FAILED: $($_.Exception.Message)"
 }
 
-# --- DBX (deny list) size as revocation indicator ---
+# --- KEK: is the 2023 KEK trusted? ---
+# Microsoft Corporation KEK CA 2011 expires October 2026. KEK 2K CA 2023 is its replacement.
+Write-Output ""
+Write-Output "--- Firmware KEK ---"
+try {
+    $kekBytes = (Get-SecureBootUEFI KEK).bytes
+    $kekText  = [Text.Encoding]::ASCII.GetString($kekBytes)
+    Write-State "KEK 2K CA 2023 present" ($kekText -match 'Microsoft Corporation KEK 2K CA 2023')
+    Write-State "KEK CA 2011 present"    ($kekText -match 'Microsoft Corporation KEK CA 2011')
+} catch {
+    Write-State "KEK read" "FAILED: $($_.Exception.Message)"
+}
+
+# --- DBX (deny list): is PCA 2011 revoked? ---
+# Direct string match is authoritative. Size heuristic kept as a secondary signal
+# because some hosts get DBX growth from unrelated revocations.
 Write-Output ""
 Write-Output "--- DBX (deny list) ---"
 try {
     $dbxBytes = (Get-SecureBootUEFI dbx).bytes
+    $dbxText  = [Text.Encoding]::ASCII.GetString($dbxBytes)
+    Write-State "PCA 2011 revoked in DBX" ($dbxText -match 'Microsoft Windows Production PCA 2011')
     Write-State "DBX size (bytes)" $dbxBytes.Length
     Write-Output "    Pre-revocation DBX is typically ~16-32 KB."
     Write-Output "    Post-revocation DBX is much larger (often 100+ KB)."
