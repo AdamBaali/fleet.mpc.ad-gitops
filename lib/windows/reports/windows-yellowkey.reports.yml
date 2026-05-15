@@ -4,21 +4,26 @@
     Identifies Windows hosts exposed to the YellowKey BitLocker bypass
     (disclosed May 12 2026, no CVE, no patch as of May 2026).
 
-    Needs WinRE enabled plus BitLocker protecting the volume. Windows 10
-    is not affected. Mitigation is reagentc /disable. TPM + PIN does NOT
-    help (researcher-confirmed).
+    Needs WinRE enabled plus BitLocker protecting the volume. Windows
+    10 is not affected. Mitigation is reagentc /disable. TPM + PIN
+    does NOT help (researcher-confirmed).
 
-    Optional WinRE state from snapshot-windows-yellowkey.ps1 is LEFT
-    JOINed via file_lines. Without the snapshot the verdict falls back
-    to `affected_if_winre_on`. Snapshot path:
+    WinRE state and BitLocker key protectors come from
+    snapshot-windows-yellowkey.ps1 (osquery has no WinRE table and
+    bitlocker_info carries no key-protector column). Without the
+    snapshot, those columns read `run snapshot script` and the
+    verdict falls back to `affected_if_winre_on`.
+
+    Snapshot path:
       C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
+    Run via: Fleet > Controls > Scripts > snapshot-windows-yellowkey.ps1
 
     yellowkey_exposure_verdict:
       not_affected                   Windows 10
       exposed                        WinRE on + BitLocker protecting
       not_exposed_winre_off          WinRE disabled
       not_exposed_bitlocker_off      WinRE on, BitLocker not protecting
-      affected_if_winre_on           snapshot missing, see fallback note
+      affected_if_winre_on           snapshot missing (run for refinement)
       unknown                        unrecognised OS
   discard_data: false
   interval: 86400
@@ -29,13 +34,17 @@
     WITH snap AS (
       SELECT
         MAX(CASE WHEN line LIKE 'winre_enabled=%'
-                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS winre_enabled
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS winre_enabled,
+        MAX(CASE WHEN line LIKE 'key_protectors=%'
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS key_protectors
       FROM file_lines
       WHERE path = 'C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt'
     )
     SELECT
       ov.name AS os_name,
+      ov.build AS os_build,
       b.drive_letter,
+      b.encryption_method,
       CASE
         WHEN b.drive_letter IS NULL    THEN 'no_bitlocker_volume'
         WHEN b.protection_status = 1   THEN 'protected'
@@ -43,7 +52,8 @@
         WHEN b.conversion_status = 3   THEN 'decrypting'
         ELSE 'unknown'
       END AS bitlocker_state,
-      snap.winre_enabled,
+      COALESCE(snap.winre_enabled,   'run snapshot script') AS winre_enabled,
+      COALESCE(snap.key_protectors,  'run snapshot script') AS key_protectors,
       CASE
         WHEN ov.name LIKE '%Windows 10%'                  THEN 'not_affected'
         WHEN snap.winre_enabled = 'False'                 THEN 'not_exposed_winre_off'
