@@ -14,6 +14,7 @@ controls:
     - path: ../lib/windows/scripts/unmitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/cleanup-windows-snapshots.ps1
 software:
   packages:
     - path: ../lib/macos/software/munki.yml
