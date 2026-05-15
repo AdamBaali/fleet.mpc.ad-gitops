@@ -7,7 +7,18 @@ effort: high
 
 You are helping with Fleet GitOps configuration files: $ARGUMENTS
 
-Focus on the `it-and-security` folder. Apply the following constraints for all work in this session.
+This repository keeps GitOps files at the root:
+
+- `default.yml` — global settings, org_settings, and `controls` that apply to all teams (including `windows_enabled_and_configured`).
+- `teams/*.yml` — one file per Fleet team (e.g. `teams/workstations.yml`).
+- `lib/` — reusable assets referenced from `default.yml` and team files, organized by platform:
+  - `lib/all/` — `agent-options/`, `labels/`, `queries/`, `icons/` shared across platforms.
+  - `lib/macos/` — `configuration-profiles/` (`.mobileconfig`), `declaration-profiles/` (DDM JSON), `enrollment-profiles/`, `policies/`, `queries/`, `scripts/`, `software/`, `commands/`, `misc/`.
+  - `lib/windows/` — `configuration-profiles/` (CSP `.xml`), `policies/`, `queries/`, `scripts/`, `software/`.
+  - `lib/linux/` — `policies/`, `queries/`, `scripts/`, `software/`.
+  - `lib/ios/`, `lib/ipados/` — `configuration-profiles/`, `declaration-profiles/`.
+
+Reference these assets from `default.yml` or `teams/*.yml` using relative paths (e.g. `../lib/macos/software/munki.yml`). Apply the following constraints for all work in this session.
 
 ## Queries & Reports
 
