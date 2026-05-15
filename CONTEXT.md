@@ -25,11 +25,13 @@ lib/windows/
 │   └── windows-yellowkey.reports.yml        # YellowKey OS + BitLocker exposure
 └── scripts/
     ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
-    ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection
+    ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
+    ├── snapshot-windows-ca-2023.ps1         # CA 2023 state writer for the report
     ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
     ├── mitigate-windows-yellowkey.ps1       # YellowKey: reagentc /disable, opt-in marker
     ├── unmitigate-windows-yellowkey.ps1     # YellowKey: reagentc /enable
-    └── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection
+    ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
+    └── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
 ```
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
@@ -49,12 +51,36 @@ The migration runs in two layers that can drift:
 The report combines both signals:
 
 - `compliant_via_files` — OS-side binary signed by CA 2023 (best case)
+- `compliant_via_firmware` — ESP boot manager signed by CA 2023 (snapshot)
 - `compliant_via_registry` — registry says `Updated`, files may still lag (firmware is done)
 - `in_progress` — registry says `InProgress` (servicing running)
 - `errored` — `UEFICA2023Error != 0` (Event ID 1801 / 1803)
+- `not_started_ready_to_trigger` — firmware DB has CA 2023 but registry never started (snapshot)
+- `not_started_cu_missing` — firmware DB lacks CA 2023, no servicing keys (snapshot)
 - `not_started` — none of the above
 
 Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1` — it reads the firmware DB and ESP boot manager directly to confirm.
+
+## Snapshot pattern (firmware visibility in osquery)
+
+osquery has no EFI-variable table and no Secure Boot / WinRE tables, so the firmware DB, KEK, DBX, ESP boot manager signature, and WinRE state cannot be read natively. `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` capture those signals as `key=value` text files; the reports `LEFT JOIN file_lines` and pivot rows into columns.
+
+State files (ASCII, no BOM, one key=value per line):
+
+```
+C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
+C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
+```
+
+The reports degrade gracefully. With no snapshot file, the snapshot columns are NULL and the verdict falls back to the registry+file logic (CA 2023) or `affected_if_winre_on` (YellowKey). Existing reports keep working unchanged.
+
+Refresh options (admin's choice):
+
+1. **Fleet > Scripts** — run `snapshot-windows-*.ps1` against a label on the cadence you want.
+2. **Host-side scheduled task** — wrap the script. No installer ships in this repo yet.
+3. **Don't refresh** — accept the fallback verdict.
+
+**Why no policy auto-remediation?** Fleet caps policy `run_script` re-runs at 3 retries per failure. A daily-refresh need would burn through those retries fast and leave the policy permanently failing, which also blocks attaching the real compliance remediation (`migrate-windows-ca-2023.ps1`) to that slot later. The snapshot is purely a visibility booster; treat it as opt-in.
 
 ## Registry servicing state machine
 
@@ -279,9 +305,11 @@ the deliverable.
 1. Run `verify-windows-ca-2023.ps1` on a `compliant_via_registry` host to confirm the ESP/firmware DB hypothesis.
 2. Run `migrate-windows-ca-2023.ps1` against a `not_started` host. Expect preflight failure (exit 2/3) on a host without CU, or migration triggered (exit 0).
 3. Re-run report after migration to confirm state transitions cleanly.
-4. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped.
-5. Test on Server 2019/2022.
-6. Consider follow-up: a teardown script that re-runs `Set-ItemProperty AvailableUpdates 0x5944` if a host gets stuck mid-migration after CU update.
+4. Run `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` on the two test hosts and re-run the reports; confirm the new verdicts land (`not_started_ready_to_trigger` for MPC-W11-ENTERPR, `not_started_cu_missing` for GRAYWILLIAM209A, `exposed` / `not_exposed_*` for YellowKey).
+5. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped. Keep the policy `run_script` slot reserved for the actual remediation (`migrate-windows-ca-2023.ps1`), not for snapshot refresh.
+6. Optional follow-up: ship a scheduled-task installer for the snapshot scripts so fleet-wide freshness is opt-in via one Fleet `scripts` run per host.
+7. Test on Server 2019/2022.
+8. Consider follow-up: a teardown script that re-runs `Set-ItemProperty AvailableUpdates 0x5944` if a host gets stuck mid-migration after CU update.
 
 ## Working with Claude Code
 
