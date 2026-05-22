@@ -8,24 +8,31 @@
       - BitLocker key protector types per volume
         (Get-BitLockerVolume; bitlocker_info in osquery has no
         key-protector column)
-      - YellowKey opt-in marker
+      - Fleet YellowKey opt-in marker
+      - Fleet YellowKey BootExecMitigated marker, set by
+        mitigate-windows-yellowkey.ps1 after a successful autofstx strip
+      - ISO 8601 UTC timestamp of capture, used by the report's
+        freshness gate
 
     Writes key=value lines to:
       C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
 
     The windows-yellowkey report LEFT JOINs this file via osquery's
-    file_lines table and pivots key=value into columns. Without the
-    snapshot the report still surfaces today's OS + BitLocker rows;
-    the WinRE column reads NULL and the verdict falls back to
-    `affected_if_winre_on`.
+    file_lines table. The report computes age in hours and treats
+    data older than 48 hours as stale (verdicts fall back to the
+    native-only set). Re-run this script to refresh.
+
+    Does NOT mount winre.wim. The BootExecMitigated marker is written
+    by mitigate-windows-yellowkey.ps1 on success and read here. For
+    ground truth on the WinRE image contents, re-run mitigate (it is
+    idempotent and reports the current BootExecute state).
 
     Silent on success.
 
 .NOTES
     Run on whatever cadence suits the environment. Policy run_script
     is intentionally not used (3-retry cap kills daily refresh, and
-    the policy slot belongs to the real mitigation script when one
-    is wired up).
+    the policy slot belongs to the real mitigation script).
 
     Exit codes:
       0 = Snapshot written
@@ -55,12 +62,21 @@ try {
 }
 
 # --- WinRE ---
+# Use the CJK-tolerant colon class [:：] so fullwidth-colon locales still match.
+# Distinguish 'unknown' from 'Disabled' so a parse failure doesn't make the
+# report verdict think the host is `mitigated_winre_off`.
 try {
     $infoText = (& reagentc /info 2>&1) | Out-String
-    $reState  = if ($infoText -match 'Windows RE status:\s*(Enabled|Disabled)') { $Matches[1] } else { 'unknown' }
-    $reLoc    = if ($infoText -match 'Windows RE location:\s*(\S.*)')           { $Matches[1].Trim() } else { '' }
-    Add-Snap 'winre_enabled' ($reState -eq 'Enabled')
-    Add-Snap 'winre_state'   $reState
+    $reState  = if     ($infoText -match '[:：]\s*Enabled\b')  { 'Enabled' }
+                elseif ($infoText -match '[:：]\s*Disabled\b') { 'Disabled' }
+                else                                            { 'unknown' }
+    $reLoc    = if ($infoText -match 'Windows RE location[:：]\s*(\S.*)') { $Matches[1].Trim() } else { '' }
+    if ($reState -eq 'unknown') {
+        Add-Snap 'winre_enabled' 'unknown'
+    } else {
+        Add-Snap 'winre_enabled' ($reState -eq 'Enabled')
+    }
+    Add-Snap 'winre_state' $reState
     if (-not [string]::IsNullOrEmpty($reLoc)) {
         Add-Snap 'winre_location' $reLoc
     }
@@ -91,9 +107,9 @@ try {
         if ([string]::IsNullOrEmpty($unique)) { $unique = '(none)' }
         Add-Snap 'key_protectors' $unique
 
-        # TPM-only is the most-discussed YellowKey case. Surface it
-        # explicitly even though TPM+PIN does not change the verdict
-        # per researcher.
+        # TPM-only is the YellowKey-relevant case for the published PoC.
+        # TPM+PIN blocks the public PoC but not the researcher's withheld
+        # variant, so we surface the count for both audit and customer comms.
         $tpmOnly = @($volumes | Where-Object {
             $kp = @($_.KeyProtector | ForEach-Object { $_.KeyProtectorType.ToString() })
             ($kp -contains 'Tpm') -and (-not ($kp -contains 'TpmPin')) -and (-not ($kp -contains 'TpmPinStartupKey'))
@@ -104,17 +120,26 @@ try {
     Add-Snap 'bitlocker_error' $_.Exception.Message
 }
 
-# --- Opt-in marker ---
-$markerPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
-$markerName = 'AllowMitigation'
-$marker     = (Get-ItemProperty -Path $markerPath -Name $markerName -ErrorAction SilentlyContinue).$markerName
+# --- Fleet YellowKey markers ---
+$ykPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
+
+$marker = (Get-ItemProperty -Path $ykPath -Name 'AllowMitigation' -ErrorAction SilentlyContinue).AllowMitigation
 if ($null -eq $marker) {
     Add-Snap 'allow_mitigation_marker' 'not_set'
 } else {
     Add-Snap 'allow_mitigation_marker' $marker
 }
 
-Add-Snap 'snapshot_generated' (Get-Date -Format 'o')
+$bootExec = (Get-ItemProperty -Path $ykPath -Name 'BootExecMitigated' -ErrorAction SilentlyContinue).BootExecMitigated
+Add-Snap 'bootexec_mitigated' ($bootExec -eq 1)
+
+# --- Freshness timestamp (UTC, SQLite-parseable, culture-invariant) ---
+# Pass InvariantCulture so non-Latin digit locales (fa-IR, ar-SA, th-TH)
+# emit Latin digits. Drop the trailing 'Z' because SQLite < 3.42 does not
+# recognise the Z modifier and would return NULL.
+$nowUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss',
+            [System.Globalization.CultureInfo]::InvariantCulture)
+Add-Snap 'snapshot_generated' $nowUtc
 
 # --- Write to disk ---
 try {

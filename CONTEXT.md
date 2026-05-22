@@ -26,13 +26,16 @@ lib/windows/
 └── scripts/
     ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
     ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
-    ├── snapshot-windows-ca-2023.ps1         # CA 2023 state writer for the report
+    ├── snapshot-windows-ca-2023.ps1         # CA 2023 firmware state writer (with freshness timestamp)
+    ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
     ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
-    ├── mitigate-windows-yellowkey.ps1       # YellowKey: reagentc /disable, opt-in marker
-    ├── unmitigate-windows-yellowkey.ps1     # YellowKey: reagentc /enable
+    ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
     ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
-    └── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
+    ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
+    └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
 ```
+
+Reports use native osquery tables (`authenticode`, `registry`, `os_version`, `bitlocker_info`) plus snapshot data via `file_lines` for signals osquery cannot reach natively. Each report applies a 48-hour freshness gate: snapshot data older than 48 hours is treated as missing and snapshot-derived verdicts fall back to the native-only set. Re-run the matching `snapshot-windows-*.ps1` to refresh.
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
 
@@ -42,24 +45,24 @@ The migration runs in two layers that can drift:
 
 | Layer | What it is | Where to look |
 |-------|------------|---------------|
-| **Firmware-level** | The cert lives in firmware DB; boot manager on the EFI System Partition | `mountvol S: /s` then read `S:\EFI\Microsoft\Boot\bootmgfw.efi`. Only PowerShell with admin can see this. osquery cannot. |
-| **OS-side staging** | `C:\Windows\Boot\EFI\bootmgfw.efi` and friends — copied to ESP at next servicing pass | `authenticode` table. Osquery sees this. |
-| **Registry state machine** | Microsoft's own per-host servicing status | `HKLM\...\SecureBoot\Servicing` keys. Osquery sees this. |
+| **Firmware-level** | The cert lives in firmware DB; boot manager on the EFI System Partition | `mountvol S: /s` then read `S:\EFI\Microsoft\Boot\bootmgfw.efi`. Only PowerShell with admin can see this. osquery cannot. Captured by `snapshot-windows-ca-2023.ps1`. |
+| **OS-side staging** | `C:\Windows\Boot\EFI\bootmgfw.efi` and friends, copied to ESP at the next servicing pass | `authenticode` table. osquery sees this. |
+| **Registry state machine** | Microsoft's own per-host servicing status | `HKLM\...\SecureBoot\Servicing` keys. osquery sees this. |
 
-**File signatures alone produce false negatives.** A host can be fully migrated at firmware level while the OS-side `bootmgfw.efi` still shows PCA 2011 — Windows Update refreshes the staging copy on its own cycle. The registry servicing state is the authoritative answer for "has firmware migrated."
+**File signatures alone produce false negatives.** A host can be fully migrated at firmware level while the OS-side `bootmgfw.efi` still shows PCA 2011. Windows Update refreshes the staging copy on its own cycle. The registry servicing state is the authoritative answer for "has firmware migrated."
 
-The report combines both signals:
+The report combines all three layers and applies a 48-hour freshness gate to snapshot data. Verdicts:
 
-- `compliant_via_files` — OS-side binary signed by CA 2023 (best case)
-- `compliant_via_firmware` — ESP boot manager signed by CA 2023 (snapshot)
-- `compliant_via_registry` — registry says `Updated`, files may still lag (firmware is done)
-- `in_progress` — registry says `InProgress` (servicing running)
-- `errored` — `UEFICA2023Error != 0` (Event ID 1801 / 1803)
-- `not_started_ready_to_trigger` — firmware DB has CA 2023 but registry never started (snapshot)
-- `not_started_cu_missing` — firmware DB lacks CA 2023, no servicing keys (snapshot)
-- `not_started` — none of the above
+- `compliant_via_files` -- OS-side binary signed by CA 2023 (best case)
+- `compliant_via_firmware` -- ESP boot manager signed by CA 2023 (fresh snapshot only)
+- `compliant_via_registry` -- registry says `Updated`, files may still lag (firmware is done)
+- `in_progress` -- registry says `InProgress` (servicing running)
+- `errored` -- `UEFICA2023Error != 0` (Event ID 1801 / 1803)
+- `not_started_ready_to_trigger` -- firmware DB has CA 2023, never triggered (fresh snapshot only)
+- `not_started_cu_missing` -- firmware DB lacks CA 2023, no CU yet (fresh snapshot only)
+- `not_started` -- none of the above
 
-Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1` — it reads the firmware DB and ESP boot manager directly to confirm.
+Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1`. It reads the firmware DB and ESP boot manager directly to confirm.
 
 ## Snapshot pattern (firmware visibility in osquery)
 
@@ -72,13 +75,13 @@ C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
 C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
 ```
 
-The reports degrade gracefully. With no snapshot file, the snapshot columns are NULL and the verdict falls back to the registry+file logic (CA 2023) or `affected_if_winre_on` (YellowKey). Existing reports keep working unchanged.
+Each snapshot writes a `snapshot_generated` value in ISO 8601 UTC. The reports compute `snapshot_age_hours` and assign `snapshot_status`: `fresh` (< 48 hours), `stale` (>= 48 hours), or `missing` (no file). Stale and missing both null out the snapshot columns in the report, so snapshot-derived verdicts only fire when fresh. Both columns are surfaced in the report so admins see freshness at a glance.
 
 Refresh options (admin's choice):
 
-1. **Fleet > Scripts** — run `snapshot-windows-*.ps1` against a label on the cadence you want.
-2. **Host-side scheduled task** — wrap the script. No installer ships in this repo yet.
-3. **Don't refresh** — accept the fallback verdict.
+1. **Fleet > Scripts** -- run `snapshot-windows-*.ps1` against a label on the cadence you want.
+2. **Host-side scheduled task** -- wrap the script. No installer ships in this repo yet.
+3. **`cleanup-windows-*-snapshot.ps1`** -- delete the state file to force native-only fallback on the next report run.
 
 **Why no policy auto-remediation?** Fleet caps policy `run_script` re-runs at 3 retries per failure. A daily-refresh need would burn through those retries fast and leave the policy permanently failing, which also blocks attaching the real compliance remediation (`migrate-windows-ca-2023.ps1`) to that slot later. The snapshot is purely a visibility booster; treat it as opt-in.
 
@@ -226,90 +229,116 @@ osquery / SQL specifics:
 - **fleetdm/fleet#42318** — Open Fleet bug. Fleet sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require). Blocks BitLocker TPM+PIN as defence-in-depth. PR #43915 has the fix.
 
 CVE / KB references:
-- **CVE-2023-24932** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
-- **CVE-2025-48804 (BitUnlocker)** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-48804
-- **KB5025885** — https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
-- **MS Secure Boot Playbook (Feb 2026)** — https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+- **CVE-2023-24932** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
+- **CVE-2025-48804 (BitUnlocker)** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-48804
+- **CVE-2026-45585 (YellowKey)** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585
+- **KB5025885** -- https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
+- **MS Secure Boot Playbook (client, Feb 2026)** -- https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+- **MS Windows Server Secure Boot Playbook (2026)** -- https://techcommunity.microsoft.com/blog/windowsservernewsandbestpractices/windows-server-secure-boot-playbook-for-certificates-expiring-in-2026/4495789
+- **Eclypsium YellowKey analysis** -- https://eclypsium.com/blog/yellowkey-bitlocker-bypass-windows-recovery-environment/
 
 ## Adjacent BitLocker bypass threats
 
 Out of scope for this migration but tracked here so the trust-chain context stays joined up:
 
-- **YellowKey (May 2026, no CVE yet).** Abuses NTFS transaction log replay in WinRE. Attacker drops crafted `FsTx` files on a USB or directly on the ESP, reboots into WinRE (Shift + Restart, then hold Ctrl), gets a shell with read access to the BitLocker volume. Affects Windows 11 and Server 2022/2025. Windows 10 is not affected. No patch as of May 2026. **TPM + PIN does not help.** The researcher confirmed on their public blog that the attack works against TPM+PIN configurations; the public PoC only demonstrates TPM-only because the variant against TPM+PIN is being withheld. The only known mitigation is `reagentc /disable` to remove WinRE entirely, which costs in-place recovery and is a last-resort control. USB-block group policies and BIOS USB-boot blocks do **not** mitigate because WinRE does not honour OS-level USB policy and the attack does not boot from the stick.
+- **YellowKey (CVE-2026-45585, disclosed May 12 2026).** Abuses `autofstx.exe` inside WinRE. autofstx replays NTFS transaction logs from any attached volume's `System Volume Information\FsTx` folder, deletes `winpeshl.ini`, and drops the attacker into `cmd.exe` with the BitLocker volume already unlocked. Affects Windows 11 and Server 2022/2025. Windows 10 is not affected. Microsoft published a mitigation on May 19 2026, with a deployable script on May 21. No full patch as of May 22 2026. The mitigation removes `autofstx.exe` from the WinRE image's Session Manager `BootExecute` value so the vulnerable replay never runs. `reagentc /disable` stays in the toolkit as a heavier escalation that closes the path by removing WinRE entirely. **TPM + PIN blocks the published PoC** but not the researcher's withheld TPM+PIN variant: treat TPM + PIN as raising attacker cost, not as a full mitigation. USB-block group policies and BIOS USB-boot blocks do **not** mitigate because WinRE does not honour OS-level USB policy and the attack does not boot from the stick.
 - **BitUnlocker (CVE-2025-48804)** is mitigated by the CA 2023 migration this repo ships. TPM + PIN also defeats it independently because the TPM will not unseal the VMK without the PIN. Two independent paths to closure.
 - **Intune policy gap (Fleet PR #43915, still open against upstream).** Intune currently sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require), so TPM + PIN cannot be enforced via Intune today. Until the PR lands, TPM + PIN enforcement needs a custom CSP profile or scripted BCD configuration.
-- **Stacked controls for hosts that handle sensitive data:** complete the CA 2023 migration (this repo), enforce TPM + PIN where feasible, and `reagentc /disable` if WinRE is not needed locally. Each control closes a different attack path.
+- **Stacked controls for hosts that handle sensitive data:** complete the CA 2023 migration (this repo), enforce TPM + PIN where feasible, strip `autofstx` from WinRE (run `mitigate-windows-yellowkey.ps1`), and `reagentc /disable` if WinRE is not needed locally. Each control closes a different attack path or raises attacker cost.
 
 ## YellowKey mitigation pattern in this repo
 
-Shipped alongside the CA 2023 trio because customers asked. Same shape:
-detect, mitigate, verify.
+Same shape as the CA 2023 trio: detect, mitigate, verify. The mitigation
+is Microsoft's `autofstx` strip from WinRE's Session Manager
+`BootExecute`. `mitigate-windows-yellowkey.ps1` is a Fleet-flavored
+adaptation of the reference script Microsoft publishes inside the
+[CVE-2026-45585 MSRC advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585)
+FAQ ("Is there a script that I can copy and paste to implement a
+mitigation?"). The Fleet wrapper adds opt-in gating, a success marker,
+granular exit codes, and structured `key:value` output.
 
 | File | Purpose |
 |------|---------|
-| `windows-yellowkey.reports.yml` | Daily snapshot of OS + BitLocker state per host. Surfaces who is exposed. |
-| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, key protector types, opt-in marker state. |
-| `mitigate-windows-yellowkey.ps1` | `reagentc /disable`. Gated by a per-host registry marker. |
-| `unmitigate-windows-yellowkey.ps1` | `reagentc /enable`. Reverses the mitigation. No marker required. |
+| `windows-yellowkey.reports.yml` | Daily Fleet report on OS + BitLocker + WinRE state per host. Surfaces who is exposed, mitigated, or unaffected. Uses native osquery tables plus the snapshot file via `file_lines` (freshness-gated). |
+| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, Fleet marker state. |
+| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks active ControlSets via the `Select` key. Re-seals with `reagentc /disable` + `/enable`. Gated by an opt-in marker. |
+| `snapshot-windows-yellowkey.ps1` | Captures WinRE state, BitLocker key protectors, Fleet markers, and a freshness timestamp. |
+| `set-yellowkey-allow-mitigation.ps1` | Sets the per-host `AllowMitigation` marker. |
+| `cleanup-windows-yellowkey-snapshot.ps1` | Deletes the state file to force native-only fallback. |
 
-**Opt-in marker (per-host gate):**
+**Two markers, two layers:**
 
 ```
-HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1 (DWORD)
+HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation    = 1 (DWORD)  // admin opt-in
+HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated  = 1 (DWORD)  // mitigate wrote this on success
 ```
 
-The mitigate script refuses to disable WinRE unless the admin sets this
-value on the host first. Two reasons:
+The mitigate script refuses to mount the WinRE image without
+`AllowMitigation` because editing the recovery image is a deliberate,
+label-scoped action. `BootExecMitigated` is the success marker: the
+report reads it via osquery's native `registry` table to surface the
+`mitigated` verdict. This verdict works regardless of snapshot
+freshness because the marker is a native registry value.
 
-1. `reagentc /disable` is destructive at fleet scale -- a misconfigured
-   Fleet policy or label could nuke recovery across thousands of hosts.
-2. WinRE is the right choice for some hosts (laptops with no in-tooling
-   recovery) and the wrong choice for others (servers, kiosks, hosts
-   with off-host imaging). Admins, not scripts, make that call.
-
-Set the marker via `set-yellowkey-allow-mitigation.ps1` targeted at a
-labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
+Set `AllowMitigation` via `set-yellowkey-allow-mitigation.ps1` targeted
+at a labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
 Registry Editor on one-off hosts. Clear with
 `Remove-ItemProperty -Path HKLM:\SOFTWARE\Fleet\YellowKey -Name AllowMitigation`.
 
-**Trade-offs of disabling WinRE:**
+The mitigation is one-way. If a patch ships, the patch supersedes the
+strip. If a host genuinely needs `autofstx` back, restore manually and
+clear `BootExecMitigated` from the same key.
+
+**Why the autofstx strip, not `reagentc /disable`, as the default:**
+
+- It is Microsoft's published, supported mitigation.
+- Push-button reset, the in-WinRE BitLocker recovery flow, System
+  Restore from boot, and Recovery Drive restore all keep working.
+
+**When to escalate to `reagentc /disable`:**
+
+- Hosts where WinRE is unnecessary by design (servers, kiosks, hosts
+  with off-host imaging).
+- Hosts in a threat model where any local recovery flow is itself an
+  attack surface (high-sensitivity laptops with off-host imaging).
+- Run `reagentc /disable` manually after the autofstx strip has been
+  validated. The two mitigations stack and the report verdict moves
+  to `mitigated_winre_off` (the heavier state takes precedence) once
+  the snapshot is refreshed.
+
+**Trade-offs of disabling WinRE (escalation only):**
 
 - Push-button reset stops working (`Settings > Recovery > Reset this PC`).
-- BitLocker recovery flow inside WinRE is gone -- recovery key is still
+- BitLocker recovery flow inside WinRE is gone. Recovery key is still
   honoured at the boot manager, but the WinRE-driven flow is not.
 - System Restore from boot and Recovery Drive image restore are gone.
-- Re-enable with `unmitigate-windows-yellowkey.ps1` before any of these
-  operations is needed.
+- Re-enable with `reagentc /enable` before any of these operations is
+  needed.
 
 **Script exit codes (`mitigate-windows-yellowkey.ps1`):**
 
 | Code | Meaning |
 |------|---------|
-| 0 | WinRE disabled (action taken or already disabled) |
+| 0 | autofstx removed, already absent, or WinRE already disabled |
 | 2 | Opt-in marker missing; no action taken |
 | 3 | OS not affected (Windows 10 etc.); no action taken |
-| 4 | reagentc returned non-zero, or post-state check failed |
-
-**Script exit codes (`unmitigate-windows-yellowkey.ps1`):**
-
-| Code | Meaning |
-|------|---------|
-| 0 | WinRE enabled (action taken or already enabled) |
-| 4 | reagentc returned non-zero, or post-state check failed |
+| 4 | Mount, edit, unmount, or re-seal failed; manual investigation needed |
 
 **Verify script:** always exits 0 unless PowerShell errors. Output is
-the deliverable.
+the deliverable. Does not mount winre.wim; re-run mitigate (idempotent)
+for ground truth on the offline image's `BootExecute` value.
 
 ## Open items
 
 1. Run `verify-windows-ca-2023.ps1` on a `compliant_via_registry` host to confirm the ESP/firmware DB hypothesis.
 2. Run `migrate-windows-ca-2023.ps1` against a `not_started` host. Expect preflight failure (exit 2/3) on a host without CU, or migration triggered (exit 0).
 3. Re-run report after migration to confirm state transitions cleanly.
-4. Run `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` on the two test hosts and re-run the reports; confirm the new verdicts land (`not_started_ready_to_trigger` for MPC-W11-ENTERPR, `not_started_cu_missing` for GRAYWILLIAM209A, `exposed` / `not_exposed_*` for YellowKey).
-5. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped. Keep the policy `run_script` slot reserved for the actual remediation (`migrate-windows-ca-2023.ps1`), not for snapshot refresh.
-6. Optional follow-up: ship a scheduled-task installer for the snapshot scripts so fleet-wide freshness is opt-in via one Fleet `scripts` run per host.
-7. Test on Server 2019/2022.
-8. Consider follow-up: a teardown script that re-runs `Set-ItemProperty AvailableUpdates 0x5944` if a host gets stuck mid-migration after CU update.
+4. Run `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` on test hosts and confirm the freshness columns populate. Verify that letting a snapshot age past 48 hours flips `snapshot_status` to `stale` and falls back to native-only verdicts.
+5. Run `mitigate-windows-yellowkey.ps1` against a test host with the `AllowMitigation` marker set. Confirm the report verdict moves from `exposed` to `mitigated`.
+6. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped. Keep the policy `run_script` slot reserved for the actual remediation.
+7. Optional follow-up: ship a scheduled-task installer for the snapshot scripts so freshness is automatic per host.
+8. Test on Server 2019/2022.
+9. Consider follow-up: a teardown script that re-runs `Set-ItemProperty AvailableUpdates 0x5944` if a host gets stuck mid-migration after CU update.
 
 ## Working with Claude Code
 

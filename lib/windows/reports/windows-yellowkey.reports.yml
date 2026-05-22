@@ -2,70 +2,126 @@
   automations_enabled: false
   description: |
     Identifies Windows hosts exposed to the YellowKey BitLocker bypass
-    (disclosed May 12 2026, no CVE, no patch as of May 2026).
+    (CVE-2026-45585, disclosed May 12 2026, Microsoft mitigation
+    published May 19, no full patch as of May 22 2026).
 
-    Needs WinRE enabled plus BitLocker protecting the volume. Windows
-    10 is not affected. Mitigation is reagentc /disable. TPM + PIN
-    does NOT help (researcher-confirmed).
+    Affects Windows 11 and Server 2022/2025. Windows 10 is not affected.
+    Microsoft's mitigation strips autofstx.exe from the WinRE image's
+    Session Manager BootExecute. Disabling WinRE is a heavier control
+    that also closes the path. TPM + PIN blocks the published PoC but
+    not the researcher's withheld variant.
 
     WinRE state and BitLocker key protectors come from
-    snapshot-windows-yellowkey.ps1 (osquery has no WinRE table and
-    bitlocker_info carries no key-protector column). Without the
-    snapshot, those columns read `run snapshot script` and the
-    verdict falls back to `affected_if_winre_on`.
+    snapshot-windows-yellowkey.ps1 via osquery's file_lines table. The
+    report applies a 48-hour freshness gate: snapshot data 48 or more
+    hours old is treated as missing, and snapshot-derived verdicts
+    (`mitigated_winre_off`) only fire when fresh. The `mitigated`
+    verdict (BootExecMitigated marker) is native and works regardless
+    of snapshot freshness.
+
+    BitLocker state is aggregated per host (MAX of protection_status
+    across volumes) so a non-OS data partition cannot mask an exposed
+    OS volume. Hosts with no BitLocker volume at all read `bitlocker_off`.
+
+    Re-run snapshot-windows-yellowkey.ps1 to refresh. Run
+    cleanup-windows-yellowkey-snapshot.ps1 to force native-only
+    verdicts.
 
     Snapshot path:
       C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
-    Run via: Fleet > Controls > Scripts > snapshot-windows-yellowkey.ps1
+
+    snapshot_status:
+      fresh    captured within the last 48 hours
+      stale    captured 48 or more hours ago (verdict falls back to native-only)
+      missing  no snapshot file (verdict falls back to native-only)
 
     yellowkey_exposure_verdict:
-      not_affected                   Windows 10
-      exposed                        WinRE on + BitLocker protecting
-      not_exposed_winre_off          WinRE disabled
-      not_exposed_bitlocker_off      WinRE on, BitLocker not protecting
-      affected_if_winre_on           snapshot missing (run for refinement)
-      unknown                        unrecognised OS
+      not_affected         Windows 10
+      mitigated_winre_off  WinRE disabled (fresh snapshot only; heavier control)
+      mitigated            Fleet BootExecMitigated marker set (autofstx strip applied)
+      bitlocker_off        no BitLocker volume, or BitLocker not protecting any volume
+      exposed              affected OS + BitLocker on + no mitigation marker
+      unknown              unrecognised OS
   discard_data: false
   interval: 86400
   logging: snapshot
   observer_can_run: true
   platform: windows
   query: |
-    WITH snap AS (
+    WITH snap_lines AS (
       SELECT
         MAX(CASE WHEN line LIKE 'winre_enabled=%'
                  THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS winre_enabled,
         MAX(CASE WHEN line LIKE 'key_protectors=%'
-                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS key_protectors
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS key_protectors,
+        MAX(CASE WHEN line LIKE 'snapshot_generated=%'
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS snapshot_generated
       FROM file_lines
       WHERE path = 'C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt'
+    ),
+    snap AS (
+      SELECT
+        snapshot_generated,
+        CASE
+          WHEN snapshot_generated IS NULL THEN NULL
+          ELSE CAST((strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) / 3600 AS INTEGER)
+        END AS snapshot_age_hours,
+        CASE
+          WHEN snapshot_generated IS NULL THEN 'missing'
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN 'fresh'
+          ELSE 'stale'
+        END AS snapshot_status,
+        CASE
+          WHEN snapshot_generated IS NULL THEN NULL
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN winre_enabled
+          ELSE NULL
+        END AS winre_enabled,
+        CASE
+          WHEN snapshot_generated IS NULL THEN NULL
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN key_protectors
+          ELSE NULL
+        END AS key_protectors
+      FROM snap_lines
+    ),
+    bl AS (
+      SELECT
+        MAX(protection_status) AS protection_status,
+        COUNT(*)               AS volume_count
+      FROM bitlocker_info
     )
     SELECT
       ov.name AS os_name,
       ov.build AS os_build,
-      b.drive_letter,
-      b.encryption_method,
+      bl.volume_count        AS bitlocker_volumes,
+      bl.protection_status   AS bitlocker_protection_status,
       CASE
-        WHEN b.drive_letter IS NULL    THEN 'no_bitlocker_volume'
-        WHEN b.protection_status = 1   THEN 'protected'
-        WHEN b.protection_status = 0   THEN 'unprotected'
-        WHEN b.conversion_status = 3   THEN 'decrypting'
+        WHEN bl.volume_count = 0       THEN 'no_bitlocker_volume'
+        WHEN bl.protection_status = 1  THEN 'protected'
+        WHEN bl.protection_status = 0  THEN 'unprotected'
         ELSE 'unknown'
       END AS bitlocker_state,
       COALESCE(snap.winre_enabled,   'run snapshot script') AS winre_enabled,
       COALESCE(snap.key_protectors,  'run snapshot script') AS key_protectors,
+      (SELECT data FROM registry
+       WHERE key = 'HKEY_LOCAL_MACHINE\SOFTWARE\Fleet\YellowKey'
+         AND name = 'BootExecMitigated'
+       LIMIT 1) AS mitigation_marker,
+      COALESCE(snap.snapshot_status, 'missing') AS snapshot_status,
+      snap.snapshot_age_hours,
       CASE
-        WHEN ov.name LIKE '%Windows 10%'                  THEN 'not_affected'
-        WHEN snap.winre_enabled = 'False'                 THEN 'not_exposed_winre_off'
-        WHEN snap.winre_enabled = 'True'
-         AND b.protection_status = 1                      THEN 'exposed'
-        WHEN snap.winre_enabled = 'True'
-         AND b.protection_status = 0                      THEN 'not_exposed_bitlocker_off'
-        WHEN ov.name LIKE '%Windows 11%'                  THEN 'affected_if_winre_on'
-        WHEN ov.name LIKE '%Server 2022%'                 THEN 'affected_if_winre_on'
-        WHEN ov.name LIKE '%Server 2025%'                 THEN 'affected_if_winre_on'
+        WHEN ov.name LIKE '%Windows 10%'                                            THEN 'not_affected'
+        WHEN snap.winre_enabled = 'False'                                            THEN 'mitigated_winre_off'
+        WHEN (SELECT data FROM registry
+              WHERE key = 'HKEY_LOCAL_MACHINE\SOFTWARE\Fleet\YellowKey'
+                AND name = 'BootExecMitigated'
+              LIMIT 1) = '1'                                                         THEN 'mitigated'
+        WHEN bl.volume_count = 0 OR bl.protection_status = 0
+          OR bl.protection_status IS NULL                                            THEN 'bitlocker_off'
+        WHEN ov.name LIKE '%Windows 11%'                                            THEN 'exposed'
+        WHEN ov.name LIKE '%Server 2022%'                                           THEN 'exposed'
+        WHEN ov.name LIKE '%Server 2025%'                                           THEN 'exposed'
         ELSE 'unknown'
       END AS yellowkey_exposure_verdict
     FROM os_version ov
-    LEFT JOIN bitlocker_info b ON 1=1
+    LEFT JOIN bl   ON 1=1
     LEFT JOIN snap ON 1=1;

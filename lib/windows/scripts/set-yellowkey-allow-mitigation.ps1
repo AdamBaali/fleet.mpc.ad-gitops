@@ -4,7 +4,8 @@
 
 .DESCRIPTION
     Writes the registry value that mitigate-windows-yellowkey.ps1
-    requires before it will disable WinRE:
+    requires before it will strip autofstx.exe from the WinRE image's
+    Session Manager BootExecute (Microsoft's CVE-2026-45585 mitigation):
 
       HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1 (DWORD)
 

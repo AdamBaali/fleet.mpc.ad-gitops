@@ -10,25 +10,26 @@
       - DBX deny list size and PCA 2011 revocation presence
       - ESP boot manager issuer (the real one firmware loads)
       - Secure Boot enabled state
+      - ISO 8601 UTC timestamp of capture, used by the report's
+        freshness gate
 
     Writes key=value lines to:
       C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
 
     The windows-ca-2023 report LEFT JOINs this file via osquery's
-    file_lines table and pivots key=value into columns. The report
-    keeps working without the snapshot file; the new columns read
-    NULL and the verdict lands on the unrefined "not_started".
+    file_lines table. The report computes age in hours and treats
+    data older than 48 hours as stale (verdicts fall back to the
+    native-only set). Re-run this script to refresh.
 
     Silent on success. Errors print to stderr; the snapshot file is
     still written with the best-effort signals it could gather.
 
 .NOTES
     Run on whatever cadence suits the environment:
-      - Fleet > Scripts > Run against a label
+      - Fleet > Scripts > Run against a label (manual cadence)
       - Host-side scheduled task wrapping this script
       - Side effect of an admin running verify-windows-ca-2023.ps1
-        (verify does not call this automatically; run both if both
-        outputs are wanted)
+        (verify does not call this automatically)
 
     Policy run_script auto-remediation is NOT a good fit: Fleet caps
     at 3 retries per policy failure, so a daily refresh need cannot
@@ -64,9 +65,12 @@ try {
 }
 
 # --- Firmware DB (allow list) ---
+# Decode as Latin-1 (codepage 28591): 1:1 byte mapping, no lossy substitution
+# of high bytes. ASCII would replace bytes >= 128 with '?', which can split
+# CN literals at DER length-prefix bytes.
 try {
     $dbBytes = (Get-SecureBootUEFI db).bytes
-    $dbText  = [Text.Encoding]::ASCII.GetString($dbBytes)
+    $dbText  = [Text.Encoding]::GetEncoding(28591).GetString($dbBytes)
     Add-Snap 'firmware_db_has_ca_2023'           ($dbText -match 'Windows UEFI CA 2023')
     Add-Snap 'firmware_db_has_msft_uefi_ca_2023' ($dbText -match 'Microsoft UEFI CA 2023')
     Add-Snap 'firmware_db_has_pca_2011'          ($dbText -match 'Microsoft Windows Production PCA 2011')
@@ -78,7 +82,7 @@ try {
 # --- Firmware KEK ---
 try {
     $kekBytes = (Get-SecureBootUEFI KEK).bytes
-    $kekText  = [Text.Encoding]::ASCII.GetString($kekBytes)
+    $kekText  = [Text.Encoding]::GetEncoding(28591).GetString($kekBytes)
     Add-Snap 'firmware_kek_has_2k_ca_2023' ($kekText -match 'Microsoft Corporation KEK 2K CA 2023')
     Add-Snap 'firmware_kek_has_ca_2011'    ($kekText -match 'Microsoft Corporation KEK CA 2011')
 } catch {
@@ -88,7 +92,7 @@ try {
 # --- DBX (deny list) ---
 try {
     $dbxBytes = (Get-SecureBootUEFI dbx).bytes
-    $dbxText  = [Text.Encoding]::ASCII.GetString($dbxBytes)
+    $dbxText  = [Text.Encoding]::GetEncoding(28591).GetString($dbxBytes)
     Add-Snap 'dbx_revokes_pca_2011' ($dbxText -match 'Microsoft Windows Production PCA 2011')
     Add-Snap 'dbx_size'             $dbxBytes.Length
 } catch {
@@ -123,7 +127,13 @@ try {
     if ($mounted) { mountvol "${mountLetter}:" /d 2>&1 | Out-Null }
 }
 
-Add-Snap 'snapshot_generated' (Get-Date -Format 'o')
+# --- Freshness timestamp (UTC, SQLite-parseable, culture-invariant) ---
+# Pass InvariantCulture so non-Latin digit locales (fa-IR, ar-SA, th-TH)
+# emit Latin digits. Drop the trailing 'Z' because SQLite < 3.42 does not
+# recognise the Z modifier and would return NULL.
+$nowUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss',
+            [System.Globalization.CultureInfo]::InvariantCulture)
+Add-Snap 'snapshot_generated' $nowUtc
 
 # --- Write to disk ---
 try {

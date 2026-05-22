@@ -1,22 +1,26 @@
 <#
 .SYNOPSIS
-    Inspects YellowKey exposure on a Windows host. Read-only.
+    Inspects YellowKey exposure and mitigation state on a Windows host.
+    Read-only.
 
 .DESCRIPTION
-    Reports the signals osquery cannot surface from the report alone:
+    Reports the per-host signals the windows-yellowkey report cannot
+    surface via native osquery tables alone:
       - WinRE enabled state (from `reagentc /info`)
       - BitLocker key protector types per volume (TPM-only vs TPM+PIN
         vs Recovery, etc.) -- Get-BitLockerVolume, not osquery
-      - OS version and YellowKey exposure verdict
-      - Opt-in marker state for mitigate-windows-yellowkey.ps1
+      - Fleet YellowKey AllowMitigation and BootExecMitigated markers
 
-    READ-ONLY. Makes no changes.
+    READ-ONLY. Does not mount winre.wim and does not change WinRE state.
+    For ground truth on the offline WinRE image's BootExecute value,
+    re-run mitigate-windows-yellowkey.ps1: it is idempotent and reports
+    the current BootExecute contents before deciding whether to act.
 
 .NOTES
     Intended use:
       - Confirm hosts flagged by the windows-yellowkey report
       - Decide which hosts get the AllowMitigation marker set
-      - Sanity-check before running mitigate / unmitigate
+      - Sanity-check before running mitigate
 
     Exit code: always 0 unless PowerShell itself errors. Output is the
     deliverable.
@@ -38,7 +42,7 @@ try {
     $os = (Get-CimInstance Win32_OperatingSystem).Caption
     Write-State "OS" $os
     $verdict = if     ($os -match 'Windows 10')                                                       { 'not_affected (Win10)' }
-               elseif ($os -match 'Windows 11' -or $os -match 'Server 2022' -or $os -match 'Server 2025') { 'affected_if_winre_on' }
+               elseif ($os -match 'Windows 11' -or $os -match 'Server 2022' -or $os -match 'Server 2025') { 'in_scope (check WinRE and markers below)' }
                else                                                                                  { 'unknown_os' }
     Write-State "YellowKey exposure" $verdict
 } catch {
@@ -84,13 +88,23 @@ try {
     Write-State "BitLocker" "FAILED: $($_.Exception.Message)"
 }
 
-# --- Opt-in marker ---
-Write-Output "--- Mitigation opt-in marker ---"
-$markerPath = "HKLM:\SOFTWARE\Fleet\YellowKey"
-$markerName = "AllowMitigation"
-$marker     = (Get-ItemProperty -Path $markerPath -Name $markerName -ErrorAction SilentlyContinue).$markerName
-$markerStr  = if ($null -eq $marker) { "(not set)" } else { $marker.ToString() }
-Write-State "AllowMitigation" $markerStr
+# --- Fleet YellowKey markers ---
+Write-Output "--- Fleet YellowKey markers ---"
+$ykPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
+
+$allow = (Get-ItemProperty -Path $ykPath -Name 'AllowMitigation'   -ErrorAction SilentlyContinue).AllowMitigation
+$boot  = (Get-ItemProperty -Path $ykPath -Name 'BootExecMitigated' -ErrorAction SilentlyContinue).BootExecMitigated
+
+$allowStr = if ($null -eq $allow) { '(not set)' } else { $allow.ToString() }
+$bootStr  = if ($null -eq $boot)  { '(not set)' } else { $boot.ToString() }
+Write-State "AllowMitigation"      $allowStr
+Write-State "BootExecMitigated"    $bootStr
+
+Write-Output ""
+Write-Output "Notes:"
+Write-Output "  AllowMitigation = 1  -> mitigate-windows-yellowkey.ps1 may strip autofstx"
+Write-Output "  BootExecMitigated = 1 -> mitigate ran successfully on this host"
+Write-Output "  WinRE Disabled         -> a heavier mitigation is already in place"
 
 Write-Output ""
 Write-Output "Done. No changes made."
