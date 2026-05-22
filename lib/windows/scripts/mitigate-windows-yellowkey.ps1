@@ -6,55 +6,64 @@
 .DESCRIPTION
     YellowKey (CVE-2026-45585, CVSS 6.8, disclosed May 12 2026) abuses
     autofstx.exe inside WinRE. autofstx replays NTFS transaction logs from
-    any attached volume's System Volume Information\FsTx folder, which lets
-    an attacker delete winpeshl.ini and drop into cmd.exe with the
-    BitLocker volume unlocked. Affects Windows 11, Server 2022, Server 2025.
+    any attached volume's System Volume Information\FsTx folder, deletes
+    winpeshl.ini, and drops the attacker into cmd.exe with the BitLocker
+    volume already unlocked. Affects Windows 11, Server 2022, Server 2025.
     Windows 10 is not affected.
 
-    Microsoft's official mitigation (published May 19 2026, scripted May 21)
-    removes the autofstx.exe entry from WinRE's
-    HKLM\SYSTEM\ControlSet001\Control\Session Manager\BootExecute so the
-    vulnerable replay never runs. Less destructive than disabling WinRE:
-    push-button reset, the in-WinRE BitLocker recovery flow, System Restore
-    from boot, and Recovery Drive restore all keep working.
+    Adapted from Microsoft's reference script in the CVE-2026-45585 MSRC
+    advisory FAQ ("Is there a script that I can copy and paste to implement
+    a mitigation?"). Microsoft's flow:
+      1. Mount WinRE via `reagentc /mountre /path`
+      2. Load the offline SYSTEM hive
+      3. Walk active ControlSets via \Select\Current and \Select\Default
+      4. Strip autofstx.exe from BootExecute in each ControlSet
+      5. Unload hive, unmount with /commit
+      6. reagentc /disable + /enable to re-seal the BitLocker measurement chain
+
+    Fleet additions on top of Microsoft's flow:
+      - Gated by HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1
+      - Writes HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1 on success
+        so the snapshot script can surface mitigated_bootexec_stripped without
+        re-mounting the WIM
+      - Skips silently if WinRE is already disabled (stronger mitigation in place)
+      - Granular exit codes for Fleet reporting
+      - Structured key:value output for log capture
+
+    One-way. There is no unmitigate counterpart. If a patch ships, the patch
+    supersedes the strip; if a host needs autofstx back for some other reason,
+    restore manually and clear HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated.
 
     TPM + PIN blocks the published PoC but not the researcher's withheld
     variant. Treat TPM + PIN as raising attacker cost, not as a substitute
     for this mitigation.
 
-    Gated by an explicit per-host marker that an admin must set before this
-    script will mount the WinRE image:
-
-      HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1 (DWORD)
-
-    Use set-yellowkey-allow-mitigation.ps1 to set the marker against a
-    label-targeted subset.
-
-    Idempotent. Skips if autofstx is already absent or if WinRE is already
-    disabled (a stronger mitigation already in place).
-
-    Writes a post-mitigation marker on success so the snapshot script and
-    report can surface the state without re-mounting the WIM:
-
-      HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1 (DWORD)
+.PARAMETER MountPath
+    Directory to use as the WinRE mount point. Created if missing.
+    Default: C:\ProgramData\Fleet\state\yk-winre-mount
 
 .OUTPUTS
     Structured key:value output to stdout for log capture.
 
 .NOTES
     Exit codes:
-      0 = autofstx removed, or already absent, or WinRE already disabled
+      0 = autofstx removed, already absent, or WinRE already disabled
       2 = AllowMitigation marker missing; no action taken
       3 = OS not affected (Windows 10 etc.); no action taken
-      4 = WinRE mount/edit/unmount failed; manual investigation needed
-      5 = autofstx still present after commit; mitigation did not stick
+      4 = Mount, edit, unmount, or re-seal failed; manual investigation needed
 
     References:
-      MSRC CVE-2026-45585:
+      MSRC CVE-2026-45585 (FAQ section contains the canonical Microsoft script):
         https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585
       Eclypsium technical analysis:
         https://eclypsium.com/blog/yellowkey-bitlocker-bypass-windows-recovery-environment/
 #>
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $false)]
+    [string]$MountPath = (Join-Path $env:ProgramData 'Fleet\state\yk-winre-mount')
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -66,26 +75,31 @@ function Write-State {
 Write-Output "=== Windows YellowKey mitigation (autofstx strip) ==="
 Write-Output ""
 
-# --- Opt-in marker ---
+$EntryToRemove = 'autofstx.exe'
+$HiveName      = 'YK_WinREHive'
+
+$hiveLoaded   = $false
+$imageMounted = $false
+$mountCreated = $false
+$changesMade  = $false
+
+# --- Fleet: opt-in marker ---
 # Editing the WinRE image is a deliberate, label-scoped action. Refuse
 # without explicit consent so a misconfigured policy cannot mass-edit
 # recovery images.
 $markerPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
-$markerName = 'AllowMitigation'
-$marker     = (Get-ItemProperty -Path $markerPath -Name $markerName -ErrorAction SilentlyContinue).$markerName
-
+$marker     = (Get-ItemProperty -Path $markerPath -Name 'AllowMitigation' -ErrorAction SilentlyContinue).AllowMitigation
 if ($null -eq $marker -or $marker -ne 1) {
     Write-Output "SKIP: Opt-in marker not set."
-    Write-Output "      Set $markerPath\$markerName = 1 (DWORD) to allow mitigation."
+    Write-Output "      Set $markerPath\AllowMitigation = 1 (DWORD) to allow mitigation."
     Write-State "State" "skipped_no_optin"
     exit 2
 }
 Write-State "Opt-in marker" "present"
 
-# --- OS check ---
+# --- Fleet: OS check ---
 $os = (Get-CimInstance Win32_OperatingSystem).Caption
 Write-State "OS" $os
-
 $affected = ($os -match 'Windows 11' -or $os -match 'Server 2022' -or $os -match 'Server 2025')
 if (-not $affected) {
     Write-Output "SKIP: $os is not in YellowKey's affected OS list."
@@ -93,148 +107,204 @@ if (-not $affected) {
     exit 3
 }
 
-# --- Current WinRE state ---
-$info     = (& reagentc /info 2>&1) | Out-String
-$reState  = if ($info -match 'Windows RE status:\s*(Enabled|Disabled)') { $Matches[1] } else { 'unknown' }
-$winreLoc = if ($info -match 'Windows RE location:\s*(\S.*)')           { $Matches[1].Trim() } else { '' }
-Write-State "WinRE status"   $reState
-Write-State "WinRE location" $(if ($winreLoc) { $winreLoc } else { '(none reported)' })
+# --- Admin check (Microsoft reference) ---
+try {
+    $identity  = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = [Security.Principal.WindowsPrincipal]$identity
+    if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Output "FAIL: must run as Administrator."
+        Write-State "State" "not_admin"
+        exit 4
+    }
+} catch {
+    Write-Output "FAIL: admin check error: $($_.Exception.Message)"
+    Write-State "State" "admin_check_failed"
+    exit 4
+}
 
-# A host with WinRE off is already mitigated, with stronger coverage than
-# this script provides. Do not re-enable just to strip autofstx.
-if ($reState -eq 'Disabled') {
+# --- WinRE state (language-agnostic, Microsoft reference) ---
+$winreOutput = & reagentc /info 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "FAIL: reagentc /info exit $LASTEXITCODE"
+    Write-State "State" "reagentc_info_failed"
+    exit 4
+}
+$winreText = $winreOutput -join "`n"
+
+if ($winreText -match "[:：]\s*Disabled\b") {
     Write-Output "OK: WinRE disabled. Stronger mitigation already in place; nothing to do."
     Write-State "State" "winre_already_disabled"
     exit 0
 }
-if ($reState -ne 'Enabled') {
-    Write-Output "FAIL: reagentc /info did not report a clear Enabled/Disabled state."
+if ($winreText -notmatch "[:：]\s*Enabled\b") {
+    Write-Output "FAIL: could not parse reagentc /info output."
     Write-State "State" "winre_state_unknown"
     exit 4
 }
-if (-not $winreLoc) {
-    Write-Output "FAIL: WinRE enabled but no location reported. Cannot locate winre.wim."
-    Write-State "State" "winre_location_missing"
-    exit 4
-}
+Write-State "WinRE status" "Enabled"
 
-# --- Plan the mount ---
-# reagentc /disable releases winre.wim for offline editing via DISM.
-# We re-enable at the end so push-button reset and the WinRE recovery
-# flow keep working.
-$mountDir  = Join-Path $env:ProgramData 'Fleet\state\yk-winre-mount'
-$hiveAlias = 'YK_SYSTEM'
-$wimPath   = Join-Path $winreLoc 'winre.wim'
-
-Write-State "WIM path"       $wimPath
-Write-State "Mount directory" $mountDir
-
-if (-not (Test-Path $mountDir)) {
-    New-Item -Path $mountDir -ItemType Directory -Force | Out-Null
-}
-
-# --- Release winre.wim ---
-Write-Output ""
-Write-Output "Disabling WinRE to release winre.wim ..."
-$disableOut  = & reagentc /disable 2>&1
-$disableExit = $LASTEXITCODE
-Write-Output (($disableOut | Out-String).Trim())
-if ($disableExit -ne 0) {
-    Write-State "State" "reagentc_disable_failed"
-    exit 4
-}
-
-$strippedCount = 0
-$bootexecAfter = $null
-$mounted       = $false
-$hiveLoaded    = $false
-
+# --- Mount WinRE (Microsoft reference) ---
 try {
-    # --- Mount WIM ---
-    Write-Output ""
-    Write-Output "Mounting WinRE image ..."
-    $mountOut  = & dism /mount-image /imagefile:"$wimPath" /index:1 /mountdir:"$mountDir" 2>&1
-    $mountExit = $LASTEXITCODE
-    if ($mountExit -ne 0) {
-        Write-Output (($mountOut | Out-String).Trim())
-        Write-State "State" "dism_mount_failed"
-        throw "DISM mount failed (exit $mountExit)"
+    if (-not (Test-Path $MountPath)) {
+        New-Item -ItemType Directory -Path $MountPath -Force | Out-Null
+        $mountCreated = $true
+    } else {
+        $existing = Get-ChildItem -Path $MountPath -Force -ErrorAction SilentlyContinue
+        if ($existing) {
+            Write-Output "FAIL: $MountPath not empty. Clean it or pass -MountPath."
+            Write-State "State" "mount_dir_dirty"
+            exit 4
+        }
     }
-    $mounted = $true
 
-    # --- Load offline SYSTEM hive ---
-    $offlineHive = Join-Path $mountDir 'Windows\System32\config\SYSTEM'
-    if (-not (Test-Path $offlineHive)) {
-        Write-State "State" "offline_hive_missing"
-        throw "Offline SYSTEM hive missing at $offlineHive"
-    }
-    & reg load "HKLM\$hiveAlias" "$offlineHive" | Out-Null
+    $mountOutput = & reagentc /mountre /path $MountPath 2>&1
     if ($LASTEXITCODE -ne 0) {
+        Write-Output "FAIL: reagentc /mountre: $mountOutput"
+        Write-State "State" "mount_failed"
+        exit 4
+    }
+    $imageMounted = $true
+    Write-State "Mounted at" $MountPath
+} catch {
+    Write-Output "FAIL: mount error: $($_.Exception.Message)"
+    Write-State "State" "mount_error"
+    exit 4
+}
+
+# --- Load offline SYSTEM hive (Microsoft reference) ---
+try {
+    $hivePath = $null
+    foreach ($candidate in @(
+        "$MountPath\Windows\System32\config\SYSTEM",
+        "$MountPath\windows\system32\config\SYSTEM"
+    )) {
+        if (Test-Path $candidate) { $hivePath = $candidate; break }
+    }
+    if (-not $hivePath) {
+        $found = Get-ChildItem -Path $MountPath -Recurse -Filter 'SYSTEM' -ErrorAction SilentlyContinue |
+                 Where-Object { $_.FullName -match 'config\\SYSTEM$' } | Select-Object -First 1
+        if ($found) { $hivePath = $found.FullName }
+    }
+    if (-not $hivePath) {
+        Write-Output "FAIL: SYSTEM hive not found in mounted image."
+        Write-State "State" "hive_not_found"
+        & reagentc /unmountre /path $MountPath /discard 2>&1 | Out-Null
+        $imageMounted = $false
+        exit 4
+    }
+
+    & reg load "HKLM\$HiveName" $hivePath 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output "FAIL: reg load exit $LASTEXITCODE"
         Write-State "State" "reg_load_failed"
-        throw "reg load failed (exit $LASTEXITCODE)"
+        & reagentc /unmountre /path $MountPath /discard 2>&1 | Out-Null
+        $imageMounted = $false
+        exit 4
     }
     $hiveLoaded = $true
+    Write-State "Hive loaded" "HKLM\$HiveName"
+} catch {
+    Write-Output "FAIL: hive load error: $($_.Exception.Message)"
+    Write-State "State" "hive_load_error"
+    if ($imageMounted) {
+        & reagentc /unmountre /path $MountPath /discard 2>&1 | Out-Null
+        $imageMounted = $false
+    }
+    exit 4
+}
 
-    # --- Strip autofstx from BootExecute ---
-    $sessKey = "HKLM:\$hiveAlias\ControlSet001\Control\Session Manager"
-    $cur = @((Get-ItemProperty -Path $sessKey -Name BootExecute -ErrorAction Stop).BootExecute)
-    Write-Output ""
-    Write-Output "BootExecute (before): $($cur -join ' | ')"
+# --- Walk active ControlSets and strip autofstx.exe (Microsoft reference) ---
+try {
+    $selectPath  = "Registry::HKEY_LOCAL_MACHINE\$HiveName\Select"
+    $selectProps = Get-ItemProperty -Path $selectPath -ErrorAction SilentlyContinue
 
-    $new = @($cur | Where-Object { $_ -notlike 'autofstx*' })
-    $strippedCount = $cur.Count - $new.Count
-
-    if ($strippedCount -gt 0) {
-        Set-ItemProperty -Path $sessKey -Name BootExecute -Value $new -Type MultiString
-        Write-Output "BootExecute (after):  $($new -join ' | ')"
-        Write-Output "Stripped $strippedCount entr$(if ($strippedCount -eq 1) { 'y' } else { 'ies' })."
+    if ($selectProps -and $selectProps.Current) {
+        $csNumbers = @($selectProps.Current)
+        if ($selectProps.Default -and $selectProps.Default -ne $selectProps.Current) {
+            $csNumbers += $selectProps.Default
+        }
+        $controlSets = $csNumbers | ForEach-Object { 'ControlSet{0:D3}' -f [int]$_ }
     } else {
-        Write-Output "BootExecute already lacks autofstx. Nothing to remove."
+        $controlSets = @('ControlSet001')
     }
-    $bootexecAfter = $new -join ' | '
-}
-catch {
-    Write-Output "FAIL: $($_.Exception.Message)"
-}
-finally {
-    if ($hiveLoaded) {
-        # Force GC so PowerShell drops handles on the loaded hive before unload.
-        # reg unload fails silently if any process still has a handle.
-        [gc]::Collect()
-        [gc]::WaitForPendingFinalizers()
-        Start-Sleep -Milliseconds 500
-        & reg unload "HKLM\$hiveAlias" | Out-Null
+    Write-State "Active ControlSets" ($controlSets -join ', ')
+
+    foreach ($cs in $controlSets) {
+        $regPath = "Registry::HKEY_LOCAL_MACHINE\$HiveName\$cs\Control\Session Manager"
+        $cur = (Get-ItemProperty -Path $regPath -Name 'BootExecute' -ErrorAction SilentlyContinue).BootExecute
+        if (-not $cur) { continue }
+
+        $new = @($cur | Where-Object {
+            $_ -and
+            ($_ -ne $EntryToRemove) -and
+            ($_ -notmatch "^\s*$([regex]::Escape($EntryToRemove))\s*$")
+        })
+
+        if ($new.Count -eq @($cur).Count) {
+            Write-State "$cs" "autofstx absent"
+            continue
+        }
+
+        Set-ItemProperty -Path $regPath -Name 'BootExecute' -Value $new -Type MultiString
+        $changesMade = $true
+        Write-State "$cs" "stripped autofstx"
     }
-    if ($mounted) {
-        $commit = if ($strippedCount -gt 0) { '/commit' } else { '/discard' }
-        Write-Output ""
-        Write-Output "Unmounting WinRE image ($commit) ..."
-        & dism /unmount-image /mountdir:"$mountDir" $commit | Out-Null
-    }
-    Write-Output "Re-enabling WinRE ..."
-    & reagentc /enable | Out-Null
+} catch {
+    Write-Output "FAIL: edit error: $($_.Exception.Message)"
+    Write-State "State" "edit_error"
+    # Fall through to cleanup below.
 }
 
-# --- Verify ---
-# Bail if we failed mid-flow. The catch ate the exception so flow continued
-# into finally, which is what we want for cleanup; signal the failure here.
-if (-not $mounted) {
+# --- Unload hive (Microsoft retry pattern) ---
+[gc]::Collect()
+Start-Sleep -Seconds 2
+& reg unload "HKLM\$HiveName" 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    [gc]::Collect()
+    Start-Sleep -Seconds 3
+    & reg unload "HKLM\$HiveName" 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output "FAIL: reg unload would not release hive. Close any Registry Editor windows and retry."
+        Write-State "State" "reg_unload_failed"
+        & reagentc /unmountre /path $MountPath /discard 2>&1 | Out-Null
+        exit 4
+    }
+}
+$hiveLoaded = $false
+
+# --- Unmount: commit on changes, discard on no-op ---
+$flag = if ($changesMade) { '/commit' } else { '/discard' }
+& reagentc /unmountre /path $MountPath $flag 2>&1 | Out-Null
+$unmountExit = $LASTEXITCODE
+$imageMounted = $false
+if ($unmountExit -ne 0) {
+    Write-Output "FAIL: reagentc /unmountre $flag exit $unmountExit"
+    Write-State "State" "unmount_failed"
     exit 4
 }
+Write-State "Unmount" $flag
 
-if ($null -eq $bootexecAfter) {
-    Write-State "State" "edit_failed"
-    exit 4
+# --- Re-seal BitLocker measurement chain (Microsoft reference) ---
+# Only needed when the WIM changed. The disable + enable cycle
+# refreshes WinRE's registration so the BitLocker trust chain stays intact.
+if ($changesMade) {
+    & reagentc /disable 2>&1 | Out-Null
+    & reagentc /enable 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output "FAIL: reagentc /enable after re-seal failed (exit $LASTEXITCODE)."
+        Write-Output "      WinRE may need manual recovery: run reagentc /enable."
+        Write-State "State" "reseal_failed"
+        exit 4
+    }
+    Write-State "WinRE re-sealed" "disable + enable"
 }
 
-if ($bootexecAfter -match 'autofstx') {
-    Write-State "State" "autofstx_still_present_after_commit"
-    exit 5
+# --- Cleanup mount directory if we created it ---
+if ($mountCreated -and (Test-Path $MountPath)) {
+    Remove-Item -Path $MountPath -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# --- Write the post-mitigation marker ---
-# Snapshot script reads this so the report can surface
-# `mitigated_bootexec_stripped` without re-mounting the WIM each run.
+# --- Fleet: success marker ---
 try {
     if (-not (Test-Path $markerPath)) {
         New-Item -Path $markerPath -Force | Out-Null
@@ -244,7 +314,7 @@ try {
     Write-Output "WARN: could not write BootExecMitigated marker: $($_.Exception.Message)"
 }
 
-if ($strippedCount -gt 0) {
+if ($changesMade) {
     Write-State "State" "bootexec_stripped"
 } else {
     Write-State "State" "bootexec_already_stripped"

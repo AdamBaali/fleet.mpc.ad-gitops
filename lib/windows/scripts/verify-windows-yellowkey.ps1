@@ -22,7 +22,7 @@
     Intended use:
       - Confirm hosts flagged by the windows-yellowkey report
       - Decide which hosts get the AllowMitigation marker set
-      - Sanity-check before running mitigate / unmitigate
+      - Sanity-check before running mitigate
 
     Exit code: always 0 unless PowerShell itself errors. Output is the
     deliverable.

@@ -29,7 +29,6 @@ lib/windows/
     ├── snapshot-windows-ca-2023.ps1         # CA 2023 state writer for the report
     ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
     ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
-    ├── unmitigate-windows-yellowkey.ps1     # YellowKey: restore autofstx to BootExecute
     ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
     └── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
 ```
@@ -245,17 +244,20 @@ Out of scope for this migration but tracked here so the trust-chain context stay
 
 ## YellowKey mitigation pattern in this repo
 
-Same shape as the CA 2023 trio: detect, mitigate, verify. Primary
-mitigation is Microsoft's `autofstx` strip from WinRE's Session Manager
-`BootExecute`. `reagentc /disable` stays in the toolkit as a heavier
-escalation for hosts where WinRE removal is acceptable.
+Same shape as the CA 2023 trio: detect, mitigate, verify. The mitigation
+is Microsoft's `autofstx` strip from WinRE's Session Manager
+`BootExecute`. `mitigate-windows-yellowkey.ps1` is a Fleet-flavored
+adaptation of the reference script Microsoft publishes inside the
+[CVE-2026-45585 MSRC advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585)
+FAQ ("Is there a script that I can copy and paste to implement a
+mitigation?"). The Fleet wrapper adds opt-in gating, a success marker,
+granular exit codes, and structured `key:value` output.
 
 | File | Purpose |
 |------|---------|
 | `windows-yellowkey.reports.yml` | Daily snapshot of OS + BitLocker state per host. Surfaces who is exposed, mitigated, or unaffected. |
 | `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, Fleet marker state. |
-| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via DISM-mounted offline registry edit. Gated by an opt-in marker. |
-| `unmitigate-windows-yellowkey.ps1` | Restores `autofstx.exe` to `BootExecute`. Reverses the mitigation. No marker required. |
+| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks active ControlSets via the `Select` key. Re-seals with `reagentc /disable` + `/enable`. Gated by an opt-in marker. |
 | `set-yellowkey-allow-mitigation.ps1` | Sets the per-host `AllowMitigation` marker. |
 
 **Two markers, two layers:**
@@ -275,15 +277,16 @@ Set `AllowMitigation` via `set-yellowkey-allow-mitigation.ps1` targeted
 at a labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
 Registry Editor on one-off hosts. Clear with
 `Remove-ItemProperty -Path HKLM:\SOFTWARE\Fleet\YellowKey -Name AllowMitigation`.
-The `unmitigate` script clears `BootExecMitigated` on success.
+
+The mitigation is one-way. If a patch ships, the patch supersedes the
+strip. If a host genuinely needs `autofstx` back, restore manually and
+clear `BootExecMitigated` from the same key.
 
 **Why the autofstx strip, not `reagentc /disable`, as the default:**
 
 - It is Microsoft's published, supported mitigation.
 - Push-button reset, the in-WinRE BitLocker recovery flow, System
   Restore from boot, and Recovery Drive restore all keep working.
-- Reversal is symmetric: `unmitigate-windows-yellowkey.ps1` puts
-  `autofstx` back without touching the boot configuration.
 
 **When to escalate to `reagentc /disable`:**
 
@@ -311,17 +314,7 @@ The `unmitigate` script clears `BootExecMitigated` on success.
 | 0 | autofstx removed, already absent, or WinRE already disabled |
 | 2 | Opt-in marker missing; no action taken |
 | 3 | OS not affected (Windows 10 etc.); no action taken |
-| 4 | WinRE mount / edit / unmount failed; manual investigation needed |
-| 5 | autofstx still present after commit; mitigation did not stick |
-
-**Script exit codes (`unmitigate-windows-yellowkey.ps1`):**
-
-| Code | Meaning |
-|------|---------|
-| 0 | autofstx restored, or already present |
-| 3 | WinRE disabled; cannot edit the offline image |
-| 4 | WinRE mount / edit / unmount failed; manual investigation needed |
-| 5 | autofstx still absent after commit |
+| 4 | Mount, edit, unmount, or re-seal failed; manual investigation needed |
 
 **Verify script:** always exits 0 unless PowerShell errors. Output is
 the deliverable. Does not mount winre.wim; re-run mitigate (idempotent)

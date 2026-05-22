@@ -72,20 +72,25 @@ Stack 2: YellowKey
 
 CVE-2026-45585 lives in WinRE's `autofstx.exe`. autofstx replays NTFS transaction logs from any attached volume's `System Volume Information\FsTx` folder, deletes `winpeshl.ini`, and drops the attacker into `cmd.exe` with the BitLocker volume already unlocked. Affects Windows 11, Server 2022, Server 2025. Windows 10 ships a different WinRE component and isn't affected.
 
-Microsoft's mitigation: remove the `autofstx.exe` entry from the WinRE image's Session Manager `BootExecute` value. The vulnerable replay never runs and recovery flows keep working.
+Microsoft's mitigation: remove the `autofstx.exe` entry from the WinRE image's Session Manager `BootExecute` value. The vulnerable replay never runs and recovery flows keep working. Microsoft publishes the canonical PowerShell script inside the [CVE-2026-45585 MSRC advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) FAQ, under *"Is there a script that I can copy and paste to implement a mitigation?"*.
 
-The repo's `mitigate-windows-yellowkey.ps1` does the strip via DISM:
+The repo's `mitigate-windows-yellowkey.ps1` is a Fleet-flavored adaptation of that reference script. The MS core stays intact:
 
-1. Refuses to act without `HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1`. Editing the WinRE image is a deliberate, label-scoped action.
-2. Reads `reagentc /info` to find the WinRE image location.
-3. `reagentc /disable` to release `winre.wim`.
-4. `dism /mount-image` to mount it.
-5. `reg load` the offline SYSTEM hive, strip `autofstx*` from `ControlSet001\Control\Session Manager\BootExecute`, `reg unload`.
-6. `dism /unmount-image /commit`.
-7. `reagentc /enable` to put WinRE back.
-8. Writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` so the snapshot can surface the mitigated state without re-mounting the WIM.
+1. `reagentc /mountre /path` to mount the WinRE image.
+2. `reg load` the offline SYSTEM hive.
+3. Walk active ControlSets via `\Select\Current` and `\Select\Default`, strip `autofstx.exe` from `BootExecute` in each.
+4. `reg unload` (with retry).
+5. `reagentc /unmountre /commit`.
+6. `reagentc /disable` + `/enable` to re-seal the BitLocker measurement chain.
 
-Idempotent. Skips if `autofstx` is already absent, or if WinRE is already disabled (a stronger mitigation already in place).
+Fleet adds:
+
+- Refuses to act without `HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1`. Editing the WinRE image is a deliberate, label-scoped action.
+- Skips silently if WinRE is already disabled (a stronger mitigation is already in place).
+- Writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` on success so the snapshot can surface the mitigated state without re-mounting the WIM.
+- Granular exit codes for Fleet reporting.
+
+Idempotent and one-way. If a patch ships, the patch supersedes the strip; there's no unmitigate counterpart.
 
 Set the opt-in marker against a labelled subset:
 
@@ -95,8 +100,6 @@ set-yellowkey-allow-mitigation.ps1     # against label `yellowkey-mitigate-ok`
 mitigate-windows-yellowkey.ps1         # same label
 ```
 
-`unmitigate-windows-yellowkey.ps1` puts `autofstx` back when a patch ships or a host is decommissioned from the mitigated label. No marker required; returning to default WinRE is the safe direction.
-
 Pin the YellowKey files in the same `fleets/workstations.yml`:
 
 ```
@@ -104,7 +107,6 @@ controls:
   scripts:
     - path: ../lib/windows/scripts/set-yellowkey-allow-mitigation.ps1
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
-    - path: ../lib/windows/scripts/unmitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
 reports:
