@@ -27,10 +27,12 @@ lib/windows/
     ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
     ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
     ├── snapshot-windows-ca-2023.ps1         # CA 2023 state writer for the report
+    ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (cold-import test)
     ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
     ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
     ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
-    └── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
+    ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
+    └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (cold-import test)
 ```
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
