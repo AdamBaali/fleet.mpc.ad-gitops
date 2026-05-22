@@ -8,8 +8,7 @@
       - BitLocker key protector types per volume
         (Get-BitLockerVolume; bitlocker_info in osquery has no
         key-protector column)
-      - Fleet YellowKey opt-in marker
-      - Fleet YellowKey BootExecMitigated marker, set by
+      - Fleet YellowKey BootExecMitigated success marker, set by
         mitigate-windows-yellowkey.ps1 after a successful autofstx strip
       - ISO 8601 UTC timestamp of capture, used by the report's
         freshness gate
@@ -120,16 +119,11 @@ try {
     Add-Snap 'bitlocker_error' $_.Exception.Message
 }
 
-# --- Fleet YellowKey markers ---
+# --- Fleet YellowKey success marker ---
+# Only BootExecMitigated is captured. No opt-in marker; Microsoft's autofstx
+# strip is safe to apply on every affected host and the mitigate script runs
+# unconditionally.
 $ykPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
-
-$marker = (Get-ItemProperty -Path $ykPath -Name 'AllowMitigation' -ErrorAction SilentlyContinue).AllowMitigation
-if ($null -eq $marker) {
-    Add-Snap 'allow_mitigation_marker' 'not_set'
-} else {
-    Add-Snap 'allow_mitigation_marker' $marker
-}
-
 $bootExec = (Get-ItemProperty -Path $ykPath -Name 'BootExecMitigated' -ErrorAction SilentlyContinue).BootExecMitigated
 Add-Snap 'bootexec_mitigated' ($bootExec -eq 1)
 

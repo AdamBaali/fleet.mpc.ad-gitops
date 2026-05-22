@@ -53,12 +53,13 @@ The repo's `mitigate-windows-yellowkey.ps1` is a Fleet-flavored adaptation of Mi
 
 Fleet adds:
 
-- **Opt-in marker.** Refuses to act without `HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1`. Editing the WinRE image is a deliberate, label-scoped action; a misconfigured policy shouldn't mass-edit recovery images.
 - **Success marker.** Writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` after a successful strip. The Fleet report reads this via osquery's native `registry` table to surface the `mitigated` verdict.
 - **OS check.** Skips on Windows 10 (exit 3) and unrecognised SKUs.
 - **WinRE-disabled detection.** Skips silently if WinRE is already off (exit 0); a stronger mitigation is already in place.
-- **Granular exit codes.** 0 (success or already mitigated), 2 (marker missing), 3 (OS not affected), 4 (mount, edit, unmount, or re-seal failed).
+- **Granular exit codes.** 0 (success or already mitigated), 3 (OS not affected), 4 (mount, edit, unmount, or re-seal failed).
 - **Structured `key:value` output** for Fleet log capture.
+
+No opt-in gate. Microsoft's autofstx strip is safe to apply on every affected host, so the script runs unconditionally when called.
 
 One-way. There is no unmitigate counterpart. If a patch ships, the patch supersedes the strip. If a host genuinely needs `autofstx` back, restore manually and clear `BootExecMitigated` from the same key.
 
@@ -70,7 +71,6 @@ Pin the YellowKey files in `fleets/workstations.yml`:
 ```
 controls:
   scripts:
-    - path: ../lib/windows/scripts/set-yellowkey-allow-mitigation.ps1
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
@@ -81,11 +81,10 @@ reports:
 
 Workflow:
 
-1. Run `snapshot-windows-yellowkey.ps1` against a label. Populates `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt` with OS, WinRE state, BitLocker key protectors, marker state, and an ISO 8601 UTC timestamp.
+1. Run `snapshot-windows-yellowkey.ps1` against a label. Populates `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt` with OS, WinRE state, BitLocker key protectors, success marker, and an ISO 8601 UTC timestamp.
 2. Run the report. Hosts marked `exposed` are the candidates.
-3. For each host you want mitigated, run `set-yellowkey-allow-mitigation.ps1` to write the opt-in marker.
-4. Run `mitigate-windows-yellowkey.ps1` against the same label. It mounts WinRE, strips autofstx, re-seals, and sets the `BootExecMitigated` success marker.
-5. Re-run the snapshot, then re-run the report. Hosts move from `exposed` to `mitigated`.
+3. Run `mitigate-windows-yellowkey.ps1` against the same label. It mounts WinRE, strips autofstx, re-seals, and sets the `BootExecMitigated` success marker.
+4. Re-run the snapshot, then re-run the report. Hosts move from `exposed` to `mitigated`.
 
 Report verdicts:
 
@@ -142,4 +141,4 @@ Operational notes
 Wrap-up
 -------
 
-Microsoft published a clean mitigation; the Fleet wrapper adds opt-in safety, a success marker for the report, and Fleet-shaped exit codes. The mitigation is one-way: apply, the marker stays, the report keeps it visible. When the patch arrives the marker is the only thing left to clean up.
+Microsoft published a clean mitigation; the Fleet wrapper adds a success marker for the report and Fleet-shaped exit codes. The mitigation is one-way: apply, the marker stays, the report keeps it visible. When the patch arrives the marker is the only thing left to clean up.

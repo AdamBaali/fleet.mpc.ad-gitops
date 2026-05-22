@@ -25,7 +25,6 @@ Registers a single virtual osquery table, `windows_yellowkey`. Each query return
 | `bitlocker_max_protection_status` | int | Maximum protection_status across volumes |
 | `bitlocker_key_protectors` | text | Sorted comma-separated unique types (e.g. `Tpm,TpmPin`) |
 | `bitlocker_tpm_only_count` | int | Volumes with TPM but no PIN (most vulnerable) |
-| `allow_mitigation_marker` | int | `1` if `HKLM\Software\Fleet\YellowKey\AllowMitigation` = 1 |
 | `bootexec_mitigated_marker` | int | `1` if `HKLM\Software\Fleet\YellowKey\BootExecMitigated` = 1 |
 | `collection_time` | text | RFC 3339 UTC |
 | `extension_schema_version` | text | `1.0.0` |

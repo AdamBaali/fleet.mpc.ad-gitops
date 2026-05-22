@@ -28,8 +28,7 @@ lib/windows/
 │   ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
 │   ├── snapshot-windows-ca-2023.ps1         # CA 2023 firmware state writer (with freshness timestamp)
 │   ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
-│   ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
-│   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
+│   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (Microsoft's mitigation, no gate)
 │   ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
 │   ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
 │   └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
@@ -262,36 +261,30 @@ is Microsoft's `autofstx` strip from WinRE's Session Manager
 adaptation of the reference script Microsoft publishes inside the
 [CVE-2026-45585 MSRC advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585)
 FAQ ("Is there a script that I can copy and paste to implement a
-mitigation?"). The Fleet wrapper adds opt-in gating, a success marker,
-granular exit codes, and structured `key:value` output.
+mitigation?"). The Fleet wrapper adds a success marker, granular exit
+codes, and structured `key:value` output. There is no opt-in gate
+because Microsoft's autofstx strip is safe to apply on every affected
+host.
 
 | File | Purpose |
 |------|---------|
 | `windows-yellowkey.reports.yml` | Daily Fleet report on OS + BitLocker + WinRE state per host. Surfaces who is exposed, mitigated, or unaffected. Uses native osquery tables plus the snapshot file via `file_lines` (freshness-gated). |
-| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, Fleet marker state. |
-| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks active ControlSets via the `Select` key. Re-seals with `reagentc /disable` + `/enable`. Gated by an opt-in marker. |
-| `snapshot-windows-yellowkey.ps1` | Captures WinRE state, BitLocker key protectors, Fleet markers, and a freshness timestamp. |
-| `set-yellowkey-allow-mitigation.ps1` | Sets the per-host `AllowMitigation` marker. |
+| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, success marker state. |
+| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks active ControlSets via the `Select` key. Re-seals with `reagentc /disable` + `/enable`. Runs unconditionally on affected hosts. |
+| `snapshot-windows-yellowkey.ps1` | Captures WinRE state, BitLocker key protectors, success marker, and a freshness timestamp. |
 | `cleanup-windows-yellowkey-snapshot.ps1` | Deletes the state file to force native-only fallback. |
 
-**Two markers, two layers:**
+**Success marker:**
 
 ```
-HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation    = 1 (DWORD)  // admin opt-in
 HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated  = 1 (DWORD)  // mitigate wrote this on success
 ```
 
-The mitigate script refuses to mount the WinRE image without
-`AllowMitigation` because editing the recovery image is a deliberate,
-label-scoped action. `BootExecMitigated` is the success marker: the
-report reads it via osquery's native `registry` table to surface the
-`mitigated` verdict. This verdict works regardless of snapshot
-freshness because the marker is a native registry value.
-
-Set `AllowMitigation` via `set-yellowkey-allow-mitigation.ps1` targeted
-at a labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
-Registry Editor on one-off hosts. Clear with
-`Remove-ItemProperty -Path HKLM:\SOFTWARE\Fleet\YellowKey -Name AllowMitigation`.
+`BootExecMitigated` is set by `mitigate-windows-yellowkey.ps1` only
+when the edit loop completed without exception AND every ControlSet
+was verified clean via read-back. The report reads it via osquery's
+native `registry` table to surface the `mitigated` verdict regardless
+of snapshot freshness.
 
 The mitigation is one-way. If a patch ships, the patch supersedes the
 strip. If a host genuinely needs `autofstx` back, restore manually and
@@ -342,7 +335,7 @@ for ground truth on the offline image's `BootExecute` value.
 2. Run `migrate-windows-ca-2023.ps1` against a `not_started` host. Expect preflight failure (exit 2/3) on a host without CU, or migration triggered (exit 0).
 3. Re-run report after migration to confirm state transitions cleanly.
 4. Run `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` on test hosts and confirm the freshness columns populate. Verify that letting a snapshot age past 48 hours flips `snapshot_status` to `stale` and falls back to native-only verdicts.
-5. Run `mitigate-windows-yellowkey.ps1` against a test host with the `AllowMitigation` marker set. Confirm the report verdict moves from `exposed` to `mitigated`.
+5. Run `mitigate-windows-yellowkey.ps1` against a test host. Confirm the report verdict moves from `exposed` to `mitigated`.
 6. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped. Keep the policy `run_script` slot reserved for the actual remediation.
 7. Optional follow-up: ship a scheduled-task installer for the snapshot scripts so freshness is automatic per host.
 8. Test on Server 2019/2022.

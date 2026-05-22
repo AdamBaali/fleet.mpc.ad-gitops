@@ -37,7 +37,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-const extensionSchemaVersion = "1.0.0"
+const extensionSchemaVersion = "1.1.0"
 const cveID = "CVE-2026-45585"
 
 const (
@@ -111,7 +111,6 @@ func columns() []table.ColumnDefinition {
 		table.IntegerColumn("bitlocker_tpm_only_count"),
 
 		// Fleet markers.
-		table.IntegerColumn("allow_mitigation_marker"),
 		table.IntegerColumn("bootexec_mitigated_marker"),
 
 		// Lifecycle.
@@ -136,7 +135,6 @@ type collected struct {
 	bitlockerTpmOnlyCount     int
 	bitlockerError            string
 
-	allowMitigationMarker int // 0 or 1
 	bootExecMitigatedMarker int // 0 or 1
 
 	collectionTime time.Time
@@ -172,7 +170,6 @@ func generate(ctx context.Context, q table.QueryContext) ([]map[string]string, e
 		"bitlocker_key_protectors":        c.bitlockerKeyProtectors,
 		"bitlocker_tpm_only_count":        strconv.Itoa(c.bitlockerTpmOnlyCount),
 
-		"allow_mitigation_marker":   strconv.Itoa(c.allowMitigationMarker),
 		"bootexec_mitigated_marker": strconv.Itoa(c.bootExecMitigatedMarker),
 
 		"collection_time":          c.collectionTime.Format(time.RFC3339),
@@ -340,16 +337,17 @@ func stableSort(s []string) {
 }
 
 func collectFleetMarkers(c *collected) {
+	// Only BootExecMitigated is consulted. The mitigate script writes this
+	// after a successful autofstx strip; the report uses it to flag a host
+	// as `mitigated` via osquery's registry table. There is no opt-in marker
+	// because Microsoft's mitigation is safe to apply on every affected host.
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, regFleetYellowKey, registry.QUERY_VALUE)
 	if err != nil {
-		// Missing key is fine; markers default to 0.
+		// Missing key is fine; marker defaults to 0.
 		return
 	}
 	defer k.Close()
 
-	if v, _, err := k.GetIntegerValue("AllowMitigation"); err == nil && v == 1 {
-		c.allowMitigationMarker = 1
-	}
 	if v, _, err := k.GetIntegerValue("BootExecMitigated"); err == nil && v == 1 {
 		c.bootExecMitigatedMarker = 1
 	}

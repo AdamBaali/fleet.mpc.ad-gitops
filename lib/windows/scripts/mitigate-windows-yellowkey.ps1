@@ -21,10 +21,10 @@
       5. reagentc /disable + /enable to re-seal the BitLocker measurement chain
 
     Fleet additions on top of Microsoft's flow:
-      - Gated by HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1
       - Writes HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1 only when
         the edit loop completed without exception AND every ControlSet was
-        verified clean via read-back
+        verified clean via read-back. The Fleet report reads this marker via
+        osquery's native registry table to surface the `mitigated` verdict.
       - Skips silently if WinRE is already disabled (stronger mitigation in place)
       - Mount directory is under %SystemRoot%\Temp and ACL-locked to
         Administrators to defend against TOCTOU + non-admin local DoS
@@ -55,7 +55,6 @@
 .NOTES
     Exit codes:
       0 = autofstx removed, already absent, or WinRE already disabled
-      2 = AllowMitigation marker missing; no action taken
       3 = OS not affected (Windows 10 etc.); no action taken
       4 = Mount, edit, unmount, or re-seal failed; manual investigation needed
 
@@ -112,19 +111,10 @@ $mountCreated = $false
 $changesMade  = $false
 $editClean    = $false
 
-# --- Fleet: opt-in marker ---
-# Editing the WinRE image is a deliberate, label-scoped action. Refuse
-# without explicit consent so a misconfigured policy cannot mass-edit
-# recovery images.
+# --- Fleet: success marker path (BootExecMitigated is written on success;
+#     no opt-in gate because Microsoft's autofstx strip is the official
+#     mitigation and is safe to apply on every affected host). ---
 $markerPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
-$marker     = (Get-ItemProperty -Path $markerPath -Name 'AllowMitigation' -ErrorAction SilentlyContinue).AllowMitigation
-if ($null -eq $marker -or $marker -ne 1) {
-    Write-Output "SKIP: Opt-in marker not set."
-    Write-Output "      Set $markerPath\AllowMitigation = 1 (DWORD) to allow mitigation."
-    Write-State "State" "skipped_no_optin"
-    exit 2
-}
-Write-State "Opt-in marker" "present"
 
 # --- Fleet: OS check ---
 $os = (Get-CimInstance Win32_OperatingSystem).Caption
