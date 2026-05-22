@@ -65,9 +65,12 @@ try {
 }
 
 # --- Firmware DB (allow list) ---
+# Decode as Latin-1 (codepage 28591): 1:1 byte mapping, no lossy substitution
+# of high bytes. ASCII would replace bytes >= 128 with '?', which can split
+# CN literals at DER length-prefix bytes.
 try {
     $dbBytes = (Get-SecureBootUEFI db).bytes
-    $dbText  = [Text.Encoding]::ASCII.GetString($dbBytes)
+    $dbText  = [Text.Encoding]::GetEncoding(28591).GetString($dbBytes)
     Add-Snap 'firmware_db_has_ca_2023'           ($dbText -match 'Windows UEFI CA 2023')
     Add-Snap 'firmware_db_has_msft_uefi_ca_2023' ($dbText -match 'Microsoft UEFI CA 2023')
     Add-Snap 'firmware_db_has_pca_2011'          ($dbText -match 'Microsoft Windows Production PCA 2011')
@@ -79,7 +82,7 @@ try {
 # --- Firmware KEK ---
 try {
     $kekBytes = (Get-SecureBootUEFI KEK).bytes
-    $kekText  = [Text.Encoding]::ASCII.GetString($kekBytes)
+    $kekText  = [Text.Encoding]::GetEncoding(28591).GetString($kekBytes)
     Add-Snap 'firmware_kek_has_2k_ca_2023' ($kekText -match 'Microsoft Corporation KEK 2K CA 2023')
     Add-Snap 'firmware_kek_has_ca_2011'    ($kekText -match 'Microsoft Corporation KEK CA 2011')
 } catch {
@@ -89,7 +92,7 @@ try {
 # --- DBX (deny list) ---
 try {
     $dbxBytes = (Get-SecureBootUEFI dbx).bytes
-    $dbxText  = [Text.Encoding]::ASCII.GetString($dbxBytes)
+    $dbxText  = [Text.Encoding]::GetEncoding(28591).GetString($dbxBytes)
     Add-Snap 'dbx_revokes_pca_2011' ($dbxText -match 'Microsoft Windows Production PCA 2011')
     Add-Snap 'dbx_size'             $dbxBytes.Length
 } catch {
@@ -124,8 +127,12 @@ try {
     if ($mounted) { mountvol "${mountLetter}:" /d 2>&1 | Out-Null }
 }
 
-# --- Freshness timestamp (UTC, SQLite-parseable) ---
-$nowUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+# --- Freshness timestamp (UTC, SQLite-parseable, culture-invariant) ---
+# Pass InvariantCulture so non-Latin digit locales (fa-IR, ar-SA, th-TH)
+# emit Latin digits. Drop the trailing 'Z' because SQLite < 3.42 does not
+# recognise the Z modifier and would return NULL.
+$nowUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss',
+            [System.Globalization.CultureInfo]::InvariantCulture)
 Add-Snap 'snapshot_generated' $nowUtc
 
 # --- Write to disk ---

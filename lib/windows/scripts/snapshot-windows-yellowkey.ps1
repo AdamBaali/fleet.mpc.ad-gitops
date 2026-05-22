@@ -62,12 +62,21 @@ try {
 }
 
 # --- WinRE ---
+# Use the CJK-tolerant colon class [:：] so fullwidth-colon locales still match.
+# Distinguish 'unknown' from 'Disabled' so a parse failure doesn't make the
+# report verdict think the host is `mitigated_winre_off`.
 try {
     $infoText = (& reagentc /info 2>&1) | Out-String
-    $reState  = if ($infoText -match 'Windows RE status:\s*(Enabled|Disabled)') { $Matches[1] } else { 'unknown' }
-    $reLoc    = if ($infoText -match 'Windows RE location:\s*(\S.*)')           { $Matches[1].Trim() } else { '' }
-    Add-Snap 'winre_enabled' ($reState -eq 'Enabled')
-    Add-Snap 'winre_state'   $reState
+    $reState  = if     ($infoText -match '[:：]\s*Enabled\b')  { 'Enabled' }
+                elseif ($infoText -match '[:：]\s*Disabled\b') { 'Disabled' }
+                else                                            { 'unknown' }
+    $reLoc    = if ($infoText -match 'Windows RE location[:：]\s*(\S.*)') { $Matches[1].Trim() } else { '' }
+    if ($reState -eq 'unknown') {
+        Add-Snap 'winre_enabled' 'unknown'
+    } else {
+        Add-Snap 'winre_enabled' ($reState -eq 'Enabled')
+    }
+    Add-Snap 'winre_state' $reState
     if (-not [string]::IsNullOrEmpty($reLoc)) {
         Add-Snap 'winre_location' $reLoc
     }
@@ -124,8 +133,12 @@ if ($null -eq $marker) {
 $bootExec = (Get-ItemProperty -Path $ykPath -Name 'BootExecMitigated' -ErrorAction SilentlyContinue).BootExecMitigated
 Add-Snap 'bootexec_mitigated' ($bootExec -eq 1)
 
-# --- Freshness timestamp (UTC, SQLite-parseable) ---
-$nowUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+# --- Freshness timestamp (UTC, SQLite-parseable, culture-invariant) ---
+# Pass InvariantCulture so non-Latin digit locales (fa-IR, ar-SA, th-TH)
+# emit Latin digits. Drop the trailing 'Z' because SQLite < 3.42 does not
+# recognise the Z modifier and would return NULL.
+$nowUtc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss',
+            [System.Globalization.CultureInfo]::InvariantCulture)
 Add-Snap 'snapshot_generated' $nowUtc
 
 # --- Write to disk ---

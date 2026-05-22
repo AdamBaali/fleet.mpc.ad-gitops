@@ -7,7 +7,7 @@
     Firmware-level signals (firmware DB, ESP boot manager signature)
     come from snapshot-windows-ca-2023.ps1 via osquery's file_lines
     table. The report applies a 48-hour freshness gate: snapshot data
-    older than 48 hours is treated as missing, and snapshot-derived
+    48 or more hours old is treated as missing, and snapshot-derived
     verdicts (`compliant_via_firmware`, `not_started_ready_to_trigger`,
     `not_started_cu_missing`) only fire when fresh. Snapshot age and
     status are surfaced as columns so admins know when to refresh.
@@ -21,7 +21,7 @@
 
     snapshot_status:
       fresh    captured within the last 48 hours
-      stale    captured more than 48 hours ago (verdict falls back to native-only)
+      stale    captured 48 or more hours ago (verdict falls back to native-only)
       missing  no snapshot file (verdict falls back to native-only)
 
     compliance_verdict:
@@ -55,21 +55,21 @@
         snapshot_generated,
         CASE
           WHEN snapshot_generated IS NULL THEN NULL
-          ELSE CAST((strftime('%s','now') - strftime('%s', snapshot_generated)) / 3600 AS INTEGER)
+          ELSE CAST((strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) / 3600 AS INTEGER)
         END AS snapshot_age_hours,
         CASE
           WHEN snapshot_generated IS NULL THEN 'missing'
-          WHEN (strftime('%s','now') - strftime('%s', snapshot_generated)) < 172800 THEN 'fresh'
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN 'fresh'
           ELSE 'stale'
         END AS snapshot_status,
         CASE
           WHEN snapshot_generated IS NULL THEN NULL
-          WHEN (strftime('%s','now') - strftime('%s', snapshot_generated)) < 172800 THEN firmware_db_has_ca_2023
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN firmware_db_has_ca_2023
           ELSE NULL
         END AS firmware_db_has_ca_2023,
         CASE
           WHEN snapshot_generated IS NULL THEN NULL
-          WHEN (strftime('%s','now') - strftime('%s', snapshot_generated)) < 172800 THEN esp_bootmgr_issuer
+          WHEN (strftime('%s','now') - strftime('%s', REPLACE(snapshot_generated, 'Z', ''))) < 172800 THEN esp_bootmgr_issuer
           ELSE NULL
         END AS esp_bootmgr_issuer
       FROM snap_lines
@@ -85,13 +85,16 @@
       END AS file_status,
       (SELECT data FROM registry
        WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-         AND name = 'UEFICA2023Status') AS reg_status,
+         AND name = 'UEFICA2023Status'
+       LIMIT 1) AS reg_status,
       (SELECT data FROM registry
        WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-         AND name = 'WindowsUEFICA2023Capable') AS reg_capable,
+         AND name = 'WindowsUEFICA2023Capable'
+       LIMIT 1) AS reg_capable,
       (SELECT data FROM registry
        WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-         AND name = 'UEFICA2023Error') AS reg_error,
+         AND name = 'UEFICA2023Error'
+       LIMIT 1) AS reg_error,
       COALESCE(snap.firmware_db_has_ca_2023, 'run snapshot script') AS firmware_db_has_ca_2023,
       COALESCE(snap.esp_bootmgr_issuer,      'run snapshot script') AS esp_bootmgr_issuer,
       COALESCE(snap.snapshot_status, 'missing') AS snapshot_status,
@@ -103,21 +106,26 @@
           THEN 'compliant_via_firmware'
         WHEN CAST(IFNULL((SELECT data FROM registry
                           WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-                            AND name = 'UEFICA2023Error'), '0') AS INTEGER) > 0
+                            AND name = 'UEFICA2023Error'
+                          LIMIT 1), '0') AS INTEGER) > 0
           THEN 'errored'
         WHEN (SELECT data FROM registry
               WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-                AND name = 'UEFICA2023Status') = 'Updated'
+                AND name = 'UEFICA2023Status'
+              LIMIT 1) = 'Updated'
          AND (SELECT data FROM registry
               WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-                AND name = 'WindowsUEFICA2023Capable') = '2'
+                AND name = 'WindowsUEFICA2023Capable'
+              LIMIT 1) = '2'
          AND IFNULL((SELECT data FROM registry
                      WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-                       AND name = 'UEFICA2023Error'), '0') = '0'
+                       AND name = 'UEFICA2023Error'
+                     LIMIT 1), '0') = '0'
           THEN 'compliant_via_registry'
         WHEN (SELECT data FROM registry
               WHERE key = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing'
-                AND name = 'UEFICA2023Status') = 'InProgress'
+                AND name = 'UEFICA2023Status'
+              LIMIT 1) = 'InProgress'
           THEN 'in_progress'
         WHEN snap.firmware_db_has_ca_2023 = 'True'
           THEN 'not_started_ready_to_trigger'
