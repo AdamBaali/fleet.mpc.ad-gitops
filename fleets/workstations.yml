@@ -8,9 +8,13 @@ controls:
   scripts:
     - path: ../lib/windows/scripts/migrate-windows-ca-2023.ps1
     - path: ../lib/windows/scripts/verify-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/snapshot-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/cleanup-windows-ca-2023-snapshot.ps1
     - path: ../lib/windows/scripts/set-yellowkey-allow-mitigation.ps1
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/cleanup-windows-yellowkey-snapshot.ps1
 software:
   packages:
     - path: ../lib/macos/software/munki.yml

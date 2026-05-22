@@ -73,29 +73,44 @@ controls:
     - path: ../lib/windows/scripts/set-yellowkey-allow-mitigation.ps1
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/cleanup-windows-yellowkey-snapshot.ps1
 reports:
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 ```
 
 Workflow:
 
-1. Run the report. Hosts marked `exposed` are the candidates.
-2. For each host you want mitigated, run `set-yellowkey-allow-mitigation.ps1` to write the opt-in marker.
-3. Run `mitigate-windows-yellowkey.ps1` against the same label. It mounts WinRE, strips autofstx, re-seals, and sets the `BootExecMitigated` success marker.
-4. Re-run the report. Hosts move from `exposed` to `mitigated`.
+1. Run `snapshot-windows-yellowkey.ps1` against a label. Populates `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt` with OS, WinRE state, BitLocker key protectors, marker state, and an ISO 8601 UTC timestamp.
+2. Run the report. Hosts marked `exposed` are the candidates.
+3. For each host you want mitigated, run `set-yellowkey-allow-mitigation.ps1` to write the opt-in marker.
+4. Run `mitigate-windows-yellowkey.ps1` against the same label. It mounts WinRE, strips autofstx, re-seals, and sets the `BootExecMitigated` success marker.
+5. Re-run the snapshot, then re-run the report. Hosts move from `exposed` to `mitigated`.
 
-Report verdicts (native osquery tables only):
+Report verdicts:
 
 ```
 yellowkey_exposure_verdict:
-  not_affected   Windows 10
-  mitigated      Fleet BootExecMitigated marker set (autofstx strip applied)
-  bitlocker_off  BitLocker not protecting the volume
-  exposed        BitLocker on + no mitigation marker (WinRE assumed on)
-  unknown        unrecognised OS
+  not_affected         Windows 10
+  mitigated_winre_off  WinRE disabled (fresh snapshot only; heavier control)
+  mitigated            Fleet BootExecMitigated marker set (autofstx strip applied)
+  bitlocker_off        BitLocker not protecting the volume
+  exposed              BitLocker on + no mitigation marker; WinRE confirmed on (fresh) or assumed on (stale/missing)
+  unknown              unrecognised OS
 ```
 
-WinRE enabled/disabled state is not reachable from native osquery tables. The report assumes WinRE is on for affected SKUs (the Microsoft default) and surfaces `exposed` accordingly. For per-host ground truth, run `verify-windows-yellowkey.ps1`; it reads `reagentc /info`, BitLocker key protector types, and both Fleet markers.
+Snapshot freshness
+------------------
+
+The report applies a 48-hour freshness gate. Each snapshot writes a `snapshot_generated` ISO 8601 UTC timestamp. The report computes `snapshot_age_hours` and assigns `snapshot_status`:
+
+| Status | Meaning |
+|---|---|
+| `fresh` | captured within the last 48 hours |
+| `stale` | captured 48 or more hours ago (snapshot-derived verdicts fall back to native-only) |
+| `missing` | no snapshot file (snapshot-derived verdicts fall back to native-only) |
+
+The `mitigated` verdict (BootExecMitigated marker) is native and works regardless of snapshot freshness. The `mitigated_winre_off` verdict requires a fresh snapshot because WinRE state isn't reachable from native osquery tables. When the snapshot is stale or missing, the report assumes WinRE is on for affected SKUs (the Microsoft default) and surfaces `exposed` rather than `mitigated_winre_off`. Re-run `snapshot-windows-yellowkey.ps1` to refresh; run `cleanup-windows-yellowkey-snapshot.ps1` to force the cold-import path.
 
 Escalation: `reagentc /disable`
 ------------------------------
@@ -109,11 +124,13 @@ Run `reagentc /disable` manually after the autofstx strip has been validated, ag
 - System Restore from boot and Recovery Drive image restore are gone.
 - Re-enable with `reagentc /enable` before any of those operations is needed.
 
-The two mitigations stack. The native-only report does not detect WinRE-off state, so hosts mitigated via the escalation still need the `BootExecMitigated` marker for the verdict to read `mitigated`. Run `verify-windows-yellowkey.ps1` for the full picture.
+The two mitigations stack. With a fresh snapshot, hosts that have had `reagentc /disable` applied show up as `mitigated_winre_off` (heavier state takes precedence). If the snapshot is stale or missing, those hosts revert to `exposed` until the snapshot is refreshed. Run `verify-windows-yellowkey.ps1` for the on-demand per-host picture.
 
 Operational notes
 -----------------
 
+*   **Snapshot file lifecycle.** The state file lives at `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt`. The report still works without it; WinRE columns show `run snapshot script`, `snapshot_status` reads `missing`, and the verdict falls back to native-only. Use `cleanup-windows-yellowkey-snapshot.ps1` to test the cold-import path.
+*   **Snapshot freshness is 48 hours.** Older than that and the report treats the file as missing, dropping back to native-only verdicts. Watch the `snapshot_age_hours` column to see when refreshes are due.
 *   **Verify is the per-host inspector.** `verify-windows-yellowkey.ps1` reads `reagentc /info`, BitLocker key protectors via `Get-BitLockerVolume`, and both Fleet markers. Use it to ground-truth report verdicts.
 *   **The mitigate script needs admin.** It mounts the WinRE image and edits an offline registry hive. The Fleet wrapper checks `IsInRole(Administrator)` and exits 4 if not.
 *   **`reagentc /mountre` will fail if the mount dir is dirty.** The script's default mount path is `C:\ProgramData\Fleet\state\yk-winre-mount`. It refuses to use a non-empty directory. Override with `-MountPath`.

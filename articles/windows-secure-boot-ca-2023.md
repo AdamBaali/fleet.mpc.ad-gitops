@@ -15,50 +15,72 @@ This guide is the pattern, the drop-in scripts and report, and the operational n
 How it works
 ------------
 
-Three pieces:
+Four pieces:
 
-1. A **report** (`windows-ca-2023.reports.yml`) queries the `authenticode` and `registry` osquery tables for per-host migration state and emits a `compliance_verdict` column. Native tables only. Daily snapshot.
-2. A **migrate script** (`migrate-windows-ca-2023.ps1`) sets the `AvailableUpdates = 0x5944` trigger and starts the `\Microsoft\Windows\PI\Secure-Boot-Update` scheduled task. Idempotent. Conservative.
-3. A **verify script** (`verify-windows-ca-2023.ps1`) does deep, read-only firmware-level inspection for one host at a time. It reads the firmware DB, KEK, DBX, and ESP boot manager signature directly, none of which osquery can reach.
+1. A **report** (`windows-ca-2023.reports.yml`) queries the `authenticode` and `registry` osquery tables for per-host migration state and joins the snapshot via `file_lines`. Emits a `compliance_verdict` column plus freshness metadata. Daily Fleet snapshot.
+2. A **snapshot script** (`snapshot-windows-ca-2023.ps1`) captures firmware DB contents, KEK, DBX, and ESP boot manager signature, none of which osquery can reach. Writes `key=value` lines plus an ISO 8601 UTC `snapshot_generated` timestamp.
+3. A **migrate script** (`migrate-windows-ca-2023.ps1`) sets the `AvailableUpdates = 0x5944` trigger and starts the `\Microsoft\Windows\PI\Secure-Boot-Update` scheduled task. Idempotent. Conservative.
+4. A **verify script** (`verify-windows-ca-2023.ps1`) does deep, read-only firmware-level inspection for one host at a time. Same signals as the snapshot, but human-readable and admin-on-demand.
 
-Two signal layers
------------------
+A **cleanup script** (`cleanup-windows-ca-2023-snapshot.ps1`) deletes the snapshot file to force native-only fallback. Useful for cold-import testing.
 
-The migration runs in two layers that drift apart for hours-to-days after completion:
+Three signal layers
+-------------------
+
+The migration runs across three layers that can drift:
 
 | Layer | What it is | Where to look |
 |-------|------------|---------------|
+| **Firmware** | Certs in the firmware DB, KEK, DBX; boot manager on the EFI System Partition | `Get-SecureBootUEFI` + `mountvol`. osquery can't reach this. `snapshot-windows-ca-2023.ps1` captures it. |
 | **OS-side staging** | `C:\Windows\Boot\EFI\bootmgfw.efi` and friends, copied to ESP at the next servicing pass | osquery `authenticode` table |
 | **Registry state machine** | Microsoft's own per-host servicing status | `HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\Servicing` keys, osquery `registry` table |
 
-The report combines both:
+The report combines all three:
 
 ```
 compliance_verdict:
-  compliant_via_files     OS-side file signed by CA 2023
-  compliant_via_registry  registry says servicing finished
-  in_progress             servicing in flight
-  errored                 UEFICA2023Error != 0
-  not_started             no other signals
+  compliant_via_files            OS-side file signed by CA 2023
+  compliant_via_firmware         ESP boot manager signed by CA 2023 (fresh snapshot only)
+  compliant_via_registry         registry says servicing finished
+  in_progress                    servicing in flight
+  errored                        UEFICA2023Error != 0
+  not_started_ready_to_trigger   firmware DB has CA 2023, never triggered (fresh snapshot only)
+  not_started_cu_missing         firmware DB lacks CA 2023, no CU yet (fresh snapshot only)
+  not_started                    no other signals
 ```
 
 File signatures alone produce false negatives: a host can be fully migrated at firmware level while the OS-side `bootmgfw.efi` still shows PCA 2011, because Windows Update refreshes the staging copy on its own cycle. The registry servicing state is the authoritative answer for "has firmware migrated." For hosts the report flags `compliant_via_registry`, run `verify-windows-ca-2023.ps1` to read the firmware DB and ESP boot manager directly.
 
+Snapshot freshness
+------------------
+
+The report applies a 48-hour freshness gate. Each snapshot writes a `snapshot_generated` ISO 8601 UTC timestamp. The report computes `snapshot_age_hours` and assigns `snapshot_status`:
+
+| Status | Meaning |
+|---|---|
+| `fresh` | captured within the last 48 hours |
+| `stale` | captured 48 or more hours ago (snapshot-derived verdicts fall back to native-only) |
+| `missing` | no snapshot file (snapshot-derived verdicts fall back to native-only) |
+
+Both `snapshot_status` and `snapshot_age_hours` are columns in the report so admins see freshness at a glance. Re-run `snapshot-windows-ca-2023.ps1` to refresh. Run `cleanup-windows-ca-2023-snapshot.ps1` to test the cold-import path.
+
 Drop-in
 -------
 
-Pin the trio in `fleets/workstations.yml`:
+Pin the set in `fleets/workstations.yml`:
 
 ```
 controls:
   scripts:
     - path: ../lib/windows/scripts/migrate-windows-ca-2023.ps1
     - path: ../lib/windows/scripts/verify-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/snapshot-windows-ca-2023.ps1
+    - path: ../lib/windows/scripts/cleanup-windows-ca-2023-snapshot.ps1
 reports:
   - path: ../lib/windows/reports/windows-ca-2023.reports.yml
 ```
 
-Run the report. Hosts in `not_started` are the migration candidates. `compliant_via_registry` hosts are firmware-migrated; verify on demand if you want firmware-level confirmation.
+Run the snapshot script once against a label to populate the firmware columns, then run the report. Hosts in `not_started_ready_to_trigger` are the migration candidates: their firmware already has CA 2023, they're waiting on the trigger. Hosts in `not_started_cu_missing` need a cumulative update first. `compliant_via_registry` hosts are firmware-migrated; verify on demand if you want firmware-level confirmation.
 
 Trigger
 -------
@@ -118,7 +140,9 @@ See [Microsoft's Windows Server playbook](https://techcommunity.microsoft.com/bl
 Operational notes
 -----------------
 
-*   **Verify is the firmware-level tool.** Run `verify-windows-ca-2023.ps1` on hosts the report flags `compliant_via_registry` to read the firmware DB, KEK, DBX, and ESP boot manager signature directly. osquery cannot reach those signals.
+*   **Snapshot file lifecycle.** Snapshots live at `C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt`. The report still works without them: firmware-derived columns show `run snapshot script`, `snapshot_status` reads `missing`, and the verdict falls back to `not_started`. Use `cleanup-windows-ca-2023-snapshot.ps1` to test the cold-import path.
+*   **Snapshot freshness is 48 hours.** Older than that and the report treats the file as missing, dropping back to native-only verdicts. Re-run the snapshot to recover firmware-derived verdicts. Watch the `snapshot_age_hours` column to see when refreshes are due.
+*   **Verify is the firmware-level tool.** Run `verify-windows-ca-2023.ps1` on hosts the report flags `compliant_via_registry` to read the firmware DB, KEK, DBX, and ESP boot manager signature directly. Same signals as the snapshot but human-readable.
 *   **Servicing state and file signatures drift.** Expect `Updated` registry state with PCA 2011 file signatures for hours-to-days after migration completes. Not a bug. The OS-side staging copy of `bootmgfw.efi` gets refreshed on the next Windows Update cycle; the ESP copy (the one firmware loads) is on CA 2023 already.
 *   **Recovery media breaks after DBX revocation.** Rebuild WinRE and install media against CA 2023 sources before pushing migration broadly. Recovery USBs created before migration won't boot afterward.
 *   **Hotpatch hosts stall at Stage 4.** Windows 11 24H2 Hotpatch hosts reboot less often, so the multi-reboot state machine stalls. Expected. Force a non-hotpatch update cycle to advance.
@@ -128,4 +152,4 @@ Operational notes
 Wrap-up
 -------
 
-One migration, three problems closed: BlackLotus, BitUnlocker, and the October 2026 servicing cliff. The pattern is a native-osquery report for fleet-wide visibility, a focused PowerShell verify script for firmware-level diagnosis, and idempotent remediation that respects Microsoft's multi-reboot state machine. Pin the files via your fleets YAML, label-target the hosts you want covered, and let the report tell you who's still behind.
+One migration, three problems closed: BlackLotus, BitUnlocker, and the October 2026 servicing cliff. The pattern is a freshness-gated report that combines native osquery signals with snapshot data for firmware-level visibility, a focused PowerShell verify script for one-off diagnosis, and idempotent remediation that respects Microsoft's multi-reboot state machine. Pin the files via your fleets YAML, label-target the hosts you want covered, and let the report tell you who's still behind.
