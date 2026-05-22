@@ -23,19 +23,27 @@ lib/windows/
 ├── reports/
 │   ├── windows-ca-2023.reports.yml          # CA 2023 migration state (daily snapshot)
 │   └── windows-yellowkey.reports.yml        # YellowKey OS + BitLocker exposure
-└── scripts/
-    ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
-    ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
-    ├── snapshot-windows-ca-2023.ps1         # CA 2023 firmware state writer (with freshness timestamp)
-    ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
-    ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
-    ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
-    ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
-    ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
-    └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
+├── scripts/
+│   ├── migrate-windows-ca-2023.ps1          # CA 2023 idempotent remediation
+│   ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
+│   ├── snapshot-windows-ca-2023.ps1         # CA 2023 firmware state writer (with freshness timestamp)
+│   ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
+│   ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
+│   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
+│   ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
+│   ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
+│   └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
+└── extensions/
+    └── yellowkey/                           # Native osquery extension exposing the windows_yellowkey table
+        ├── main.go                          # Go source (osquery-go bindings)
+        ├── go.mod / go.sum                  # Go module
+        ├── Makefile                         # Cross-compile windows/amd64 + arm64
+        └── README.md                        # Build + deploy + sample queries
 ```
 
 Reports use native osquery tables (`authenticode`, `registry`, `os_version`, `bitlocker_info`) plus snapshot data via `file_lines` for signals osquery cannot reach natively. Each report applies a 48-hour freshness gate: snapshot data older than 48 hours is treated as missing and snapshot-derived verdicts fall back to the native-only set. Re-run the matching `snapshot-windows-*.ps1` to refresh.
+
+The optional `windows_yellowkey` osquery extension (`lib/windows/extensions/yellowkey/`) provides the same YellowKey signals as a real-time virtual table, eliminating the snapshot freshness gate for hosts that load the extension. Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update). Build with `make windows`, deploy via `orbit.exe shell -- --extension <binary> --allow-unsafe`. Snapshot scripts remain as the fallback path for hosts without the extension loaded.
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
 
