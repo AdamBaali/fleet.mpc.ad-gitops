@@ -8,7 +8,9 @@
       - BitLocker key protector types per volume
         (Get-BitLockerVolume; bitlocker_info in osquery has no
         key-protector column)
-      - YellowKey opt-in marker
+      - Fleet YellowKey opt-in marker
+      - Fleet YellowKey BootExecMitigated marker, set by
+        mitigate-windows-yellowkey.ps1 after a successful autofstx strip
 
     Writes key=value lines to:
       C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
@@ -18,6 +20,11 @@
     snapshot the report still surfaces today's OS + BitLocker rows;
     the WinRE column reads NULL and the verdict falls back to
     `affected_if_winre_on`.
+
+    Does NOT mount winre.wim. The BootExecMitigated marker is written
+    by mitigate-windows-yellowkey.ps1 on success and read here. For
+    ground truth on the WinRE image contents, re-run mitigate (it is
+    idempotent and reports the current BootExecute state).
 
     Silent on success.
 
@@ -91,9 +98,9 @@ try {
         if ([string]::IsNullOrEmpty($unique)) { $unique = '(none)' }
         Add-Snap 'key_protectors' $unique
 
-        # TPM-only is the most-discussed YellowKey case. Surface it
-        # explicitly even though TPM+PIN does not change the verdict
-        # per researcher.
+        # TPM-only is the YellowKey-relevant case for the published PoC.
+        # TPM+PIN blocks the public PoC but not the researcher's withheld
+        # variant, so we surface the count for both audit and customer comms.
         $tpmOnly = @($volumes | Where-Object {
             $kp = @($_.KeyProtector | ForEach-Object { $_.KeyProtectorType.ToString() })
             ($kp -contains 'Tpm') -and (-not ($kp -contains 'TpmPin')) -and (-not ($kp -contains 'TpmPinStartupKey'))
@@ -104,15 +111,18 @@ try {
     Add-Snap 'bitlocker_error' $_.Exception.Message
 }
 
-# --- Opt-in marker ---
-$markerPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
-$markerName = 'AllowMitigation'
-$marker     = (Get-ItemProperty -Path $markerPath -Name $markerName -ErrorAction SilentlyContinue).$markerName
+# --- Fleet YellowKey markers ---
+$ykPath = 'HKLM:\SOFTWARE\Fleet\YellowKey'
+
+$marker = (Get-ItemProperty -Path $ykPath -Name 'AllowMitigation' -ErrorAction SilentlyContinue).AllowMitigation
 if ($null -eq $marker) {
     Add-Snap 'allow_mitigation_marker' 'not_set'
 } else {
     Add-Snap 'allow_mitigation_marker' $marker
 }
+
+$bootExec = (Get-ItemProperty -Path $ykPath -Name 'BootExecMitigated' -ErrorAction SilentlyContinue).BootExecMitigated
+Add-Snap 'bootexec_mitigated' ($bootExec -eq 1)
 
 Add-Snap 'snapshot_generated' (Get-Date -Format 'o')
 

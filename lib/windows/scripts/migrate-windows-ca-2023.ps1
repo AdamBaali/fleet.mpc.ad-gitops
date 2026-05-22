@@ -10,8 +10,8 @@
     DBX revocation step (part of AvailableUpdates = 0x5944) closes both.
 
     Also ensures continued Secure Boot servicing past PCA 2011 expiry
-    (October 2026). Does NOT mitigate YellowKey (WinRE NTFS transaction
-    log bypass, May 2026) -- that path needs TPM + PIN, not a cert swap.
+    (October 2026). Does NOT mitigate YellowKey (CVE-2026-45585, WinRE
+    autofstx bypass) -- run mitigate-windows-yellowkey.ps1 for that.
 
     Verifies completion by checking BOTH:
       - File signatures on disk (bootmgfw.efi, winload.efi, winresume.efi)

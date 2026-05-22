@@ -28,8 +28,8 @@ lib/windows/
     ├── verify-windows-ca-2023.ps1           # CA 2023 firmware-level inspection (human-readable)
     ├── snapshot-windows-ca-2023.ps1         # CA 2023 state writer for the report
     ├── set-yellowkey-allow-mitigation.ps1   # YellowKey: write opt-in marker
-    ├── mitigate-windows-yellowkey.ps1       # YellowKey: reagentc /disable, opt-in marker
-    ├── unmitigate-windows-yellowkey.ps1     # YellowKey: reagentc /enable
+    ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (opt-in marker)
+    ├── unmitigate-windows-yellowkey.ps1     # YellowKey: restore autofstx to BootExecute
     ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
     └── snapshot-windows-yellowkey.ps1       # YellowKey state writer for the report
 ```
@@ -226,79 +226,106 @@ osquery / SQL specifics:
 - **fleetdm/fleet#42318** — Open Fleet bug. Fleet sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require). Blocks BitLocker TPM+PIN as defence-in-depth. PR #43915 has the fix.
 
 CVE / KB references:
-- **CVE-2023-24932** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
-- **CVE-2025-48804 (BitUnlocker)** — https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-48804
-- **KB5025885** — https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
-- **MS Secure Boot Playbook (Feb 2026)** — https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+- **CVE-2023-24932** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24932
+- **CVE-2025-48804 (BitUnlocker)** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-48804
+- **CVE-2026-45585 (YellowKey)** -- https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585
+- **KB5025885** -- https://support.microsoft.com/en-us/topic/41a975df-beb2-40c1-99a3-b3ff139f832d
+- **MS Secure Boot Playbook (client, Feb 2026)** -- https://techcommunity.microsoft.com/blog/windows-itpro-blog/secure-boot-playbook-for-certificates-expiring-in-2026/4469235
+- **MS Windows Server Secure Boot Playbook (2026)** -- https://techcommunity.microsoft.com/blog/windowsservernewsandbestpractices/windows-server-secure-boot-playbook-for-certificates-expiring-in-2026/4495789
+- **Eclypsium YellowKey analysis** -- https://eclypsium.com/blog/yellowkey-bitlocker-bypass-windows-recovery-environment/
 
 ## Adjacent BitLocker bypass threats
 
 Out of scope for this migration but tracked here so the trust-chain context stays joined up:
 
-- **YellowKey (May 2026, no CVE yet).** Abuses NTFS transaction log replay in WinRE. Attacker drops crafted `FsTx` files on a USB or directly on the ESP, reboots into WinRE (Shift + Restart, then hold Ctrl), gets a shell with read access to the BitLocker volume. Affects Windows 11 and Server 2022/2025. Windows 10 is not affected. No patch as of May 2026. **TPM + PIN does not help.** The researcher confirmed on their public blog that the attack works against TPM+PIN configurations; the public PoC only demonstrates TPM-only because the variant against TPM+PIN is being withheld. The only known mitigation is `reagentc /disable` to remove WinRE entirely, which costs in-place recovery and is a last-resort control. USB-block group policies and BIOS USB-boot blocks do **not** mitigate because WinRE does not honour OS-level USB policy and the attack does not boot from the stick.
+- **YellowKey (CVE-2026-45585, disclosed May 12 2026).** Abuses `autofstx.exe` inside WinRE. autofstx replays NTFS transaction logs from any attached volume's `System Volume Information\FsTx` folder, deletes `winpeshl.ini`, and drops the attacker into `cmd.exe` with the BitLocker volume already unlocked. Affects Windows 11 and Server 2022/2025. Windows 10 is not affected. Microsoft published a mitigation on May 19 2026, with a deployable script on May 21. No full patch as of May 22 2026. The mitigation removes `autofstx.exe` from the WinRE image's Session Manager `BootExecute` value so the vulnerable replay never runs. `reagentc /disable` stays in the toolkit as a heavier escalation that closes the path by removing WinRE entirely. **TPM + PIN blocks the published PoC** but not the researcher's withheld TPM+PIN variant: treat TPM + PIN as raising attacker cost, not as a full mitigation. USB-block group policies and BIOS USB-boot blocks do **not** mitigate because WinRE does not honour OS-level USB policy and the attack does not boot from the stick.
 - **BitUnlocker (CVE-2025-48804)** is mitigated by the CA 2023 migration this repo ships. TPM + PIN also defeats it independently because the TPM will not unseal the VMK without the PIN. Two independent paths to closure.
 - **Intune policy gap (Fleet PR #43915, still open against upstream).** Intune currently sends `ConfigurePINUsageDropDown_Name = 2` (Allow) instead of `1` (Require), so TPM + PIN cannot be enforced via Intune today. Until the PR lands, TPM + PIN enforcement needs a custom CSP profile or scripted BCD configuration.
-- **Stacked controls for hosts that handle sensitive data:** complete the CA 2023 migration (this repo), enforce TPM + PIN where feasible, and `reagentc /disable` if WinRE is not needed locally. Each control closes a different attack path.
+- **Stacked controls for hosts that handle sensitive data:** complete the CA 2023 migration (this repo), enforce TPM + PIN where feasible, strip `autofstx` from WinRE (run `mitigate-windows-yellowkey.ps1`), and `reagentc /disable` if WinRE is not needed locally. Each control closes a different attack path or raises attacker cost.
 
 ## YellowKey mitigation pattern in this repo
 
-Shipped alongside the CA 2023 trio because customers asked. Same shape:
-detect, mitigate, verify.
+Same shape as the CA 2023 trio: detect, mitigate, verify. Primary
+mitigation is Microsoft's `autofstx` strip from WinRE's Session Manager
+`BootExecute`. `reagentc /disable` stays in the toolkit as a heavier
+escalation for hosts where WinRE removal is acceptable.
 
 | File | Purpose |
 |------|---------|
-| `windows-yellowkey.reports.yml` | Daily snapshot of OS + BitLocker state per host. Surfaces who is exposed. |
-| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, key protector types, opt-in marker state. |
-| `mitigate-windows-yellowkey.ps1` | `reagentc /disable`. Gated by a per-host registry marker. |
-| `unmitigate-windows-yellowkey.ps1` | `reagentc /enable`. Reverses the mitigation. No marker required. |
+| `windows-yellowkey.reports.yml` | Daily snapshot of OS + BitLocker state per host. Surfaces who is exposed, mitigated, or unaffected. |
+| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, Fleet marker state. |
+| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via DISM-mounted offline registry edit. Gated by an opt-in marker. |
+| `unmitigate-windows-yellowkey.ps1` | Restores `autofstx.exe` to `BootExecute`. Reverses the mitigation. No marker required. |
+| `set-yellowkey-allow-mitigation.ps1` | Sets the per-host `AllowMitigation` marker. |
 
-**Opt-in marker (per-host gate):**
+**Two markers, two layers:**
 
 ```
-HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1 (DWORD)
+HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation    = 1 (DWORD)  // admin opt-in
+HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated  = 1 (DWORD)  // mitigate wrote this on success
 ```
 
-The mitigate script refuses to disable WinRE unless the admin sets this
-value on the host first. Two reasons:
+The mitigate script refuses to mount the WinRE image without
+`AllowMitigation` because editing the recovery image is a deliberate,
+label-scoped action. `BootExecMitigated` is the success marker: the
+snapshot script reads it so the report can surface
+`mitigated_bootexec_stripped` without re-mounting the WIM on every run.
 
-1. `reagentc /disable` is destructive at fleet scale -- a misconfigured
-   Fleet policy or label could nuke recovery across thousands of hosts.
-2. WinRE is the right choice for some hosts (laptops with no in-tooling
-   recovery) and the wrong choice for others (servers, kiosks, hosts
-   with off-host imaging). Admins, not scripts, make that call.
-
-Set the marker via `set-yellowkey-allow-mitigation.ps1` targeted at a
-labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
+Set `AllowMitigation` via `set-yellowkey-allow-mitigation.ps1` targeted
+at a labelled subset (e.g., `yellowkey-mitigated` label), or by hand in
 Registry Editor on one-off hosts. Clear with
 `Remove-ItemProperty -Path HKLM:\SOFTWARE\Fleet\YellowKey -Name AllowMitigation`.
+The `unmitigate` script clears `BootExecMitigated` on success.
 
-**Trade-offs of disabling WinRE:**
+**Why the autofstx strip, not `reagentc /disable`, as the default:**
+
+- It is Microsoft's published, supported mitigation.
+- Push-button reset, the in-WinRE BitLocker recovery flow, System
+  Restore from boot, and Recovery Drive restore all keep working.
+- Reversal is symmetric: `unmitigate-windows-yellowkey.ps1` puts
+  `autofstx` back without touching the boot configuration.
+
+**When to escalate to `reagentc /disable`:**
+
+- Hosts where WinRE is unnecessary by design (servers, kiosks, hosts
+  with off-host imaging).
+- Hosts in a threat model where any local recovery flow is itself an
+  attack surface (high-sensitivity laptops with off-host imaging).
+- Run `reagentc /disable` manually after the autofstx strip has been
+  validated. The two mitigations stack and the report verdict moves
+  to `mitigated_winre_off` (the heavier state takes precedence).
+
+**Trade-offs of disabling WinRE (escalation only):**
 
 - Push-button reset stops working (`Settings > Recovery > Reset this PC`).
-- BitLocker recovery flow inside WinRE is gone -- recovery key is still
+- BitLocker recovery flow inside WinRE is gone. Recovery key is still
   honoured at the boot manager, but the WinRE-driven flow is not.
 - System Restore from boot and Recovery Drive image restore are gone.
-- Re-enable with `unmitigate-windows-yellowkey.ps1` before any of these
-  operations is needed.
+- Re-enable with `reagentc /enable` before any of these operations is
+  needed.
 
 **Script exit codes (`mitigate-windows-yellowkey.ps1`):**
 
 | Code | Meaning |
 |------|---------|
-| 0 | WinRE disabled (action taken or already disabled) |
+| 0 | autofstx removed, already absent, or WinRE already disabled |
 | 2 | Opt-in marker missing; no action taken |
 | 3 | OS not affected (Windows 10 etc.); no action taken |
-| 4 | reagentc returned non-zero, or post-state check failed |
+| 4 | WinRE mount / edit / unmount failed; manual investigation needed |
+| 5 | autofstx still present after commit; mitigation did not stick |
 
 **Script exit codes (`unmitigate-windows-yellowkey.ps1`):**
 
 | Code | Meaning |
 |------|---------|
-| 0 | WinRE enabled (action taken or already enabled) |
-| 4 | reagentc returned non-zero, or post-state check failed |
+| 0 | autofstx restored, or already present |
+| 3 | WinRE disabled; cannot edit the offline image |
+| 4 | WinRE mount / edit / unmount failed; manual investigation needed |
+| 5 | autofstx still absent after commit |
 
 **Verify script:** always exits 0 unless PowerShell errors. Output is
-the deliverable.
+the deliverable. Does not mount winre.wim; re-run mitigate (idempotent)
+for ground truth on the offline image's `BootExecute` value.
 
 ## Open items
 

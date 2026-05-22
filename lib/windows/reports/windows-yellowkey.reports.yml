@@ -2,17 +2,22 @@
   automations_enabled: false
   description: |
     Identifies Windows hosts exposed to the YellowKey BitLocker bypass
-    (disclosed May 12 2026, no CVE, no patch as of May 2026).
+    (CVE-2026-45585, disclosed May 12 2026, Microsoft mitigation
+    published May 19, no full patch as of May 22 2026).
 
-    Needs WinRE enabled plus BitLocker protecting the volume. Windows
-    10 is not affected. Mitigation is reagentc /disable. TPM + PIN
-    does NOT help (researcher-confirmed).
+    Affects Windows 11 and Server 2022/2025. Windows 10 is not affected.
+    Microsoft's mitigation strips autofstx.exe from the WinRE image's
+    Session Manager BootExecute. Disabling WinRE is a heavier control
+    that also closes the path. TPM + PIN blocks the published PoC but
+    not the researcher's withheld variant.
 
     WinRE state and BitLocker key protectors come from
     snapshot-windows-yellowkey.ps1 (osquery has no WinRE table and
-    bitlocker_info carries no key-protector column). Without the
-    snapshot, those columns read `run snapshot script` and the
-    verdict falls back to `affected_if_winre_on`.
+    bitlocker_info carries no key-protector column). The
+    BootExecMitigated signal comes from a marker that
+    mitigate-windows-yellowkey.ps1 writes after a successful autofstx
+    strip; the snapshot reads that marker rather than mounting the
+    WinRE image on every run.
 
     Snapshot path:
       C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
@@ -20,10 +25,11 @@
 
     yellowkey_exposure_verdict:
       not_affected                   Windows 10
-      exposed                        WinRE on + BitLocker protecting
-      not_exposed_winre_off          WinRE disabled
+      mitigated_bootexec_stripped    autofstx removed from WinRE BootExecute
+      mitigated_winre_off            WinRE disabled (heavier control)
       not_exposed_bitlocker_off      WinRE on, BitLocker not protecting
-      affected_if_winre_on           snapshot missing (run for refinement)
+      exposed                        WinRE on + BitLocker protecting + no Fleet mitigation marker
+      affected_if_winre_on           snapshot missing (run snapshot script)
       unknown                        unrecognised OS
   discard_data: false
   interval: 86400
@@ -36,7 +42,9 @@
         MAX(CASE WHEN line LIKE 'winre_enabled=%'
                  THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS winre_enabled,
         MAX(CASE WHEN line LIKE 'key_protectors=%'
-                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS key_protectors
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS key_protectors,
+        MAX(CASE WHEN line LIKE 'bootexec_mitigated=%'
+                 THEN SUBSTR(line, INSTR(line, '=') + 1) END) AS bootexec_mitigated
       FROM file_lines
       WHERE path = 'C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt'
     )
@@ -52,15 +60,17 @@
         WHEN b.conversion_status = 3   THEN 'decrypting'
         ELSE 'unknown'
       END AS bitlocker_state,
-      COALESCE(snap.winre_enabled,   'run snapshot script') AS winre_enabled,
-      COALESCE(snap.key_protectors,  'run snapshot script') AS key_protectors,
+      COALESCE(snap.winre_enabled,      'run snapshot script') AS winre_enabled,
+      COALESCE(snap.key_protectors,     'run snapshot script') AS key_protectors,
+      COALESCE(snap.bootexec_mitigated, 'run snapshot script') AS bootexec_mitigated,
       CASE
         WHEN ov.name LIKE '%Windows 10%'                  THEN 'not_affected'
-        WHEN snap.winre_enabled = 'False'                 THEN 'not_exposed_winre_off'
-        WHEN snap.winre_enabled = 'True'
-         AND b.protection_status = 1                      THEN 'exposed'
-        WHEN snap.winre_enabled = 'True'
-         AND b.protection_status = 0                      THEN 'not_exposed_bitlocker_off'
+        WHEN snap.winre_enabled       = 'False'           THEN 'mitigated_winre_off'
+        WHEN snap.bootexec_mitigated  = 'True'            THEN 'mitigated_bootexec_stripped'
+        WHEN snap.winre_enabled       = 'True'
+         AND b.protection_status      = 0                 THEN 'not_exposed_bitlocker_off'
+        WHEN snap.winre_enabled       = 'True'
+         AND b.protection_status      = 1                 THEN 'exposed'
         WHEN ov.name LIKE '%Windows 11%'                  THEN 'affected_if_winre_on'
         WHEN ov.name LIKE '%Server 2022%'                 THEN 'affected_if_winre_on'
         WHEN ov.name LIKE '%Server 2025%'                 THEN 'affected_if_winre_on'
