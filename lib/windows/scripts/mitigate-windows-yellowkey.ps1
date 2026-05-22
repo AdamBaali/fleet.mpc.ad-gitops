@@ -24,8 +24,8 @@
     Fleet additions on top of Microsoft's flow:
       - Gated by HKLM\SOFTWARE\Fleet\YellowKey\AllowMitigation = 1
       - Writes HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1 on success
-        so the snapshot script can surface mitigated_bootexec_stripped without
-        re-mounting the WIM
+        so the windows-yellowkey report can surface the `mitigated` verdict
+        via the native osquery registry table
       - Skips silently if WinRE is already disabled (stronger mitigation in place)
       - Granular exit codes for Fleet reporting
       - Structured key:value output for log capture

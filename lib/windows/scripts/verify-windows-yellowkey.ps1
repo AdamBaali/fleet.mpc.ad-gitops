@@ -4,14 +4,12 @@
     Read-only.
 
 .DESCRIPTION
-    Reports the signals osquery cannot surface from the report alone:
-      - OS version and YellowKey exposure verdict
+    Reports the per-host signals the windows-yellowkey report cannot
+    surface via native osquery tables alone:
       - WinRE enabled state (from `reagentc /info`)
       - BitLocker key protector types per volume (TPM-only vs TPM+PIN
         vs Recovery, etc.) -- Get-BitLockerVolume, not osquery
-      - Fleet YellowKey AllowMitigation marker state
-      - Fleet YellowKey BootExecMitigated marker state (written by
-        mitigate-windows-yellowkey.ps1 on success)
+      - Fleet YellowKey AllowMitigation and BootExecMitigated markers
 
     READ-ONLY. Does not mount winre.wim and does not change WinRE state.
     For ground truth on the offline WinRE image's BootExecute value,
@@ -44,7 +42,7 @@ try {
     $os = (Get-CimInstance Win32_OperatingSystem).Caption
     Write-State "OS" $os
     $verdict = if     ($os -match 'Windows 10')                                                       { 'not_affected (Win10)' }
-               elseif ($os -match 'Windows 11' -or $os -match 'Server 2022' -or $os -match 'Server 2025') { 'affected_if_winre_on' }
+               elseif ($os -match 'Windows 11' -or $os -match 'Server 2022' -or $os -match 'Server 2025') { 'in_scope (check WinRE and markers below)' }
                else                                                                                  { 'unknown_os' }
     Write-State "YellowKey exposure" $verdict
 } catch {
