@@ -33,19 +33,24 @@ lib/windows/
 │   ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
 │   ├── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
 │   └── install-yellowkey-extension.ps1      # YellowKey: download + install the osquery extension binary
-├── policies/
-│   └── windows-yellowkey-extension.policies.yml # Policy: extension binary present; runs install-yellowkey-extension.ps1 on failure
-└── extensions/
-    └── yellowkey/                           # Native osquery extension exposing the windows_yellowkey table
-        ├── main.go                          # Go source (osquery-go bindings)
-        ├── go.mod / go.sum                  # Go module
-        ├── Makefile                         # Cross-compile windows/amd64 + arm64
-        └── README.md                        # Build + deploy + sample queries
+└── policies/
+    └── windows-yellowkey-extension.policies.yml # Policy: extension binary present; runs install-yellowkey-extension.ps1 on failure
+
+extensions/                                 # Native osquery extensions (Go). One subdirectory per extension.
+└── windows_yellowkey/                      # Exposes the windows_yellowkey table for CVE-2026-45585 detection
+    ├── main.go                             # Extension implementation
+    ├── go.mod / go.sum                     # Go module
+    ├── Makefile                            # Cross-compile windows/amd64 + arm64
+    └── README.md                           # Build + deploy + sample queries
+
+.github/workflows/build-extensions.yml       # On tag push, builds every extensions/<name>/ and uploads binaries as release assets
 ```
 
 Reports use native osquery tables (`authenticode`, `registry`, `os_version`, `bitlocker_info`) plus snapshot data via `file_lines` for signals osquery cannot reach natively. Each report applies a 48-hour freshness gate: snapshot data older than 48 hours is treated as missing and snapshot-derived verdicts fall back to the native-only set. Re-run the matching `snapshot-windows-*.ps1` to refresh.
 
-The optional `windows_yellowkey` osquery extension (`lib/windows/extensions/yellowkey/`) provides the same YellowKey signals as a real-time virtual table, eliminating the snapshot freshness gate for hosts that load the extension. Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update). Build with `make windows`, deploy via `orbit.exe shell -- --extension <binary> --allow-unsafe`. Snapshot scripts remain as the fallback path for hosts without the extension loaded.
+The optional `windows_yellowkey` osquery extension (`extensions/windows_yellowkey/`) provides the same YellowKey signals as a real-time virtual table, eliminating the snapshot freshness gate for hosts that load the extension. Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update). Build with `make windows`, deploy via `orbit.exe shell -- --extension <binary> --allow-unsafe`. Snapshot scripts remain as the fallback path for hosts without the extension loaded.
+
+Releases: pushing a tag matching `v*` or `extensions-v*` triggers `.github/workflows/build-extensions.yml`, which auto-discovers every directory under `extensions/`, runs `make windows` in each, and uploads the resulting `.exe` files as assets on a GitHub release. The `install-yellowkey-extension.ps1` script (attached to the `windows-yellowkey-extension` policy) pulls from that release URL.
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
 

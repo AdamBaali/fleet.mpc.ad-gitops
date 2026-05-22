@@ -1,144 +1,148 @@
-Detect and mitigate the YellowKey BitLocker bypass with Fleet
-=============================================================
+Detect, mitigate, and verify the YellowKey BitLocker bypass with Fleet
+======================================================================
 
-[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass disclosed May 12 2026. An attacker with brief physical access to a Windows 11, Server 2022, or Server 2025 host can read everything on the encrypted drive. Microsoft published a mitigation on May 19 with a deployable script on May 21. No full patch yet.
+[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11, Server 2022, and Server 2025. Microsoft published a mitigation on May 19 2026; no full patch yet. This guide is the Fleet-flavored detect-mitigate-verify pattern: a daily report that surfaces exposed hosts, a remediation script that applies Microsoft's mitigation safely on every affected host, and a policy that keeps the detection extension installed across the fleet.
 
-This guide is the pattern, the drop-in scripts and report, and the operational notes you'll want before pointing it at a real fleet.
+> **See also:** [Detect and remediate the Windows Secure Boot CA 2023 migration with Fleet](windows-secure-boot-ca-2023.md). Separate boot-chain problem; same Fleet pattern.
 
-> **See also:** [Detect and remediate the Windows Secure Boot CA 2023 migration with Fleet](windows-secure-boot-ca-2023.md). Separate boot-chain problem with its own response pattern; also closes two other BitLocker-related CVEs.
+The threat
+----------
 
-What YellowKey does
--------------------
+YellowKey abuses `autofstx.exe` inside the Windows Recovery Environment. An attacker with brief physical access drops a crafted `FsTx` blob on a USB stick or the EFI System Partition, reboots into WinRE, and `autofstx` replays NTFS transaction logs that delete `winpeshl.ini`. Without `winpeshl.ini`, WinRE spawns `cmd.exe` as a fallback, running with the BitLocker volume already unlocked.
 
-YellowKey abuses `autofstx.exe` inside the Windows Recovery Environment. autofstx is the FsTx auto-recovery utility; it runs early during WinRE boot and replays NTFS transaction logs from any attached volume's `System Volume Information\FsTx` folder.
+Affects Windows 11, Server 2022, Server 2025. Windows 10 ships a different WinRE component and is not affected.
 
-The attack:
+What does **not** mitigate it:
 
-1. Drop a crafted `FsTx` blob on a USB stick or directly on the EFI System Partition.
-2. Reboot into WinRE. Shift + Restart, or hold Ctrl during the recovery menu.
-3. autofstx replays the transaction logs, which delete `winpeshl.ini`.
-4. Without `winpeshl.ini`, WinRE falls back to spawning `cmd.exe` instead of the locked-down recovery UI.
-5. The shell runs with the BitLocker volume already unlocked.
-
-Affects Windows 11, Server 2022, Server 2025. Windows 10 ships a different WinRE component and isn't affected.
-
-What doesn't mitigate it:
-
-- USB-block group policies. WinRE doesn't honour OS-level USB policy.
-- BIOS USB-boot blocks. The attack doesn't boot from the stick; it boots normally into WinRE.
+- USB-block GPOs and BIOS USB-boot blocks. WinRE does not honour OS-level USB policy, and the attack does not boot from the stick.
 - TPM-only BitLocker. The whole point of the bypass.
 
 What does:
 
-- Removing `autofstx.exe` from WinRE's Session Manager `BootExecute`. The vulnerable replay never runs. Microsoft's published mitigation.
-- `reagentc /disable` to remove WinRE entirely. Heavier; loses push-button reset, in-WinRE BitLocker recovery, System Restore from boot.
-- TPM + PIN blocks the published PoC. The researcher built a TPM+PIN variant but withheld it, so treat TPM + PIN as raising attacker cost, not as a full mitigation.
+- Strip `autofstx.exe` from WinRE's Session Manager `BootExecute`. Microsoft's [official mitigation](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585), and what this repo automates.
+- `reagentc /disable`. Heavier; loses push-button reset and the in-WinRE BitLocker recovery flow.
+- TPM + PIN blocks the published PoC. The researcher withheld a TPM+PIN variant, so treat PIN as raising attacker cost, not a full block.
 
-Microsoft's mitigation
-----------------------
+What lands in your repo
+-----------------------
 
-The canonical script is in the [CVE-2026-45585 MSRC advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) FAQ, under *"Is there a script that I can copy and paste to implement a mitigation?"*. Plain-English flow:
+| File | Role |
+|---|---|
+| `lib/windows/reports/windows-yellowkey.reports.yml` | Daily per-host exposure + mitigation report |
+| `extensions/windows_yellowkey/` | Native osquery extension exposing the `windows_yellowkey` virtual table in real time |
+| `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Policy that checks for the extension binary; auto-runs the installer on failure |
+| `lib/windows/scripts/install-yellowkey-extension.ps1` | Downloads the arch-matching binary from the latest GitHub release |
+| `lib/windows/scripts/mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE; safe to run on every affected host |
+| `lib/windows/scripts/verify-windows-yellowkey.ps1` | Read-only per-host inspection |
+| `lib/windows/scripts/snapshot-windows-yellowkey.ps1` | Fallback signal source when the extension is not yet loaded |
+| `.github/workflows/build-extensions.yml` | Tag-driven release: builds every extension and uploads `.exe` files |
 
-1. Mount the WinRE image with `reagentc /mountre /path`.
-2. Load the offline `SYSTEM` hive into the live registry.
-3. Walk the active ControlSets (`Current` and `Default` from `\Select`) and strip `autofstx.exe` from each `Control\Session Manager\BootExecute`.
-4. Unload the hive.
-5. `reagentc /unmountre /path /commit`.
-6. `reagentc /disable` + `reagentc /enable` to re-seal the BitLocker measurement chain.
+Detect
+------
 
-The Fleet wrapper
------------------
+The `windows-yellowkey` report joins four signals:
 
-The repo's `mitigate-windows-yellowkey.ps1` is a Fleet-flavored adaptation of Microsoft's reference script. The MS core stays intact: same mount commands, same multi-ControlSet walk, same re-seal cycle, same language-agnostic `Enabled` detection.
+- `os_version` for the SKU check.
+- `bitlocker_info` (aggregated per host so a non-OS data partition cannot mask an exposed OS volume).
+- `registry` for the `BootExecMitigated` success marker.
+- WinRE state. From the `windows_yellowkey` extension if loaded; otherwise from `snapshot-windows-yellowkey.ps1` via `file_lines` with a 48-hour freshness gate.
+
+Verdicts:
+
+| Verdict | Meaning |
+|---|---|
+| `not_affected` | Windows 10 |
+| `mitigated` | `BootExecMitigated` marker set (mitigate script ran and verified clean) |
+| `mitigated_winre_off` | WinRE disabled (heavier control) |
+| `bitlocker_off` | No BitLocker volume, or none protecting |
+| `exposed` | Affected OS + BitLocker on + no mitigation marker |
+| `unknown` | Unrecognised OS |
+
+`snapshot_age_hours` and `snapshot_status` (`fresh` / `stale` / `missing`) are surfaced as columns so admins see freshness at a glance.
+
+Mitigate
+--------
+
+`mitigate-windows-yellowkey.ps1` is a Fleet-flavored adaptation of [Microsoft's canonical script](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585). The Microsoft flow:
+
+1. `reagentc /mountre /path <dir>` to mount the WinRE image.
+2. `reg load` the offline `SYSTEM` hive.
+3. Walk every `ControlSet*` child key and strip `autofstx` variants from `Control\Session Manager\BootExecute`.
+4. `reg unload` and `reagentc /unmountre /commit`.
+5. `reagentc /disable` + `/enable` to re-seal the BitLocker measurement chain.
 
 Fleet adds:
 
-- **Success marker.** Writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` after a successful strip. The Fleet report reads this via osquery's native `registry` table to surface the `mitigated` verdict.
-- **OS check.** Skips on Windows 10 (exit 3) and unrecognised SKUs.
-- **WinRE-disabled detection.** Skips silently if WinRE is already off (exit 0); a stronger mitigation is already in place.
-- **Granular exit codes.** 0 (success or already mitigated), 3 (OS not affected), 4 (mount, edit, unmount, or re-seal failed).
-- **Structured `key:value` output** for Fleet log capture.
+- Mount path under `%SystemRoot%\Temp`, ACL-locked to Administrators.
+- Mount + edit + unmount in one try/finally so the hive and mount are always released.
+- Read-back verification per ControlSet. Refuses to write the success marker unless every ControlSet is clean.
+- Writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` only when the edit completes without exception.
+- Granular exit codes for Fleet reporting: `0` ok, `3` OS not affected, `4` mount/edit/unmount/re-seal failed.
 
-No opt-in gate. Microsoft's autofstx strip is safe to apply on every affected host, so the script runs unconditionally when called.
+No opt-in gate. Microsoft's autofstx strip is safe to apply on every affected host. One-way: there is no unmitigate. If a patch ships, apply it and clear the marker manually.
 
-One-way. There is no unmitigate counterpart. If a patch ships, the patch supersedes the strip. If a host genuinely needs `autofstx` back, restore manually and clear `BootExecMitigated` from the same key.
+Deploy
+------
+
+Two pieces keep the detection extension installed across the fleet:
+
+- The `windows-yellowkey-extension` policy queries osquery's `file` table for `windows_yellowkey-*.exe` under `C:\Program Files\Fleet\Extensions\`. Passes when the binary is present.
+- `install-yellowkey-extension.ps1` is attached as the policy's `run_script`. It detects host architecture, downloads the matching binary from the latest GitHub release, verifies the PE32+ MZ header, and drops it at the target path. Idempotent.
+
+Releases come from `.github/workflows/build-extensions.yml`. Push a tag matching `v*` or `extensions-v*` and the workflow auto-discovers every `extensions/<name>/`, runs `make windows`, and uploads the resulting `.exe` files as release assets:
+
+```
+git tag v1.0.0
+git push --tags
+```
+
+That is the only manual step. Fleet's policy auto-installs the extension on hosts as they check in; Fleet caps `run_script` retries at 3 per failure, so a host that cannot install (no egress, locked-down endpoint, etc.) stays failing until an admin intervenes.
 
 Drop-in
 -------
 
-Pin the YellowKey files in `fleets/workstations.yml`:
+Pin everything in `fleets/workstations.yml`:
 
 ```
+policies:
+  - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
+reports:
+  - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 controls:
   scripts:
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/cleanup-windows-yellowkey-snapshot.ps1
-reports:
-  - path: ../lib/windows/reports/windows-yellowkey.reports.yml
+    - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
 ```
 
-Workflow:
-
-1. Run `snapshot-windows-yellowkey.ps1` against a label. Populates `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt` with OS, WinRE state, BitLocker key protectors, success marker, and an ISO 8601 UTC timestamp.
-2. Run the report. Hosts marked `exposed` are the candidates.
-3. Run `mitigate-windows-yellowkey.ps1` against the same label. It mounts WinRE, strips autofstx, re-seals, and sets the `BootExecMitigated` success marker.
-4. Re-run the snapshot, then re-run the report. Hosts move from `exposed` to `mitigated`.
-
-Report verdicts:
+Apply with:
 
 ```
-yellowkey_exposure_verdict:
-  not_affected         Windows 10
-  mitigated_winre_off  WinRE disabled (fresh snapshot only; heavier control)
-  mitigated            Fleet BootExecMitigated marker set (autofstx strip applied)
-  bitlocker_off        BitLocker not protecting the volume
-  exposed              BitLocker on + no mitigation marker; WinRE confirmed on (fresh) or assumed on (stale/missing)
-  unknown              unrecognised OS
+fleetctl gitops -f fleets/workstations.yml
 ```
 
-Snapshot freshness
-------------------
+Workflow
+--------
 
-The report applies a 48-hour freshness gate. Each snapshot writes a `snapshot_generated` ISO 8601 UTC timestamp. The report computes `snapshot_age_hours` and assigns `snapshot_status`:
-
-| Status | Meaning |
-|---|---|
-| `fresh` | captured within the last 48 hours |
-| `stale` | captured 48 or more hours ago (snapshot-derived verdicts fall back to native-only) |
-| `missing` | no snapshot file (snapshot-derived verdicts fall back to native-only) |
-
-The `mitigated` verdict (BootExecMitigated marker) is native and works regardless of snapshot freshness. The `mitigated_winre_off` verdict requires a fresh snapshot because WinRE state isn't reachable from native osquery tables. When the snapshot is stale or missing, the report assumes WinRE is on for affected SKUs (the Microsoft default) and surfaces `exposed` rather than `mitigated_winre_off`. Re-run `snapshot-windows-yellowkey.ps1` to refresh; run `cleanup-windows-yellowkey-snapshot.ps1` to force the cold-import path.
-
-Escalation: `reagentc /disable`
-------------------------------
-
-Some hosts don't need WinRE: kiosks, servers, hosts with off-host imaging. For those, the heavier mitigation is `reagentc /disable`. It closes YellowKey by removing WinRE entirely.
-
-Run `reagentc /disable` manually after the autofstx strip has been validated, against the subset of hosts where the trade-offs are acceptable:
-
-- Push-button reset stops working.
-- BitLocker recovery flow inside WinRE is gone. The recovery key is still honoured at the boot manager, but the WinRE-driven flow is gone.
-- System Restore from boot and Recovery Drive image restore are gone.
-- Re-enable with `reagentc /enable` before any of those operations is needed.
-
-The two mitigations stack. With a fresh snapshot, hosts that have had `reagentc /disable` applied show up as `mitigated_winre_off` (heavier state takes precedence). If the snapshot is stale or missing, those hosts revert to `exposed` until the snapshot is refreshed. Run `verify-windows-yellowkey.ps1` for the on-demand per-host picture.
+1. **Push the GitOps config.** Policy, report, and scripts land in Fleet.
+2. **Cut a release.** `git tag v1.0.0 && git push --tags`. The workflow builds and publishes the binaries.
+3. **Wait for hosts to install.** Policy runs the installer on failing hosts on the next check-in.
+4. **Open the report.** Hosts with `state = 'exposed'` are the candidates.
+5. **Run `mitigate-windows-yellowkey.ps1`** against those hosts via Fleet > Controls > Scripts. Target by label.
+6. **Re-run the report.** Exposed hosts move to `mitigated`.
 
 Operational notes
 -----------------
 
-*   **Snapshot file lifecycle.** The state file lives at `C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt`. The report still works without it; WinRE columns show `run snapshot script`, `snapshot_status` reads `missing`, and the verdict falls back to native-only. Use `cleanup-windows-yellowkey-snapshot.ps1` to test the cold-import path.
-*   **Snapshot freshness is 48 hours.** Older than that and the report treats the file as missing, dropping back to native-only verdicts. Watch the `snapshot_age_hours` column to see when refreshes are due.
-*   **Verify is the per-host inspector.** `verify-windows-yellowkey.ps1` reads `reagentc /info`, BitLocker key protectors via `Get-BitLockerVolume`, and both Fleet markers. Use it to ground-truth report verdicts.
-*   **The mitigate script needs admin.** It mounts the WinRE image and edits an offline registry hive. The Fleet wrapper checks `IsInRole(Administrator)` and exits 4 if not.
-*   **`reagentc /mountre` will fail if the mount dir is dirty.** The script's default mount path is `C:\ProgramData\Fleet\state\yk-winre-mount`. It refuses to use a non-empty directory. Override with `-MountPath`.
-*   **Multi-ControlSet hosts.** Failed-boot recovery hosts often run from `ControlSet002`. The mitigate script walks both `Current` and `Default` from the `\Select` key, matching Microsoft's reference.
-*   **Re-seal is what keeps BitLocker happy.** After committing changes to the WIM, the script runs `reagentc /disable` + `reagentc /enable`. This refreshes WinRE's registration so the BitLocker measurement chain stays intact.
-*   **When MS ships a patch.** Apply the patch and clear `BootExecMitigated` from the host registry. The mitigation marker doesn't auto-clear because the script is one-way; the report will keep showing `mitigated` until the marker is gone.
-*   **Don't trust TPM-only.** YellowKey is one of two recent BitLocker bypasses against TPM-only configurations. Move high-risk hosts to TPM + PIN where the threat model includes physical access, even though TPM + PIN doesn't block YellowKey's withheld variant.
+- **Snapshot freshness applies until the extension is loaded.** Hosts without the extension installed yet fall back to `snapshot-windows-yellowkey.ps1` and a 48-hour freshness gate. The `snapshot_status` column tells you which path the row came from.
+- **Verify is the per-host inspector.** `verify-windows-yellowkey.ps1` reads `reagentc /info`, BitLocker key protectors via `Get-BitLockerVolume`, and the success marker. Use it when a single host disagrees with the report.
+- **Recovery media changes after `reagentc /disable`.** The heavier escalation removes push-button reset, the in-WinRE BitLocker recovery flow, System Restore from boot, and Recovery Drive image restore. Re-enable with `reagentc /enable` before any of those operations is needed.
+- **When the patch ships.** Apply it and clear `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated` to retire the marker. The mitigate script is one-way and does not auto-clear.
+- **Don't trust TPM-only.** Move high-risk hosts to TPM + PIN where the threat model includes physical access. PIN blocks the public PoC and raises attacker cost on the withheld variant.
 
 Wrap-up
 -------
 
-Microsoft published a clean mitigation; the Fleet wrapper adds a success marker for the report and Fleet-shaped exit codes. The mitigation is one-way: apply, the marker stays, the report keeps it visible. When the patch arrives the marker is the only thing left to clean up.
+Three pieces, one threat. An osquery extension that watches every Windows host in real time. A Fleet policy that keeps the extension installed. A script that runs Microsoft's mitigation when a host shows up exposed. Pin the YAML, push the tag, watch the report drain.

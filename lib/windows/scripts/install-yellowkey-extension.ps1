@@ -41,7 +41,7 @@
       5 = Downloaded file is not a PE32+ (corrupted, wrong content, etc.)
 
     References:
-      Extension source: lib/windows/extensions/yellowkey/ in this repo.
+      Extension source: extensions/windows_yellowkey/ in this repo.
       Allen Houchins' pattern:
         https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update
 #>
