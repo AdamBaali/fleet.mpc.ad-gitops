@@ -1,5 +1,6 @@
 name: "💻 Workstations"
 policies:
+  - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
 reports:
   - path: ../lib/windows/reports/windows-ca-2023.reports.yml
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
@@ -14,6 +15,7 @@ controls:
     - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/cleanup-windows-yellowkey-snapshot.ps1
+    - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
 software:
   packages:
     - path: ../lib/macos/software/munki.yml

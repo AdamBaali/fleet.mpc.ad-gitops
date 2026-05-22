@@ -31,7 +31,10 @@ lib/windows/
 │   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (Microsoft's mitigation, no gate)
 │   ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
 │   ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
-│   └── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
+│   ├── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
+│   └── install-yellowkey-extension.ps1      # YellowKey: download + install the osquery extension binary
+├── policies/
+│   └── windows-yellowkey-extension.policies.yml # Policy: extension binary present; runs install-yellowkey-extension.ps1 on failure
 └── extensions/
     └── yellowkey/                           # Native osquery extension exposing the windows_yellowkey table
         ├── main.go                          # Go source (osquery-go bindings)
