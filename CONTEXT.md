@@ -109,6 +109,7 @@ osquery / Go specifics:
 - The extension follows the Go Code Review Comments conventions: package comment starts with "Package ...", no silent error discards (log unexpected failures, stay quiet on expected absence such as a missing Fleet registry key), enumerated string values declared as constants, `gofmt` and `go vet` clean.
 - osquery integer columns are strings (`"1"` / `"0"`).
 - Match table column names exactly between the extension and the report query.
+- An autoloaded extension must accept `--verbose`. osqueryd forwards it when it runs verbose, and a bare `flag.Parse()` (ExitOnError) exits on the unknown flag, so the table never registers. Declare the flag even if it goes unused.
 
 ## Working with Claude Code
 
