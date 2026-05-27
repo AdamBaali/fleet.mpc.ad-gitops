@@ -22,6 +22,31 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
+const tableName = "windows_yellowkey"
+
+// Verdicts emitted in the state column. First match in verdict() wins.
+const (
+	stateNotAffected    = "not_affected"
+	stateMitigated      = "mitigated"
+	stateMitigatedWinRE = "mitigated_winre_off"
+	stateBitLockerOff   = "bitlocker_off"
+	stateExposed        = "exposed"
+)
+
+// WinRE states returned by winreState().
+const (
+	winreEnabled  = "Enabled"
+	winreDisabled = "Disabled"
+	winreUnknown  = "unknown"
+)
+
+// BitLocker key protector type names from Get-BitLockerVolume.
+const (
+	kpTPM              = "Tpm"
+	kpTPMPin           = "TpmPin"
+	kpTPMPinStartupKey = "TpmPinStartupKey"
+)
+
 func main() {
 	socket := flag.String("socket", "", "path to the osquery extension socket")
 	timeout := flag.Int("timeout", 3, "seconds to wait for autoloaded extensions")
@@ -33,7 +58,7 @@ func main() {
 	}
 
 	server, err := osquery.NewExtensionManagerServer(
-		"windows_yellowkey", *socket,
+		tableName, *socket,
 		osquery.ServerTimeout(time.Duration(*timeout)*time.Second),
 		osquery.ServerPingInterval(time.Duration(*interval)*time.Second),
 	)
@@ -41,7 +66,7 @@ func main() {
 		log.Fatalf("create extension server: %v", err)
 	}
 
-	server.RegisterPlugin(table.NewPlugin("windows_yellowkey", columns(), generate))
+	server.RegisterPlugin(table.NewPlugin(tableName, columns(), generate))
 
 	if err := server.Run(); err != nil {
 		log.Fatalf("run extension server: %v", err)
@@ -73,7 +98,7 @@ func generate(_ context.Context, _ table.QueryContext) ([]map[string]string, err
 	return []map[string]string{{
 		"state":         state,
 		"state_reason":  reason,
-		"needs_action":  boolToInt(state == "exposed"),
+		"needs_action":  boolToInt(state == stateExposed),
 		"winre_enabled": winre,
 		"tpm_only":      boolToInt(tpmOnly),
 		"mitigated":     boolToInt(mit),
@@ -84,15 +109,15 @@ func generate(_ context.Context, _ table.QueryContext) ([]map[string]string, err
 func verdict(affected bool, winre string, protected, mitigated bool) (state, reason string) {
 	switch {
 	case !affected:
-		return "not_affected", "Windows 10 or unrecognised SKU; not vulnerable"
+		return stateNotAffected, "Windows 10 or unrecognised SKU; not vulnerable"
 	case mitigated:
-		return "mitigated", "autofstx stripped from WinRE (BootExecMitigated marker set)"
-	case winre == "Disabled":
-		return "mitigated_winre_off", "WinRE disabled; the bypass cannot run"
+		return stateMitigated, "autofstx stripped from WinRE (BootExecMitigated marker set)"
+	case winre == winreDisabled:
+		return stateMitigatedWinRE, "WinRE disabled; the bypass cannot run"
 	case !protected:
-		return "bitlocker_off", "BitLocker is not protecting any volume"
+		return stateBitLockerOff, "BitLocker is not protecting any volume"
 	default:
-		return "exposed", "WinRE on, BitLocker on, no mitigation applied"
+		return stateExposed, "WinRE on, BitLocker on, no mitigation applied"
 	}
 }
 
@@ -128,9 +153,9 @@ var (
 	reDisabled = regexp.MustCompile(`[:\x{FF1A}]\s*Disabled\b`)
 )
 
-// winreState returns "Enabled", "Disabled", or "unknown" by parsing
-// reagentc /info. The status words are English-only; an unrecognised
-// locale yields "unknown".
+// winreState returns winreEnabled, winreDisabled, or winreUnknown by parsing
+// reagentc /info. The status words are English-only; an unrecognised locale
+// yields winreUnknown.
 func winreState() string {
 	out, err := exec.Command("reagentc.exe", "/info").CombinedOutput()
 	if err != nil {
@@ -140,11 +165,11 @@ func winreState() string {
 	}
 	switch text := string(out); {
 	case reDisabled.MatchString(text):
-		return "Disabled"
+		return winreDisabled
 	case reEnabled.MatchString(text):
-		return "Enabled"
+		return winreEnabled
 	default:
-		return "unknown"
+		return winreUnknown
 	}
 }
 
@@ -201,9 +226,9 @@ func tpmWithoutPin(protectors []string) bool {
 	tpm, pin := false, false
 	for _, p := range protectors {
 		switch p {
-		case "Tpm":
+		case kpTPM:
 			tpm = true
-		case "TpmPin", "TpmPinStartupKey":
+		case kpTPMPin, kpTPMPinStartupKey:
 			pin = true
 		}
 	}
