@@ -23,9 +23,13 @@
          back to %ProgramFiles%\Orbit.
       2. Download the architecture-matching binary (amd64 or arm64) and place
          it at <root-dir>\extensions\windows_yellowkey.ext.exe.
-      3. Write that path into <root-dir>\extensions.load and confirm the file
+      3. Harden the extensions directory ACL (owner Administrators, inheritance
+         removed, write limited to Administrators and SYSTEM) so osquery's
+         safe-permission check accepts the binary. orbit does not pass
+         --allow_unsafe, so without this osquery silently skips it.
+      4. Write that path into <root-dir>\extensions.load and confirm the file
          is non-empty (orbit's load condition).
-      4. Restart the orbit service so orbit re-reads the file.
+      5. Restart the orbit service so orbit re-reads the file.
 
     Attached as the run_script remediation for the windows-yellowkey-extension
     policy, which fails when the windows_yellowkey table is not registered.
@@ -50,7 +54,7 @@
       0 = Installed, written into extensions.load, orbit restarted
       2 = Unsupported architecture
       3 = Download failed
-      4 = Root-dir resolve, placement, or autoload write failed
+      4 = Root-dir resolve, placement, ACL hardening, or autoload write failed
       5 = Downloaded file is not a PE
       6 = Placed and registered, but orbit restart was not possible
           (extension loads on the next orbit restart)
@@ -77,6 +81,39 @@ $ErrorActionPreference = 'Stop'
 function Write-State {
     param([string]$Label, [string]$Value)
     Write-Output ("{0,-30} : {1}" -f $Label, $Value)
+}
+
+function Set-OsquerySafeAcl {
+    # Make $Path pass osquery's Windows safe-permission check: owner
+    # Administrators, no inherited ACEs, write limited to Administrators and
+    # SYSTEM. SYSTEM keeps full control so osqueryd, which runs as LocalSystem,
+    # can launch the extension. Well-known SIDs are used instead of names so
+    # this works on non-English Windows. Grants are applied before inheritance
+    # is stripped so the object never has an empty DACL.
+    param([string]$Path)
+
+    $admins = '*S-1-5-32-544'  # BUILTIN\Administrators
+    $system = '*S-1-5-18'      # NT AUTHORITY\SYSTEM
+
+    # icacls writes to stderr on per-item errors; with ErrorActionPreference =
+    # Stop and 2>&1 that becomes a terminating error before we can read the
+    # exit code, so drop to Continue for the calls and check $LASTEXITCODE.
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $out  = & icacls $Path /setowner $admins /t /c /q 2>&1
+    $eOwn = $LASTEXITCODE
+    $out += & icacls $Path /grant:r "${admins}:(OI)(CI)F" "${system}:(OI)(CI)F" /t /c /q 2>&1
+    $eGrant = $LASTEXITCODE
+    $out += & icacls $Path /inheritance:r /t /c /q 2>&1
+    $eInherit = $LASTEXITCODE
+    $ErrorActionPreference = $prevEAP
+
+    if ($eOwn -ne 0 -or $eGrant -ne 0 -or $eInherit -ne 0) {
+        Write-Output ("FAIL: icacls hardening of {0} failed (setowner={1}, grant={2}, inheritance={3}): {4}" -f `
+            $Path, $eOwn, $eGrant, $eInherit, (($out | Out-String).Trim()))
+        return $false
+    }
+    return $true
 }
 
 Write-Output "=== windows_yellowkey extension installer ==="
@@ -250,6 +287,18 @@ if ($alreadyPlaced) {
     Write-State 'Placed' $targetPath
 }
 
+# --- Harden the extensions directory so osquery will load the binary ---
+# orbit does not pass --allow_unsafe, so osquery applies its safe-permission
+# check to the autoloaded extension. On Windows the inherited Program Files
+# ACLs do not satisfy it; the owner must be Administrators with inheritance
+# stripped. Without this osquery silently skips the extension and the table
+# never registers. Runs on every invocation so a prior partial run self-heals.
+if (-not (Set-OsquerySafeAcl -Path $ExtensionsDir)) {
+    Write-State 'State' 'acl_hardening_failed'
+    exit 4
+}
+Write-State 'ACL' 'Administrators+SYSTEM only, inheritance removed'
+
 # --- Write the binary path into <root-dir>\extensions.load ---
 try {
     $lines = @()
@@ -313,6 +362,10 @@ Write-Output "    --extensions_autoload for it. Give osquery ~30s, then verify:"
 Write-Output "      SELECT name, value FROM osquery_flags WHERE name = 'extensions_autoload';"
 Write-Output "        -> expect $AutoloadFile (not the osquery default)"
 Write-Output "      SELECT state FROM windows_yellowkey;"
+Write-Output "    If the table is missing, check osquery's log for 'unsafe"
+Write-Output "    permissions' on the binary; the ACL step above is what prevents that."
 Write-Output "    Local check: & '$RootDir\bin\orbit\orbit.exe' shell -- --extension `"$targetPath`" --allow-unsafe"
+Write-Output "    (note: --allow-unsafe bypasses the permission check, so a passing"
+Write-Output "    local shell does not prove the autoloaded extension will load)."
 Write-State 'State' 'installed'
 exit 0
