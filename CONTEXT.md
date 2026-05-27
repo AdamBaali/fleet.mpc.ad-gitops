@@ -29,7 +29,6 @@ lib/windows/
 │   ├── snapshot-windows-ca-2023.ps1         # CA 2023 firmware state writer (with freshness timestamp)
 │   ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
 │   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (Microsoft's mitigation, no gate)
-│   ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
 │   └── install-yellowkey-extension.ps1      # YellowKey: download + load the osquery extension (place + extensions.load + restart orbit)
 └── policies/
     └── windows-yellowkey-extension.policies.yml # Policy: extension binary present; runs install-yellowkey-extension.ps1 on failure
@@ -278,7 +277,6 @@ host.
 | `extensions/windows_yellowkey/` | Go osquery extension. Derives `state` on the host from OS, WinRE, BitLocker key protectors, and the success marker. |
 | `windows-yellowkey-extension.policies.yml` | Policy: passes when `windows_yellowkey` is queryable; runs the installer on failure. |
 | `install-yellowkey-extension.ps1` | Downloads the binary, registers it in orbit's `extensions.load`, restarts orbit so osquery loads it. |
-| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, success marker state. Standalone (does not need osquery). |
 | `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks all ControlSets. Re-seals with `reagentc /disable` + `/enable`. Runs unconditionally on affected hosts. |
 
 **Success marker:**
