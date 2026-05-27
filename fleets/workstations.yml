@@ -2,15 +2,10 @@ name: "💻 Workstations"
 policies:
   - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
 reports:
-  - path: ../lib/windows/reports/windows-ca-2023.reports.yml
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 agent_options:
 controls:
   scripts:
-    - path: ../lib/windows/scripts/migrate-windows-ca-2023.ps1
-    - path: ../lib/windows/scripts/verify-windows-ca-2023.ps1
-    - path: ../lib/windows/scripts/snapshot-windows-ca-2023.ps1
-    - path: ../lib/windows/scripts/cleanup-windows-ca-2023-snapshot.ps1
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
 software:

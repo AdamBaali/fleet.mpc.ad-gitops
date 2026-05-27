@@ -3,8 +3,6 @@ Detect and mitigate the YellowKey BitLocker bypass with Fleet
 
 [YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11, Server 2022, and Server 2025. Microsoft shipped a mitigation on May 19 2026; there is no full patch yet. This pattern gives you an osquery extension that flags exposed hosts live, a daily report over it, a policy that keeps the extension installed, and a script that applies Microsoft's mitigation.
 
-> See also: [Detect and remediate the Windows Secure Boot CA 2023 migration with Fleet](windows-secure-boot-ca-2023.md). Separate boot-chain problem, same Fleet pattern.
-
 The threat
 ----------
 
