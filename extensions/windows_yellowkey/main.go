@@ -51,6 +51,11 @@ func main() {
 	socket := flag.String("socket", "", "path to the osquery extension socket")
 	timeout := flag.Int("timeout", 3, "seconds to wait for autoloaded extensions")
 	interval := flag.Int("interval", 3, "seconds between connectivity checks")
+	// osqueryd forwards --verbose to autoloaded extensions whenever it runs
+	// verbose. flag.Parse uses ExitOnError, so an undefined flag makes the
+	// process exit before it registers the table. Accept the flag to stay
+	// loaded under verbose osquery.
+	_ = flag.Bool("verbose", false, "accept osqueryd's verbose flag")
 	flag.Parse()
 
 	if *socket == "" {

@@ -23,10 +23,10 @@
          back to %ProgramFiles%\Orbit.
       2. Download the architecture-matching binary (amd64 or arm64) and place
          it at <root-dir>\extensions\windows_yellowkey.ext.exe.
-      3. Harden the extensions directory ACL (owner Administrators, inheritance
-         removed, write limited to Administrators and SYSTEM) so osquery's
-         safe-permission check accepts the binary. orbit does not pass
-         --allow_unsafe, so without this osquery silently skips it.
+      3. Harden the extensions directory and binary ACL (owner Administrators,
+         inheritance removed, full control limited to Administrators and
+         SYSTEM) so osquery's safe-permission check accepts the binary. orbit
+         does not pass --allow_unsafe, so without this osquery silently skips it.
       4. Write that path into <root-dir>\extensions.load and confirm the file
          is non-empty (orbit's load condition).
       5. Restart the orbit service so orbit re-reads the file.
@@ -84,13 +84,20 @@ function Write-State {
 }
 
 function Set-OsquerySafeAcl {
-    # Make $Path pass osquery's Windows safe-permission check: owner
-    # Administrators, no inherited ACEs, write limited to Administrators and
-    # SYSTEM. SYSTEM keeps full control so osqueryd, which runs as LocalSystem,
-    # can launch the extension. Well-known SIDs are used instead of names so
-    # this works on non-English Windows. Grants are applied before inheritance
-    # is stripped so the object never has an empty DACL.
-    param([string]$Path)
+    # osquery's Windows safe-permission check refuses an autoloaded extension
+    # whose DACL is inherited, or writable by anyone but the owner. Set the
+    # extensions directory and the binary to owner Administrators, inheritance
+    # removed, explicit full control for Administrators and SYSTEM only.
+    # osqueryd runs as LocalSystem, so SYSTEM needs an explicit ACE on the file.
+    # Well-known SIDs avoid name lookups on non-English Windows.
+    #
+    # The file is hardened on its own, not through the directory. A (OI)(CI)
+    # grant on the directory reaches the file only as an inherited ACE, and the
+    # /inheritance:r that follows then strips it, leaving the file with an empty
+    # DACL that denies SYSTEM and silently blocks the load. Pairing
+    # /inheritance:r with /grant:r in one call keeps the object from ever
+    # holding an empty DACL.
+    param([string]$Dir, [string]$File)
 
     $admins = '*S-1-5-32-544'  # BUILTIN\Administrators
     $system = '*S-1-5-18'      # NT AUTHORITY\SYSTEM
@@ -100,17 +107,17 @@ function Set-OsquerySafeAcl {
     # exit code, so drop to Continue for the calls and check $LASTEXITCODE.
     $prevEAP = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
-    $out  = & icacls $Path /setowner $admins /t /c /q 2>&1
-    $eOwn = $LASTEXITCODE
-    $out += & icacls $Path /grant:r "${admins}:(OI)(CI)F" "${system}:(OI)(CI)F" /t /c /q 2>&1
-    $eGrant = $LASTEXITCODE
-    $out += & icacls $Path /inheritance:r /t /c /q 2>&1
-    $eInherit = $LASTEXITCODE
+    $out   = & icacls $Dir  /setowner $admins /t /c /q 2>&1
+    $eOwn  = $LASTEXITCODE
+    $out  += & icacls $Dir  /inheritance:r /grant:r "${admins}:(OI)(CI)F" "${system}:(OI)(CI)F" /c /q 2>&1
+    $eDir  = $LASTEXITCODE
+    $out  += & icacls $File /inheritance:r /grant:r "${admins}:F" "${system}:F" /c /q 2>&1
+    $eFile = $LASTEXITCODE
     $ErrorActionPreference = $prevEAP
 
-    if ($eOwn -ne 0 -or $eGrant -ne 0 -or $eInherit -ne 0) {
-        Write-Output ("FAIL: icacls hardening of {0} failed (setowner={1}, grant={2}, inheritance={3}): {4}" -f `
-            $Path, $eOwn, $eGrant, $eInherit, (($out | Out-String).Trim()))
+    if ($eOwn -ne 0 -or $eDir -ne 0 -or $eFile -ne 0) {
+        Write-Output ("FAIL: icacls hardening failed (setowner={0}, dir={1}, file={2}): {3}" -f `
+            $eOwn, $eDir, $eFile, (($out | Out-String).Trim()))
         return $false
     }
     return $true
@@ -293,7 +300,7 @@ if ($alreadyPlaced) {
 # ACLs do not satisfy it; the owner must be Administrators with inheritance
 # stripped. Without this osquery silently skips the extension and the table
 # never registers. Runs on every invocation so a prior partial run self-heals.
-if (-not (Set-OsquerySafeAcl -Path $ExtensionsDir)) {
+if (-not (Set-OsquerySafeAcl -Dir $ExtensionsDir -File $targetPath)) {
     Write-State 'State' 'acl_hardening_failed'
     exit 4
 }

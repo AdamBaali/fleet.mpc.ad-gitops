@@ -56,7 +56,9 @@ The `windows-yellowkey-extension` policy checks `osquery_registry` for the `wind
 
 The binaries are committed under `extensions/windows_yellowkey/` and the installer pulls the arch-matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
 
-orbit loads it for you. At startup orbit checks `C:\Program Files\Orbit\extensions.load` and, when it is non-empty, hands osquery `--extensions_autoload` for it. The installer writes the binary's path into that file and restarts orbit, so nothing goes in agent options. Do not add `extensions_autoload` to agent options: Fleet owns that flag and `fleetctl gitops` rejects it ("The --extensions_autoload flag isn't supported"). This mirrors osquery's default `/etc/osquery/extensions.load` autoload on Linux. The binary sits in an admin-only path, so osquery loads it without `--allow_unsafe`.
+orbit loads it for you. At startup orbit checks `C:\Program Files\Orbit\extensions.load` and, when it is non-empty, hands osquery `--extensions_autoload` for it. The installer writes the binary's path into that file and restarts orbit, so nothing goes in agent options. Do not add `extensions_autoload` to agent options: Fleet owns that flag and `fleetctl gitops` rejects it ("The --extensions_autoload flag isn't supported"). This mirrors osquery's default `/etc/osquery/extensions.load` autoload on Linux.
+
+Windows adds a requirement Linux does not. orbit runs osquery without `--allow_unsafe`, and osquery's safe-permission check refuses an autoloaded extension whose ACL is inherited or writable by non-admins. Inherited Program Files permissions do not pass, so the installer gives the binary an explicit DACL: owner Administrators, inheritance removed, full control to Administrators and SYSTEM only. osqueryd runs as LocalSystem, so SYSTEM needs that explicit grant to launch the extension. Skip it and osquery registers nothing, with no error surfaced in the policy.
 
 Roll it out
 -----------
@@ -78,6 +80,25 @@ controls:
 2. Hosts install the extension on their next check-in (the policy runs the installer).
 3. Open the report, then run `mitigate-windows-yellowkey.ps1` against `exposed` hosts via Fleet > Controls > Scripts.
 4. Re-run the report. Those hosts move to `mitigated`.
+
+If the table does not register
+------------------------------
+
+The policy stays failing when osquery never loads the extension. Three gates have to hold on the host, and the installer sets all three:
+
+```
+# 1. extensions.load is non-empty and lists the binary
+Get-Content 'C:\Program Files\Orbit\extensions.load'
+
+# 2. the binary's DACL is explicit Administrators + SYSTEM, not inherited
+icacls 'C:\Program Files\Orbit\extensions\windows_yellowkey.ext.exe'
+
+# 3. orbit passed the flag and the extension is running
+(Get-CimInstance Win32_Process -Filter "Name='osqueryd.exe'").CommandLine -match 'extensions_autoload'
+Get-Process windows_yellowkey -ErrorAction SilentlyContinue
+```
+
+An empty `extensions.load` means orbit never sends `--extensions_autoload`. An empty or inherited DACL means osquery dropped the binary on its safe-permission check, since osqueryd runs as LocalSystem and needs explicit access. A custom extension must also accept `--verbose`: osqueryd forwards it in verbose mode, and a bare flag parser exits on the unknown flag before the table registers. Re-run the installer on a failing host and it re-applies all three.
 
 Operational notes
 -----------------
