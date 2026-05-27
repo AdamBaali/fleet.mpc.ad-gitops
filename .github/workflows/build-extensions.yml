@@ -67,7 +67,7 @@ jobs:
               continue
             fi
             echo "::group::Building $dir"
-            (cd "$dir" && make windows)
+            (cd "$dir" && make build)
             echo "::endgroup::"
           done <<< "${{ steps.discover.outputs.exts }}"
 

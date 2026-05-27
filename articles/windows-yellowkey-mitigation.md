@@ -54,7 +54,19 @@ Deploy
 
 The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It passes when the extension is loaded and fails when it is not, with no error state. Querying the table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`. It reads `PROCESSOR_ARCHITECTURE`, downloads the matching binary (`windows_yellowkey-amd64.exe` or `-arm64.exe`) from the repo, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit.
 
-The binaries are committed under `extensions/windows_yellowkey/` and the installer pulls the arch-matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make windows` and commit when the extension changes.
+The binaries are committed under `extensions/windows_yellowkey/` and the installer pulls the arch-matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
+
+One agent-options flag makes osquery actually load it. fleetd's osquery reads its flags from Fleet, so `fleets/workstations.yml` sets `extensions_autoload` to the file the installer writes:
+
+```
+agent_options:
+  command_line_flags:
+    disable_extensions: false
+    extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+    extensions_timeout: '10'
+```
+
+This is the Windows counterpart of osquery's default `/etc/osquery/extensions.load` on Linux, where it loads with no flag. The flag applies on the next fleetd restart; the binary sits in an admin-only path, so osquery loads it without `--allow_unsafe`.
 
 Roll it out
 -----------
