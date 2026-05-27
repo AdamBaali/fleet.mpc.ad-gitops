@@ -124,7 +124,7 @@ try {
 }
 
 # --- WinRE state (CJK-colon tolerant; localized values fall through to error) ---
-$winreOutput = & reagentc /info 2>&1
+$winreOutput = & reagentc /info 2>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Output "FAIL: reagentc /info exit $LASTEXITCODE"
     Write-State "State" "reagentc_info_failed"
@@ -166,7 +166,7 @@ try {
     }
 
     # --- Mount WinRE image ---
-    $mountOutput = & reagentc /mountre /path $MountPath 2>&1
+    $mountOutput = & reagentc /mountre /path $MountPath 2>$null
     if ($LASTEXITCODE -ne 0) {
         Write-Output "FAIL: reagentc /mountre: $mountOutput"
         Write-State "State" "mount_failed"
@@ -195,7 +195,7 @@ try {
     }
 
     # --- Load offline SYSTEM hive ---
-    & reg load "HKLM\$HiveName" $hivePath 2>&1 | Out-Null
+    & reg load "HKLM\$HiveName" $hivePath 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Write-Output "FAIL: reg load exit $LASTEXITCODE"
         Write-State "State" "reg_load_failed"
@@ -266,16 +266,16 @@ finally {
         [gc]::Collect()
         [gc]::WaitForPendingFinalizers()
         Start-Sleep -Seconds 2
-        & reg unload "HKLM\$HiveName" 2>&1 | Out-Null
+        & reg unload "HKLM\$HiveName" 2>$null | Out-Null
         if ($LASTEXITCODE -ne 0) {
             [gc]::Collect()
             Start-Sleep -Seconds 3
-            & reg unload "HKLM\$HiveName" 2>&1 | Out-Null
+            & reg unload "HKLM\$HiveName" 2>$null | Out-Null
         }
     }
     if ($imageMounted) {
         $flag = if ($editClean -and $changesMade) { '/commit' } else { '/discard' }
-        & reagentc /unmountre /path $MountPath $flag 2>&1 | Out-Null
+        & reagentc /unmountre /path $MountPath $flag 2>$null | Out-Null
     }
     if ($mountCreated -and (Test-Path $MountPath)) {
         Remove-Item -Path $MountPath -Recurse -Force -ErrorAction SilentlyContinue
@@ -291,9 +291,9 @@ if (-not $editClean) {
 # disable and enable are checked independently because $LASTEXITCODE is
 # overwritten by each external command.
 if ($changesMade) {
-    & reagentc /disable 2>&1 | Out-Null
+    & reagentc /disable 2>$null | Out-Null
     $disableExit = $LASTEXITCODE
-    & reagentc /enable 2>&1 | Out-Null
+    & reagentc /enable 2>$null | Out-Null
     $enableExit = $LASTEXITCODE
     if ($disableExit -ne 0 -or $enableExit -ne 0) {
         Write-Output "FAIL: reseal failed (disable=$disableExit, enable=$enableExit). Run reagentc /enable manually if needed."
