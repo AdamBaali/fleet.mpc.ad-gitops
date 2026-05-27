@@ -76,7 +76,7 @@ Exit codes:
 
 ## Deployment
 
-The `windows-yellowkey-extension` policy runs `SELECT 1 FROM windows_yellowkey`. It passes only when the extension is loaded, so it tests the real end state, not a file on disk. Failing hosts run `install-yellowkey-extension.ps1`, which downloads the architecture-matching binary, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table plugin (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It returns one row when the extension is loaded (pass) and zero rows when it is not (fail). Querying the `windows_yellowkey` table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`, which downloads the architecture-matching binary, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit.
 
 Binaries come from a tag push (`v*` or `extensions-v*`). `.github/workflows/build-extensions.yml` builds every `extensions/<name>/` via `make windows` and uploads the `.exe` files as release assets. `install-yellowkey-extension.ps1` pulls from `releases/latest/download/`. Fleet caps policy `run_script` retries at 3 per failure.
 

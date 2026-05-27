@@ -109,19 +109,31 @@ if ($alreadyPlaced) {
     $tempPath = Join-Path $env:TEMP "$asset.download"
     Write-State 'Download URL' $url
 
-    try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-    } catch {
-        Write-Output "WARN: could not enforce TLS 1.2: $($_.Exception.Message)"
-    }
+    # Download with curl.exe, which ships with every YellowKey-affected SKU
+    # (Windows 10 1803+, Server 2019+). It follows GitHub's redirect to the
+    # asset CDN (-L), fails cleanly on HTTP errors like 404 (-f), and retries
+    # transient connection resets (--retry). Invoke-WebRequest is flaky on the
+    # GitHub redirect and reports "connection closed unexpectedly".
+    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+    $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
+    if (-not (Test-Path $curl)) { $curl = 'curl.exe' }
 
-    $ProgressPreference = 'SilentlyContinue'
-    try {
-        Invoke-WebRequest -Uri $url -OutFile $tempPath -UseBasicParsing
-    } catch {
-        Write-Output "FAIL: download failed: $($_.Exception.Message)"
+    $curlOut = & $curl -fL --retry 3 --retry-connrefused --connect-timeout 20 --max-time 300 -o $tempPath $url 2>&1
+    $curlExit = $LASTEXITCODE
+    if ($curlExit -ne 0) {
+        Write-Output "FAIL: download failed (curl exit $curlExit): $(($curlOut | Out-String).Trim())"
+        if ($curlExit -eq 22) {
+            Write-Output "      HTTP error from the URL. Confirm a release is published with this asset:"
+            Write-Output "        $url"
+            Write-Output "      If the repo is private, the host needs an authenticated download URL."
+        }
         Write-State 'State' 'download_failed'
         Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 3
+    }
+    if (-not (Test-Path $tempPath)) {
+        Write-Output "FAIL: curl reported success but $tempPath is missing."
+        Write-State 'State' 'download_missing'
         exit 3
     }
 
