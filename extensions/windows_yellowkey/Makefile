@@ -1,9 +1,13 @@
 EXTENSION := windows_yellowkey
 PKG       := .
 
-.PHONY: all windows amd64 arm64 deps tidy clean
+.PHONY: all build windows amd64 arm64 deps tidy clean
 
-all: windows
+all: build
+
+# `build` is the convention shared across extensions; here it cross-compiles
+# the Windows binaries (this extension is Windows-only).
+build: windows
 
 windows: amd64 arm64
 

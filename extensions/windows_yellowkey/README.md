@@ -30,7 +30,8 @@ It reads three things osquery can't get natively: WinRE state (`reagentc /info`)
 Requires Go 1.21+. Cross-compiles from any platform:
 
 ```
-make windows
+make deps
+make build
 ```
 
 Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
