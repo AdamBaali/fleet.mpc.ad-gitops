@@ -38,22 +38,23 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, hardens the extensions directory and binary ACL so osquery's safe-permission check accepts the binary, registers it in orbit's `extensions.load`, and restarts orbit. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, places it under `C:\Program Files\Orbit\extensions\`, and runs it as a LocalSystem scheduled task that connects to osquery's extension socket. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
 
-The ACL step is what makes this work on Windows. orbit does not pass `--allow_unsafe`, and osquery refuses to autoload an extension whose Windows ACLs are inherited rather than explicit, so the installer runs:
+Why a task and not `extensions.load`: orbit owns that file. It rewrites `extensions.load` from its own (TUF-delivered) extension set on every start, so a path written there by hand is wiped on the next orbit restart and the table never registers. The installer sidesteps that by running the extension as a process that connects to osquery's extension socket (orbit's default pipe is `\\.\pipe\orbit-osquery-extension`) and reconnects when osquery restarts.
 
-```
-icacls <dir>  /setowner *S-1-5-32-544 /t /c /q
-icacls <dir>  /inheritance:r /grant:r "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" /c /q
-icacls <file> /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" /c /q
-```
-
-The binary gets its own explicit grant. A `(OI)(CI)` grant on the directory reaches the file only as an inherited ACE, and the following `/inheritance:r` strips it, leaving the file with an empty DACL that denies SYSTEM and blocks the load. Pairing `/inheritance:r` with `/grant:r` in one call keeps either object from holding an empty DACL.
-
-Test interactively without deploying:
+The binary and its supervisor run as SYSTEM, so the installer hardens them and their directory to Administrators and SYSTEM only, inheritance removed:
 
 ```
-'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension .\windows_yellowkey-amd64.exe --allow-unsafe
+icacls <path> /setowner *S-1-5-32-544 /c /q
+icacls <path> /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" /c /q
+```
+
+The directory gets `(OI)(CI)F`; each path is hardened on its own. Pairing `/inheritance:r` with `/grant:r` in one call avoids an empty DACL, which is what a directory-only `(OI)(CI)` grant plus an inheritance strip leaves on the child file.
+
+Test interactively without deploying: connect to the running osquery, leave it running, then query the table from Fleet.
+
+```
+& .\windows_yellowkey-amd64.exe --socket \\.\pipe\orbit-osquery-extension --interval 3 --timeout 3
 ```
 
 ## Sample queries

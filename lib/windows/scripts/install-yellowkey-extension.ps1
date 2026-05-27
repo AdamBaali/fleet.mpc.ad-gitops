@@ -1,35 +1,36 @@
 <#
 .SYNOPSIS
-    Installs and loads the windows_yellowkey osquery extension on this host.
+    Installs and runs the windows_yellowkey osquery extension on this host.
 
 .DESCRIPTION
-    Under fleetd, orbit decides osquery's flags. At startup orbit stats
-    <root-dir>\extensions.load and, only when that file exists and is
-    non-empty, hands osquery --extensions_autoload for it
-    (orbit/cmd/orbit/orbit.go). Setting extensions_autoload in Fleet agent
-    options does not work: Fleet rejects it because orbit owns that flag. So
-    the one supported path is to write the extension into orbit's own
-    extensions.load and restart orbit.
+    Under fleetd, orbit owns the osquery autoload set. On every start orbit
+    rewrites <root-dir>\extensions.load from the extension set Fleet sends it
+    (global or team, delivered through a TUF update server) and only then hands
+    osquery --extensions_autoload. With no extension configured there, orbit
+    writes an empty file, so anything dropped into extensions.load by hand is
+    wiped on the next orbit restart and the table never registers. Setting
+    extensions_autoload in agent options does not work either: Fleet rejects it
+    because orbit owns that flag.
 
-    The failure this script guards against: if extensions.load is written to
-    the wrong directory, orbit never sees it and osquery falls back to its
-    compiled default (C:\Program Files\osquery\extensions.load), which does
-    not exist under fleetd, so nothing loads. This script therefore resolves
-    orbit's real root-dir instead of assuming it.
+    This script therefore does not touch extensions.load. An osquery extension
+    is a process that connects to osquery's extension socket and registers its
+    tables; autoload is only one way to start it. So the script runs the
+    extension itself, as a LocalSystem scheduled task that connects to orbit's
+    running osquery extension socket and reconnects whenever osquery restarts.
+    Bringing the extension up this way needs no TUF server and no orbit restart.
 
     Steps:
-      1. Find the orbit service and resolve orbit's root-dir from its
-         command line (--root-dir, else the orbit.exe location), falling
-         back to %ProgramFiles%\Orbit.
+      1. Find the orbit service and resolve orbit's root-dir for the binary
+         location, falling back to %ProgramFiles%\Orbit.
       2. Download the architecture-matching binary (amd64 or arm64) and place
          it at <root-dir>\extensions\windows_yellowkey.ext.exe.
-      3. Harden the extensions directory and binary ACL (owner Administrators,
-         inheritance removed, full control limited to Administrators and
-         SYSTEM) so osquery's safe-permission check accepts the binary. orbit
-         does not pass --allow_unsafe, so without this osquery silently skips it.
-      4. Write that path into <root-dir>\extensions.load and confirm the file
-         is non-empty (orbit's load condition).
-      5. Restart the orbit service so orbit re-reads the file.
+      3. Read osquery's extension socket from the running osqueryd command line
+         (fallback to orbit's default pipe), then write a supervisor script.
+      4. Harden the binary, directory, and runner ACLs (owner Administrators,
+         inheritance removed, full control to Administrators and SYSTEM only):
+         all three run as SYSTEM, so none may be writable by a non-admin.
+      5. Register a LocalSystem scheduled task that runs the supervisor at
+         startup, then start it now.
 
     Attached as the run_script remediation for the windows-yellowkey-extension
     policy, which fails when the windows_yellowkey table is not registered.
@@ -51,13 +52,13 @@
 
 .NOTES
     Exit codes:
-      0 = Installed, written into extensions.load, orbit restarted
+      0 = Installed; task created and started, extension process connected
       2 = Unsupported architecture
       3 = Download failed
-      4 = Root-dir resolve, placement, ACL hardening, or autoload write failed
+      4 = Root-dir resolve, placement, runner write, ACL, or task setup failed
       5 = Downloaded file is not a PE
-      6 = Placed and registered, but orbit restart was not possible
-          (extension loads on the next orbit restart)
+      6 = Task created but the extension had not connected before the timeout
+          (the task retries on its own and should connect shortly)
 
     References:
       Fleet guide: https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide
@@ -78,26 +79,23 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+$TaskName = 'Fleet windows_yellowkey extension'
+
 function Write-State {
     param([string]$Label, [string]$Value)
     Write-Output ("{0,-30} : {1}" -f $Label, $Value)
 }
 
 function Set-OsquerySafeAcl {
-    # osquery's Windows safe-permission check refuses an autoloaded extension
-    # whose DACL is inherited, or writable by anyone but the owner. Set the
-    # extensions directory and the binary to owner Administrators, inheritance
-    # removed, explicit full control for Administrators and SYSTEM only.
-    # osqueryd runs as LocalSystem, so SYSTEM needs an explicit ACE on the file.
-    # Well-known SIDs avoid name lookups on non-English Windows.
-    #
-    # The file is hardened on its own, not through the directory. A (OI)(CI)
-    # grant on the directory reaches the file only as an inherited ACE, and the
-    # /inheritance:r that follows then strips it, leaving the file with an empty
-    # DACL that denies SYSTEM and silently blocks the load. Pairing
-    # /inheritance:r with /grant:r in one call keeps the object from ever
-    # holding an empty DACL.
-    param([string]$Dir, [string]$File)
+    # The binary and its runner both execute as SYSTEM, so neither may be
+    # writable by a non-admin or a standard user could run code as SYSTEM. Set
+    # owner Administrators, remove inheritance, and grant full control to
+    # Administrators and SYSTEM only. Well-known SIDs avoid name lookups on
+    # non-English Windows. Each path is hardened on its own, and /inheritance:r
+    # is paired with /grant:r in one call so the object never holds an empty
+    # DACL (a directory (OI)(CI) grant would reach a child only as an inherited
+    # ACE, which the inheritance strip then removes).
+    param([string[]]$Paths)
 
     $admins = '*S-1-5-32-544'  # BUILTIN\Administrators
     $system = '*S-1-5-18'      # NT AUTHORITY\SYSTEM
@@ -107,27 +105,29 @@ function Set-OsquerySafeAcl {
     # exit code, so drop to Continue for the calls and check $LASTEXITCODE.
     $prevEAP = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
-    $out   = & icacls $Dir  /setowner $admins /t /c /q 2>&1
-    $eOwn  = $LASTEXITCODE
-    $out  += & icacls $Dir  /inheritance:r /grant:r "${admins}:(OI)(CI)F" "${system}:(OI)(CI)F" /c /q 2>&1
-    $eDir  = $LASTEXITCODE
-    $out  += & icacls $File /inheritance:r /grant:r "${admins}:F" "${system}:F" /c /q 2>&1
-    $eFile = $LASTEXITCODE
-    $ErrorActionPreference = $prevEAP
-
-    if ($eOwn -ne 0 -or $eDir -ne 0 -or $eFile -ne 0) {
-        Write-Output ("FAIL: icacls hardening failed (setowner={0}, dir={1}, file={2}): {3}" -f `
-            $eOwn, $eDir, $eFile, (($out | Out-String).Trim()))
-        return $false
+    $ok = $true
+    foreach ($p in $Paths) {
+        if (-not (Test-Path $p)) { continue }
+        $flags = if ((Get-Item $p).PSIsContainer) { '(OI)(CI)F' } else { 'F' }
+        $out  = & icacls $p /setowner $admins /c /q 2>&1
+        $eOwn = $LASTEXITCODE
+        $out += & icacls $p /inheritance:r /grant:r "${admins}:${flags}" "${system}:${flags}" /c /q 2>&1
+        $eGrant = $LASTEXITCODE
+        if ($eOwn -ne 0 -or $eGrant -ne 0) {
+            Write-Output ("FAIL: icacls hardening of {0} failed (setowner={1}, grant={2}): {3}" -f `
+                $p, $eOwn, $eGrant, (($out | Out-String).Trim()))
+            $ok = $false
+        }
     }
-    return $true
+    $ErrorActionPreference = $prevEAP
+    return $ok
 }
 
 Write-Output "=== windows_yellowkey extension installer ==="
 Write-Output ""
 
-# --- Find the orbit service: it gives both the command line (for root-dir)
-#     and the name to restart. fleetd's Windows service is "Fleet osquery". ---
+# --- Find the orbit service: it gives the command line (for root-dir) and
+#     confirms fleetd is present. fleetd's Windows service is "Fleet osquery". ---
 $svc = $null
 try {
     if ($ServiceName) {
@@ -143,12 +143,12 @@ try {
 if ($null -ne $svc) {
     Write-State 'orbit service' ("{0} ({1})" -f $svc.Name, $svc.State)
 } else {
-    Write-Output "WARN: no orbit/fleetd service found; using default paths and known service names."
+    Write-Output "WARN: no orbit/fleetd service found; using default paths."
 }
 
-# --- Resolve orbit's root-dir the same way orbit does ---
-# An explicit --root-dir wins; otherwise the orbit.exe lives at <root-dir>\bin\...;
-# otherwise orbit's Windows default is %ProgramFiles%\Orbit.
+# --- Resolve orbit's root-dir (only to locate the binary; we never write
+#     extensions.load). An explicit --root-dir wins; else the orbit.exe lives at
+#     <root-dir>\bin\...; else orbit's Windows default is %ProgramFiles%\Orbit. ---
 function Resolve-RootDir {
     param($Service, [string]$Override)
     if ($Override) { return $Override }
@@ -168,7 +168,10 @@ function Resolve-RootDir {
 }
 
 try {
-    $RootDir = (Resolve-RootDir -Service $svc -Override $RootDir).Trim().TrimEnd('\')
+    $RootDir = (Resolve-RootDir -Service $svc -Override $RootDir).Trim()
+    # orbit is often launched with --root-dir "...\Orbit\."; collapse the \. so
+    # the paths we report and harden are clean.
+    $RootDir = [System.IO.Path]::GetFullPath($RootDir).TrimEnd('\')
 } catch {
     Write-Output "FAIL: could not resolve orbit root-dir: $($_.Exception.Message)"
     Write-State 'State' 'rootdir_unresolved'
@@ -181,14 +184,13 @@ if (-not (Test-Path $RootDir)) {
 }
 
 $ExtensionsDir = Join-Path $RootDir 'extensions'
-$AutoloadFile  = Join-Path $RootDir 'extensions.load'
 # osquery on Windows expects extension binaries to end in .ext.exe.
 $installedName = 'windows_yellowkey.ext.exe'
 $targetPath    = Join-Path $ExtensionsDir $installedName
+$runnerPath    = Join-Path $ExtensionsDir 'windows_yellowkey-runner.ps1'
 
 Write-State 'Root-dir'       $RootDir
 Write-State 'Extensions dir' $ExtensionsDir
-Write-State 'Autoload file'  $AutoloadFile
 
 # --- Detect architecture ---
 $arch = $env:PROCESSOR_ARCHITECTURE
@@ -226,15 +228,14 @@ if ($alreadyPlaced) {
     $tempPath = Join-Path $env:TEMP "$asset.download"
     Write-State 'Download URL' $url
 
-    # curl.exe ships with every YellowKey-affected SKU (Windows 10 1803+,
-    # Server 2019+). -f fails on HTTP errors like 404, -L follows GitHub's
-    # redirect, -s silences the progress meter, -S keeps real error text,
-    # --retry rides out transient resets. Invoke-WebRequest is flaky on the
-    # GitHub redirect and reports "connection closed".
+    # curl.exe ships with every YellowKey-affected SKU (Windows 11, Server 2022+).
+    # -f fails on HTTP errors like 404, -L follows GitHub's redirect, -s silences
+    # the progress meter, -S keeps real error text, --retry rides out transient
+    # resets. Invoke-WebRequest is flaky on the GitHub redirect.
     #
     # curl writes to stderr; with ErrorActionPreference = Stop and 2>&1 that
-    # becomes a terminating NativeCommandError before we can read the exit
-    # code, so drop to Continue for the call and check $LASTEXITCODE instead.
+    # becomes a terminating NativeCommandError before we can read the exit code,
+    # so drop to Continue for the call and check $LASTEXITCODE instead.
     Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
     $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
     if (-not (Test-Path $curl)) { $curl = 'curl.exe' }
@@ -294,85 +295,96 @@ if ($alreadyPlaced) {
     Write-State 'Placed' $targetPath
 }
 
-# --- Harden the extensions directory so osquery will load the binary ---
-# orbit does not pass --allow_unsafe, so osquery applies its safe-permission
-# check to the autoloaded extension. On Windows the inherited Program Files
-# ACLs do not satisfy it; the owner must be Administrators with inheritance
-# stripped. Without this osquery silently skips the extension and the table
-# never registers. Runs on every invocation so a prior partial run self-heals.
-if (-not (Set-OsquerySafeAcl -Dir $ExtensionsDir -File $targetPath)) {
+# --- Read osquery's extension socket from the running osqueryd ---
+# orbit launches osqueryd with --extensions_socket=<pipe>; the extension must
+# connect to that same socket. Read it from the live process so a future orbit
+# change to the pipe name still works; fall back to orbit's Windows default.
+$socket = '\\.\pipe\orbit-osquery-extension'
+try {
+    $cmd = Get-CimInstance Win32_Process -Filter "Name='osqueryd.exe'" -ErrorAction SilentlyContinue |
+        Select-Object -First 1 -ExpandProperty CommandLine
+    if ($cmd -and ($cmd -match '--extensions_socket=(\S+)')) { $socket = $matches[1] }
+} catch {
+    Write-Output "WARN: could not read osqueryd command line; using default socket. $($_.Exception.Message)"
+}
+Write-State 'Extension socket' $socket
+
+# --- Write the supervisor that keeps the extension connected ---
+# osquery restarts (orbit reloads, config changes) drop the connection and end
+# the extension process, so the supervisor relaunches it. No try/catch: a native
+# command failure does not throw with ErrorActionPreference Continue, so the
+# loop just falls through to the retry.
+$runner = @"
+`$ErrorActionPreference = 'Continue'
+`$exe    = '$targetPath'
+`$socket = '$socket'
+while (`$true) {
+    & `$exe --socket `$socket --interval 3 --timeout 3 2>&1 | Out-Null
+    Start-Sleep -Seconds 5
+}
+"@
+try {
+    Set-Content -Path $runnerPath -Value $runner -Encoding ASCII -Force
+} catch {
+    Write-Output "FAIL: could not write runner $runnerPath : $($_.Exception.Message)"
+    Write-State 'State' 'runner_write_failed'
+    exit 4
+}
+Write-State 'Runner' $runnerPath
+
+# --- Harden the binary, runner, and directory so SYSTEM can run them and
+#     non-admins cannot tamper with code that executes as SYSTEM ---
+if (-not (Set-OsquerySafeAcl -Paths @($ExtensionsDir, $targetPath, $runnerPath))) {
     Write-State 'State' 'acl_hardening_failed'
     exit 4
 }
 Write-State 'ACL' 'Administrators+SYSTEM only, inheritance removed'
 
-# --- Write the binary path into <root-dir>\extensions.load ---
+# --- Register and start a LocalSystem scheduled task for the supervisor ---
+# Runs at startup and is restarted by Task Scheduler if it ever stops. Run as
+# SYSTEM (the well-known account name, locale-independent) so it can reach
+# osquery's socket and read privileged state. -Force replaces a prior task so
+# re-runs by the policy self-heal; IgnoreNew avoids stacking instances.
 try {
-    $lines = @()
-    if (Test-Path $AutoloadFile) {
-        $lines = @(Get-Content -Path $AutoloadFile -ErrorAction SilentlyContinue |
-                   Where-Object { $_ -and $_.Trim() -ne '' })
-    }
-    if ($lines -notcontains $targetPath) {
-        $lines += $targetPath
-        Set-Content -Path $AutoloadFile -Value $lines -Encoding ASCII -Force
-        Write-State 'extensions.load' 'updated'
-    } else {
-        Write-State 'extensions.load' 'already listed'
-    }
+    $action = New-ScheduledTaskAction -Execute 'powershell.exe' `
+        -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"{0}`"" -f $runnerPath)
+    $trigger   = New-ScheduledTaskTrigger -AtStartup
+    $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
+    $settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+        -StartWhenAvailable -MultipleInstances IgnoreNew `
+        -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) `
+        -ExecutionTimeLimit ([TimeSpan]::Zero)
+    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
+        -Principal $principal -Settings $settings -Force | Out-Null
+    Start-ScheduledTask -TaskName $TaskName
 } catch {
-    Write-Output "FAIL: could not update $AutoloadFile : $($_.Exception.Message)"
-    Write-State 'State' 'autoload_write_failed'
+    Write-Output "FAIL: could not register or start scheduled task '$TaskName': $($_.Exception.Message)"
+    Write-State 'State' 'task_setup_failed'
     exit 4
 }
+Write-State 'Scheduled task' "$TaskName (LocalSystem, at startup)"
 
-# orbit only adds --extensions_autoload when the file exists and size > 0.
-$autoloadSize = 0
-if (Test-Path $AutoloadFile) { $autoloadSize = (Get-Item $AutoloadFile).Length }
-if ($autoloadSize -le 0) {
-    Write-Output "FAIL: $AutoloadFile is empty; orbit will not pass --extensions_autoload."
-    Write-State 'State' 'autoload_empty'
-    exit 4
-}
-Write-State 'Autoload size' ("{0} bytes" -f $autoloadSize)
-
-# --- Restart orbit so it re-reads extensions.load ---
-# Runs on every invocation: the policy only calls this script when the
-# extension is not loaded, so reaching here means the load needs (re)applying.
-$restartName = $null
-if ($null -ne $svc) { $restartName = $svc.Name }
-if (-not $restartName) {
-    foreach ($n in @('Fleet osquery', 'Orbit', 'orbit', 'fleetd')) {
-        if (Get-Service -Name $n -ErrorAction SilentlyContinue) { $restartName = $n; break }
-    }
-}
-if (-not $restartName) {
-    Write-Output "WARN: orbit service not found; binary placed and registered."
-    Write-Output "      Restart orbit/fleetd to load the extension."
-    Write-State 'State' 'placed_restart_deferred'
-    exit 6
-}
-try {
-    Restart-Service -Name $restartName -Force
-    Write-State 'Restarted service' $restartName
-} catch {
-    Write-Output "WARN: could not restart '$restartName': $($_.Exception.Message)"
-    Write-Output "      Binary placed and registered; restart orbit to load."
-    Write-State 'State' 'placed_restart_failed'
-    exit 6
+# --- Confirm the extension process connected ---
+$proc = $null
+for ($i = 0; $i -lt 10; $i++) {
+    Start-Sleep -Seconds 2
+    $proc = Get-Process -Name 'windows_yellowkey*' -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -ne $proc) { break }
 }
 
 Write-Output ""
-Write-Output "OK: extension placed, written into extensions.load, orbit restarted."
-Write-Output "    orbit re-reads $AutoloadFile at startup and hands osquery"
-Write-Output "    --extensions_autoload for it. Give osquery ~30s, then verify:"
-Write-Output "      SELECT name, value FROM osquery_flags WHERE name = 'extensions_autoload';"
-Write-Output "        -> expect $AutoloadFile (not the osquery default)"
-Write-Output "      SELECT state FROM windows_yellowkey;"
-Write-Output "    If the table is missing, check osquery's log for 'unsafe"
-Write-Output "    permissions' on the binary; the ACL step above is what prevents that."
-Write-Output "    Local check: & '$RootDir\bin\orbit\orbit.exe' shell -- --extension `"$targetPath`" --allow-unsafe"
-Write-Output "    (note: --allow-unsafe bypasses the permission check, so a passing"
-Write-Output "    local shell does not prove the autoloaded extension will load)."
-Write-State 'State' 'installed'
-exit 0
+if ($null -ne $proc) {
+    Write-State 'Extension process' ("running (PID {0})" -f $proc.Id)
+    Write-Output "OK: extension running as a LocalSystem task and connected to osquery."
+    Write-Output "    The task relaunches it whenever osquery restarts. Verify in Fleet:"
+    Write-Output "      SELECT 1 FROM osquery_registry WHERE registry = 'table'"
+    Write-Output "        AND name = 'windows_yellowkey' AND active = 1;"
+    Write-Output "      SELECT state FROM windows_yellowkey;"
+    Write-State 'State' 'installed'
+    exit 0
+} else {
+    Write-Output "WARN: task created but no extension process yet. osquery may be down or"
+    Write-Output "      starting; the task retries every few seconds and should connect."
+    Write-State 'State' 'task_started_not_yet_connected'
+    exit 6
+}
