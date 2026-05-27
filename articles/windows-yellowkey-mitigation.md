@@ -85,8 +85,8 @@ Deploy
 
 Two pieces keep the detection extension installed across the fleet:
 
-- The `windows-yellowkey-extension` policy queries osquery's `file` table for `windows_yellowkey-*.exe` under `C:\Program Files\Fleet\Extensions\`. Passes when the binary is present.
-- `install-yellowkey-extension.ps1` is attached as the policy's `run_script`. It detects host architecture, downloads the matching binary from the latest GitHub release, verifies the PE32+ MZ header, and drops it at the target path. Idempotent.
+- The `windows-yellowkey-extension` policy runs `SELECT 1 FROM windows_yellowkey LIMIT 1`. It passes only when the extension is loaded and the table is queryable, so it tests the real end state, not just a file on disk.
+- `install-yellowkey-extension.ps1` is attached as the policy's `run_script`. It detects host architecture, downloads the matching binary from the latest GitHub release, verifies the PE32+ MZ header, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit so osquery loads it. Idempotent.
 
 Releases come from `.github/workflows/build-extensions.yml`. Push a tag matching `v*` or `extensions-v*` and the workflow auto-discovers every `extensions/<name>/`, runs `make windows`, and uploads the resulting `.exe` files as release assets:
 
