@@ -1,15 +1,20 @@
 name: 'Build osquery extensions'
 
-# Auto-discovers every directory under `extensions/` and builds the
-# Windows binaries via its Makefile. On a tag push, uploads the
-# resulting .exe files as assets on a GitHub release. Manual dispatch
-# is available for smoke tests without cutting a tag.
+# Auto-discovers every directory under `extensions/` and builds its Windows
+# binaries via its Makefile. Builds on push to main and on PRs that touch
+# extensions/ (compile check + downloadable artifacts), and publishes the
+# .exe files as release assets on a tag push.
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
       - 'extensions-v*'
+  pull_request:
+    paths:
+      - 'extensions/**'
   workflow_dispatch:
 
 permissions:
@@ -91,8 +96,8 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
 
-      - name: Upload workflow_dispatch artifacts
-        if: github.event_name == 'workflow_dispatch' && steps.collect.outputs.have_artifacts == 'true'
+      - name: Upload build artifacts
+        if: "!startsWith(github.ref, 'refs/tags/') && steps.collect.outputs.have_artifacts == 'true'"
         uses: actions/upload-artifact@v4
         with:
           name: extensions
