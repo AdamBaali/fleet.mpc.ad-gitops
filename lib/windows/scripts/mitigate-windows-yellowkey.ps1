@@ -4,46 +4,28 @@
     autofstx.exe from the WinRE image's Session Manager BootExecute value.
 
 .DESCRIPTION
-    YellowKey (CVE-2026-45585, CVSS 6.8, disclosed May 12 2026) abuses
-    autofstx.exe inside WinRE. autofstx replays NTFS transaction logs from
-    any attached volume's System Volume Information\FsTx folder, deletes
-    winpeshl.ini, and drops the attacker into cmd.exe with the BitLocker
-    volume already unlocked. Affects Windows 11, Server 2022, Server 2025.
-    Windows 10 is not affected.
+    Applies Microsoft's mitigation for YellowKey (CVE-2026-45585): strip
+    autofstx.exe from the WinRE image's Session Manager BootExecute.
+    Affects Windows 11, Server 2022, Server 2025. Safe to run on every
+    affected host; runs unconditionally (no opt-in gate).
 
-    Adapted from Microsoft's reference script in the CVE-2026-45585 MSRC
-    advisory FAQ ("Is there a script that I can copy and paste to implement
-    a mitigation?"). Microsoft's flow:
-      1. Mount WinRE via `reagentc /mountre /path`
-      2. Load the offline SYSTEM hive
-      3. Walk every ControlSet under the hive and strip autofstx variants
-      4. Unload hive, unmount with /commit
+    The flow, from the CVE-2026-45585 MSRC advisory FAQ:
+      1. reagentc /mountre to mount the WinRE image
+      2. reg load the offline SYSTEM hive
+      3. Walk every ControlSet and strip autofstx (any form: `autofstx`,
+         `autofstx.exe`, `autocheck autofstx`, `autofstx.exe /flag`),
+         verifying each via read-back
+      4. reg unload, reagentc /unmountre /commit
       5. reagentc /disable + /enable to re-seal the BitLocker measurement chain
 
-    Fleet additions on top of Microsoft's flow:
-      - Writes HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1 only when
-        the edit loop completed without exception AND every ControlSet was
-        verified clean via read-back. The Fleet report reads this marker via
-        osquery's native registry table to surface the `mitigated` verdict.
-      - Skips silently if WinRE is already disabled (stronger mitigation in place)
-      - Mount directory is under %SystemRoot%\Temp and ACL-locked to
-        Administrators to defend against TOCTOU + non-admin local DoS
-      - Mount + hive + edit + unmount + cleanup all run in one try/finally
-        so the hive and mount are always released even on mid-flow failure
-      - Granular exit codes for Fleet reporting
-      - Structured key:value output for log capture
+    Mount, hive, edit, and unmount run in one try/finally so the hive and
+    mount are always released. The mount directory is under %SystemRoot%\Temp,
+    ACL-locked to Administrators. On success the script writes
+    HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1, which the
+    windows_yellowkey extension reads to report the host as `mitigated`.
 
-    Matches autofstx in any form: `autofstx`, `autofstx.exe`, `autocheck
-    autofstx`, `autofstx.exe /flag`. Read-back verification after each strip
-    refuses to mark a ControlSet clean if autofstx is still present.
-
-    One-way. There is no unmitigate counterpart. If a patch ships, the patch
-    supersedes the strip; if a host needs autofstx back for some other reason,
-    restore manually and clear HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated.
-
-    TPM + PIN blocks the published PoC but not the researcher's withheld
-    variant. Treat TPM + PIN as raising attacker cost, not as a substitute
-    for this mitigation.
+    One-way: no unmitigate. If a patch ships, apply it and clear the marker.
+    TPM + PIN raises attacker cost but does not block the withheld variant.
 
 .PARAMETER MountPath
     Directory to use as the WinRE mount point. Created if missing and ACL-

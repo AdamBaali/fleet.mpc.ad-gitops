@@ -1,34 +1,19 @@
 //go:build windows
 
-// Osquery extension that surfaces a Windows host's exposure to and
-// mitigation state for the YellowKey BitLocker bypass (CVE-2026-45585).
-//
-// Microsoft's canonical mitigation script lives inside the CVE-2026-45585
-// MSRC advisory FAQ ("Is there a script that I can copy and paste to
-// implement a mitigation?"):
-//
-//   https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585
-//
-// That script strips autofstx.exe from the WinRE image's Session Manager
-// BootExecute. This extension is the matching read side: it exposes the
-// signals the report and dashboard need to identify exposed, mitigated,
-// and unaffected hosts in real time. It does NOT mount the WinRE image
-// or attempt to read the offline BootExecute value; the
-// HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated marker (written by
-// mitigate-windows-yellowkey.ps1 in this same repo) is the proxy.
-//
-// Pattern adapted from allenhouchins/fleet-extensions/secureboot_cert_update.
+// Package main implements an osquery extension for the YellowKey BitLocker
+// bypass (CVE-2026-45585). It registers one table, windows_yellowkey, that
+// returns a single-row per-host verdict. The matching fix is
+// mitigate-windows-yellowkey.ps1 in this repo, which applies Microsoft's
+// autofstx strip from the CVE-2026-45585 MSRC advisory FAQ.
 package main
 
 import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -37,375 +22,236 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-const extensionSchemaVersion = "1.1.0"
-const cveID = "CVE-2026-45585"
+const tableName = "windows_yellowkey"
 
+// Verdicts emitted in the state column. First match in verdict() wins.
 const (
-	regFleetYellowKey = `SOFTWARE\Fleet\YellowKey`
-	regWinNTCurrent   = `SOFTWARE\Microsoft\Windows NT\CurrentVersion`
+	stateNotAffected    = "not_affected"
+	stateMitigated      = "mitigated"
+	stateMitigatedWinRE = "mitigated_winre_off"
+	stateBitLockerOff   = "bitlocker_off"
+	stateExposed        = "exposed"
 )
 
-var (
-	socket   = flag.String("socket", "", "Path to the extensions UNIX domain socket")
-	timeout  = flag.Int("timeout", 3, "Seconds to wait for autoloaded extensions")
-	interval = flag.Int("interval", 3, "Seconds delay between connectivity checks")
+// WinRE states returned by winreState().
+const (
+	winreEnabled  = "Enabled"
+	winreDisabled = "Disabled"
+	winreUnknown  = "unknown"
 )
 
-// CJK-tolerant colon class so fullwidth-colon locales still match.
-var (
-	winreEnabledRe  = regexp.MustCompile(`[:\x{FF1A}]\s*Enabled\b`)
-	winreDisabledRe = regexp.MustCompile(`[:\x{FF1A}]\s*Disabled\b`)
-	winreLocationRe = regexp.MustCompile(`Windows RE location[:\x{FF1A}]\s*(\S.*)`)
+// BitLocker key protector type names from Get-BitLockerVolume.
+const (
+	kpTPM              = "Tpm"
+	kpTPMPin           = "TpmPin"
+	kpTPMPinStartupKey = "TpmPinStartupKey"
 )
 
 func main() {
+	socket := flag.String("socket", "", "path to the osquery extension socket")
+	timeout := flag.Int("timeout", 3, "seconds to wait for autoloaded extensions")
+	interval := flag.Int("interval", 3, "seconds between connectivity checks")
 	flag.Parse()
+
 	if *socket == "" {
-		log.Fatalln("Missing required --socket argument")
+		log.Fatal("missing required --socket argument")
 	}
 
 	server, err := osquery.NewExtensionManagerServer(
-		"windows_yellowkey",
-		*socket,
-		osquery.ServerTimeout(time.Second*time.Duration(*timeout)),
-		osquery.ServerPingInterval(time.Second*time.Duration(*interval)),
+		tableName, *socket,
+		osquery.ServerTimeout(time.Duration(*timeout)*time.Second),
+		osquery.ServerPingInterval(time.Duration(*interval)*time.Second),
 	)
 	if err != nil {
-		log.Fatalf("error creating extension: %s\n", err)
+		log.Fatalf("create extension server: %v", err)
 	}
 
-	server.RegisterPlugin(table.NewPlugin(
-		"windows_yellowkey",
-		columns(),
-		generate,
-	))
+	server.RegisterPlugin(table.NewPlugin(tableName, columns(), generate))
 
 	if err := server.Run(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("run extension server: %v", err)
 	}
 }
 
 func columns() []table.ColumnDefinition {
 	return []table.ColumnDefinition{
-		// Derived state.
 		table.TextColumn("state"),
 		table.TextColumn("state_reason"),
 		table.IntegerColumn("needs_action"),
-		table.TextColumn("action"),
-		table.TextColumn("cve"),
-
-		// OS.
-		table.TextColumn("os_name"),
-		table.TextColumn("os_build"),
-		table.IntegerColumn("affected_os"),
-
-		// WinRE.
 		table.TextColumn("winre_enabled"),
-		table.TextColumn("winre_location"),
-
-		// BitLocker.
-		table.IntegerColumn("bitlocker_volume_count"),
-		table.IntegerColumn("bitlocker_protected_count"),
-		table.IntegerColumn("bitlocker_max_protection_status"),
-		table.TextColumn("bitlocker_key_protectors"),
-		table.IntegerColumn("bitlocker_tpm_only_count"),
-
-		// Fleet markers.
-		table.IntegerColumn("bootexec_mitigated_marker"),
-
-		// Lifecycle.
-		table.TextColumn("collection_time"),
-		table.TextColumn("extension_schema_version"),
+		table.IntegerColumn("tpm_only"),
+		table.IntegerColumn("mitigated"),
 	}
 }
 
-// collected holds raw values gathered from the device.
-type collected struct {
-	osName  string
-	osBuild string
-	osAffected bool
+// generate returns one row: the host's YellowKey verdict and the signals
+// behind it. Collection failures are logged and fall back to their safe
+// defaults so the table always returns a row.
+func generate(_ context.Context, _ table.QueryContext) ([]map[string]string, error) {
+	affected := osAffected()
+	winre := winreState()
+	protected, tpmOnly := bitLockerState()
+	mit := mitigated()
 
-	winreState    string // "Enabled" | "Disabled" | "unknown"
-	winreLocation string
+	state, reason := verdict(affected, winre, protected, mit)
 
-	bitlockerVolumeCount      int
-	bitlockerProtectedCount   int
-	bitlockerMaxProtection    int
-	bitlockerKeyProtectors    string
-	bitlockerTpmOnlyCount     int
-	bitlockerError            string
-
-	bootExecMitigatedMarker int // 0 or 1
-
-	collectionTime time.Time
-}
-
-func generate(ctx context.Context, q table.QueryContext) ([]map[string]string, error) {
-	c := &collected{collectionTime: time.Now().UTC()}
-
-	collectOS(c)
-	collectWinRE(c)
-	collectBitLocker(c)
-	collectFleetMarkers(c)
-
-	state, reason, needsAction, action := deriveState(c)
-
-	row := map[string]string{
+	return []map[string]string{{
 		"state":         state,
 		"state_reason":  reason,
-		"needs_action":  boolToInt(needsAction),
-		"action":        action,
-		"cve":           cveID,
-
-		"os_name":     c.osName,
-		"os_build":    c.osBuild,
-		"affected_os": boolToInt(c.osAffected),
-
-		"winre_enabled":  c.winreState,
-		"winre_location": c.winreLocation,
-
-		"bitlocker_volume_count":          strconv.Itoa(c.bitlockerVolumeCount),
-		"bitlocker_protected_count":       strconv.Itoa(c.bitlockerProtectedCount),
-		"bitlocker_max_protection_status": strconv.Itoa(c.bitlockerMaxProtection),
-		"bitlocker_key_protectors":        c.bitlockerKeyProtectors,
-		"bitlocker_tpm_only_count":        strconv.Itoa(c.bitlockerTpmOnlyCount),
-
-		"bootexec_mitigated_marker": strconv.Itoa(c.bootExecMitigatedMarker),
-
-		"collection_time":          c.collectionTime.Format(time.RFC3339),
-		"extension_schema_version": extensionSchemaVersion,
-	}
-
-	return []map[string]string{row}, nil
+		"needs_action":  boolToInt(state == stateExposed),
+		"winre_enabled": winre,
+		"tpm_only":      boolToInt(tpmOnly),
+		"mitigated":     boolToInt(mit),
+	}}, nil
 }
 
-// --- Collectors ---------------------------------------------------------
+// verdict derives the per-host state. First match wins.
+func verdict(affected bool, winre string, protected, mitigated bool) (state, reason string) {
+	switch {
+	case !affected:
+		return stateNotAffected, "Windows 10 or unrecognised SKU; not vulnerable"
+	case mitigated:
+		return stateMitigated, "autofstx stripped from WinRE (BootExecMitigated marker set)"
+	case winre == winreDisabled:
+		return stateMitigatedWinRE, "WinRE disabled; the bypass cannot run"
+	case !protected:
+		return stateBitLockerOff, "BitLocker is not protecting any volume"
+	default:
+		return stateExposed, "WinRE on, BitLocker on, no mitigation applied"
+	}
+}
 
-func collectOS(c *collected) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, regWinNTCurrent, registry.QUERY_VALUE)
+// osAffected reports whether this host runs an OS that YellowKey affects:
+// Windows 11, Server 2022, or Server 2025. Windows 10 ships a different
+// WinRE component and is safe.
+func osAffected() bool {
+	const key = `SOFTWARE\Microsoft\Windows NT\CurrentVersion`
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, key, registry.QUERY_VALUE)
 	if err != nil {
-		log.Printf("open %s: %v", regWinNTCurrent, err)
-		return
+		log.Printf("open %s: %v", key, err)
+		return false
 	}
 	defer k.Close()
 
-	if v, _, err := k.GetStringValue("ProductName"); err == nil {
-		c.osName = v
+	name, _, err := k.GetStringValue("ProductName")
+	if err != nil {
+		log.Printf("read ProductName: %v", err)
+		return false
 	}
-	if v, _, err := k.GetStringValue("CurrentBuild"); err == nil {
-		c.osBuild = v
-	}
-
-	// YellowKey affects Windows 11 and Windows Server 2022/2025. Windows 10
-	// ships a different WinRE component and is not affected. ProductName
-	// includes the SKU string for client (e.g., "Windows 11 Enterprise"). On
-	// Server SKUs the ProductName begins with "Windows Server". Build numbers
-	// help corroborate: Win11 >= 22000, Server 2022 >= 20348, Server 2025 >= 26100.
-	name := strings.ToLower(c.osName)
+	name = strings.ToLower(name)
 	if strings.Contains(name, "windows 10") {
-		c.osAffected = false
-		return
+		return false
 	}
-	if strings.Contains(name, "windows 11") {
-		c.osAffected = true
-		return
-	}
-	if strings.Contains(name, "windows server 2022") || strings.Contains(name, "windows server 2025") {
-		c.osAffected = true
-		return
-	}
-	// Fall back on build number for cases where ProductName is unusual.
-	if b, err := strconv.Atoi(c.osBuild); err == nil {
-		switch {
-		case b >= 22000 && b < 99999:
-			c.osAffected = true
-		}
-	}
+	return strings.Contains(name, "windows 11") ||
+		strings.Contains(name, "server 2022") ||
+		strings.Contains(name, "server 2025")
 }
 
-func collectWinRE(c *collected) {
-	cmd := exec.Command("reagentc.exe", "/info")
-	out, err := cmd.CombinedOutput()
+// CJK-colon tolerant matches for "Windows RE status: Enabled/Disabled".
+var (
+	reEnabled  = regexp.MustCompile(`[:\x{FF1A}]\s*Enabled\b`)
+	reDisabled = regexp.MustCompile(`[:\x{FF1A}]\s*Disabled\b`)
+)
+
+// winreState returns winreEnabled, winreDisabled, or winreUnknown by parsing
+// reagentc /info. The status words are English-only; an unrecognised locale
+// yields winreUnknown.
+func winreState() string {
+	out, err := exec.Command("reagentc.exe", "/info").CombinedOutput()
 	if err != nil {
-		// reagentc may exit non-zero on some failure modes but still print useful
-		// text; fall through to parse what we have.
+		// reagentc exits non-zero in some states but still prints useful
+		// text, so parse what we captured rather than bailing.
 		log.Printf("reagentc /info: %v", err)
 	}
-	text := string(out)
-
-	switch {
-	case winreEnabledRe.MatchString(text):
-		c.winreState = "Enabled"
-	case winreDisabledRe.MatchString(text):
-		c.winreState = "Disabled"
+	switch text := string(out); {
+	case reDisabled.MatchString(text):
+		return winreDisabled
+	case reEnabled.MatchString(text):
+		return winreEnabled
 	default:
-		c.winreState = "unknown"
-	}
-
-	if m := winreLocationRe.FindStringSubmatch(text); len(m) == 2 {
-		c.winreLocation = strings.TrimSpace(m[1])
+		return winreUnknown
 	}
 }
 
-// blVolume mirrors the JSON shape we emit from PowerShell.
-type blVolume struct {
-	MountPoint        string   `json:"MountPoint"`
-	ProtectionStatus  int      `json:"ProtectionStatus"`
-	KeyProtectorTypes []string `json:"KeyProtectorTypes"`
-}
+// bitLockerState reports whether any volume is protected, and whether any
+// volume uses TPM without a PIN (the configuration the published PoC
+// targets). Both default to false when BitLocker data is unavailable.
+func bitLockerState() (protected, tpmOnly bool) {
+	const script = `
+$ErrorActionPreference='SilentlyContinue'
+$v = Get-BitLockerVolume
+if (-not $v) { '[]'; exit }
+$v | ForEach-Object {
+  [pscustomobject]@{
+    On  = [int]($_.ProtectionStatus -eq 'On')
+    KPs = @($_.KeyProtector | ForEach-Object { $_.KeyProtectorType.ToString() })
+  }
+} | ConvertTo-Json -Compress -Depth 4`
 
-func collectBitLocker(c *collected) {
-	// Get-BitLockerVolume returns key protector types that the osquery
-	// bitlocker_info table does not expose. Emit just the fields we need as
-	// compact JSON for parsing.
-	psScript := `
-$ErrorActionPreference = 'SilentlyContinue'
-$vols = Get-BitLockerVolume
-if (-not $vols) { '[]'; exit }
-$out = $vols | ForEach-Object {
-    [pscustomobject]@{
-        MountPoint        = [string]$_.MountPoint
-        ProtectionStatus  = [int]($_.ProtectionStatus -eq 'On')
-        KeyProtectorTypes = @($_.KeyProtector | ForEach-Object { $_.KeyProtectorType.ToString() })
-    }
-}
-$out | ConvertTo-Json -Compress -Depth 4
-`
-	cmd := exec.Command("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", psScript)
-	out, err := cmd.Output()
+	out, err := exec.Command("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script).Output()
 	if err != nil {
-		c.bitlockerError = err.Error()
-		return
+		log.Printf("Get-BitLockerVolume: %v", err)
+		return false, false
 	}
 	body := strings.TrimSpace(string(out))
 	if body == "" || body == "[]" {
-		return
+		return false, false
 	}
-	// ConvertTo-Json emits an object (not an array) when there is a single volume.
 	if !strings.HasPrefix(body, "[") {
-		body = "[" + body + "]"
-	}
-	var vols []blVolume
-	if err := json.Unmarshal([]byte(body), &vols); err != nil {
-		c.bitlockerError = err.Error()
-		return
+		body = "[" + body + "]" // ConvertTo-Json emits a bare object for a single volume
 	}
 
-	c.bitlockerVolumeCount = len(vols)
-	typesSet := map[string]struct{}{}
-	for _, v := range vols {
-		if v.ProtectionStatus > c.bitlockerMaxProtection {
-			c.bitlockerMaxProtection = v.ProtectionStatus
+	var volumes []struct {
+		On         int      `json:"On"`
+		Protectors []string `json:"KPs"`
+	}
+	if err := json.Unmarshal([]byte(body), &volumes); err != nil {
+		log.Printf("parse Get-BitLockerVolume output: %v", err)
+		return false, false
+	}
+	for _, v := range volumes {
+		if v.On == 1 {
+			protected = true
 		}
-		if v.ProtectionStatus == 1 {
-			c.bitlockerProtectedCount++
-		}
-		hasTpm := false
-		hasPin := false
-		for _, t := range v.KeyProtectorTypes {
-			typesSet[t] = struct{}{}
-			switch t {
-			case "Tpm":
-				hasTpm = true
-			case "TpmPin", "TpmPinStartupKey":
-				hasPin = true
-			}
-		}
-		if hasTpm && !hasPin {
-			c.bitlockerTpmOnlyCount++
+		if tpmWithoutPin(v.Protectors) {
+			tpmOnly = true
 		}
 	}
-	types := make([]string, 0, len(typesSet))
-	for t := range typesSet {
-		types = append(types, t)
-	}
-	// Sort for stable output across runs.
-	stableSort(types)
-	c.bitlockerKeyProtectors = strings.Join(types, ",")
+	return protected, tpmOnly
 }
 
-// stableSort is a tiny insertion sort; the slice is small (<= ~8 distinct
-// key protector types) so we avoid pulling in the sort package.
-func stableSort(s []string) {
-	for i := 1; i < len(s); i++ {
-		j := i
-		for j > 0 && s[j-1] > s[j] {
-			s[j-1], s[j] = s[j], s[j-1]
-			j--
+// tpmWithoutPin reports whether a key protector set includes a TPM protector
+// but no PIN.
+func tpmWithoutPin(protectors []string) bool {
+	tpm, pin := false, false
+	for _, p := range protectors {
+		switch p {
+		case kpTPM:
+			tpm = true
+		case kpTPMPin, kpTPMPinStartupKey:
+			pin = true
 		}
 	}
+	return tpm && !pin
 }
 
-func collectFleetMarkers(c *collected) {
-	// Only BootExecMitigated is consulted. The mitigate script writes this
-	// after a successful autofstx strip; the report uses it to flag a host
-	// as `mitigated` via osquery's registry table. There is no opt-in marker
-	// because Microsoft's mitigation is safe to apply on every affected host.
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, regFleetYellowKey, registry.QUERY_VALUE)
+// mitigated reports whether mitigate-windows-yellowkey.ps1 has recorded a
+// successful autofstx strip. A missing Fleet key is the normal
+// pre-mitigation state, not an error.
+func mitigated() bool {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Fleet\YellowKey`, registry.QUERY_VALUE)
 	if err != nil {
-		// Missing key is fine; marker defaults to 0.
-		return
+		return false
 	}
 	defer k.Close()
-
-	if v, _, err := k.GetIntegerValue("BootExecMitigated"); err == nil && v == 1 {
-		c.bootExecMitigatedMarker = 1
-	}
+	v, _, err := k.GetIntegerValue("BootExecMitigated")
+	return err == nil && v == 1
 }
 
-// --- State machine ------------------------------------------------------
-
-func deriveState(c *collected) (state, reason string, needsAction bool, action string) {
-	if !c.osAffected {
-		return "not_affected",
-			fmt.Sprintf("%s is not in YellowKey's affected OS list", valueOr(c.osName, "this OS")),
-			false, "none"
-	}
-
-	if c.bootExecMitigatedMarker == 1 {
-		return "mitigated",
-			"Fleet BootExecMitigated marker is set; mitigate-windows-yellowkey.ps1 stripped autofstx successfully",
-			false, "verify_periodically"
-	}
-
-	if c.winreState == "Disabled" {
-		return "mitigated_winre_off",
-			"WinRE disabled; heavier mitigation in place (push-button reset and in-WinRE BitLocker recovery are unavailable)",
-			false, "monitor"
-	}
-
-	if c.bitlockerProtectedCount == 0 {
-		return "bitlocker_off",
-			"BitLocker is not protecting any volume; YellowKey has no encrypted data to unlock",
-			false, "none"
-	}
-
-	if c.winreState == "Enabled" {
-		return "exposed",
-			fmt.Sprintf("WinRE enabled, BitLocker protecting %d volume(s), no Fleet mitigation marker", c.bitlockerProtectedCount),
-			true, "apply_mitigation"
-	}
-
-	// WinRE state is unknown (regex did not parse reagentc /info, likely a
-	// locale we do not yet cover). Surface as exposed since the host meets
-	// the OS + BitLocker criteria and we cannot confirm WinRE is off.
-	return "exposed",
-		fmt.Sprintf("WinRE state could not be parsed; BitLocker protecting %d volume(s); assume exposed and verify manually", c.bitlockerProtectedCount),
-		true, "verify_winre_state"
-}
-
-// --- Helpers ------------------------------------------------------------
-
+// boolToInt renders a bool as the "1"/"0" string osquery integer columns use.
 func boolToInt(b bool) string {
 	if b {
 		return "1"
 	}
 	return "0"
-}
-
-func valueOr(v, fallback string) string {
-	if v == "" {
-		return fallback
-	}
-	return v
 }

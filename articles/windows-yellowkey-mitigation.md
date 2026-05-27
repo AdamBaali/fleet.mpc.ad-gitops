@@ -28,24 +28,23 @@ What lands in your repo
 
 | File | Role |
 |---|---|
-| `lib/windows/reports/windows-yellowkey.reports.yml` | Daily per-host exposure + mitigation report |
 | `extensions/windows_yellowkey/` | Native osquery extension exposing the `windows_yellowkey` virtual table in real time |
-| `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Policy that checks for the extension binary; auto-runs the installer on failure |
-| `lib/windows/scripts/install-yellowkey-extension.ps1` | Downloads the arch-matching binary from the latest GitHub release |
+| `lib/windows/reports/windows-yellowkey.reports.yml` | Daily report: queries the extension table for per-host state |
+| `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Policy that checks the extension is loaded; auto-runs the installer on failure |
+| `lib/windows/scripts/install-yellowkey-extension.ps1` | Downloads the binary, registers it in orbit, restarts orbit to load it |
 | `lib/windows/scripts/mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE; safe to run on every affected host |
-| `lib/windows/scripts/verify-windows-yellowkey.ps1` | Read-only per-host inspection |
-| `lib/windows/scripts/snapshot-windows-yellowkey.ps1` | Fallback signal source when the extension is not yet loaded |
 | `.github/workflows/build-extensions.yml` | Tag-driven release: builds every extension and uploads `.exe` files |
 
 Detect
 ------
 
-The `windows-yellowkey` report joins four signals:
+The `windows_yellowkey` osquery extension does the work. On each query it reads the OS, WinRE state (`reagentc /info`), BitLocker key protectors (`Get-BitLockerVolume`), and the Fleet `BootExecMitigated` success marker, then derives a single `state` verdict. No snapshot file, no freshness gate: every query is live.
 
-- `os_version` for the SKU check.
-- `bitlocker_info` (aggregated per host so a non-OS data partition cannot mask an exposed OS volume).
-- `registry` for the `BootExecMitigated` success marker.
-- WinRE state. From the `windows_yellowkey` extension if loaded; otherwise from `snapshot-windows-yellowkey.ps1` via `file_lines` with a 48-hour freshness gate.
+The report is a one-liner over that table:
+
+```
+SELECT state, state_reason, needs_action, winre_enabled, tpm_only, mitigated FROM windows_yellowkey;
+```
 
 Verdicts:
 
@@ -58,7 +57,7 @@ Verdicts:
 | `exposed` | Affected OS + BitLocker on + no mitigation marker |
 | `unknown` | Unrecognised OS |
 
-`snapshot_age_hours` and `snapshot_status` (`fresh` / `stale` / `missing`) are surfaced as columns so admins see freshness at a glance.
+A host returns rows here only once the extension is loaded. Hosts pending the extension show up as failing the `windows-yellowkey-extension` policy, which installs it.
 
 Mitigate
 --------
@@ -86,8 +85,8 @@ Deploy
 
 Two pieces keep the detection extension installed across the fleet:
 
-- The `windows-yellowkey-extension` policy queries osquery's `file` table for `windows_yellowkey-*.exe` under `C:\Program Files\Fleet\Extensions\`. Passes when the binary is present.
-- `install-yellowkey-extension.ps1` is attached as the policy's `run_script`. It detects host architecture, downloads the matching binary from the latest GitHub release, verifies the PE32+ MZ header, and drops it at the target path. Idempotent.
+- The `windows-yellowkey-extension` policy runs `SELECT 1 FROM windows_yellowkey LIMIT 1`. It passes only when the extension is loaded and the table is queryable, so it tests the real end state, not just a file on disk.
+- `install-yellowkey-extension.ps1` is attached as the policy's `run_script`. It detects host architecture, downloads the matching binary from the latest GitHub release, verifies the PE32+ MZ header, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit so osquery loads it. Idempotent.
 
 Releases come from `.github/workflows/build-extensions.yml`. Push a tag matching `v*` or `extensions-v*` and the workflow auto-discovers every `extensions/<name>/`, runs `make windows`, and uploads the resulting `.exe` files as release assets:
 
@@ -110,11 +109,8 @@ reports:
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 controls:
   scripts:
-    - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
-    - path: ../lib/windows/scripts/verify-windows-yellowkey.ps1
-    - path: ../lib/windows/scripts/snapshot-windows-yellowkey.ps1
-    - path: ../lib/windows/scripts/cleanup-windows-yellowkey-snapshot.ps1
     - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
+    - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
 ```
 
 Apply with:
@@ -136,8 +132,8 @@ Workflow
 Operational notes
 -----------------
 
-- **Snapshot freshness applies until the extension is loaded.** Hosts without the extension installed yet fall back to `snapshot-windows-yellowkey.ps1` and a 48-hour freshness gate. The `snapshot_status` column tells you which path the row came from.
-- **Verify is the per-host inspector.** `verify-windows-yellowkey.ps1` reads `reagentc /info`, BitLocker key protectors via `Get-BitLockerVolume`, and the success marker. Use it when a single host disagrees with the report.
+- **No extension, no row.** A host reports in the `windows-yellowkey` report only once the extension is loaded. Until then it shows up as failing the `windows-yellowkey-extension` policy, which installs the extension. The two views together cover the whole fleet: the policy says who still needs the extension, the report says the state of everyone who has it.
+- **Inspecting a single host.** `SELECT * FROM windows_yellowkey;` returns every raw signal alongside the verdict. If the extension won't load on a host, the two built-in commands behind it are `reagentc /info` and `Get-BitLockerVolume`. Run them directly via Fleet > Scripts for a no-osquery read.
 - **Recovery media changes after `reagentc /disable`.** The heavier escalation removes push-button reset, the in-WinRE BitLocker recovery flow, System Restore from boot, and Recovery Drive image restore. Re-enable with `reagentc /enable` before any of those operations is needed.
 - **When the patch ships.** Apply it and clear `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated` to retire the marker. The mitigate script is one-way and does not auto-clear.
 - **Don't trust TPM-only.** Move high-risk hosts to TPM + PIN where the threat model includes physical access. PIN blocks the public PoC and raises attacker cost on the withheld variant.
