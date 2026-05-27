@@ -133,7 +133,7 @@ Operational notes
 -----------------
 
 - **No extension, no row.** A host reports in the `windows-yellowkey` report only once the extension is loaded. Until then it shows up as failing the `windows-yellowkey-extension` policy, which installs the extension. The two views together cover the whole fleet: the policy says who still needs the extension, the report says the state of everyone who has it.
-- **Inspecting a single host.** `SELECT * FROM windows_yellowkey;` returns every raw signal alongside the verdict. If the extension won't load on a host, the two built-in commands behind it are `reagentc /info` and `Get-BitLockerVolume` — run them directly via Fleet > Scripts for a no-osquery read.
+- **Inspecting a single host.** `SELECT * FROM windows_yellowkey;` returns every raw signal alongside the verdict. If the extension won't load on a host, the two built-in commands behind it are `reagentc /info` and `Get-BitLockerVolume`. Run them directly via Fleet > Scripts for a no-osquery read.
 - **Recovery media changes after `reagentc /disable`.** The heavier escalation removes push-button reset, the in-WinRE BitLocker recovery flow, System Restore from boot, and Recovery Drive image restore. Re-enable with `reagentc /enable` before any of those operations is needed.
 - **When the patch ships.** Apply it and clear `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated` to retire the marker. The mitigate script is one-way and does not auto-clear.
 - **Don't trust TPM-only.** Move high-risk hosts to TPM + PIN where the threat model includes physical access. PIN blocks the public PoC and raises attacker cost on the withheld variant.
