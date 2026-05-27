@@ -1,6 +1,6 @@
 # YellowKey osquery extension (CVE-2026-45585)
 
-Native osquery extension that exposes per-host exposure and mitigation state for the YellowKey BitLocker bypass (CVE-2026-45585). Replaces the `snapshot-windows-yellowkey.ps1` + `file_lines` approach with a real-time virtual table.
+Native osquery extension that exposes per-host exposure and mitigation state for the YellowKey BitLocker bypass (CVE-2026-45585) as a real-time virtual table. It is the detection path for YellowKey in this repo: the `windows-yellowkey` report queries it directly, with no snapshot file and no freshness gate.
 
 Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update).
 
@@ -135,10 +135,10 @@ The `extension_schema_version` column is included so future Fleet queries can br
 | `state = 'bitlocker_off'` | `yellowkey_exposure_verdict = 'bitlocker_off'` |
 | `state = 'exposed'` | `yellowkey_exposure_verdict = 'exposed'` |
 
-A future revision of `windows-yellowkey.reports.yml` can query `windows_yellowkey` directly and drop the `file_lines` snapshot pivot. The snapshot path stays available as a fallback for hosts without the extension loaded.
+`windows-yellowkey.reports.yml` queries `windows_yellowkey` directly: the extension's `state` column is the report verdict. There is no snapshot file or `file_lines` pivot. A host appears in the report only once the extension is loaded; until then it shows up as failing the `windows-yellowkey-extension` policy, which installs the extension.
 
 ## Caveats
 
 - The WinRE regex is CJK-colon tolerant (`[:：]`) but the status words (`Enabled` / `Disabled`) are still English-only. On a non-English Windows install, the parse falls through to `unknown` and the `state` becomes `exposed` (the safe default).
-- The extension does not detect a host that has been mitigated via `reagentc /disable` directly (without going through `mitigate-windows-yellowkey.ps1`) unless the snapshot script also recorded the WinRE state. With the extension querying `reagentc /info` on every call, this case shows up as `mitigated_winre_off` correctly.
+- A host mitigated via `reagentc /disable` directly (not through `mitigate-windows-yellowkey.ps1`) is still detected correctly: the extension queries `reagentc /info` on every call, so WinRE-off surfaces as `mitigated_winre_off`.
 - The `BootExecMitigated` marker is not auto-cleared. If Microsoft ships a patch and admins want to retire the marker, clear `HKLM\Software\Fleet\YellowKey\BootExecMitigated` via Fleet scripts or registry update.

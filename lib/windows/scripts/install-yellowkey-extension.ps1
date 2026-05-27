@@ -1,49 +1,50 @@
 <#
 .SYNOPSIS
-    Installs the windows_yellowkey osquery extension binary on this host.
+    Installs and loads the windows_yellowkey osquery extension on this host.
 
 .DESCRIPTION
-    Detects host architecture (amd64 / arm64), downloads the matching
-    binary from a GitHub release, verifies it's a valid PE32+ executable,
-    and places it at C:\Program Files\Fleet\Extensions\.
+    Implements the deployment flow from Fleet's "Deploying custom osquery
+    extensions" guide:
+      1. Download the architecture-matching binary from the latest release.
+      2. Place it under %ProgramFiles%\Orbit\extensions\ as a .ext.exe.
+      3. Register the path in %ProgramFiles%\Orbit\extensions.load
+         (one path per line, the osquery --extensions_autoload format).
+      4. Restart the orbit service so osquery loads the extension.
 
-    Idempotent. Exits 0 if the binary is already present at the target
-    path with a reasonable size.
+    Download + placement + registration are skipped when already done.
+    The orbit restart runs every time the script is invoked, because the
+    policy only triggers this script when the extension is NOT loaded, so
+    a re-run means the previous load did not take.
 
-    Loading the extension into orbit is a separate concern. After this
-    script completes, either:
-      - Test interactively:
-          'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- `
-              --extension <path> --allow-unsafe
-      - Configure orbit's extensions.load file to autoload on service start.
-
-    Designed to be attached to the windows-yellowkey-extension Fleet
-    policy as a run_script remediation. The policy passes once the
-    binary is at the target path; failing hosts trigger this script.
+    Attached as the run_script remediation for the
+    windows-yellowkey-extension policy, which passes only when the
+    windows_yellowkey table is queryable.
 
 .PARAMETER ReleaseBaseUrl
-    Base URL where the binaries are hosted. Default points at the
-    latest GitHub release of this repo. Override to test against a
-    custom URL (e.g., a draft release or internal mirror).
+    Base URL for the release assets. Default: latest release of this repo.
 
-.PARAMETER InstallPath
-    Directory where the binary lands. Default: %ProgramFiles%\Fleet\Extensions.
+.PARAMETER ExtensionsDir
+    Directory for the extension binary. Default: %ProgramFiles%\Orbit\extensions.
+
+.PARAMETER AutoloadFile
+    osquery extensions autoload file. Default: %ProgramFiles%\Orbit\extensions.load.
 
 .OUTPUTS
     Structured key:value output to stdout for log capture.
 
 .NOTES
     Exit codes:
-      0 = Binary installed, or already present at the target path
+      0 = Installed, registered, and orbit restarted
       2 = Unsupported architecture
       3 = Download failed
-      4 = Install directory unwritable, or move-into-place failed
-      5 = Downloaded file is not a PE32+ (corrupted, wrong content, etc.)
+      4 = File placement or autoload registration failed
+      5 = Downloaded file is not a PE32+
+      6 = Placed and registered, but orbit restart was not possible
+          (extension loads on the next orbit restart)
 
     References:
+      Fleet guide: https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide
       Extension source: extensions/windows_yellowkey/ in this repo.
-      Allen Houchins' pattern:
-        https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update
 #>
 
 [CmdletBinding()]
@@ -52,7 +53,10 @@ param(
     [string]$ReleaseBaseUrl = 'https://github.com/AdamBaali/fleet.mpc.ad-gitops/releases/latest/download',
 
     [Parameter(Mandatory = $false)]
-    [string]$InstallPath = (Join-Path $env:ProgramFiles 'Fleet\Extensions')
+    [string]$ExtensionsDir = (Join-Path $env:ProgramFiles 'Orbit\extensions'),
+
+    [Parameter(Mandatory = $false)]
+    [string]$AutoloadFile = (Join-Path $env:ProgramFiles 'Orbit\extensions.load')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -65,114 +69,137 @@ function Write-State {
 Write-Output "=== windows_yellowkey extension installer ==="
 Write-Output ""
 
+# osquery on Windows expects extension binaries to end in .ext.exe.
+$installedName = 'windows_yellowkey.ext.exe'
+$targetPath    = Join-Path $ExtensionsDir $installedName
+
 # --- Detect architecture ---
 $arch = $env:PROCESSOR_ARCHITECTURE
-$binaryName = switch ($arch) {
+$asset = switch ($arch) {
     'AMD64' { 'windows_yellowkey-amd64.exe' }
     'ARM64' { 'windows_yellowkey-arm64.exe' }
     default { $null }
 }
-if (-not $binaryName) {
+if (-not $asset) {
     Write-Output "FAIL: unsupported architecture: $arch"
     Write-State 'State' 'unsupported_arch'
     exit 2
 }
 Write-State 'Architecture' $arch
-Write-State 'Binary'       $binaryName
+Write-State 'Asset'        $asset
+Write-State 'Target'       $targetPath
 
-$targetPath = Join-Path $InstallPath $binaryName
-Write-State 'Target path' $targetPath
-
-# --- Idempotency: skip if already installed ---
-if (Test-Path $targetPath) {
-    $existingSize = (Get-Item $targetPath).Length
-    # Real binaries are several MB. Anything under 1 MB is suspect.
-    if ($existingSize -gt 1000000) {
-        Write-Output "OK: already installed at $targetPath ($existingSize bytes)."
-        Write-State 'State' 'already_installed'
-        exit 0
-    }
-    Write-Output "Existing file looks too small ($existingSize bytes); replacing."
-}
-
-# --- Ensure install directory exists ---
-if (-not (Test-Path $InstallPath)) {
+# --- Ensure extensions directory ---
+if (-not (Test-Path $ExtensionsDir)) {
     try {
-        New-Item -Path $InstallPath -ItemType Directory -Force | Out-Null
-        Write-State 'Created' $InstallPath
+        New-Item -Path $ExtensionsDir -ItemType Directory -Force | Out-Null
     } catch {
-        Write-Output "FAIL: could not create $InstallPath : $($_.Exception.Message)"
-        Write-State 'State' 'install_path_unwritable'
+        Write-Output "FAIL: could not create $ExtensionsDir : $($_.Exception.Message)"
+        Write-State 'State' 'extensions_dir_unwritable'
         exit 4
     }
 }
 
-# --- Download to a temp path ---
-$downloadUrl = "$ReleaseBaseUrl/$binaryName"
-$tempPath    = Join-Path $env:TEMP "$binaryName.download"
-Write-State 'Download URL' $downloadUrl
+# --- Download + verify + place (skip if a good binary is already there) ---
+$alreadyPlaced = (Test-Path $targetPath) -and ((Get-Item $targetPath).Length -gt 1000000)
+if ($alreadyPlaced) {
+    Write-State 'Binary' 'already present'
+} else {
+    $url      = "$ReleaseBaseUrl/$asset"
+    $tempPath = Join-Path $env:TEMP "$asset.download"
+    Write-State 'Download URL' $url
 
-# Force TLS 1.2 on PS 5.1 hosts where it isn't the default.
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    } catch {
+        Write-Output "WARN: could not enforce TLS 1.2: $($_.Exception.Message)"
+    }
+
+    $ProgressPreference = 'SilentlyContinue'
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $tempPath -UseBasicParsing
+    } catch {
+        Write-Output "FAIL: download failed: $($_.Exception.Message)"
+        Write-State 'State' 'download_failed'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 3
+    }
+
+    # Verify PE32+ magic bytes (MZ at offset 0).
+    try {
+        $fs = [System.IO.File]::OpenRead($tempPath)
+        $hdr = New-Object byte[] 2
+        $null = $fs.Read($hdr, 0, 2)
+        $fs.Close()
+    } catch {
+        Write-Output "FAIL: could not read downloaded file header: $($_.Exception.Message)"
+        Write-State 'State' 'header_read_failed'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 5
+    }
+    if ($hdr[0] -ne 0x4D -or $hdr[1] -ne 0x5A) {
+        Write-Output "FAIL: downloaded file is not a Windows PE (no MZ header)."
+        Write-State 'State' 'not_a_pe'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 5
+    }
+
+    try {
+        Move-Item -Path $tempPath -Destination $targetPath -Force
+    } catch {
+        Write-Output "FAIL: could not move to $targetPath : $($_.Exception.Message)"
+        Write-State 'State' 'move_failed'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 4
+    }
+    Write-State 'Placed' $targetPath
+}
+
+# --- Register the path in extensions.load ---
 try {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    $lines = @()
+    if (Test-Path $AutoloadFile) {
+        $lines = @(Get-Content -Path $AutoloadFile -ErrorAction SilentlyContinue |
+                   Where-Object { $_ -and $_.Trim() -ne '' })
+    }
+    if ($lines -notcontains $targetPath) {
+        $lines += $targetPath
+        Set-Content -Path $AutoloadFile -Value $lines -Encoding ASCII -Force
+        Write-State 'extensions.load' 'updated'
+    } else {
+        Write-State 'extensions.load' 'already listed'
+    }
 } catch {
-    Write-Output "WARN: could not enforce TLS 1.2: $($_.Exception.Message)"
-}
-
-$ProgressPreference = 'SilentlyContinue'
-try {
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempPath -UseBasicParsing
-} catch {
-    Write-Output "FAIL: download failed: $($_.Exception.Message)"
-    Write-State 'State' 'download_failed'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 3
-}
-
-if (-not (Test-Path $tempPath)) {
-    Write-Output "FAIL: download reported success but $tempPath is missing."
-    Write-State 'State' 'download_missing'
-    exit 3
-}
-$downloadedSize = (Get-Item $tempPath).Length
-Write-State 'Downloaded bytes' $downloadedSize
-
-# --- Verify PE32+ magic bytes (MZ at offset 0) ---
-try {
-    $fs = [System.IO.File]::OpenRead($tempPath)
-    $header = New-Object byte[] 2
-    $null = $fs.Read($header, 0, 2)
-    $fs.Close()
-} catch {
-    Write-Output "FAIL: could not read downloaded file header: $($_.Exception.Message)"
-    Write-State 'State' 'header_read_failed'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 5
-}
-if ($header[0] -ne 0x4D -or $header[1] -ne 0x5A) {
-    Write-Output "FAIL: downloaded file is not a Windows PE (no MZ header)."
-    Write-State 'State' 'not_a_pe'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 5
-}
-
-# --- Move into place atomically ---
-try {
-    Move-Item -Path $tempPath -Destination $targetPath -Force
-} catch {
-    Write-Output "FAIL: could not move to $targetPath : $($_.Exception.Message)"
-    Write-State 'State' 'move_failed'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+    Write-Output "FAIL: could not update $AutoloadFile : $($_.Exception.Message)"
+    Write-State 'State' 'autoload_write_failed'
     exit 4
 }
 
-Write-Output ""
-Write-Output "OK: installed."
-Write-State 'Installed at' $targetPath
-Write-State 'State'        'installed'
+# --- Restart orbit so osquery reloads with the extension ---
+# Runs on every invocation: the policy only calls this script when the
+# extension is not loaded, so reaching here means the load needs (re)applying.
+$svc = $null
+foreach ($name in @('Fleet osquery', 'Orbit', 'fleetd')) {
+    if (Get-Service -Name $name -ErrorAction SilentlyContinue) { $svc = $name; break }
+}
+if (-not $svc) {
+    Write-Output "WARN: orbit service not found by known names (Fleet osquery / Orbit / fleetd)."
+    Write-Output "      Binary placed and registered; osquery loads it on the next orbit restart."
+    Write-State 'State' 'placed_restart_deferred'
+    exit 6
+}
+try {
+    Restart-Service -Name $svc -Force
+    Write-State 'Restarted service' $svc
+} catch {
+    Write-Output "WARN: could not restart '$svc': $($_.Exception.Message)"
+    Write-Output "      Binary placed and registered; restart orbit to load."
+    Write-State 'State' 'placed_restart_failed'
+    exit 6
+}
 
 Write-Output ""
-Write-Output "Next: load via orbit. Interactive test:"
-Write-Output "  'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension `"$targetPath`" --allow-unsafe"
-Write-Output "Then query: SELECT state, state_reason FROM windows_yellowkey;"
+Write-Output "OK: installed, registered, and orbit restarted."
+Write-Output "    Verify with: SELECT state FROM windows_yellowkey;"
+Write-State 'State' 'installed'
 exit 0

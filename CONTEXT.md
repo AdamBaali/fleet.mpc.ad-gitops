@@ -30,9 +30,7 @@ lib/windows/
 │   ├── cleanup-windows-ca-2023-snapshot.ps1 # CA 2023 snapshot deletion (force native fallback)
 │   ├── mitigate-windows-yellowkey.ps1       # YellowKey: autofstx strip from WinRE BootExecute (Microsoft's mitigation, no gate)
 │   ├── verify-windows-yellowkey.ps1         # YellowKey: WinRE + BitLocker inspection (human-readable)
-│   ├── snapshot-windows-yellowkey.ps1       # YellowKey state writer (with freshness timestamp)
-│   ├── cleanup-windows-yellowkey-snapshot.ps1 # YellowKey snapshot deletion (force native fallback)
-│   └── install-yellowkey-extension.ps1      # YellowKey: download + install the osquery extension binary
+│   └── install-yellowkey-extension.ps1      # YellowKey: download + load the osquery extension (place + extensions.load + restart orbit)
 └── policies/
     └── windows-yellowkey-extension.policies.yml # Policy: extension binary present; runs install-yellowkey-extension.ps1 on failure
 
@@ -46,11 +44,12 @@ extensions/                                 # Native osquery extensions (Go). On
 .github/workflows/build-extensions.yml       # On tag push, builds every extensions/<name>/ and uploads binaries as release assets
 ```
 
-Reports use native osquery tables (`authenticode`, `registry`, `os_version`, `bitlocker_info`) plus snapshot data via `file_lines` for signals osquery cannot reach natively. Each report applies a 48-hour freshness gate: snapshot data older than 48 hours is treated as missing and snapshot-derived verdicts fall back to the native-only set. Re-run the matching `snapshot-windows-*.ps1` to refresh.
+Two detection styles run side by side:
 
-The optional `windows_yellowkey` osquery extension (`extensions/windows_yellowkey/`) provides the same YellowKey signals as a real-time virtual table, eliminating the snapshot freshness gate for hosts that load the extension. Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](https://github.com/allenhouchins/fleet-extensions/tree/main/secureboot_cert_update). Build with `make windows`, deploy via `orbit.exe shell -- --extension <binary> --allow-unsafe`. Snapshot scripts remain as the fallback path for hosts without the extension loaded.
+- **CA 2023** uses the snapshot pattern. `snapshot-windows-ca-2023.ps1` writes firmware signals osquery cannot read to a `key=value` file; the report `LEFT JOIN file_lines` with a 48-hour freshness gate.
+- **YellowKey** uses a native osquery extension. `extensions/windows_yellowkey/` exposes the `windows_yellowkey` table; the report queries it directly. No snapshot file, no freshness gate, every query live. The `windows-yellowkey-extension` policy installs and loads the extension on hosts that lack it.
 
-Releases: pushing a tag matching `v*` or `extensions-v*` triggers `.github/workflows/build-extensions.yml`, which auto-discovers every directory under `extensions/`, runs `make windows` in each, and uploads the resulting `.exe` files as assets on a GitHub release. The `install-yellowkey-extension.ps1` script (attached to the `windows-yellowkey-extension` policy) pulls from that release URL.
+Releases: pushing a tag matching `v*` or `extensions-v*` triggers `.github/workflows/build-extensions.yml`, which auto-discovers every directory under `extensions/`, runs `make windows` in each, and uploads the resulting `.exe` files as assets on a GitHub release. The `install-yellowkey-extension.ps1` script (attached to the `windows-yellowkey-extension` policy) pulls from that release URL, registers the binary in orbit's `extensions.load`, and restarts orbit so osquery loads it.
 
 Referenced from `fleets/workstations.yml` `controls.scripts` and `reports`.
 
@@ -79,24 +78,23 @@ The report combines all three layers and applies a 48-hour freshness gate to sna
 
 Verify hosts in `compliant_via_registry` by running `verify-windows-ca-2023.ps1`. It reads the firmware DB and ESP boot manager directly to confirm.
 
-## Snapshot pattern (firmware visibility in osquery)
+## Snapshot pattern (CA 2023 firmware visibility in osquery)
 
-osquery has no EFI-variable table and no Secure Boot / WinRE tables, so the firmware DB, KEK, DBX, ESP boot manager signature, and WinRE state cannot be read natively. `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` capture those signals as `key=value` text files; the reports `LEFT JOIN file_lines` and pivot rows into columns.
+osquery has no EFI-variable table, so the firmware DB, KEK, DBX, and ESP boot manager signature cannot be read natively. `snapshot-windows-ca-2023.ps1` captures those signals as a `key=value` text file; the CA 2023 report `LEFT JOIN file_lines` and pivots rows into columns. (YellowKey used to work this way too; it now uses the `windows_yellowkey` osquery extension instead, which is always live and needs no snapshot.)
 
-State files (ASCII, no BOM, one key=value per line):
+State file (ASCII, no BOM, one key=value per line):
 
 ```
 C:\ProgramData\Fleet\state\windows-ca-2023-snapshot.txt
-C:\ProgramData\Fleet\state\windows-yellowkey-snapshot.txt
 ```
 
-Each snapshot writes a `snapshot_generated` value in ISO 8601 UTC. The reports compute `snapshot_age_hours` and assign `snapshot_status`: `fresh` (< 48 hours), `stale` (>= 48 hours), or `missing` (no file). Stale and missing both null out the snapshot columns in the report, so snapshot-derived verdicts only fire when fresh. Both columns are surfaced in the report so admins see freshness at a glance.
+The snapshot writes a `snapshot_generated` value in ISO 8601 UTC. The report computes `snapshot_age_hours` and assigns `snapshot_status`: `fresh` (< 48 hours), `stale` (>= 48 hours), or `missing` (no file). Stale and missing both null out the snapshot columns, so snapshot-derived verdicts only fire when fresh. Both columns are surfaced in the report so admins see freshness at a glance.
 
 Refresh options (admin's choice):
 
-1. **Fleet > Scripts** -- run `snapshot-windows-*.ps1` against a label on the cadence you want.
+1. **Fleet > Scripts** -- run `snapshot-windows-ca-2023.ps1` against a label on the cadence you want.
 2. **Host-side scheduled task** -- wrap the script. No installer ships in this repo yet.
-3. **`cleanup-windows-*-snapshot.ps1`** -- delete the state file to force native-only fallback on the next report run.
+3. **`cleanup-windows-ca-2023-snapshot.ps1`** -- delete the state file to force native-only fallback on the next report run.
 
 **Why no policy auto-remediation?** Fleet caps policy `run_script` re-runs at 3 retries per failure. A daily-refresh need would burn through those retries fast and leave the policy permanently failing, which also blocks attaching the real compliance remediation (`migrate-windows-ca-2023.ps1`) to that slot later. The snapshot is purely a visibility booster; treat it as opt-in.
 
@@ -276,11 +274,12 @@ host.
 
 | File | Purpose |
 |------|---------|
-| `windows-yellowkey.reports.yml` | Daily Fleet report on OS + BitLocker + WinRE state per host. Surfaces who is exposed, mitigated, or unaffected. Uses native osquery tables plus the snapshot file via `file_lines` (freshness-gated). |
-| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, success marker state. |
-| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks active ControlSets via the `Select` key. Re-seals with `reagentc /disable` + `/enable`. Runs unconditionally on affected hosts. |
-| `snapshot-windows-yellowkey.ps1` | Captures WinRE state, BitLocker key protectors, success marker, and a freshness timestamp. |
-| `cleanup-windows-yellowkey-snapshot.ps1` | Deletes the state file to force native-only fallback. |
+| `windows-yellowkey.reports.yml` | Daily Fleet report. Queries the `windows_yellowkey` extension table directly: one row per host with the derived `state` verdict. No snapshot, no freshness gate. |
+| `extensions/windows_yellowkey/` | Go osquery extension. Derives `state` on the host from OS, WinRE, BitLocker key protectors, and the success marker. |
+| `windows-yellowkey-extension.policies.yml` | Policy: passes when `windows_yellowkey` is queryable; runs the installer on failure. |
+| `install-yellowkey-extension.ps1` | Downloads the binary, registers it in orbit's `extensions.load`, restarts orbit so osquery loads it. |
+| `verify-windows-yellowkey.ps1` | Read-only per-host inspection: WinRE state, BitLocker key protectors, success marker state. Standalone (does not need osquery). |
+| `mitigate-windows-yellowkey.ps1` | Strips `autofstx.exe` from WinRE's `BootExecute` via `reagentc /mountre` + offline registry edit. Walks all ControlSets. Re-seals with `reagentc /disable` + `/enable`. Runs unconditionally on affected hosts. |
 
 **Success marker:**
 
@@ -290,9 +289,8 @@ HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated  = 1 (DWORD)  // mitigate wrote 
 
 `BootExecMitigated` is set by `mitigate-windows-yellowkey.ps1` only
 when the edit loop completed without exception AND every ControlSet
-was verified clean via read-back. The report reads it via osquery's
-native `registry` table to surface the `mitigated` verdict regardless
-of snapshot freshness.
+was verified clean via read-back. The extension reads it via the
+Windows registry to surface the `mitigated` state.
 
 The mitigation is one-way. If a patch ships, the patch supersedes the
 strip. If a host genuinely needs `autofstx` back, restore manually and
@@ -342,7 +340,7 @@ for ground truth on the offline image's `BootExecute` value.
 1. Run `verify-windows-ca-2023.ps1` on a `compliant_via_registry` host to confirm the ESP/firmware DB hypothesis.
 2. Run `migrate-windows-ca-2023.ps1` against a `not_started` host. Expect preflight failure (exit 2/3) on a host without CU, or migration triggered (exit 0).
 3. Re-run report after migration to confirm state transitions cleanly.
-4. Run `snapshot-windows-ca-2023.ps1` and `snapshot-windows-yellowkey.ps1` on test hosts and confirm the freshness columns populate. Verify that letting a snapshot age past 48 hours flips `snapshot_status` to `stale` and falls back to native-only verdicts.
+4. Run `snapshot-windows-ca-2023.ps1` on a test host and confirm the freshness columns populate. Verify that letting the snapshot age past 48 hours flips `snapshot_status` to `stale` and falls back to native-only verdicts. For YellowKey, confirm `install-yellowkey-extension.ps1` loads the extension and `SELECT state FROM windows_yellowkey` returns a row.
 5. Run `mitigate-windows-yellowkey.ps1` against a test host. Confirm the report verdict moves from `exposed` to `mitigated`.
 6. Decide whether to add a compliance policy in this repo (separate from the diagnostic report). Verdict logic should be settled before policy is shipped. Keep the policy `run_script` slot reserved for the actual remediation.
 7. Optional follow-up: ship a scheduled-task installer for the snapshot scripts so freshness is automatic per host.

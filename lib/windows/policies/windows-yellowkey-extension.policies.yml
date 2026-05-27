@@ -1,37 +1,27 @@
-- name: windows_yellowkey osquery extension installed
+- name: Windows YellowKey osquery extension loaded
   query: |
-    SELECT path FROM file
-    WHERE directory = 'C:\Program Files\Fleet\Extensions'
-      AND filename LIKE 'windows_yellowkey-%.exe';
+    SELECT 1 FROM windows_yellowkey LIMIT 1;
   description: |
-    Checks whether the windows_yellowkey osquery extension binary is
-    present on this host at C:\Program Files\Fleet\Extensions\.
+    Passes when the windows_yellowkey osquery extension is loaded and
+    queryable on this host. The extension exposes the windows_yellowkey
+    virtual table that the YellowKey (CVE-2026-45585) report reads.
 
-    The extension exposes the windows_yellowkey virtual table that
-    surfaces YellowKey (CVE-2026-45585) exposure and mitigation state
-    in real time, replacing the snapshot-file freshness gate for hosts
-    that load it.
+    When the extension is not loaded the table does not exist, the query
+    errors, and the policy fails. Failing hosts trigger
+    install-yellowkey-extension.ps1, which downloads the architecture-
+    matching binary from the latest release, registers it in orbit's
+    extensions.load, and restarts orbit so osquery loads it.
 
-    Failing hosts trigger install-yellowkey-extension.ps1, which
-    downloads the architecture-matching binary from the latest release
-    of this repo and drops it at the target path. Idempotent: skips if
-    the binary is already present.
-
-    Loading the binary into orbit is a separate step. After install,
-    either configure orbit's extensions.load file to autoload on
-    service start, or test interactively via:
-      'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension <path> --allow-unsafe
-
-    Fleet caps policy run_script retries at 3 per failure, so a host
-    that fails the install three times stays failing until an admin
-    intervenes (usual causes: no network egress, GitHub release URL
-    misconfigured, signed-binary requirement on locked-down endpoints).
+    Fleet caps policy run_script retries at 3 per failure. A host that
+    cannot load the extension after three attempts stays failing until
+    an admin intervenes (usual causes: no network egress to the release
+    URL, orbit service not found by the installer, or osquery refusing
+    the extension's permissions).
   resolution: |
-    The attached run_script (install-yellowkey-extension.ps1) downloads
-    and places the architecture-matching binary. If that fails three
-    times Fleet stops retrying; investigate by running
-    verify-windows-yellowkey.ps1 (read-only) and reviewing the script
-    run log in Fleet > Hosts > Activity.
+    The attached run_script (install-yellowkey-extension.ps1) downloads,
+    registers, and loads the extension. If a host stays failing, run the
+    script's output through Fleet > Hosts > Activity to see which step
+    failed, and confirm the host can reach the GitHub release URL.
   platform: windows
   run_script:
     path: ../scripts/install-yellowkey-extension.ps1
