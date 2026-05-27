@@ -23,10 +23,10 @@
          back to %ProgramFiles%\Orbit.
       2. Download the architecture-matching binary (amd64 or arm64) and place
          it at <root-dir>\extensions\windows_yellowkey.ext.exe.
-      3. Harden the extensions directory ACL (owner Administrators, inheritance
-         removed, write limited to Administrators and SYSTEM) so osquery's
-         safe-permission check accepts the binary. orbit does not pass
-         --allow_unsafe, so without this osquery silently skips it.
+      3. Harden the extensions directory and binary ACL (owner Administrators,
+         inheritance removed, full control limited to Administrators and
+         SYSTEM) so osquery's safe-permission check accepts the binary. orbit
+         does not pass --allow_unsafe, so without this osquery silently skips it.
       4. Write that path into <root-dir>\extensions.load and confirm the file
          is non-empty (orbit's load condition).
       5. Restart the orbit service so orbit re-reads the file.
