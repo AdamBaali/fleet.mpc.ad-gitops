@@ -5,7 +5,7 @@
 .DESCRIPTION
     Implements the deployment flow from Fleet's "Deploying custom osquery
     extensions" guide:
-      1. Download the architecture-matching binary from the latest release.
+      1. Download the architecture-matching binary (amd64 or arm64) from the repo.
       2. Place it under %ProgramFiles%\Orbit\extensions\ as a .ext.exe.
       3. Register the path in %ProgramFiles%\Orbit\extensions.load
          (one path per line, the osquery --extensions_autoload format).
@@ -20,8 +20,11 @@
     windows-yellowkey-extension policy, which passes only when the
     windows_yellowkey table is queryable.
 
-.PARAMETER ReleaseBaseUrl
-    Base URL for the release assets. Default: latest release of this repo.
+.PARAMETER BaseUrl
+    Base URL the architecture-matching binary is fetched from. Default: the
+    prebuilt binaries committed under extensions/windows_yellowkey/ on the
+    repo's main branch (raw.githubusercontent.com). No release or tag needed.
+    Override to point at an internal mirror or a private-repo raw URL + token.
 
 .PARAMETER ExtensionsDir
     Directory for the extension binary. Default: %ProgramFiles%\Orbit\extensions.
@@ -50,7 +53,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
-    [string]$ReleaseBaseUrl = 'https://github.com/AdamBaali/fleet.mpc.ad-gitops/releases/latest/download',
+    [string]$BaseUrl = 'https://raw.githubusercontent.com/AdamBaali/fleet.mpc.ad-gitops/main/extensions/windows_yellowkey',
 
     [Parameter(Mandatory = $false)]
     [string]$ExtensionsDir = (Join-Path $env:ProgramFiles 'Orbit\extensions'),
@@ -105,7 +108,7 @@ $alreadyPlaced = (Test-Path $targetPath) -and ((Get-Item $targetPath).Length -gt
 if ($alreadyPlaced) {
     Write-State 'Binary' 'already present'
 } else {
-    $url      = "$ReleaseBaseUrl/$asset"
+    $url      = "$BaseUrl/$asset"
     $tempPath = Join-Path $env:TEMP "$asset.download"
     Write-State 'Download URL' $url
 
@@ -123,9 +126,11 @@ if ($alreadyPlaced) {
     if ($curlExit -ne 0) {
         Write-Output "FAIL: download failed (curl exit $curlExit): $(($curlOut | Out-String).Trim())"
         if ($curlExit -eq 22) {
-            Write-Output "      HTTP error from the URL. Confirm a release is published with this asset:"
+            Write-Output "      HTTP error. Confirm the binary exists at the URL:"
             Write-Output "        $url"
-            Write-Output "      If the repo is private, the host needs an authenticated download URL."
+            Write-Output "      It should be committed under extensions/windows_yellowkey/ on the"
+            Write-Output "      branch this URL points at. If the repo is private, the host needs"
+            Write-Output "      an authenticated URL (pass -BaseUrl with a token)."
         }
         Write-State 'State' 'download_failed'
         Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue

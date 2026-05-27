@@ -20,7 +20,7 @@ What's in the repo
 | `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Keeps the extension installed |
 | `lib/windows/scripts/install-yellowkey-extension.ps1` | Installs and loads the extension |
 | `lib/windows/scripts/mitigate-windows-yellowkey.ps1` | Applies Microsoft's mitigation |
-| `.github/workflows/build-extensions.yml` | Builds and releases the extension binaries |
+| `.github/workflows/build-extensions.yml` | CI: builds every extension on change (optional versioned releases on a tag) |
 
 Detect
 ------
@@ -52,14 +52,9 @@ It verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet\YellowK
 Deploy
 ------
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It passes when the extension is loaded and fails when it is not, with no error state. Querying the table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`, which downloads the architecture-matching binary, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It passes when the extension is loaded and fails when it is not, with no error state. Querying the table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`. It reads `PROCESSOR_ARCHITECTURE`, downloads the matching binary (`windows_yellowkey-amd64.exe` or `-arm64.exe`) from the repo, places it under `C:\Program Files\Orbit\extensions\`, registers it in orbit's `extensions.load`, and restarts orbit.
 
-Binaries come from a tag push. `.github/workflows/build-extensions.yml` builds every extension under `extensions/` and publishes the `.exe` files as release assets:
-
-```
-git tag v1.0.0
-git push --tags
-```
+The binaries are committed under `extensions/windows_yellowkey/` and the installer pulls the arch-matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make windows` and commit when the extension changes.
 
 Roll it out
 -----------
@@ -78,10 +73,9 @@ controls:
 ```
 
 1. Apply: `fleetctl gitops -f fleets/workstations.yml`.
-2. Cut a release: `git tag v1.0.0 && git push --tags`.
-3. Hosts install the extension on their next check-in.
-4. Open the report, then run `mitigate-windows-yellowkey.ps1` against `exposed` hosts via Fleet > Controls > Scripts.
-5. Re-run the report. Those hosts move to `mitigated`.
+2. Hosts install the extension on their next check-in (the policy runs the installer).
+3. Open the report, then run `mitigate-windows-yellowkey.ps1` against `exposed` hosts via Fleet > Controls > Scripts.
+4. Re-run the report. Those hosts move to `mitigated`.
 
 Operational notes
 -----------------
