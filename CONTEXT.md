@@ -80,15 +80,9 @@ The `windows-yellowkey-extension` policy checks `osquery_registry` for the `wind
 
 The prebuilt binaries (`windows_yellowkey-amd64.exe`, `windows_yellowkey-arm64.exe`) are committed under `extensions/windows_yellowkey/`. `install-yellowkey-extension.ps1` reads `PROCESSOR_ARCHITECTURE` and pulls the matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
 
-osquery only loads the extension if it is told to autoload from the file the installer writes. fleetd's osquery takes its flags from Fleet agent options, so `fleets/workstations.yml` sets, under `agent_options.command_line_flags`:
+orbit loads the extension through its own autoload file. At startup orbit stats `<root-dir>\extensions.load` (on Windows the root-dir is `C:\Program Files\Orbit`) and, if the file exists and is non-empty, hands osquery `--extensions_autoload` for it (orbit/cmd/orbit/orbit.go). `install-yellowkey-extension.ps1` writes the binary's path into that file and restarts orbit, so the table registers with no agent options.
 
-```
-disable_extensions: false
-extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-extensions_timeout: '10'
-```
-
-This is the Windows equivalent of osquery's default `/etc/osquery/extensions.load` autoload on Linux (which is why Allen's Linux installer needs no flag). `command_line_flags` apply on the next fleetd restart. The extension binary lives in `C:\Program Files\Orbit\extensions\` (admin-only), so osquery's permission check passes without `--allow_unsafe`. Fleet caps policy `run_script` retries at 3 per failure.
+Do not set `extensions_autoload` in agent options. Fleet rejects it (along with `host_identifier` and `database_path`) because orbit manages those flags and overriding them breaks fleetd; `fleetctl gitops` fails with "The --extensions_autoload flag isn't supported." On Linux osquery autoloads its own compiled default `/etc/osquery/extensions.load`, which orbit leaves in place unless `<root-dir>/extensions.load` is populated, so a Linux installer needs no flag. On Windows osquery's default points at the standalone osquery install that fleetd does not use, so orbit's root-dir file is the one that works. The binary lives in `C:\Program Files\Orbit\extensions\` (admin-only), so osquery's permission check passes without `--allow_unsafe`. Fleet caps policy `run_script` retries at 3 per failure.
 
 ## Style guide for any updates
 

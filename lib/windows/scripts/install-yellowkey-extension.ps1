@@ -224,10 +224,11 @@ try {
 }
 
 Write-Output ""
-Write-Output "OK: binary placed, registered in extensions.load, orbit restarted."
-Write-Output "    osquery registers the table once the fleet's agent options set"
-Write-Output "    extensions_autoload to $AutoloadFile (Workstations team does)."
+Write-Output "OK: binary placed, path written to extensions.load, orbit restarted."
+Write-Output "    orbit autoloads $AutoloadFile on restart and hands osquery"
+Write-Output "    --extensions_autoload for it, so the table registers with no"
+Write-Output "    agent-options flag."
 Write-Output "    Verify:      SELECT state FROM windows_yellowkey;"
-Write-Output "    Local check: orbit.exe shell -- --extension `"$targetPath`" --allow_unsafe"
+Write-Output "    Local check: orbit.exe shell -- --extension `"$targetPath`" --allow-unsafe"
 Write-State 'State' 'installed'
 exit 0
