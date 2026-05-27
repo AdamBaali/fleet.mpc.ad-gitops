@@ -1,42 +1,25 @@
 - name: Windows YellowKey BitLocker bypass exposure
   automations_enabled: false
   description: |
-    Per-host YellowKey (CVE-2026-45585) exposure and mitigation state,
-    sourced from the windows_yellowkey osquery extension.
+    Per-host YellowKey (CVE-2026-45585) verdict from the windows_yellowkey
+    osquery extension. The extension derives `state` on the host; this
+    report surfaces it.
 
-    The extension derives `state` on the host from OS, WinRE state,
-    BitLocker key protectors, and the Fleet BootExecMitigated success
-    marker. No snapshot file, no freshness gate: every query is live.
-
-    The extension must be loaded for this report to return rows. The
-    windows-yellowkey-extension policy installs and loads it; hosts
-    that have not received it yet return no rows here and show up as
-    failing that policy instead.
-
-    yellowkey_state:
-      not_affected         Windows 10
+    state:
+      not_affected         Windows 10 or unrecognised SKU
       mitigated            autofstx stripped (BootExecMitigated marker set)
-      mitigated_winre_off  WinRE disabled (heavier control)
-      bitlocker_off        no BitLocker volume, or none protecting
-      exposed              affected OS + BitLocker on + no mitigation marker
-      unknown              unrecognised OS
+      mitigated_winre_off  WinRE disabled
+      bitlocker_off        no protected BitLocker volume
+      exposed              affected OS + BitLocker on + no mitigation
+
+    A host returns rows only once the extension is loaded. Hosts pending
+    the extension show up as failing the windows-yellowkey-extension
+    policy, which installs it.
   discard_data: false
   interval: 86400
   logging: snapshot
   observer_can_run: true
   platform: windows
   query: |
-    SELECT
-      os_name,
-      os_build,
-      state,
-      state_reason,
-      needs_action,
-      action,
-      winre_enabled,
-      bitlocker_protected_count,
-      bitlocker_tpm_only_count,
-      bitlocker_key_protectors,
-      bootexec_mitigated_marker,
-      collection_time
+    SELECT state, state_reason, needs_action, winre_enabled, tpm_only, mitigated
     FROM windows_yellowkey;

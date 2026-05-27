@@ -2,26 +2,18 @@
   query: |
     SELECT 1 FROM windows_yellowkey LIMIT 1;
   description: |
-    Passes when the windows_yellowkey osquery extension is loaded and
-    queryable on this host. The extension exposes the windows_yellowkey
-    virtual table that the YellowKey (CVE-2026-45585) report reads.
+    Passes when the windows_yellowkey extension is loaded, so the
+    windows-yellowkey report can read it. When the extension is missing
+    the table does not exist, the query errors, and the policy fails.
+    Failing hosts run install-yellowkey-extension.ps1.
 
-    When the extension is not loaded the table does not exist, the query
-    errors, and the policy fails. Failing hosts trigger
-    install-yellowkey-extension.ps1, which downloads the architecture-
-    matching binary from the latest release, registers it in orbit's
-    extensions.load, and restarts orbit so osquery loads it.
-
-    Fleet caps policy run_script retries at 3 per failure. A host that
-    cannot load the extension after three attempts stays failing until
-    an admin intervenes (usual causes: no network egress to the release
-    URL, orbit service not found by the installer, or osquery refusing
-    the extension's permissions).
+    Fleet caps run_script retries at 3 per failure. A host that still
+    fails has likely lost egress to the release URL or could not restart
+    orbit.
   resolution: |
-    The attached run_script (install-yellowkey-extension.ps1) downloads,
-    registers, and loads the extension. If a host stays failing, run the
-    script's output through Fleet > Hosts > Activity to see which step
-    failed, and confirm the host can reach the GitHub release URL.
+    install-yellowkey-extension.ps1 downloads, registers, and loads the
+    extension. If a host stays failing, check the script output in
+    Fleet > Hosts > Activity and confirm the host can reach the release URL.
   platform: windows
   run_script:
     path: ../scripts/install-yellowkey-extension.ps1

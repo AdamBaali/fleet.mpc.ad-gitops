@@ -43,7 +43,7 @@ The `windows_yellowkey` osquery extension does the work. On each query it reads 
 The report is a one-liner over that table:
 
 ```
-SELECT os_name, state, state_reason, needs_action, action FROM windows_yellowkey;
+SELECT state, state_reason, needs_action, winre_enabled, tpm_only, mitigated FROM windows_yellowkey;
 ```
 
 Verdicts:
