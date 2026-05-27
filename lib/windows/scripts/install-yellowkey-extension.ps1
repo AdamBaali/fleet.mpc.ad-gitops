@@ -113,16 +113,24 @@ if ($alreadyPlaced) {
     Write-State 'Download URL' $url
 
     # Download with curl.exe, which ships with every YellowKey-affected SKU
-    # (Windows 10 1803+, Server 2019+). It follows GitHub's redirect to the
-    # asset CDN (-L), fails cleanly on HTTP errors like 404 (-f), and retries
-    # transient connection resets (--retry). Invoke-WebRequest is flaky on the
-    # GitHub redirect and reports "connection closed unexpectedly".
+    # (Windows 10 1803+, Server 2019+). -f fails on HTTP errors like 404,
+    # -L follows GitHub's redirect, -s silences the progress meter, -S keeps
+    # real error text, --retry rides out transient resets. Invoke-WebRequest
+    # is flaky on the GitHub redirect and reports "connection closed".
+    #
+    # curl writes to stderr; with ErrorActionPreference = Stop and 2>&1 that
+    # becomes a terminating NativeCommandError before we can read the exit
+    # code, so drop to Continue for the call and check $LASTEXITCODE instead.
     Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
     $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
     if (-not (Test-Path $curl)) { $curl = 'curl.exe' }
 
-    $curlOut = & $curl -fL --retry 3 --retry-connrefused --connect-timeout 20 --max-time 300 -o $tempPath $url 2>&1
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $curlOut = & $curl -fsSL --retry 3 --retry-connrefused --connect-timeout 20 --max-time 300 -o $tempPath $url 2>&1
     $curlExit = $LASTEXITCODE
+    $ErrorActionPreference = $prevEAP
+
     if ($curlExit -ne 0) {
         Write-Output "FAIL: download failed (curl exit $curlExit): $(($curlOut | Out-String).Trim())"
         if ($curlExit -eq 22) {
