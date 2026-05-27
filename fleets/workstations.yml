@@ -4,6 +4,14 @@ policies:
 reports:
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 agent_options:
+  command_line_flags:
+    # Tell the fleetd-managed osquery to autoload extensions listed in this
+    # file. install-yellowkey-extension.ps1 writes the windows_yellowkey path
+    # into it. Without this flag osquery ignores the file and the table never
+    # registers, so reports see "no such table". Applies on fleetd restart.
+    disable_extensions: false
+    extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+    extensions_timeout: '10'
 controls:
   scripts:
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1

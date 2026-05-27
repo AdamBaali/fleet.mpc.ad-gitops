@@ -38,7 +38,7 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, registers it in orbit's `extensions.load`, and restarts orbit. The binaries are committed in this directory, so no release is needed; rebuild with `make windows` and commit when the source changes.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, registers it in orbit's `extensions.load`, and restarts orbit. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
 
 Test interactively without deploying:
 

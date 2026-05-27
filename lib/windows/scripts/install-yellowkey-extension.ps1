@@ -224,7 +224,10 @@ try {
 }
 
 Write-Output ""
-Write-Output "OK: installed, registered, and orbit restarted."
-Write-Output "    Verify with: SELECT state FROM windows_yellowkey;"
+Write-Output "OK: binary placed, registered in extensions.load, orbit restarted."
+Write-Output "    osquery registers the table once the fleet's agent options set"
+Write-Output "    extensions_autoload to $AutoloadFile (Workstations team does)."
+Write-Output "    Verify:      SELECT state FROM windows_yellowkey;"
+Write-Output "    Local check: orbit.exe shell -- --extension `"$targetPath`" --allow_unsafe"
 Write-State 'State' 'installed'
 exit 0
