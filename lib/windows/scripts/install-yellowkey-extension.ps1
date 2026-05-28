@@ -25,11 +25,15 @@
           overrides:
             platforms:
               windows:
-                options:
+                command_line_flags:
                   disable_extensions: false
                   extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
                   extensions_timeout: 10
                   extensions_interval: 3
+
+    These are osqueryd command-line flags, not config options; Fleet rejects
+    them under `options` ("disable_extensions" should be part of the
+    "command_line_flags" object).
 
 .OUTPUTS
     Structured key:value output to stdout for log capture.

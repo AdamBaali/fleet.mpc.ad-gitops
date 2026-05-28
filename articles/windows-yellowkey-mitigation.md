@@ -61,14 +61,14 @@ agent_options:
   overrides:
     platforms:
       windows:
-        options:
+        command_line_flags:
           disable_extensions: false
           extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
           extensions_timeout: 10
           extensions_interval: 3
 ```
 
-The override is scoped to Windows so macOS and Linux hosts are unaffected.
+These are osqueryd command-line flags, not config options; Fleet rejects them under `options` (`"disable_extensions" should be part of the "command_line_flags" object`). The override is scoped to Windows so macOS and Linux hosts are unaffected.
 
 To set this through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or open the team under **Settings > Teams** and edit its agent options. Fleet's [agent configuration reference](https://fleetdm.com/docs/configuration/agent-configuration) lists every option, and the team and global YAML layout is documented under [YAML files](https://fleetdm.com/docs/configuration/yaml-files).
 

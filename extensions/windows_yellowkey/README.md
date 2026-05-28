@@ -47,12 +47,14 @@ agent_options:
   overrides:
     platforms:
       windows:
-        options:
+        command_line_flags:
           disable_extensions: false
           extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
           extensions_timeout: 10
           extensions_interval: 3
 ```
+
+These are osqueryd command-line flags, not config options. Fleet rejects them under `options` (`"disable_extensions" should be part of the "command_line_flags" object`).
 
 The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 

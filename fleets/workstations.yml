@@ -16,17 +16,13 @@ agent_options:
   overrides:
     platforms:
       # Windows hosts load the windows_yellowkey osquery extension from
-      # extensions.load. fleetd regenerates osquery.flags from these options on
-      # every config refresh, so the flags must live here, not in osquery.flags.
+      # extensions.load. These are osqueryd command-line flags, not config
+      # options; Fleet rejects them in `options` ("disable_extensions" should be
+      # part of the "command_line_flags" object). fleetd regenerates
+      # osquery.flags from agent options on every config refresh, so the flags
+      # live here, not in osquery.flags on the host.
       windows:
-        options:
-          pack_delimiter: /
-          logger_tls_period: 10
-          distributed_plugin: tls
-          disable_distributed: false
-          logger_tls_endpoint: /api/osquery/log
-          distributed_interval: 10
-          distributed_tls_max_attempts: 3
+        command_line_flags:
           disable_extensions: false
           extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
           extensions_timeout: 10
