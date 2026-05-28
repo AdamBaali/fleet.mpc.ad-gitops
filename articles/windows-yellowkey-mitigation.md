@@ -70,6 +70,8 @@ agent_options:
 
 The override is scoped to Windows so macOS and Linux hosts are unaffected.
 
+To set this through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or open the team under **Settings > Teams** and edit its agent options. Fleet's [agent configuration reference](https://fleetdm.com/docs/configuration/agent-configuration) lists every option, and the team and global YAML layout is documented under [YAML files](https://fleetdm.com/docs/configuration/yaml-files).
+
 The binaries are committed under `extensions/windows_yellowkey/`. No release tag to cut. Rebuild with `make build` and commit when the source changes; bump `$ExtensionVersion` and the matching `Sha` values in the installer in the same commit.
 
 Roll it out

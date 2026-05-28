@@ -56,6 +56,8 @@ agent_options:
 
 The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 
+To set the agent options through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or **Settings > Teams > [team] > Agent options** for a single team. The YAML layout is documented at [YAML files](https://fleetdm.com/docs/configuration/yaml-files), and the full options list at [agent configuration](https://fleetdm.com/docs/configuration/agent-configuration).
+
 The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
 
 Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
