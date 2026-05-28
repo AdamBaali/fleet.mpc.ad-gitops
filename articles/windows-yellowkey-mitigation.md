@@ -82,7 +82,9 @@ controls:
 Update the extension
 --------------------
 
-The extension source and CI live in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). On every push to `main` in that repo, CI republishes the `latest` release with new binaries. `install-yellowkey-extension.ps1` always pulls from `releases/latest/download`, so failing hosts pick up the new binary on the next policy run with no edits in this repo. Update the script only when the install flow itself changes.
+The extension source and CI live in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). On every push to `main` in that repo, CI republishes the `latest` release with new binaries. `install-yellowkey-extension.ps1` always pulls from `releases/latest/download`, so failing hosts pick up the new binary on the next policy run with no edits in this repo.
+
+To change the extension itself, fork `allenhouchins/fleet-extensions`, edit `windows_yellowkey/main.go`, and push to your fork's `main`. The fork's CI rebuilds the Windows binaries and publishes them to your fork's `latest` release; point `$BaseUrl` in a local copy of the installer at your fork's release URL to test on a real host. When the change is ready, open a PR back to `allenhouchins/fleet-extensions`. Update the script in this repo only when the install flow itself changes.
 
 If a host stays failing
 -----------------------
