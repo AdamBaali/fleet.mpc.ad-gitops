@@ -52,11 +52,11 @@ The script verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet
 Deploy
 ------
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary, verifies its SHA-256, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary from the upstream repo's latest release, validates the PE header, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
 The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner`, which keeps it empty unless Fleet has TUF-managed extensions configured, and Fleet's API rejects setting `extensions_autoload` in agent options. Because orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty, osqueryd falls back to its compiled default. That default is `C:\Program Files\osquery\extensions.load` per [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h), which is where the script writes. This is the Windows twin of the pattern that writes to `/etc/osquery/extensions.load` on Linux and `/var/osquery/extensions.load` on macOS. No agent options, no TUF update server, no scheduled task.
 
-The extension source and binaries live upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). Allen's CI rebuilds and publishes the binaries on push to `main`. The installer pulls from the raw URL on `main` and verifies the SHA-256 against the value pinned in the script.
+The extension source and binaries live upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). Allen's CI rebuilds and republishes the latest release on every push to `main`. The installer pulls from `releases/latest/download` and validates the PE header on the downloaded asset. Nothing in the script needs editing when the binary changes.
 
 Roll it out
 -----------
@@ -82,10 +82,7 @@ controls:
 Update the extension
 --------------------
 
-The extension source and CI live in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). When that repo publishes a new binary:
-
-1. Bump `$ExtensionVersion` and both `Sha` entries in `install-yellowkey-extension.ps1` to match the upstream binaries' SHA-256s.
-1. Open a PR in this repo. On merge, failing hosts pull the new binary on the next policy run.
+The extension source and CI live in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). On every push to `main` in that repo, CI republishes the `latest` release with new binaries. `install-yellowkey-extension.ps1` always pulls from `releases/latest/download`, so failing hosts pick up the new binary on the next policy run with no edits in this repo. Update the script only when the install flow itself changes.
 
 If a host stays failing
 -----------------------
