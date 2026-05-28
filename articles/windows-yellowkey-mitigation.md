@@ -52,22 +52,9 @@ The script verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet
 Deploy
 ------
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary, verifies its SHA-256, places it under `C:\Program Files\Orbit\extensions\`, adds the path to `extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osquery autoloads the extension on the next start.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary, verifies its SHA-256, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-For autoload to work on Windows, the team's agent options need to enable extensions and point at the loader file. fleetd regenerates `osquery.flags` from agent options on every config refresh, so the flags go through GitOps, not by editing `osquery.flags` on the host (that change gets overwritten on the next refresh). Add the Windows override to your team:
-
-```yaml
-agent_options:
-  command_line_flags:
-    disable_extensions: false
-    extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-    extensions_timeout: "10"
-    extensions_interval: "3"
-```
-
-These are osqueryd command-line flags, not config options. Fleet requires `command_line_flags` at the top level of `agent_options` (`"command_line_flags" should be part of the top level object`), so they apply to every platform on the team. `extensions_timeout` and `extensions_interval` are quoted because Fleet's schema types them as strings; an unquoted number is rejected with `expected string but got number`. `extensions_autoload` points at a Windows path; on macOS and Linux hosts the file does not exist and osquery logs one warning at startup then continues without autoloading anything.
-
-To set this through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or open the team under **Settings > Teams** and edit its agent options. Fleet's [agent configuration reference](https://fleetdm.com/docs/configuration/agent-configuration) lists every option, and the team and global YAML layout is documented under [YAML files](https://fleetdm.com/docs/configuration/yaml-files).
+The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner`, which keeps it empty unless Fleet has TUF-managed extensions configured, and Fleet's API rejects setting `extensions_autoload` in agent options. Because orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty, osqueryd falls back to its compiled default. That default is `C:\Program Files\osquery\extensions.load` per [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h), which is where the script writes. This is the Windows twin of the pattern that writes to `/etc/osquery/extensions.load` on Linux and `/var/osquery/extensions.load` on macOS. No agent options, no TUF update server, no scheduled task.
 
 The binaries are committed under `extensions/windows_yellowkey/`. No release tag to cut. Rebuild with `make build` and commit when the source changes; bump `$ExtensionVersion` and the matching `Sha` values in the installer in the same commit.
 
@@ -88,8 +75,7 @@ controls:
 ```
 
 1. Apply: `fleetctl gitops -f fleets/workstations.yml`.
-1. Hosts pick up the agent options on the next config refresh (default 60 seconds).
-1. The policy runs on the next interval; failing hosts run the installer.
+1. The policy runs on the next interval; failing hosts run the installer (default 60 seconds for the first check).
 1. Open the report. Run `mitigate-windows-yellowkey.ps1` against `exposed` hosts from Fleet > Controls > Scripts.
 1. Re-run the report. Those hosts move to `mitigated`.
 
@@ -105,19 +91,20 @@ When the extension changes:
 If a host stays failing
 -----------------------
 
-Check three things on the host, in an elevated PowerShell:
+Check the host in an elevated PowerShell:
 
 ```
-# 1. Agent options reached osquery: the extensions flags are present
-Get-Content 'C:\Program Files\Orbit\osquery.flags' | Select-String 'extension'
+# 1. The loader file at osquery's compiled default path lists the binary
+Get-Content 'C:\Program Files\osquery\extensions.load'
 
-# 2. The loader file lists the binary
-Get-Content 'C:\Program Files\Orbit\extensions.load'
+# 2. The binary is in place (~5.6 MB amd64, ~5.2 MB arm64)
+Get-Item 'C:\Program Files\osquery\extensions\windows_yellowkey.ext.exe' |
+  Select-Object Length, LastWriteTime
 
-# 3. The script's last run is recorded in Fleet > Hosts > [host] > Activity > Scripts
+# 3. The script's last run is recorded under Fleet > Hosts > [host] > Activity > Scripts
 ```
 
-If `osquery.flags` is missing the three `extensions_*` lines, the agent options have not propagated yet, or `fleetctl gitops` rejected the override. If `extensions.load` is empty or missing the binary path, the script did not finish; read its stdout under Activity > Scripts. If both look right but the table is still missing, search `C:\Windows\System32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log` for `unsafe permissions` or `Timed out waiting for extension`. Re-running the installer re-asserts the ACLs and the loader entry.
+If `extensions.load` is missing or does not list the binary, the script did not finish; read its stdout under Activity > Scripts. If both look right but the table is still missing, search `C:\Windows\System32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log` for `unsafe permissions` or `Timed out waiting for extension`. Re-running the installer re-asserts the ACLs and the loader entry.
 
 Operational notes
 -----------------

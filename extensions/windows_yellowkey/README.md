@@ -38,24 +38,11 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, verifies its SHA-256, places it under `C:\Program Files\Orbit\extensions\`, adds the path to `extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osquery autoloads the extension on the next start.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, verifies its SHA-256, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-For autoload to take effect on Windows, the team's agent options enable extensions and point at the loader file. fleetd regenerates `osquery.flags` from agent options on every config refresh, so these flags go through GitOps, not by editing `osquery.flags`:
-
-```yaml
-agent_options:
-  command_line_flags:
-    disable_extensions: false
-    extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-    extensions_timeout: "10"
-    extensions_interval: "3"
-```
-
-These are osqueryd command-line flags, not config options. Fleet requires `command_line_flags` at the top level of `agent_options` (`"command_line_flags" should be part of the top level object`), so they apply to every platform on the team. `extensions_timeout` and `extensions_interval` are quoted because Fleet's schema types them as strings (`osqueryCommandLineFlags` in `server/fleet/agent_options_generated.go`); an unquoted number is rejected with `expected string but got number`. On macOS and Linux hosts the Windows autoload path does not exist; osquery logs one warning then continues without autoloading anything.
+The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner` and gets kept empty unless Fleet has TUF-managed extensions configured, and Fleet's API rejects setting `extensions_autoload` in agent options. orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty, so osqueryd falls back to its compiled default, `C:\Program Files\osquery\extensions.load` (from [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h)). This is the Windows twin of the Linux/macOS pattern that writes to `/etc/osquery/extensions.load` and `/var/osquery/extensions.load`. No agent options, no TUF update server, no scheduled task.
 
 The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
-
-To set the agent options through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or **Settings > Teams > [team] > Agent options** for a single team. The YAML layout is documented at [YAML files](https://fleetdm.com/docs/configuration/yaml-files), and the full options list at [agent configuration](https://fleetdm.com/docs/configuration/agent-configuration).
 
 The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
 

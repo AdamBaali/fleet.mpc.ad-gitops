@@ -7,33 +7,32 @@
     fleetd on Windows. Designed to run as the run_script remediation on the
     windows-yellowkey-extension policy.
 
+    The script writes to osquery's compiled-in default autoload path on
+    Windows: `C:\Program Files\osquery\extensions.load`. orbit owns its own
+    <root-dir>\extensions.load and only passes --extensions_autoload to osqueryd
+    when that file is non-empty; ExtensionRunner keeps it empty unless Fleet
+    has TUF-managed extensions configured. With nothing forcing a different
+    autoload path, osqueryd falls back to its compiled default and reads our
+    file. This is the Windows twin of Allen Houchins' Linux/macOS pattern,
+    which writes to /etc/osquery/extensions.load and /var/osquery/extensions.load
+    respectively (osquery's compiled defaults on those platforms).
+
     Flow:
-      1. Pre-flight: Orbit installed, Fleet osquery service present.
+      1. Pre-flight: Fleet osquery service present.
       2. Pick the URL and SHA-256 for this host's architecture.
-      3. Ensure the extensions directory exists, harden its ACL.
+      3. Ensure C:\Program Files\osquery\extensions exists, harden its ACL.
       4. Download the binary to a temp path, verify SHA-256, move into place.
       5. Harden the binary ACL.
-      6. Add the binary path to extensions.load (idempotent), harden that file.
-      7. Restart the Fleet osquery service so osquery autoloads the extension.
+      6. Add the binary path to C:\Program Files\osquery\extensions.load
+         (idempotent), harden that file.
+      7. Restart the Fleet osquery service so osqueryd autoloads the extension.
 
-    The script does not push osqueryd flags. fleetd regenerates osquery.flags
-    from agent options on every config refresh, so the extensions flags must
-    live in agent options, not in osquery.flags. Add this override to the
-    team's agent_options (see fleets/workstations.yml in this repo):
-
-        agent_options:
-          command_line_flags:
-            disable_extensions: false
-            extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-            extensions_timeout: "10"
-            extensions_interval: "3"
-
-    These are osqueryd command-line flags, not config options. Fleet requires
-    command_line_flags at the top level of agent_options ("command_line_flags"
-    should be part of the top level object) and rejects them under
-    overrides.platforms.<platform>, so they apply to every platform on the
-    team. On macOS and Linux hosts the Windows autoload path does not exist;
-    osquery logs one warning then continues.
+    Nothing else is required: no agent_options, no TUF update server, no
+    scheduled task. The Fleet API rejects extensions_autoload in agent
+    options (server/fleet/agent_options.go), and orbit's ExtensionRunner
+    rewrites <root-dir>\extensions.load on every config refresh
+    (orbit/pkg/update/flag_runner.go), which is why the on-host autoload
+    path is the only one that stays put.
 
 .OUTPUTS
     Structured key:value output to stdout for log capture.
@@ -41,7 +40,6 @@
 .NOTES
     Exit codes:
       0 = Installed; service back to Running, extension will load on next start
-      2 = Orbit not present
       3 = Fleet osquery service not present
       4 = Filesystem operation failed (directory, move, loader write, ACL)
       5 = Service did not return to Running after restart
@@ -52,12 +50,18 @@
     Update workflow:
       1. Rebuild with `make build` and commit the new binaries.
       2. Bump $ExtensionVersion and both $Builds entries' Sha values.
-      3. Open a PR. After merge, failing hosts pull the new binary on the
-         next policy run.
+      3. Open a PR. On merge, failing hosts pull the new binary on the next
+         policy run.
 
     References:
       Fleet guide: https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide
-      Extension source: extensions/windows_yellowkey/ in this repo.
+      Compiled default path: osquery's default_paths.h, OSQUERY_HOME for WIN32
+        = "\\Program Files\\osquery\\". --extensions_autoload defaults to
+        OSQUERY_HOME "extensions.load" in osquery/extensions/extensions.cpp.
+      orbit only overrides this default when <root-dir>\extensions.load is
+        non-empty: orbit/cmd/orbit/orbit.go. ExtensionRunner keeps that file
+        empty when no Fleet-managed extensions are configured:
+        orbit/pkg/update/flag_runner.go.
 #>
 
 [CmdletBinding()]
@@ -84,10 +88,13 @@ $Builds = @{
 }
 # ============================================================================
 
-$OrbitRoot     = 'C:\Program Files\Orbit'
-$ExtensionsDir = Join-Path $OrbitRoot 'extensions'
+# Match osquery's compiled default on Windows so osqueryd autoloads us when
+# orbit does not pass --extensions_autoload (osquery/utils/config/default_paths.h
+# defines OSQUERY_HOME as "\\Program Files\\osquery\\" on WIN32).
+$OsqueryHome   = 'C:\Program Files\osquery'
+$ExtensionsDir = Join-Path $OsqueryHome 'extensions'
 $ExtensionPath = Join-Path $ExtensionsDir "$ExtensionName.ext.exe"
-$LoaderPath    = Join-Path $OrbitRoot 'extensions.load'
+$LoaderPath    = Join-Path $OsqueryHome 'extensions.load'
 $ServiceName   = 'Fleet osquery'
 
 function Write-State {
@@ -134,11 +141,6 @@ Write-Output "=== windows_yellowkey extension installer ==="
 Write-Output ""
 
 # --- Pre-flight ---
-if (-not (Test-Path $OrbitRoot)) {
-    Write-Output "FAIL: Orbit not installed at $OrbitRoot."
-    Write-State 'State' 'orbit_missing'
-    exit 2
-}
 if ($null -eq (Get-Service -Name $ServiceName -ErrorAction SilentlyContinue)) {
     Write-Output "FAIL: service '$ServiceName' not found. Is fleetd installed?"
     Write-State 'State' 'service_missing'
@@ -155,27 +157,30 @@ if (-not $Builds.ContainsKey($arch)) {
 $asset       = $Builds[$arch].Asset
 $expectedSha = $Builds[$arch].Sha.ToUpper()
 $url         = "$BaseUrl/$asset"
-Write-State 'Architecture' $arch
-Write-State 'Asset'        $asset
-Write-State 'Target'       $ExtensionPath
-Write-State 'Download URL' $url
+Write-State 'Architecture'   $arch
+Write-State 'Asset'          $asset
+Write-State 'Target'         $ExtensionPath
+Write-State 'Loader'         $LoaderPath
+Write-State 'Download URL'   $url
 
-# --- Extensions directory ---
-if (-not (Test-Path $ExtensionsDir)) {
+# --- Ensure C:\Program Files\osquery\extensions exists, harden it ---
+foreach ($dir in @($OsqueryHome, $ExtensionsDir)) {
+    if (-not (Test-Path $dir)) {
+        try {
+            New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        } catch {
+            Write-Output "FAIL: could not create ${dir}: $($_.Exception.Message)"
+            Write-State 'State' 'dir_unwritable'
+            exit 4
+        }
+    }
     try {
-        New-Item -ItemType Directory -Path $ExtensionsDir -Force | Out-Null
+        Set-HardenedAcl -Path $dir -IsDirectory $true
     } catch {
-        Write-Output "FAIL: could not create ${ExtensionsDir}: $($_.Exception.Message)"
-        Write-State 'State' 'extensions_dir_unwritable'
+        Write-Output "FAIL: could not harden ACL on ${dir}: $($_.Exception.Message)"
+        Write-State 'State' 'acl_failed_dir'
         exit 4
     }
-}
-try {
-    Set-HardenedAcl -Path $ExtensionsDir -IsDirectory $true
-} catch {
-    Write-Output "FAIL: could not harden ACL on ${ExtensionsDir}: $($_.Exception.Message)"
-    Write-State 'State' 'acl_failed_dir'
-    exit 4
 }
 
 # --- Download with SHA-256 verification ---
@@ -245,7 +250,7 @@ try {
     exit 4
 }
 
-# --- Restart Fleet osquery so it picks up the new extension ---
+# --- Restart Fleet osquery so osqueryd picks the extension up ---
 try {
     Restart-Service -Name $ServiceName -Force
 } catch {
@@ -264,6 +269,7 @@ if ($svc.Status -ne 'Running') {
 
 Write-Output ""
 Write-Output "OK: installed $ExtensionName v$ExtensionVersion at $ExtensionPath."
+Write-Output "    osqueryd will autoload the binary via $LoaderPath on the next start."
 Write-Output "    Verify in Fleet (live query):"
 Write-Output "      SELECT 1 FROM osquery_registry"
 Write-Output "        WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1;"

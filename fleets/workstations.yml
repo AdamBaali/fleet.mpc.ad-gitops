@@ -4,30 +4,6 @@ policies:
 reports:
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
 agent_options:
-  config:
-    options:
-      pack_delimiter: /
-      logger_tls_period: 10
-      distributed_plugin: tls
-      disable_distributed: false
-      logger_tls_endpoint: /api/osquery/log
-      distributed_interval: 10
-      distributed_tls_max_attempts: 3
-  # osqueryd command-line flags that load the windows_yellowkey extension.
-  # Fleet requires command_line_flags at the top level of agent_options
-  # ("command_line_flags" should be part of the top level object), so these
-  # apply to every platform on this team. extensions_autoload points at a
-  # Windows path; on macOS and Linux hosts the file does not exist and osquery
-  # logs one warning then continues without autoloading anything.
-  command_line_flags:
-    disable_extensions: false
-    extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-    # extensions_timeout and extensions_interval are typed string in Fleet's
-    # agent options schema (osqueryCommandLineFlags in server/fleet/
-    # agent_options_generated.go), so quote them or fleetctl gitops rejects
-    # them with "expected string but got number".
-    extensions_timeout: "10"
-    extensions_interval: "3"
 controls:
   scripts:
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
