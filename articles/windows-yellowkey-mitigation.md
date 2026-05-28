@@ -1,16 +1,16 @@
 Detect and mitigate the YellowKey BitLocker bypass with Fleet
 =============================================================
 
-[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11, Server 2022, and Server 2025. Microsoft shipped a mitigation on May 19 2026; there is no full patch yet. This pattern gives you an osquery extension that flags exposed hosts live, a daily report over it, a policy that keeps the extension installed, and a script that applies Microsoft's mitigation.
+[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11, Server 2022, and Server 2025. Microsoft shipped a mitigation on May 19, 2026 and no full patch is out yet. This pattern flags exposed hosts in Fleet, reports on them daily, and applies Microsoft's mitigation through a script.
 
 The threat
 ----------
 
 YellowKey abuses `autofstx.exe` in the Windows Recovery Environment. With brief physical access, an attacker drops a crafted `FsTx` blob on a USB stick or the EFI System Partition and reboots into WinRE. autofstx replays NTFS transaction logs that delete `winpeshl.ini`, so WinRE falls back to `cmd.exe` with the BitLocker volume unlocked. Windows 10 ships a different WinRE component and is not affected.
 
-USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores OS USB policy, and the attack does not boot from the stick. TPM-only BitLocker is the target, not a defense. What works is stripping `autofstx.exe` from WinRE's Session Manager `BootExecute`, which is Microsoft's mitigation and what this repo automates. TPM + PIN blocks the published PoC but not the researcher's withheld variant, so treat it as raising attacker cost.
+USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores the OS USB policy and the attack does not boot from the stick. TPM-only BitLocker is the target. Microsoft's mitigation strips `autofstx.exe` from WinRE's `BootExecute` chain. TPM + PIN blocks the published proof of concept but not the researcher's withheld variant, so treat it as raising attacker cost.
 
-What's in the repo
+What you'll deploy
 ------------------
 
 | File | Role |
@@ -18,14 +18,14 @@ What's in the repo
 | `extensions/windows_yellowkey/` | osquery extension; exposes the `windows_yellowkey` table |
 | `lib/windows/reports/windows-yellowkey.reports.yml` | Daily per-host report |
 | `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Keeps the extension installed |
-| `lib/windows/scripts/install-yellowkey-extension.ps1` | Installs and loads the extension |
+| `lib/windows/scripts/install-yellowkey-extension.ps1` | Installs the extension |
 | `lib/windows/scripts/mitigate-windows-yellowkey.ps1` | Applies Microsoft's mitigation |
-| `.github/workflows/build-extensions.yml` | CI: builds every extension on change (optional versioned releases on a tag) |
+| `.github/workflows/build-extensions.yml` | Builds the extension on tag push |
 
 Detect
 ------
 
-The extension reads OS, WinRE state, BitLocker key protectors, and the `BootExecMitigated` marker on every query, then returns one `state` per host. No snapshot file, no freshness gate. A host returns a row once the extension is loaded; the policy below installs it.
+The extension reads OS, WinRE state, BitLocker key protectors, and the `BootExecMitigated` marker on every query, then returns one `state` per host. No snapshot, no freshness gate. A host returns a row once the extension loads; the policy below keeps it loaded.
 
 | state | Meaning |
 |---|---|
@@ -45,27 +45,39 @@ SELECT state, state_reason, needs_action, winre_enabled, tpm_only, mitigated FRO
 Mitigate
 --------
 
-`mitigate-windows-yellowkey.ps1` adapts [Microsoft's script](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585): mount the WinRE image with `reagentc /mountre`, load the offline SYSTEM hive, strip `autofstx` from every ControlSet's `BootExecute`, unmount with `/commit`, then `reagentc /disable` + `/enable` to re-seal the BitLocker measurement chain.
+`mitigate-windows-yellowkey.ps1` adapts [Microsoft's reference script](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585). It mounts the WinRE image with `reagentc /mountre`, loads the offline SYSTEM hive, strips `autofstx` from every ControlSet's `BootExecute`, unmounts with `/commit`, then runs `reagentc /disable` and `/enable` to re-seal the BitLocker measurement chain.
 
-It verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` only when every one is clean. Exit codes: `0` done, `3` OS not affected, `4` failed. There is no opt-in gate, since Microsoft's strip is safe on every affected host, and no unmitigate: if a patch ships, apply it and clear the marker.
+The script verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` only when every one is clean. Exit codes: `0` done, `3` OS not affected, `4` failed. There is no opt-in gate, since Microsoft's strip is safe on every affected host, and no unmitigate path: when Microsoft ships a patch, apply it and clear the marker.
 
 Deploy
 ------
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It passes when the extension is loaded and fails when it is not, with no error state. Querying the table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`. It reads `PROCESSOR_ARCHITECTURE`, downloads the matching binary (`windows_yellowkey-amd64.exe` or `-arm64.exe`) from the repo, places it under `C:\Program Files\Orbit\extensions\`, and runs it as a LocalSystem scheduled task that connects to osquery's extension socket.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary, verifies its SHA-256, places it under `C:\Program Files\Orbit\extensions\`, adds the path to `extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osquery autoloads the extension on the next start.
 
-The binaries are committed under `extensions/windows_yellowkey/` and the installer pulls the arch-matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
+For autoload to work on Windows, the team's agent options need to enable extensions and point at the loader file. fleetd regenerates `osquery.flags` from agent options on every config refresh, so the flags go through GitOps, not by editing `osquery.flags` on the host (that change gets overwritten on the next refresh). Add the Windows override to your team:
 
-orbit owns the autoload file. On every start it rewrites `C:\Program Files\Orbit\extensions.load` from the extension set Fleet sends it (delivered through a TUF update server) and only then hands osquery `--extensions_autoload`. With nothing configured there, orbit writes an empty file, so a path written into `extensions.load` by hand is wiped on the next orbit restart and the table never registers. Setting `extensions_autoload` in agent options does not help either: Fleet owns that flag and `fleetctl gitops` rejects it ("The --extensions_autoload flag isn't supported").
+```yaml
+agent_options:
+  overrides:
+    platforms:
+      windows:
+        options:
+          disable_extensions: false
+          extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+          extensions_timeout: 10
+          extensions_interval: 3
+```
 
-So the installer does not write `extensions.load`. An osquery extension is a process that connects to osquery's extension socket and registers its tables, and autoload is only one way to start it. The installer reads osquery's socket from the running osqueryd (orbit's default is the named pipe `\\.\pipe\orbit-osquery-extension`) and registers a LocalSystem scheduled task that runs the extension against it and reconnects whenever osquery restarts. The binary and its supervisor run as SYSTEM, so the installer hardens them and their directory to Administrators and SYSTEM only with inheritance removed, otherwise a non-admin could swap in code that runs as SYSTEM. For a catalog of extensions, Fleet's supported path is orbit's managed set on a self-hosted TUF update server (`fleetctl updates add` plus the global or team extension config); the scheduled-task approach scales by one task per extension and needs no update-server infrastructure.
+The override is scoped to Windows so macOS and Linux hosts are unaffected.
+
+The binaries are committed under `extensions/windows_yellowkey/`. No release tag to cut. Rebuild with `make build` and commit when the source changes; bump `$ExtensionVersion` and the matching `Sha` values in the installer in the same commit.
 
 Roll it out
 -----------
 
 Pin everything in `fleets/workstations.yml`:
 
-```
+```yaml
 policies:
   - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
 reports:
@@ -77,27 +89,36 @@ controls:
 ```
 
 1. Apply: `fleetctl gitops -f fleets/workstations.yml`.
-2. Hosts install the extension on their next check-in (the policy runs the installer).
-3. Open the report, then run `mitigate-windows-yellowkey.ps1` against `exposed` hosts via Fleet > Controls > Scripts.
-4. Re-run the report. Those hosts move to `mitigated`.
+1. Hosts pick up the agent options on the next config refresh (default 60 seconds).
+1. The policy runs on the next interval; failing hosts run the installer.
+1. Open the report. Run `mitigate-windows-yellowkey.ps1` against `exposed` hosts from Fleet > Controls > Scripts.
+1. Re-run the report. Those hosts move to `mitigated`.
 
-If the table does not register
-------------------------------
+Update the extension
+--------------------
 
-The policy stays failing when the extension is not connected to osquery. Check the host:
+When the extension changes:
+
+1. Rebuild with `make build` and commit the new binaries under `extensions/windows_yellowkey/`.
+1. Bump `$ExtensionVersion` and both `Sha` entries in `install-yellowkey-extension.ps1`.
+1. Open a PR. On merge, failing hosts pull the new binary on the next policy run.
+
+If a host stays failing
+-----------------------
+
+Check three things on the host, in an elevated PowerShell:
 
 ```
-# 1. the supervisor task exists and is running
-Get-ScheduledTask -TaskName 'Fleet windows_yellowkey extension' | Get-ScheduledTaskInfo
+# 1. Agent options reached osquery: the extensions flags are present
+Get-Content 'C:\Program Files\Orbit\osquery.flags' | Select-String 'extension'
 
-# 2. the extension process is up
-Get-Process windows_yellowkey -ErrorAction SilentlyContinue
+# 2. The loader file lists the binary
+Get-Content 'C:\Program Files\Orbit\extensions.load'
 
-# 3. osquery is up for it to connect to
-(Get-CimInstance Win32_Process -Filter "Name='osqueryd.exe'").CommandLine -match 'extensions_socket'
+# 3. The script's last run is recorded in Fleet > Hosts > [host] > Activity > Scripts
 ```
 
-No task means the installer did not finish; re-run it. A task but no `windows_yellowkey` process means osquery was down when the task last tried, and it reconnects within a few seconds on its own. Do not write the binary into `extensions.load` and restart orbit: orbit rewrites that file empty on every start, so the entry is wiped and the table never registers. Re-running the installer re-creates the task and self-heals.
+If `osquery.flags` is missing the three `extensions_*` lines, the agent options have not propagated yet, or `fleetctl gitops` rejected the override. If `extensions.load` is empty or missing the binary path, the script did not finish; read its stdout under Activity > Scripts. If both look right but the table is still missing, search `C:\Windows\System32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log` for `unsafe permissions` or `Timed out waiting for extension`. Re-running the installer re-asserts the ACLs and the loader entry.
 
 Operational notes
 -----------------

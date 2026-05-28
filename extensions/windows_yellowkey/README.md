@@ -38,23 +38,30 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, places it under `C:\Program Files\Orbit\extensions\`, and runs it as a LocalSystem scheduled task that connects to osquery's extension socket. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, verifies its SHA-256, places it under `C:\Program Files\Orbit\extensions\`, adds the path to `extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osquery autoloads the extension on the next start.
 
-Why a task and not `extensions.load`: orbit owns that file. It rewrites `extensions.load` from its own (TUF-delivered) extension set on every start, so a path written there by hand is wiped on the next orbit restart and the table never registers. The installer sidesteps that by running the extension as a process that connects to osquery's extension socket (orbit's default pipe is `\\.\pipe\orbit-osquery-extension`) and reconnects when osquery restarts.
+For autoload to take effect on Windows, the team's agent options enable extensions and point at the loader file. fleetd regenerates `osquery.flags` from agent options on every config refresh, so these flags go through GitOps, not by editing `osquery.flags`:
 
-The binary and its supervisor run as SYSTEM, so the installer hardens them and their directory to Administrators and SYSTEM only, inheritance removed:
+```yaml
+agent_options:
+  overrides:
+    platforms:
+      windows:
+        options:
+          disable_extensions: false
+          extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+          extensions_timeout: 10
+          extensions_interval: 3
+```
+
+The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
+
+The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
+
+Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
 
 ```
-icacls <path> /setowner *S-1-5-32-544 /c /q
-icacls <path> /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" /c /q
-```
-
-The directory gets `(OI)(CI)F`; each path is hardened on its own. Pairing `/inheritance:r` with `/grant:r` in one call avoids an empty DACL, which is what a directory-only `(OI)(CI)` grant plus an inheritance strip leaves on the child file.
-
-Test interactively without deploying: connect to the running osquery, leave it running, then query the table from Fleet.
-
-```
-& .\windows_yellowkey-amd64.exe --socket \\.\pipe\orbit-osquery-extension --interval 3 --timeout 3
+'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension .\windows_yellowkey-amd64.exe --allow-unsafe
 ```
 
 ## Sample queries
