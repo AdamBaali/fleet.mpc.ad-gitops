@@ -71,6 +71,12 @@ $ErrorActionPreference = 'Stop'
 
 # ============================================================================
 # Extension identity. Bump these when the committed binaries change.
+#
+# TODO(allen-repo): once the extension is published in
+# allenhouchins/fleet-extensions, switch $BaseUrl to:
+#   https://raw.githubusercontent.com/allenhouchins/fleet-extensions/main/windows_yellowkey
+# and update both $Builds[*].Sha values to match the binaries produced by
+# Allen's CI (the SHA-256s will change if the toolchain or build flags differ).
 # ============================================================================
 $ExtensionName    = 'windows_yellowkey'
 $ExtensionVersion = '1.0.2'

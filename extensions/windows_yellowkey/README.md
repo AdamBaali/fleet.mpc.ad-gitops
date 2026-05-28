@@ -46,6 +46,8 @@ The binary, the loader, and the extensions directory are hardened to owner Admin
 
 The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
 
+<!-- TODO(allen-repo): once the extension is upstreamed to allenhouchins/fleet-extensions, this directory becomes a copy and Allen's CI is the canonical builder. Update `$BaseUrl` in the installer to point at Allen's raw URL, then either delete the binaries here or keep them as a mirror. -->
+
 Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
 
 ```
