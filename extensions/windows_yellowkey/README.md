@@ -23,7 +23,7 @@ Pattern adapted from [`allenhouchins/fleet-extensions/secureboot_cert_update`](h
 4. `bitlocker_off`: no protected BitLocker volume
 5. `exposed`: affected OS + BitLocker on + no mitigation
 
-It reads three things osquery can't get natively: WinRE state (`reagentc /info`), BitLocker key protector types (`Get-BitLockerVolume`), and the Fleet success marker (`HKLM\Software\Fleet\YellowKey\BootExecMitigated`).
+It reads four things osquery can't get natively: OS family and build (registry `ProductName` plus `CurrentBuild`, since `ProductName` still reads "Windows 10" on Windows 11 hosts), WinRE state (`reagentc /info`), BitLocker key protector types (`Get-BitLockerVolume`), and the Fleet success marker (`HKLM\Software\Fleet\YellowKey\BootExecMitigated`).
 
 ## Build
 

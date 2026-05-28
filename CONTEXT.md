@@ -26,7 +26,7 @@ lib/windows/
 ├── policies/
 │   └── windows-yellowkey-extension.policies.yml  # Keeps the extension installed; run_script installs on failure
 └── scripts/
-    ├── install-yellowkey-extension.ps1      # Download + load the extension (place + extensions.load + restart orbit)
+    ├── install-yellowkey-extension.ps1      # Download + load the extension (place + extensions.load + restart Fleet osquery)
     └── mitigate-windows-yellowkey.ps1       # autofstx strip from WinRE BootExecute (Microsoft's mitigation)
 
 .github/workflows/build-extensions.yml        # On tag push, builds every extensions/<name>/ and uploads binaries as release assets
@@ -37,7 +37,7 @@ Referenced from `fleets/workstations.yml` (`policies`, `reports`, `controls.scri
 
 ## How detection works
 
-The `windows_yellowkey` osquery extension reads, on every query: OS (registry `ProductName`), WinRE state (`reagentc /info`), BitLocker key protectors (`Get-BitLockerVolume`), and the Fleet `BootExecMitigated` marker. It derives one `state` per host. No snapshot file, no freshness gate, every query is live.
+The `windows_yellowkey` osquery extension reads, on every query: OS (registry `ProductName` plus `CurrentBuild` for Windows 11 detection, since Microsoft never updated `ProductName` past "Windows 10"; Win11 starts at build 22000), WinRE state (`reagentc /info`), BitLocker key protectors (`Get-BitLockerVolume`), and the Fleet `BootExecMitigated` marker. It derives one `state` per host. No snapshot file, no freshness gate, every query is live.
 
 Verdicts (first match wins, in `verdict()` in main.go):
 

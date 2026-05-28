@@ -29,12 +29,13 @@ The extension reads OS, WinRE state, BitLocker key protectors, and the `BootExec
 
 | state | Meaning |
 |---|---|
-| `not_affected` | Windows 10 |
+| `not_affected` | Windows 10, older Windows Server, or unrecognised SKU |
 | `mitigated` | autofstx stripped, marker set |
 | `mitigated_winre_off` | WinRE disabled |
 | `bitlocker_off` | no protected BitLocker volume |
 | `exposed` | affected OS, BitLocker on, no mitigation |
-| `unknown` | unrecognised OS |
+
+`winre_enabled` is a separate column and can be `Enabled`, `Disabled`, or `unknown`. When BitLocker is on and WinRE is unknown the host is reported `exposed` (the safe default).
 
 The report is one line:
 
