@@ -12,7 +12,9 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,6 +26,23 @@ import (
 )
 
 const tableName = "windows_yellowkey"
+
+// Absolute paths to the native tools we shell out to. osqueryd's SYSTEM child
+// environment does not always include System32 on PATH, and Go's os/exec
+// (since 1.19) refuses to run an executable it can only find relative to the
+// current directory. Using %SystemRoot%\System32 explicitly sidesteps both.
+var (
+	reagentcExe   = systemRootJoin("System32", "reagentc.exe")
+	powershellExe = systemRootJoin("System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+)
+
+func systemRootJoin(elem ...string) string {
+	root := os.Getenv("SystemRoot")
+	if root == "" {
+		root = `C:\Windows`
+	}
+	return filepath.Join(append([]string{root}, elem...)...)
+}
 
 // Verdicts emitted in the state column. First match in verdict() wins.
 const (
@@ -191,12 +210,12 @@ var (
 // encoding the direct child-process capture mangles), it falls back to running
 // reagentc through PowerShell, which normalizes the bytes via .NET strings.
 func winreState() string {
-	if s := winreStateFromCmd("reagentc.exe", "/info"); s != winreUnknown {
+	if s := winreStateFromCmd(reagentcExe, "/info"); s != winreUnknown {
 		return s
 	}
-	return winreStateFromCmd("powershell.exe",
+	return winreStateFromCmd(powershellExe,
 		"-NoProfile", "-NonInteractive", "-Command",
-		"& reagentc.exe /info 2>&1 | Out-String")
+		"& '"+reagentcExe+"' /info 2>&1 | Out-String")
 }
 
 func winreStateFromCmd(name string, args ...string) string {
@@ -237,7 +256,7 @@ $v | ForEach-Object {
   }
 } | ConvertTo-Json -Compress -Depth 4`
 
-	out, err := exec.Command("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script).Output()
+	out, err := exec.Command(powershellExe, "-NoProfile", "-NonInteractive", "-Command", script).Output()
 	if err != nil {
 		log.Printf("Get-BitLockerVolume: %v", err)
 		return false, false
