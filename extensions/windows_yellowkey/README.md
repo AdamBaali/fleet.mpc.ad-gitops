@@ -38,19 +38,15 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, hardens the extensions directory and binary ACL so osquery's safe-permission check accepts the binary, registers it in orbit's `extensions.load`, and restarts orbit. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, verifies its SHA-256, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-The ACL step is what makes this work on Windows. orbit does not pass `--allow_unsafe`, and osquery refuses to autoload an extension whose Windows ACLs are inherited rather than explicit, so the installer runs:
+The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner` and gets kept empty unless Fleet has TUF-managed extensions configured, and Fleet's API rejects setting `extensions_autoload` in agent options. orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty, so osqueryd falls back to its compiled default, `C:\Program Files\osquery\extensions.load` (from [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h)). This is the Windows twin of the Linux/macOS pattern that writes to `/etc/osquery/extensions.load` and `/var/osquery/extensions.load`. No agent options, no TUF update server, no scheduled task.
 
-```
-icacls <dir>  /setowner *S-1-5-32-544 /t /c /q
-icacls <dir>  /inheritance:r /grant:r "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" /c /q
-icacls <file> /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" /c /q
-```
+The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 
-The binary gets its own explicit grant. A `(OI)(CI)` grant on the directory reaches the file only as an inherited ACE, and the following `/inheritance:r` strips it, leaving the file with an empty DACL that denies SYSTEM and blocks the load. Pairing `/inheritance:r` with `/grant:r` in one call keeps either object from holding an empty DACL.
+The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
 
-Test interactively without deploying:
+Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
 
 ```
 'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension .\windows_yellowkey-amd64.exe --allow-unsafe
