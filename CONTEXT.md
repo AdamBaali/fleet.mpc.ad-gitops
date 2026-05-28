@@ -12,14 +12,9 @@ Microsoft's mitigation strips `autofstx.exe` from the WinRE image's Session Mana
 
 ## What's in this repo
 
-```
-extensions/
-└── windows_yellowkey/                       # osquery extension exposing the windows_yellowkey table
-    ├── main.go                              # Go source
-    ├── go.mod / go.sum                      # Go module
-    ├── Makefile                             # Cross-compile windows/amd64 + arm64
-    └── README.md                            # Build + deploy + sample queries
+The Fleet-consumer side. The osquery extension (Go source + binaries + CI) lives upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey); this repo holds the policy, report, and the two PowerShell scripts that install and mitigate.
 
+```
 lib/windows/
 ├── reports/
 │   └── windows-yellowkey.reports.yml        # Daily per-host verdict (queries the extension table)
@@ -29,7 +24,6 @@ lib/windows/
     ├── install-yellowkey-extension.ps1      # Download + load the extension (place + extensions.load + restart Fleet osquery)
     └── mitigate-windows-yellowkey.ps1       # autofstx strip from WinRE BootExecute (Microsoft's mitigation)
 
-.github/workflows/build-extensions.yml        # On tag push, builds every extensions/<name>/ and uploads binaries as release assets
 articles/windows-yellowkey-mitigation.md      # Customer-facing guide
 ```
 
@@ -78,9 +72,7 @@ Exit codes:
 
 The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table plugin (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It returns one row when the extension is loaded (pass) and zero rows when it is not (fail). Querying the `windows_yellowkey` table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`, which downloads the architecture-matching binary, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-The prebuilt binaries (`windows_yellowkey-amd64.exe`, `windows_yellowkey-arm64.exe`) are committed under `extensions/windows_yellowkey/`. `install-yellowkey-extension.ps1` reads `PROCESSOR_ARCHITECTURE` and pulls the matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
-
-<!-- TODO(allen-repo): when the extension is published in allenhouchins/fleet-extensions, swap the source of truth: point `$BaseUrl` in the installer at Allen's raw URL, rebuild the SHA-256s against Allen's CI output, and either delete this repo's `extensions/windows_yellowkey/` copy or keep it as a mirror. The policy, report, install script, and mitigate script all stay here on the Fleet-consumer side. -->
+The prebuilt binaries (`windows_yellowkey-amd64.exe`, `windows_yellowkey-arm64.exe`) live upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey); Allen's CI rebuilds them on push to `main`. `install-yellowkey-extension.ps1` reads `PROCESSOR_ARCHITECTURE` and pulls the matching one from the upstream raw URL on `main`, verifying against the SHA-256 pinned in the script. When upstream publishes a new binary, bump `$ExtensionVersion` and both `Sha` values in the installer to match.
 
 The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner` (`orbit/pkg/update/flag_runner.go`), which truncates the file on every config refresh unless Fleet has TUF-managed extensions configured under `agent_options.extensions`. Fleet's API also rejects setting `extensions_autoload` directly in agent options (`server/fleet/agent_options.go`: `"The --extensions_autoload flag isn't supported."`). orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty (`orbit/cmd/orbit/orbit.go`), so on a fleet with no TUF-managed extensions osqueryd falls back to its compiled default. That default is `OSQUERY_HOME "extensions.load"`, and `OSQUERY_HOME` for WIN32 is `"\\Program Files\\osquery\\"` per [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h), so on Windows the path resolves to `C:\Program Files\osquery\extensions.load`. The script writes there. This is the Windows twin of Allen Houchins' Linux/macOS installers that write to `/etc/osquery/extensions.load` and `/var/osquery/extensions.load`. No agent options touch this path, no TUF update server is needed, and no scheduled task wraps osqueryd.
 
@@ -117,17 +109,8 @@ osquery / Go specifics:
 
 When making changes:
 
-- Read this file before editing the scripts or the extension.
-- The verdict logic lives in `extensions/windows_yellowkey/main.go` (`verdict()`), not in the report YAML. The report just surfaces the `state` column. If you change the verdicts, update the extension, the report description, the README, and the article together.
-- After editing the extension, run the build and lint checks below before committing.
-
-Extension build + lint (from `extensions/windows_yellowkey/`):
-
-```bash
-gofmt -l .
-GOOS=windows GOARCH=amd64 go vet .
-make build
-```
+- Read this file before editing the scripts.
+- The verdict logic lives upstream in [`allenhouchins/fleet-extensions/windows_yellowkey/main.go`](https://github.com/allenhouchins/fleet-extensions/blob/main/windows_yellowkey/main.go) (`verdict()`), not in the report YAML. The report surfaces the `state` column. If the verdicts change upstream, update the report description and the article in this repo to match, and bump the `Sha` values in the installer to the new upstream binaries.
 
 PowerShell lint (from `lib/windows/scripts/`):
 

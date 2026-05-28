@@ -48,8 +48,11 @@
       8 = Unsupported architecture
 
     Update workflow:
-      1. Rebuild with `make build` and commit the new binaries.
-      2. Bump $ExtensionVersion and both $Builds entries' Sha values.
+      1. Source and CI live upstream in
+         https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey.
+         Allen's CI rebuilds and publishes the binaries on push to main.
+      2. After upstream publishes, bump $ExtensionVersion and both $Builds
+         entries' Sha values in this script to match the new binaries.
       3. Open a PR. On merge, failing hosts pull the new binary on the next
          policy run.
 
@@ -70,17 +73,13 @@ param()
 $ErrorActionPreference = 'Stop'
 
 # ============================================================================
-# Extension identity. Bump these when the committed binaries change.
-#
-# TODO(allen-repo): once the extension is published in
-# allenhouchins/fleet-extensions, switch $BaseUrl to:
-#   https://raw.githubusercontent.com/allenhouchins/fleet-extensions/main/windows_yellowkey
-# and update both $Builds[*].Sha values to match the binaries produced by
-# Allen's CI (the SHA-256s will change if the toolchain or build flags differ).
+# Extension identity. The canonical source lives in
+# allenhouchins/fleet-extensions/windows_yellowkey. Bump $ExtensionVersion and
+# both $Builds[*].Sha values together when Allen's CI publishes a rebuilt binary.
 # ============================================================================
 $ExtensionName    = 'windows_yellowkey'
 $ExtensionVersion = '1.0.2'
-$BaseUrl          = 'https://raw.githubusercontent.com/AdamBaali/fleet.mpc.ad-gitops/main/extensions/windows_yellowkey'
+$BaseUrl          = 'https://raw.githubusercontent.com/allenhouchins/fleet-extensions/main/windows_yellowkey'
 
 $Builds = @{
     'AMD64' = @{
