@@ -183,35 +183,73 @@ foreach ($dir in @($OsqueryHome, $ExtensionsDir)) {
     }
 }
 
-# --- Download with SHA-256 verification ---
-$tempPath = Join-Path $env:TEMP "$ExtensionName-$([guid]::NewGuid()).download"
-try {
-    Invoke-WebRequest -Uri $url -OutFile $tempPath -UseBasicParsing -TimeoutSec 120
-} catch {
-    Write-Output "FAIL: download failed: $($_.Exception.Message)"
-    Write-Output "      Confirm $url is reachable from the host."
-    Write-State 'State' 'download_failed'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 6
+# --- Idempotent fast-path: skip the download and move when the binary is current ---
+# osqueryd holds the extension binary open while loaded, so Move-Item -Force
+# fails with "Cannot create a file when that file already exists" against the
+# locked destination on a rerun. If the existing file already has the expected
+# SHA-256, there is nothing to do; otherwise stop the service before the move
+# to release the lock.
+$needsPlace = $true
+if (Test-Path $ExtensionPath) {
+    try {
+        $existingSha = (Get-FileHash -Path $ExtensionPath -Algorithm SHA256).Hash.ToUpper()
+        if ($existingSha -eq $expectedSha) {
+            $needsPlace = $false
+            Write-State 'Binary' "already current ($existingSha)"
+        } else {
+            Write-State 'Binary' "out of date; replacing"
+        }
+    } catch {
+        Write-Output "WARN: could not hash existing ${ExtensionPath}: $($_.Exception.Message)"
+    }
 }
-$actualSha = (Get-FileHash -Path $tempPath -Algorithm SHA256).Hash.ToUpper()
-if ($actualSha -ne $expectedSha) {
-    Write-Output "FAIL: SHA-256 mismatch. expected=$expectedSha actual=$actualSha"
-    Write-State 'State' 'checksum_mismatch'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 7
-}
-Write-State 'SHA-256' "ok ($actualSha)"
 
-try {
-    Move-Item -Path $tempPath -Destination $ExtensionPath -Force
-} catch {
-    Write-Output "FAIL: could not move to ${ExtensionPath}: $($_.Exception.Message)"
-    Write-State 'State' 'move_failed'
-    Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
-    exit 4
+if ($needsPlace) {
+    $tempPath = Join-Path $env:TEMP "$ExtensionName-$([guid]::NewGuid()).download"
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $tempPath -UseBasicParsing -TimeoutSec 120
+    } catch {
+        Write-Output "FAIL: download failed: $($_.Exception.Message)"
+        Write-Output "      Confirm $url is reachable from the host."
+        Write-State 'State' 'download_failed'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 6
+    }
+    $actualSha = (Get-FileHash -Path $tempPath -Algorithm SHA256).Hash.ToUpper()
+    if ($actualSha -ne $expectedSha) {
+        Write-Output "FAIL: SHA-256 mismatch. expected=$expectedSha actual=$actualSha"
+        Write-State 'State' 'checksum_mismatch'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        exit 7
+    }
+    Write-State 'SHA-256' "ok ($actualSha)"
+
+    # Stop Fleet osquery before the move so osqueryd releases the binary. The
+    # final restart at the bottom brings it back up.
+    $serviceWasStopped = $false
+    if ((Get-Service -Name $ServiceName).Status -eq 'Running') {
+        try {
+            Stop-Service -Name $ServiceName -Force
+            $serviceWasStopped = $true
+        } catch {
+            Write-Output "FAIL: could not stop ${ServiceName} to replace the binary: $($_.Exception.Message)"
+            Write-State 'State' 'stop_failed'
+            Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+            exit 5
+        }
+    }
+
+    try {
+        Move-Item -Path $tempPath -Destination $ExtensionPath -Force
+    } catch {
+        Write-Output "FAIL: could not move to ${ExtensionPath}: $($_.Exception.Message)"
+        Write-State 'State' 'move_failed'
+        Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
+        if ($serviceWasStopped) { Start-Service -Name $ServiceName -ErrorAction SilentlyContinue }
+        exit 4
+    }
+    Write-State 'Placed' $ExtensionPath
 }
-Write-State 'Placed' $ExtensionPath
 
 try {
     Set-HardenedAcl -Path $ExtensionPath -IsDirectory $false
@@ -222,6 +260,7 @@ try {
 }
 
 # --- extensions.load: add our path if missing, write ASCII (no BOM) ---
+$loaderChanged = $false
 $existing = @()
 if (Test-Path $LoaderPath) {
     $existing = @(Get-Content -Path $LoaderPath -ErrorAction SilentlyContinue |
@@ -239,6 +278,7 @@ if ($existing -notcontains $ExtensionPath) {
         exit 4
     }
     Write-State 'extensions.load' 'updated'
+    $loaderChanged = $true
 } else {
     Write-State 'extensions.load' 'already lists the binary'
 }
@@ -250,19 +290,38 @@ try {
     exit 4
 }
 
-# --- Restart Fleet osquery so osqueryd picks the extension up ---
-try {
-    Restart-Service -Name $ServiceName -Force
-} catch {
-    Write-Output "FAIL: could not restart ${ServiceName}: $($_.Exception.Message)"
-    Write-State 'State' 'restart_failed'
-    exit 5
+# --- Bring Fleet osquery back to Running ---
+# Start if stopped (we stopped it earlier for the move). Restart if running
+# and we changed something. Leave it alone on a true no-op rerun, since the
+# extension is already loaded and the policy would not have re-triggered.
+$svc = Get-Service -Name $ServiceName
+if ($svc.Status -ne 'Running') {
+    try {
+        Start-Service -Name $ServiceName
+    } catch {
+        Write-Output "FAIL: could not start ${ServiceName}: $($_.Exception.Message)"
+        Write-State 'State' 'start_failed'
+        exit 5
+    }
+    Write-State 'Service' 'started'
+} elseif ($needsPlace -or $loaderChanged) {
+    try {
+        Restart-Service -Name $ServiceName -Force
+    } catch {
+        Write-Output "FAIL: could not restart ${ServiceName}: $($_.Exception.Message)"
+        Write-State 'State' 'restart_failed'
+        exit 5
+    }
+    Write-State 'Service' 'restarted'
+} else {
+    Write-State 'Service' 'unchanged (no work to do)'
 }
+
 Start-Sleep -Seconds 5
 
 $svc = Get-Service -Name $ServiceName
 if ($svc.Status -ne 'Running') {
-    Write-Output "FAIL: $ServiceName did not return to Running after restart (status: $($svc.Status))."
+    Write-Output "FAIL: $ServiceName did not return to Running (status: $($svc.Status))."
     Write-State 'State' 'service_not_running'
     exit 5
 }
