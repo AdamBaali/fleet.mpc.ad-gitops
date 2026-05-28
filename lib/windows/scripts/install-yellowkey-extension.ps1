@@ -239,10 +239,31 @@ if ($needsPlace) {
         }
     }
 
-    try {
-        Move-Item -Path $tempPath -Destination $ExtensionPath -Force
-    } catch {
-        Write-Output "FAIL: could not move to ${ExtensionPath}: $($_.Exception.Message)"
+    # osqueryd does not always tear down its autoloaded extension children
+    # when the service stops on Windows, and the extension process keeps the
+    # .ext.exe locked. Kill any lingering windows_yellowkey* process and wait
+    # briefly for the file handle to release before the move.
+    Get-Process -Name 'windows_yellowkey*' -ErrorAction SilentlyContinue |
+        Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+
+    # Retry the move for a few seconds in case the OS hasn't yet released the
+    # handle. On Windows, file-rename-over-existing fails with "Cannot create
+    # a file when that file already exists" until every handle drops.
+    $moveOk = $false
+    $moveErr = $null
+    for ($try = 0; $try -lt 5; $try++) {
+        try {
+            Move-Item -Path $tempPath -Destination $ExtensionPath -Force
+            $moveOk = $true
+            break
+        } catch {
+            $moveErr = $_
+            Start-Sleep -Seconds 1
+        }
+    }
+    if (-not $moveOk) {
+        Write-Output "FAIL: could not move to ${ExtensionPath}: $($moveErr.Exception.Message)"
         Write-State 'State' 'move_failed'
         Remove-Item -Path $tempPath -Force -ErrorAction SilentlyContinue
         if ($serviceWasStopped) { Start-Service -Name $ServiceName -ErrorAction SilentlyContinue }
