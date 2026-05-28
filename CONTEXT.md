@@ -12,14 +12,9 @@ Microsoft's mitigation strips `autofstx.exe` from the WinRE image's Session Mana
 
 ## What's in this repo
 
-```
-extensions/
-└── windows_yellowkey/                       # osquery extension exposing the windows_yellowkey table
-    ├── main.go                              # Go source
-    ├── go.mod / go.sum                      # Go module
-    ├── Makefile                             # Cross-compile windows/amd64 + arm64
-    └── README.md                            # Build + deploy + sample queries
+The Fleet-consumer side. The osquery extension (Go source + binaries + CI) lives upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey); this repo holds the policy, report, and the two PowerShell scripts that install and mitigate.
 
+```
 lib/windows/
 ├── reports/
 │   └── windows-yellowkey.reports.yml        # Daily per-host verdict (queries the extension table)
@@ -29,7 +24,6 @@ lib/windows/
     ├── install-yellowkey-extension.ps1      # Download + load the extension (place + extensions.load + restart Fleet osquery)
     └── mitigate-windows-yellowkey.ps1       # autofstx strip from WinRE BootExecute (Microsoft's mitigation)
 
-.github/workflows/build-extensions.yml        # On tag push, builds every extensions/<name>/ and uploads binaries as release assets
 articles/windows-yellowkey-mitigation.md      # Customer-facing guide
 ```
 
@@ -78,13 +72,11 @@ Exit codes:
 
 The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table plugin (`SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'windows_yellowkey' AND active = 1`). It returns one row when the extension is loaded (pass) and zero rows when it is not (fail). Querying the `windows_yellowkey` table directly would error when the extension is absent, which Fleet shows as neither pass nor fail and would not trigger the installer. Failing hosts run `install-yellowkey-extension.ps1`, which downloads the architecture-matching binary, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-The prebuilt binaries (`windows_yellowkey-amd64.exe`, `windows_yellowkey-arm64.exe`) are committed under `extensions/windows_yellowkey/`. `install-yellowkey-extension.ps1` reads `PROCESSOR_ARCHITECTURE` and pulls the matching one from the repo's raw URL on `main`. No release or tag to cut. Rebuild with `make build` and commit when the extension changes.
-
-<!-- TODO(allen-repo): when the extension is published in allenhouchins/fleet-extensions, swap the source of truth: point `$BaseUrl` in the installer at Allen's raw URL, rebuild the SHA-256s against Allen's CI output, and either delete this repo's `extensions/windows_yellowkey/` copy or keep it as a mirror. The policy, report, install script, and mitigate script all stay here on the Fleet-consumer side. -->
+The prebuilt binaries (`windows_yellowkey-amd64.exe`, `windows_yellowkey-arm64.exe`) live upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey); Allen's CI rebuilds them on every push to `main` and republishes the `latest` release. `install-yellowkey-extension.ps1` reads `PROCESSOR_ARCHITECTURE` and pulls the matching asset from `releases/latest/download`, validating the PE header on the downloaded file. The script never needs editing when the binary changes; hosts pick up the new release on the next policy run.
 
 The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner` (`orbit/pkg/update/flag_runner.go`), which truncates the file on every config refresh unless Fleet has TUF-managed extensions configured under `agent_options.extensions`. Fleet's API also rejects setting `extensions_autoload` directly in agent options (`server/fleet/agent_options.go`: `"The --extensions_autoload flag isn't supported."`). orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty (`orbit/cmd/orbit/orbit.go`), so on a fleet with no TUF-managed extensions osqueryd falls back to its compiled default. That default is `OSQUERY_HOME "extensions.load"`, and `OSQUERY_HOME` for WIN32 is `"\\Program Files\\osquery\\"` per [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h), so on Windows the path resolves to `C:\Program Files\osquery\extensions.load`. The script writes there. This is the Windows twin of Allen Houchins' Linux/macOS installers that write to `/etc/osquery/extensions.load` and `/var/osquery/extensions.load`. No agent options touch this path, no TUF update server is needed, and no scheduled task wraps osqueryd.
 
-The installer hardens the extensions directory, the binary, and `extensions.load` to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (`.NET FileSystemAccessRule`, well-known SIDs so it works on non-English Windows). It writes `extensions.load` as ASCII with no BOM through `[System.IO.File]::WriteAllLines`; a UTF-16 or UTF-8-BOM file makes osquery skip the loader and load zero extensions silently. The download is verified by SHA-256 against a value committed in the script, one per architecture; rebuilding the binary requires bumping that hash in the same commit. For a catalog of extensions, Fleet's other supported path is orbit's managed extension set on a self-hosted TUF server (`fleetctl updates add` plus the global or team extension config); the in-script approach used here scales by one entry per extension in the script and the loader file. Fleet caps policy `run_script` retries at 3 per failure; the script is idempotent, so a host that drifted from the hardened state self-heals on the next remediation.
+The installer hardens the extensions directory, the binary, and `extensions.load` to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (`.NET FileSystemAccessRule`, well-known SIDs so it works on non-English Windows). It writes `extensions.load` as ASCII with no BOM through `[System.IO.File]::WriteAllLines`; a UTF-16 or UTF-8-BOM file makes osquery skip the loader and load zero extensions silently. The download is sanity-checked by reading the first two bytes (PE32+ files open with `MZ`), which catches truncated downloads and HTML 404 pages without pinning a hash in source. For a catalog of extensions, Fleet's other supported path is orbit's managed extension set on a self-hosted TUF server (`fleetctl updates add` plus the global or team extension config); the in-script approach used here scales by one entry per extension in the script and the loader file. Fleet caps policy `run_script` retries at 3 per failure; the script is idempotent, so a host that drifted from the hardened state self-heals on the next remediation.
 
 ## Style guide for any updates
 
@@ -117,17 +109,8 @@ osquery / Go specifics:
 
 When making changes:
 
-- Read this file before editing the scripts or the extension.
-- The verdict logic lives in `extensions/windows_yellowkey/main.go` (`verdict()`), not in the report YAML. The report just surfaces the `state` column. If you change the verdicts, update the extension, the report description, the README, and the article together.
-- After editing the extension, run the build and lint checks below before committing.
-
-Extension build + lint (from `extensions/windows_yellowkey/`):
-
-```bash
-gofmt -l .
-GOOS=windows GOARCH=amd64 go vet .
-make build
-```
+- Read this file before editing the scripts.
+- The verdict logic lives upstream in [`allenhouchins/fleet-extensions/windows_yellowkey/main.go`](https://github.com/allenhouchins/fleet-extensions/blob/main/windows_yellowkey/main.go) (`verdict()`), not in the report YAML. The report surfaces the `state` column. If the verdicts change upstream, update the report description and the article in this repo to match. The installer pulls from `releases/latest/download` and needs no change when the upstream binary is republished.
 
 PowerShell lint (from `lib/windows/scripts/`):
 

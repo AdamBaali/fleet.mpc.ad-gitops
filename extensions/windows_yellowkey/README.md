@@ -44,9 +44,7 @@ The script writes to osquery's compiled-in default autoload path on Windows, not
 
 The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 
-The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
-
-<!-- TODO(allen-repo): once the extension is upstreamed to allenhouchins/fleet-extensions, this directory becomes a copy and Allen's CI is the canonical builder. Update `$BaseUrl` in the installer to point at Allen's raw URL, then either delete the binaries here or keep them as a mirror. -->
+The binaries in this directory are a temporary mirror. The canonical source moved upstream to [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey); Allen's CI rebuilds them on every push to `main` and republishes the `latest` release. `install-yellowkey-extension.ps1` pulls from `releases/latest/download`, so it does not read these committed copies. They will be deleted from this repo once the upstream release has been observed in production for a release cycle.
 
 Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
 
