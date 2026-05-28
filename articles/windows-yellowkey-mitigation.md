@@ -59,6 +59,8 @@ The script writes to osquery's compiled-in default autoload path on Windows, not
 
 The binaries are committed under `extensions/windows_yellowkey/`. No release tag to cut. Rebuild with `make build` and commit when the source changes; bump `$ExtensionVersion` and the matching `Sha` values in the installer in the same commit.
 
+<!-- TODO(allen-repo): once the extension is published in allenhouchins/fleet-extensions, replace the "committed under extensions/windows_yellowkey/" wording with a link to https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey, and point $BaseUrl in the installer at Allen's raw URL. Allen's CI builds the binaries on push to that directory. -->
+
 Roll it out
 -----------
 
