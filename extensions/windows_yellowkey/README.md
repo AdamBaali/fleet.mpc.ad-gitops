@@ -38,19 +38,29 @@ Produces `windows_yellowkey-amd64.exe` and `windows_yellowkey-arm64.exe`.
 
 ## Deploy
 
-`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, hardens the extensions directory and binary ACL so osquery's safe-permission check accepts the binary, registers it in orbit's `extensions.load`, and restarts orbit. The binaries are committed in this directory, so no release is needed; rebuild with `make build` and commit when the source changes.
+`install-yellowkey-extension.ps1` (attached to the `windows-yellowkey-extension` policy) reads the host architecture, downloads the matching binary from the repo's raw URL on `main`, verifies its SHA-256, places it under `C:\Program Files\Orbit\extensions\`, adds the path to `extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osquery autoloads the extension on the next start.
 
-The ACL step is what makes this work on Windows. orbit does not pass `--allow_unsafe`, and osquery refuses to autoload an extension whose Windows ACLs are inherited rather than explicit, so the installer runs:
+For autoload to take effect on Windows, the team's agent options enable extensions and point at the loader file. fleetd regenerates `osquery.flags` from agent options on every config refresh, so these flags go through GitOps, not by editing `osquery.flags`:
 
+```yaml
+agent_options:
+  overrides:
+    platforms:
+      windows:
+        options:
+          disable_extensions: false
+          extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+          extensions_timeout: 10
+          extensions_interval: 3
 ```
-icacls <dir>  /setowner *S-1-5-32-544 /t /c /q
-icacls <dir>  /inheritance:r /grant:r "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" /c /q
-icacls <file> /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" /c /q
-```
 
-The binary gets its own explicit grant. A `(OI)(CI)` grant on the directory reaches the file only as an inherited ACE, and the following `/inheritance:r` strips it, leaving the file with an empty DACL that denies SYSTEM and blocks the load. Pairing `/inheritance:r` with `/grant:r` in one call keeps either object from holding an empty DACL.
+The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 
-Test interactively without deploying:
+To set the agent options through the Fleet UI instead of GitOps, go to **Settings > Organization settings > Agent options** for an "All teams" change, or **Settings > Teams > [team] > Agent options** for a single team. The YAML layout is documented at [YAML files](https://fleetdm.com/docs/configuration/yaml-files), and the full options list at [agent configuration](https://fleetdm.com/docs/configuration/agent-configuration).
+
+The binaries are committed in this directory, so no release is needed. To update: rebuild with `make build`, commit the binaries, and bump `$ExtensionVersion` + both `Sha` entries in the installer in the same commit.
+
+Test interactively without deploying (loads only this extension, bypasses the safe-permissions check):
 
 ```
 'C:\Program Files\Orbit\bin\orbit\orbit.exe' shell -- --extension .\windows_yellowkey-amd64.exe --allow-unsafe
