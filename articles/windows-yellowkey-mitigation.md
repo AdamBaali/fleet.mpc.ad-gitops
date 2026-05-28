@@ -13,10 +13,10 @@ USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores the OS USB
 | File | Role |
 |---|---|
 | [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey) | osquery extension upstream; exposes the `windows_yellowkey` table |
-| `lib/windows/reports/windows-yellowkey.reports.yml` | Daily per-host report |
-| `lib/windows/policies/windows-yellowkey-extension.policies.yml` | Keeps the extension installed |
-| `lib/windows/scripts/install-yellowkey-extension.ps1` | Installs the extension |
-| `lib/windows/scripts/mitigate-windows-yellowkey.ps1` | Applies Microsoft's mitigation |
+| `docs/solutions/windows/reports/windows-yellowkey.reports.yml` | Daily per-host report |
+| `docs/solutions/windows/policies/windows-yellowkey-extension.policies.yml` | Keeps the extension installed |
+| `docs/solutions/windows/scripts/install-yellowkey-extension.ps1` | Installs the extension |
+| `docs/solutions/windows/scripts/mitigate-windows-yellowkey.ps1` | Applies Microsoft's mitigation |
 
 ## Detect
 
@@ -54,20 +54,20 @@ The extension source and binaries live upstream in [`allenhouchins/fleet-extensi
 
 ## Roll it out
 
-Pin everything in `fleets/workstations.yml`:
+The four files live in this repo under [`docs/solutions/windows/`](https://github.com/fleetdm/fleet/tree/main/docs/solutions/windows). Copy them into your GitOps repo and reference them from your fleet config:
 
 ```yaml
 policies:
-  - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
+  - path: ../windows/policies/windows-yellowkey-extension.policies.yml
 reports:
-  - path: ../lib/windows/reports/windows-yellowkey.reports.yml
+  - path: ../windows/reports/windows-yellowkey.reports.yml
 controls:
   scripts:
-    - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
-    - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
+    - path: ../windows/scripts/install-yellowkey-extension.ps1
+    - path: ../windows/scripts/mitigate-windows-yellowkey.ps1
 ```
 
-1. Apply: `fleetctl gitops -f fleets/workstations.yml`.
+1. Apply with `fleetctl gitops -f fleets/workstations.yml`.
 1. The policy runs on the next interval; failing hosts run the installer (default 60 seconds for the first check).
 1. Open the report. Run `mitigate-windows-yellowkey.ps1` against `exposed` hosts from Fleet > Controls > Scripts.
 1. Re-run the report. Those hosts move to `mitigated`.
