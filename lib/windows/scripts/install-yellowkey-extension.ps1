@@ -22,18 +22,18 @@
     team's agent_options (see fleets/workstations.yml in this repo):
 
         agent_options:
-          overrides:
-            platforms:
-              windows:
-                command_line_flags:
-                  disable_extensions: false
-                  extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-                  extensions_timeout: 10
-                  extensions_interval: 3
+          command_line_flags:
+            disable_extensions: false
+            extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
+            extensions_timeout: 10
+            extensions_interval: 3
 
-    These are osqueryd command-line flags, not config options; Fleet rejects
-    them under `options` ("disable_extensions" should be part of the
-    "command_line_flags" object).
+    These are osqueryd command-line flags, not config options. Fleet requires
+    command_line_flags at the top level of agent_options ("command_line_flags"
+    should be part of the top level object) and rejects them under
+    overrides.platforms.<platform>, so they apply to every platform on the
+    team. On macOS and Linux hosts the Windows autoload path does not exist;
+    osquery logs one warning then continues.
 
 .OUTPUTS
     Structured key:value output to stdout for log capture.
