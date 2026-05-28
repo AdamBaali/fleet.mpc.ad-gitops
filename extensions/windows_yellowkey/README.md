@@ -47,11 +47,11 @@ agent_options:
   command_line_flags:
     disable_extensions: false
     extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-    extensions_timeout: 10
-    extensions_interval: 3
+    extensions_timeout: "10"
+    extensions_interval: "3"
 ```
 
-These are osqueryd command-line flags, not config options. Fleet requires `command_line_flags` at the top level of `agent_options` (`"command_line_flags" should be part of the top level object`), so they apply to every platform on the team. `extensions_autoload` points at a Windows path; on macOS and Linux hosts the file does not exist and osquery logs one warning then continues without autoloading anything.
+These are osqueryd command-line flags, not config options. Fleet requires `command_line_flags` at the top level of `agent_options` (`"command_line_flags" should be part of the top level object`), so they apply to every platform on the team. `extensions_timeout` and `extensions_interval` are quoted because Fleet's schema types them as strings (`osqueryCommandLineFlags` in `server/fleet/agent_options_generated.go`); an unquoted number is rejected with `expected string but got number`. On macOS and Linux hosts the Windows autoload path does not exist; osquery logs one warning then continues without autoloading anything.
 
 The binary, the loader, and the extensions directory are hardened to owner Administrators, no inherited ACEs, full control for Administrators and SYSTEM, read+execute for Users (.NET `FileSystemAccessRule` with well-known SIDs so it works on non-English Windows). `extensions.load` is written ASCII with no BOM; a UTF-16 or BOMed loader makes osquery skip the file and load zero extensions silently.
 

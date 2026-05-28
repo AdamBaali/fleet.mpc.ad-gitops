@@ -25,8 +25,8 @@
           command_line_flags:
             disable_extensions: false
             extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-            extensions_timeout: 10
-            extensions_interval: 3
+            extensions_timeout: "10"
+            extensions_interval: "3"
 
     These are osqueryd command-line flags, not config options. Fleet requires
     command_line_flags at the top level of agent_options ("command_line_flags"

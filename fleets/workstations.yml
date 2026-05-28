@@ -22,8 +22,12 @@ agent_options:
   command_line_flags:
     disable_extensions: false
     extensions_autoload: 'C:\Program Files\Orbit\extensions.load'
-    extensions_timeout: 10
-    extensions_interval: 3
+    # extensions_timeout and extensions_interval are typed string in Fleet's
+    # agent options schema (osqueryCommandLineFlags in server/fleet/
+    # agent_options_generated.go), so quote them or fleetctl gitops rejects
+    # them with "expected string but got number".
+    extensions_timeout: "10"
+    extensions_interval: "3"
 controls:
   scripts:
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
