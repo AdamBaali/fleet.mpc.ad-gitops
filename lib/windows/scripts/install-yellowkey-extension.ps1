@@ -73,17 +73,17 @@ $ErrorActionPreference = 'Stop'
 # Extension identity. Bump these when the committed binaries change.
 # ============================================================================
 $ExtensionName    = 'windows_yellowkey'
-$ExtensionVersion = '1.0.0'
+$ExtensionVersion = '1.0.1'
 $BaseUrl          = 'https://raw.githubusercontent.com/AdamBaali/fleet.mpc.ad-gitops/main/extensions/windows_yellowkey'
 
 $Builds = @{
     'AMD64' = @{
         Asset = 'windows_yellowkey-amd64.exe'
-        Sha   = '19A820F3B2975CB88C525FF19ED77F4001FAD1F5DA51F112762E29D649513B35'
+        Sha   = '7BD87D846173E8FE242C9D99BAC1CC97FC31CCE89100E5B43D53F4A476EF155A'
     }
     'ARM64' = @{
         Asset = 'windows_yellowkey-arm64.exe'
-        Sha   = 'B9B984140825FC1B9E856072AAC89CD6A7E1E76E08CD036EE7834E2A9E872AA0'
+        Sha   = '03F4123A056198673377E9DC6F6A82ABAD90C221DCA69DF256A2801817D838FB'
     }
 }
 # ============================================================================

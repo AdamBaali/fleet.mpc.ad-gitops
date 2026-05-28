@@ -14,6 +14,7 @@ import (
 	"log"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -121,6 +122,8 @@ func verdict(affected bool, winre string, protected, mitigated bool) (state, rea
 		return stateMitigatedWinRE, "WinRE disabled; the bypass cannot run"
 	case !protected:
 		return stateBitLockerOff, "BitLocker is not protecting any volume"
+	case winre == winreUnknown:
+		return stateExposed, "BitLocker on, WinRE state unknown (assumed on), no mitigation applied"
 	default:
 		return stateExposed, "WinRE on, BitLocker on, no mitigation applied"
 	}
@@ -129,6 +132,11 @@ func verdict(affected bool, winre string, protected, mitigated bool) (state, rea
 // osAffected reports whether this host runs an OS that YellowKey affects:
 // Windows 11, Server 2022, or Server 2025. Windows 10 ships a different
 // WinRE component and is safe.
+//
+// Windows 11's registry ProductName still reads "Windows 10 ..." (Microsoft
+// never updated it after Windows 11 shipped), so client SKUs are distinguished
+// by CurrentBuild instead: Windows 11 starts at build 22000. Server SKUs do
+// label themselves correctly in ProductName, so server detection uses the name.
 func osAffected() bool {
 	const key = `SOFTWARE\Microsoft\Windows NT\CurrentVersion`
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, key, registry.QUERY_VALUE)
@@ -144,36 +152,72 @@ func osAffected() bool {
 		return false
 	}
 	name = strings.ToLower(name)
-	if strings.Contains(name, "windows 10") {
+
+	if strings.Contains(name, "server") {
+		return strings.Contains(name, "2022") || strings.Contains(name, "2025")
+	}
+
+	// Client SKU: ProductName misreports Windows 11 as "Windows 10", so use
+	// the build number. Windows 10 client builds max out below 22000.
+	buildStr, _, err := k.GetStringValue("CurrentBuild")
+	if err != nil {
+		log.Printf("read CurrentBuild: %v", err)
 		return false
 	}
-	return strings.Contains(name, "windows 11") ||
-		strings.Contains(name, "server 2022") ||
-		strings.Contains(name, "server 2025")
+	build, err := strconv.Atoi(strings.TrimSpace(buildStr))
+	if err != nil {
+		log.Printf("parse CurrentBuild %q: %v", buildStr, err)
+		return false
+	}
+	return build >= 22000
 }
 
-// CJK-colon tolerant matches for "Windows RE status: Enabled/Disabled".
+// Plain word-boundary matches on the English status words. reagentc /info
+// only emits these in the WinRE status line, so a bare \bEnabled\b /
+// \bDisabled\b search is reliable and tolerates layout changes (extra
+// whitespace, tabs, different label wording across Windows builds) that the
+// previous colon-prefixed pattern was too strict for.
 var (
-	reEnabled  = regexp.MustCompile(`[:\x{FF1A}]\s*Enabled\b`)
-	reDisabled = regexp.MustCompile(`[:\x{FF1A}]\s*Disabled\b`)
+	reEnabled  = regexp.MustCompile(`\bEnabled\b`)
+	reDisabled = regexp.MustCompile(`\bDisabled\b`)
 )
 
 // winreState returns winreEnabled, winreDisabled, or winreUnknown by parsing
 // reagentc /info. The status words are English-only; an unrecognised locale
 // yields winreUnknown.
+//
+// The detection runs reagentc directly first (fast path); if the output does
+// not contain Enabled/Disabled (some Windows builds emit text whose console
+// encoding the direct child-process capture mangles), it falls back to running
+// reagentc through PowerShell, which normalizes the bytes via .NET strings.
 func winreState() string {
-	out, err := exec.Command("reagentc.exe", "/info").CombinedOutput()
-	if err != nil {
-		// reagentc exits non-zero in some states but still prints useful
-		// text, so parse what we captured rather than bailing.
-		log.Printf("reagentc /info: %v", err)
+	if s := winreStateFromCmd("reagentc.exe", "/info"); s != winreUnknown {
+		return s
 	}
-	switch text := string(out); {
+	return winreStateFromCmd("powershell.exe",
+		"-NoProfile", "-NonInteractive", "-Command",
+		"& reagentc.exe /info 2>&1 | Out-String")
+}
+
+func winreStateFromCmd(name string, args ...string) string {
+	out, err := exec.Command(name, args...).CombinedOutput()
+	if err != nil {
+		// reagentc exits non-zero in some states but still prints useful text,
+		// so parse what we captured rather than bailing.
+		log.Printf("winre probe %s %v: %v", name, args, err)
+	}
+	// Strip null bytes so this tolerates a UTF-16-LE emit (which collapses to
+	// ASCII once the nulls go) without a full Unicode decode dance.
+	text := strings.ReplaceAll(string(out), "\x00", "")
+	switch {
 	case reDisabled.MatchString(text):
 		return winreDisabled
 	case reEnabled.MatchString(text):
 		return winreEnabled
 	default:
+		if strings.TrimSpace(text) != "" {
+			log.Printf("winre probe %s did not match Enabled/Disabled; first 200 bytes: %.200q", name, text)
+		}
 		return winreUnknown
 	}
 }
