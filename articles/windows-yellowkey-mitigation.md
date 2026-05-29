@@ -13,9 +13,9 @@ USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores the OS USB
 | File | Role |
 |---|---|
 | [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey) | osquery extension upstream; exposes the `windows_yellowkey` table |
+| [`allenhouchins/fleet-extensions/windows_yellowkey/install-windows-yellowkey-extension.ps1`](https://raw.githubusercontent.com/allenhouchins/fleet-extensions/main/windows_yellowkey/install-windows-yellowkey-extension.ps1) | Installs the extension (lives upstream with the binary) |
 | [`docs/solutions/windows/reports/windows-yellowkey.reports.yml`](https://raw.githubusercontent.com/fleetdm/fleet/main/docs/solutions/windows/reports/windows-yellowkey.reports.yml) | Daily per-host report |
 | [`docs/solutions/windows/policies/windows-yellowkey-extension.policies.yml`](https://raw.githubusercontent.com/fleetdm/fleet/main/docs/solutions/windows/policies/windows-yellowkey-extension.policies.yml) | Keeps the extension installed |
-| [`docs/solutions/windows/scripts/install-yellowkey-extension.ps1`](https://raw.githubusercontent.com/fleetdm/fleet/main/docs/solutions/windows/scripts/install-yellowkey-extension.ps1) | Installs the extension |
 | [`docs/solutions/windows/scripts/mitigate-windows-yellowkey.ps1`](https://raw.githubusercontent.com/fleetdm/fleet/main/docs/solutions/windows/scripts/mitigate-windows-yellowkey.ps1) | Applies Microsoft's mitigation |
 
 ## Detect
@@ -46,13 +46,13 @@ The script verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet
 
 ## Deploy
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`, a thin wrapper that fetches Allen's canonical installer from [`allenhouchins/fleet-extensions`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey) and runs it. The upstream installer (which lives next to the extension binary) downloads the architecture-matching release, validates the PE header, places the binary, registers it in `C:\Program Files\osquery\extensions.load`, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run [`install-windows-yellowkey-extension.ps1`](https://raw.githubusercontent.com/allenhouchins/fleet-extensions/main/windows_yellowkey/install-windows-yellowkey-extension.ps1) from Allen's repo. The installer downloads the architecture-matching release, validates the PE header, places the binary, registers it in `C:\Program Files\osquery\extensions.load`, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
 Allen's CI rebuilds and republishes `releases/latest` on every push to `main`, so failing hosts pick up new binaries automatically with no edits to this repo.
 
 ## Roll it out
 
-The four files live in this repo under [`docs/solutions/windows/`](https://github.com/fleetdm/fleet/tree/main/docs/solutions/windows). Copy them into your GitOps repo and reference them from your fleet config:
+The reports, policy, and mitigation script live in [fleetdm/fleet](https://github.com/fleetdm/fleet/tree/main/docs/solutions/windows); the installer lives in [allenhouchins/fleet-extensions](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). Drop all four into your GitOps repo and reference them from your fleet config:
 
 ```yaml
 policies:
@@ -61,7 +61,7 @@ reports:
   - path: ../windows/reports/windows-yellowkey.reports.yml
 controls:
   scripts:
-    - path: ../windows/scripts/install-yellowkey-extension.ps1
+    - path: ../windows/scripts/install-windows-yellowkey-extension.ps1
     - path: ../windows/scripts/mitigate-windows-yellowkey.ps1
 ```
 
