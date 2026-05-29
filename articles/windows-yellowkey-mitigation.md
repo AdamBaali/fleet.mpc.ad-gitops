@@ -1,10 +1,10 @@
 # Detect and mitigate the YellowKey BitLocker bypass with Fleet
 
-[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11, Server 2022, and Server 2025. Microsoft shipped a mitigation on May 19, 2026 and no full patch is out yet. This pattern flags exposed hosts in Fleet, reports on them daily, and applies Microsoft's mitigation through a script.
+[YellowKey (CVE-2026-45585)](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585) is an unpatched BitLocker bypass on Windows 11 and Server 2025 (and, per the researcher's disclosure, Server 2022). Microsoft shipped a mitigation on May 20, 2026 and no full patch is out yet. This pattern flags exposed hosts in Fleet, reports on them daily, and applies Microsoft's mitigation through a script.
 
 ## The threat
 
-YellowKey abuses `autofstx.exe` in the Windows Recovery Environment. With brief physical access, an attacker drops a crafted `FsTx` blob on a USB stick or the EFI System Partition and reboots into WinRE. autofstx replays NTFS transaction logs that delete `winpeshl.ini`, so WinRE falls back to `cmd.exe` with the BitLocker volume unlocked. Windows 10 ships a different WinRE component and is not affected.
+YellowKey abuses `autofstx.exe` in the Windows Recovery Environment. With brief physical access, an attacker drops a crafted `FsTx` directory on a USB stick or the EFI System Partition and reboots into WinRE. autofstx replays NTFS transaction logs that delete `winpeshl.ini`, so WinRE falls back to `cmd.exe` with the BitLocker volume unlocked. Windows 10 ships a different WinRE component and is not affected.
 
 USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores the OS USB policy and the attack does not boot from the stick. TPM-only BitLocker is the target. Microsoft's mitigation strips `autofstx.exe` from WinRE's `BootExecute` chain. TPM + PIN blocks the published proof of concept but not the researcher's withheld variant, so treat it as raising attacker cost.
 
@@ -20,7 +20,7 @@ USB-block GPOs and BIOS USB-boot blocks do not stop it: WinRE ignores the OS USB
 
 ## Detect
 
-The extension reads OS, WinRE state, BitLocker key protectors, and the `BootExecMitigated` marker on every query, then returns one `state` per host. No snapshot, no freshness gate. A host returns a row once the extension loads; the policy below keeps it loaded.
+The extension reads OS, WinRE state, BitLocker key protectors, and the `BootExecMitigated` marker on every query, then returns one `state` per host. There is no internal cache or staleness gate. A host returns a row once the extension loads; the policy below keeps it loaded.
 
 | state | Meaning |
 |---|---|
@@ -40,17 +40,15 @@ SELECT state, state_reason, needs_action, winre_enabled, tpm_only, mitigated FRO
 
 ## Mitigate
 
-`mitigate-windows-yellowkey.ps1` adapts [Microsoft's reference script](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585). It mounts the WinRE image with `reagentc /mountre`, loads the offline SYSTEM hive, strips `autofstx` from every ControlSet's `BootExecute`, unmounts with `/commit`, then runs `reagentc /disable` and `/enable` to re-seal the BitLocker measurement chain.
+`mitigate-windows-yellowkey.ps1` adapts [Microsoft's reference script](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-45585). It mounts the WinRE image with `reagentc /mountre`, loads the offline SYSTEM hive, strips `autofstx` from every ControlSet's `BootExecute`, unmounts with `/commit` if changes were made (otherwise `/discard`), then runs `reagentc /disable` and `/enable` to re-seal the BitLocker measurement chain.
 
 The script verifies each ControlSet by read-back and writes `HKLM\SOFTWARE\Fleet\YellowKey\BootExecMitigated = 1` only when every one is clean. Exit codes: `0` done, `3` OS not affected, `4` failed. There is no opt-in gate, since Microsoft's strip is safe on every affected host, and no unmitigate path: when Microsoft ships a patch, apply it and clear the marker.
 
 ## Deploy
 
-The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`. The script downloads the architecture-matching binary from the upstream repo's latest release, validates the PE header, places it under `C:\Program Files\osquery\extensions\`, adds the path to `C:\Program Files\osquery\extensions.load`, hardens the ACLs, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
+The `windows-yellowkey-extension` policy checks `osquery_registry` for the `windows_yellowkey` table and passes when it is loaded. Failing hosts run `install-yellowkey-extension.ps1`, a thin wrapper that fetches Allen's canonical installer from [`allenhouchins/fleet-extensions`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey) and runs it. The upstream installer (which lives next to the extension binary) downloads the architecture-matching release, validates the PE header, places the binary, registers it in `C:\Program Files\osquery\extensions.load`, and restarts the `Fleet osquery` service. osqueryd autoloads the extension on the next start.
 
-The script writes to osquery's compiled-in default autoload path on Windows, not to orbit's directory. `<orbit-root-dir>\extensions.load` is owned by orbit's `ExtensionRunner`, which keeps it empty unless Fleet has TUF-managed extensions configured, and Fleet's API rejects setting `extensions_autoload` in agent options. Because orbit only passes `--extensions_autoload` to osqueryd when its own loader file is non-empty, osqueryd falls back to its compiled default. That default is `C:\Program Files\osquery\extensions.load` per [osquery's `default_paths.h`](https://github.com/osquery/osquery/blob/master/osquery/utils/config/default_paths.h), which is where the script writes. This is the Windows twin of the pattern that writes to `/etc/osquery/extensions.load` on Linux and `/var/osquery/extensions.load` on macOS. No agent options, no TUF update server, no scheduled task.
-
-The extension source and binaries live upstream in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). Allen's CI rebuilds and republishes the latest release on every push to `main`. The installer pulls from `releases/latest/download` and validates the PE header on the downloaded asset. Nothing in the script needs editing when the binary changes.
+Allen's CI rebuilds and republishes `releases/latest` on every push to `main`, so failing hosts pick up new binaries automatically with no edits to this repo.
 
 ## Roll it out
 
@@ -71,12 +69,6 @@ controls:
 1. The policy runs on the next interval; failing hosts run the installer (default 60 seconds for the first check).
 1. Open the report. Run `mitigate-windows-yellowkey.ps1` against `exposed` hosts from Fleet > Controls > Scripts.
 1. Re-run the report. Those hosts move to `mitigated`.
-
-## Update the extension
-
-The extension source and CI live in [`allenhouchins/fleet-extensions/windows_yellowkey`](https://github.com/allenhouchins/fleet-extensions/tree/main/windows_yellowkey). On every push to `main` in that repo, CI republishes the `latest` release with new binaries. `install-yellowkey-extension.ps1` always pulls from `releases/latest/download`, so failing hosts pick up the new binary on the next policy run with no edits in this repo.
-
-To change the extension itself, fork `allenhouchins/fleet-extensions`, edit `windows_yellowkey/main.go`, and push to your fork's `main`. The fork's CI rebuilds the Windows binaries and publishes them to your fork's `latest` release; point `$BaseUrl` in a local copy of the installer at your fork's release URL to test on a real host. When the change is ready, open a PR back to `allenhouchins/fleet-extensions`. Update the script in this repo only when the install flow itself changes.
 
 ## If a host stays failing
 
