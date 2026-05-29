@@ -8,6 +8,12 @@ controls:
   scripts:
     - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
     - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
+  macos_settings:
+    custom_settings:
+      # Trust the nanoca root CA so the ACME-issued cert chains validate.
+      - path: ../lib/macos/configuration-profiles/nanoca-root-ca-trust.mobileconfig
+      # Request an identity cert from the nanoca ACME server via managed device attestation.
+      - path: ../lib/macos/configuration-profiles/nanoca-acme.mobileconfig
 software:
   packages:
     - path: ../lib/macos/software/munki.yml
