@@ -1,0 +1,108 @@
+- name: Shadow AI - VS Code AI extensions (macOS)
+  query: |
+    SELECT
+      u.username,
+      f.path,
+      f.filename,
+      f.mtime
+    FROM users u
+    JOIN file f ON (
+      f.path LIKE '/Users/' || u.username || '/.vscode/extensions/github.copilot-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/github.copilot-chat-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/codeium.codeium-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/continue.continue-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/tabnine.tabnine-vscode-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/amazonwebservices.aws-toolkit-vscode-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/saoudrizwan.claude-dev-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/rooveterinaryinc.roo-cline-%'
+      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/anysphere.cursor-%'
+    )
+    WHERE u.uid >= 500
+    AND f.type = 'directory'
+    ORDER BY u.username, f.filename;
+  description: |
+    VS Code AI extension directories installed per user (macOS).
+
+    Scans ~/.vscode/extensions/ for each non-system user (uid >= 500).
+    Each installed extension lives in its own directory named
+    <publisher>.<extension-id>-<version>/, so directory presence confirms
+    the extension is installed.
+
+    Covered extensions:
+      github.copilot                     GitHub Copilot
+      github.copilot-chat                GitHub Copilot Chat
+      codeium.codeium                    Codeium
+      continue.continue                  Continue.dev
+      tabnine.tabnine-vscode             Tabnine
+      amazonwebservices.aws-toolkit-vscode  Amazon Q / CodeWhisperer
+      saoudrizwan.claude-dev             Cline (formerly Claude Dev)
+      rooveterinaryinc.roo-cline         Roo Code (Cline fork)
+      anysphere.cursor                   Cursor AI helper
+
+    This query covers VS Code and VS Code-compatible editors (Cursor,
+    Windsurf, VSCodium) that share the ~/.vscode/extensions path.
+  platform: macos
+
+- name: Shadow AI - VS Code AI extensions (Linux)
+  query: |
+    SELECT
+      u.username,
+      f.path,
+      f.filename,
+      f.mtime
+    FROM users u
+    JOIN file f ON (
+      f.path LIKE '/home/' || u.username || '/.vscode/extensions/github.copilot-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/github.copilot-chat-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/codeium.codeium-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/continue.continue-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/tabnine.tabnine-vscode-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/amazonwebservices.aws-toolkit-vscode-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/saoudrizwan.claude-dev-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/rooveterinaryinc.roo-cline-%'
+      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/anysphere.cursor-%'
+    )
+    WHERE u.uid >= 1000
+    AND f.type = 'directory'
+    ORDER BY u.username, f.filename;
+  description: |
+    VS Code AI extension directories installed per user (Linux).
+
+    Same logic as the macOS variant but scans /home/<user>/.vscode/extensions/
+    and filters for uid >= 1000 (standard Linux non-system user threshold).
+
+    Covered extensions: same set as the macOS query.
+    See shadow-ai-vscode-extensions (macOS) for the full list.
+  platform: linux
+
+- name: Shadow AI - VS Code AI extensions (Windows)
+  query: |
+    SELECT
+      u.username,
+      f.path,
+      f.filename,
+      f.mtime
+    FROM users u
+    JOIN file f ON (
+      f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\github.copilot-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\github.copilot-chat-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\codeium.codeium-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\continue.continue-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\tabnine.tabnine-vscode-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\amazonwebservices.aws-toolkit-vscode-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\saoudrizwan.claude-dev-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\rooveterinaryinc.roo-cline-%'
+      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\anysphere.cursor-%'
+    )
+    WHERE u.uid >= 1000
+    AND f.type = 'directory'
+    ORDER BY u.username, f.filename;
+  description: |
+    VS Code AI extension directories installed per user (Windows).
+
+    Scans C:\Users\<username>\.vscode\extensions\ for each non-system user.
+    Backslashes are literal in osquery SQLite and do not need escaping.
+
+    Covered extensions: same set as the macOS query.
+    See shadow-ai-vscode-extensions (macOS) for the full list.
+  platform: windows

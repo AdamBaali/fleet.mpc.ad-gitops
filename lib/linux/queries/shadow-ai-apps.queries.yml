@@ -1,0 +1,104 @@
+- name: Shadow AI - CLI tool binaries on disk (Linux)
+  query: |
+    SELECT path, size, mtime
+    FROM file
+    WHERE path IN (
+      '/usr/local/bin/ollama',
+      '/usr/bin/ollama',
+      '/usr/local/bin/aider',
+      '/usr/local/bin/fabric',
+      '/usr/local/bin/sgpt',
+      '/usr/local/bin/lms',
+      '/usr/local/bin/continue',
+      '/home/runner/.local/bin/ollama',
+      '/home/runner/.local/bin/aider'
+    )
+    ORDER BY path;
+  description: |
+    AI CLI tool binaries in standard system paths (Linux).
+
+    Checks /usr/local/bin and /usr/bin for:
+      ollama    Local LLM daemon (also check running processes for user installs)
+      aider     AI pair-programming CLI
+      fabric    AI augmentation framework (danielmiessler/fabric)
+      sgpt      shell-gpt
+      lms       LM Studio CLI
+      continue  Continue.dev CLI
+
+    User-local installs (~/.local/bin/ollama etc.) will not appear here unless
+    the service runs as a known system user. Use shadow-ai-processes to catch
+    user-space daemons regardless of install path.
+  platform: linux
+
+- name: Shadow AI - running processes (Linux)
+  query: |
+    SELECT
+      pid,
+      name,
+      path,
+      cmdline,
+      uid
+    FROM processes
+    WHERE name IN (
+      'ollama',
+      'ollama_llama_server',
+      'aider',
+      'sgpt',
+      'fabric',
+      'lms',
+      'cursor',
+      'jan',
+      'windsurf'
+    )
+    OR cmdline LIKE '%ollama serve%'
+    OR cmdline LIKE '%aider%'
+    OR cmdline LIKE '%-m ollama%'
+    OR path LIKE '%/cursor/%'
+    OR path LIKE '%/jan/%'
+    OR path LIKE '%/windsurf/%'
+    ORDER BY name, pid;
+  description: |
+    AI apps and daemons currently running on this host (Linux).
+
+    Matches on process name for daemon-style tools (ollama, aider, sgpt) and
+    on cmdline/path for GUI tools that ship as AppImages or Electron apps
+    (Cursor, Jan, Windsurf), which may have varying process names depending
+    on the AppImage wrapper.
+
+    uid is included to distinguish user-space AI daemons from system services.
+    No rows means none of these processes are active right now.
+  platform: linux
+
+- name: Shadow AI - AppImages in user directories (Linux)
+  query: |
+    SELECT path, size, mtime
+    FROM file
+    WHERE (
+      path LIKE '/home/%/Applications/cursor%.AppImage'
+      OR path LIKE '/home/%/Applications/jan%.AppImage'
+      OR path LIKE '/home/%/Applications/windsurf%.AppImage'
+      OR path LIKE '/home/%/Applications/lm-studio%.AppImage'
+      OR path LIKE '/home/%/Applications/LM_Studio%.AppImage'
+      OR path LIKE '/home/%/Downloads/cursor%.AppImage'
+      OR path LIKE '/home/%/Downloads/jan%.AppImage'
+      OR path LIKE '/home/%/Downloads/windsurf%.AppImage'
+      OR path LIKE '/home/%/Downloads/lm-studio%.AppImage'
+    )
+    ORDER BY path;
+  description: |
+    AI desktop apps distributed as AppImages in common user directories (Linux).
+
+    Most Linux AI desktop apps ship as AppImages rather than distro packages,
+    so they do not appear in dpkg, rpm, or snap inventory. Users typically
+    store them in ~/Applications or ~/Downloads.
+
+    Covered tools (all versions via LIKE pattern):
+      Cursor         AI code editor
+      Jan            Local LLM runner
+      Windsurf       Codeium AI code editor
+      LM Studio      Local LLM runner
+
+    A row means the AppImage is present on disk. It does not confirm the
+    AppImage has been executed. Pair with shadow-ai-processes to confirm
+    active use.
+  platform: linux

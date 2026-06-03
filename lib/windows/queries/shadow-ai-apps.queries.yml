@@ -1,0 +1,123 @@
+- name: Shadow AI - installed programs (Windows)
+  query: |
+    SELECT
+      name,
+      publisher,
+      version,
+      install_location,
+      install_date
+    FROM programs
+    WHERE name LIKE '%Claude%'
+      OR name LIKE '%ChatGPT%'
+      OR name LIKE '%Cursor%'
+      OR name LIKE '%Windsurf%'
+      OR name LIKE 'LM Studio%'
+      OR name LIKE '%Ollama%'
+      OR name LIKE '%Perplexity%'
+      OR name LIKE 'Jan %'
+      OR name = 'Jan'
+      OR name LIKE '%Pieces%'
+      OR (name LIKE '%Amazon Q%' AND publisher LIKE '%Amazon%')
+      OR (name LIKE '%Copilot%' AND publisher NOT LIKE '%Microsoft%')
+      OR name LIKE '%Aider%'
+      OR name LIKE '%LM-Studio%'
+    ORDER BY name;
+  description: |
+    AI apps registered in Add/Remove Programs on this host.
+
+    Queries HKLM and HKCU uninstall registry hives. Covers apps installed
+    per-machine and per-user.
+
+    Publisher filters on Amazon Q and Copilot prevent matching Microsoft's
+    built-in Copilot features or unrelated apps named similarly.
+
+    Common matches:
+      Claude                Anthropic Claude desktop
+      ChatGPT               OpenAI ChatGPT desktop
+      Cursor                Cursor AI code editor
+      Windsurf              Codeium Windsurf AI code editor
+      LM Studio             LM Studio local LLM runner
+      Ollama                Ollama local LLM daemon
+      Perplexity            Perplexity AI assistant
+      Jan                   Jan local LLM runner
+      Pieces                Pieces for Developers
+      Amazon Q              AWS AI assistant (publisher: Amazon)
+
+    No rows means none of these apps appear in the uninstall registry.
+    Portable apps (no installer) will not appear here. Use shadow-ai-files
+    to catch those.
+  platform: windows
+
+- name: Shadow AI - executables in user AppData (Windows)
+  query: |
+    SELECT path, size, mtime
+    FROM file
+    WHERE path IN (
+      'C:\Users\Public\ollama\ollama.exe'
+    )
+    OR path LIKE 'C:\%\AppData\Local\Programs\Claude\Claude.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\ChatGPT\ChatGPT.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\Cursor\Cursor.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\Windsurf\Windsurf.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\LM Studio\LM Studio.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\Jan\Jan.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\Perplexity\Perplexity.exe'
+    OR path LIKE 'C:\%\AppData\Local\Ollama\ollama.exe'
+    OR path LIKE 'C:\%\AppData\Local\Programs\Amazon Q\Amazon Q.exe'
+    ORDER BY path;
+  description: |
+    AI tool executables in per-user install paths (Windows).
+
+    Most AI desktop apps install per-user under AppData\Local\Programs rather
+    than Program Files, so they appear without UAC prompts and may bypass
+    software inventory tools that only inspect machine-level installs.
+
+    Checked paths (glob, all drive letters, all usernames):
+      ...\AppData\Local\Programs\Claude\Claude.exe
+      ...\AppData\Local\Programs\ChatGPT\ChatGPT.exe
+      ...\AppData\Local\Programs\Cursor\Cursor.exe
+      ...\AppData\Local\Programs\Windsurf\Windsurf.exe
+      ...\AppData\Local\Programs\LM Studio\LM Studio.exe
+      ...\AppData\Local\Programs\Jan\Jan.exe
+      ...\AppData\Local\Programs\Perplexity\Perplexity.exe
+      ...\AppData\Local\Ollama\ollama.exe
+      ...\AppData\Local\Programs\Amazon Q\Amazon Q.exe
+
+    A row means the binary is present on disk.
+  platform: windows
+
+- name: Shadow AI - running processes (Windows)
+  query: |
+    SELECT
+      pid,
+      name,
+      path,
+      cmdline
+    FROM processes
+    WHERE name IN (
+      'claude.exe',
+      'ChatGPT.exe',
+      'cursor.exe',
+      'Cursor.exe',
+      'windsurf.exe',
+      'Windsurf.exe',
+      'ollama.exe',
+      'ollama_llama_server.exe',
+      'LM Studio.exe',
+      'jan.exe',
+      'Jan.exe',
+      'Perplexity.exe',
+      'aider.exe',
+      'sgpt.exe',
+      'Amazon Q.exe'
+    )
+    ORDER BY name, pid;
+  description: |
+    AI apps and daemons currently running on this host (Windows).
+
+    Exact exe name matches to avoid false positives from partial string matching.
+    Covers both the main UI process and background inference daemons
+    (ollama.exe, ollama_llama_server.exe).
+
+    No rows means none of these processes are active right now.
+  platform: windows

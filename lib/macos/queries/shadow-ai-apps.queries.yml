@@ -1,0 +1,125 @@
+- name: Shadow AI - installed apps (macOS)
+  query: |
+    SELECT
+      name,
+      bundle_identifier,
+      version,
+      path
+    FROM apps
+    WHERE bundle_identifier IN (
+      'com.anthropic.claude',
+      'com.openai.chat',
+      'ai.lmstudio.app',
+      'com.ollama.ollama',
+      'com.google.Gemini',
+      'com.microsoft.Copilot',
+      'ai.perplexity.mac',
+      'ai.jan.app',
+      'com.codeium.windsurf',
+      'com.pieces.pfd',
+      'com.amazon.q',
+      'com.todesktop.230313mzl4w4u92'
+    )
+    OR name IN (
+      'Claude',
+      'ChatGPT',
+      'Cursor',
+      'Windsurf',
+      'LM Studio',
+      'Ollama',
+      'Perplexity',
+      'Jan',
+      'Pieces',
+      'Gemini',
+      'Microsoft Copilot',
+      'Amazon Q'
+    )
+    ORDER BY name;
+  description: |
+    Installed AI desktop apps on this host.
+
+    Matches on bundle identifier first (precise), then display name (catches
+    renamed or repackaged builds). Bundle IDs are checked for:
+
+      com.anthropic.claude               Claude (Anthropic)
+      com.openai.chat                    ChatGPT (OpenAI)
+      com.todesktop.230313mzl4w4u92      Cursor AI code editor
+      com.codeium.windsurf               Windsurf AI code editor (Codeium)
+      ai.lmstudio.app                    LM Studio (local LLM runner)
+      com.ollama.ollama                  Ollama menu bar app
+      ai.perplexity.mac                  Perplexity
+      com.google.Gemini                  Google Gemini
+      com.microsoft.Copilot              Microsoft Copilot
+      ai.jan.app                         Jan (local LLM runner)
+      com.pieces.pfd                     Pieces for Developers
+      com.amazon.q                       Amazon Q
+
+    No rows means none of these apps are installed.
+    Pair with shadow-ai-cli-tools and shadow-ai-vscode-extensions for complete coverage.
+  platform: macos
+
+- name: Shadow AI - CLI tools on disk (macOS)
+  query: |
+    SELECT path, size, mtime
+    FROM file
+    WHERE path IN (
+      '/usr/local/bin/ollama',
+      '/usr/bin/ollama',
+      '/opt/homebrew/bin/ollama',
+      '/usr/local/bin/aider',
+      '/opt/homebrew/bin/aider',
+      '/usr/local/bin/fabric',
+      '/opt/homebrew/bin/fabric',
+      '/usr/local/bin/sgpt',
+      '/opt/homebrew/bin/sgpt',
+      '/usr/local/bin/lms'
+    )
+    ORDER BY path;
+  description: |
+    AI tool CLI binaries present on disk (macOS).
+
+    Checks common install locations for:
+
+      ollama     Local LLM runner daemon (separate from the menu bar app)
+      aider      AI pair-programming CLI (pip install aider-chat)
+      fabric     AI augmentation framework (danielmiessler/fabric)
+      sgpt       shell-gpt, ChatGPT in the terminal
+      lms        LM Studio CLI companion
+
+    Homebrew, /usr/local, and pip-installed binaries are covered.
+    A row means the binary exists regardless of whether it is currently running.
+  platform: macos
+
+- name: Shadow AI - running processes (macOS)
+  query: |
+    SELECT
+      pid,
+      name,
+      path,
+      cmdline,
+      uid
+    FROM processes
+    WHERE name IN ('ollama', 'ollama_llama_server', 'aider', 'sgpt', 'fabric', 'lms')
+      OR name LIKE '%Cursor%'
+      OR name LIKE '%ChatGPT%'
+      OR name LIKE '%Claude%'
+      OR name LIKE '%Windsurf%'
+      OR name LIKE 'LM Studio%'
+      OR name LIKE '%Jan %'
+      OR name LIKE '%Perplexity%'
+      OR name LIKE '%Amazon Q%'
+    ORDER BY name, pid;
+  description: |
+    AI apps and daemons currently running on this host (macOS).
+
+    Catches running instances of AI desktop apps (including Electron helper
+    processes) and background daemons such as the Ollama inference server.
+
+    Name patterns used:
+      Exact:   ollama, ollama_llama_server, aider, sgpt, fabric, lms
+      Prefix:  LM Studio*, Jan *
+      Partial: *Cursor*, *ChatGPT*, *Claude*, *Windsurf*, *Perplexity*, *Amazon Q*
+
+    No rows means none of these processes are active right now. An installed app
+    that has not been launched since last boot will not appear here.
+  platform: macos
