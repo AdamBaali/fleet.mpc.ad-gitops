@@ -1,0 +1,43 @@
+- name: Shadow AI - local LLM servers on known ports (all platforms)
+  query: |
+    SELECT
+      lp.port,
+      lp.address,
+      lp.protocol,
+      lp.family,
+      p.name AS process_name,
+      p.path AS binary_path,
+      p.cmdline,
+      p.uid
+    FROM listening_ports lp
+    LEFT JOIN processes p USING (pid)
+    WHERE lp.port IN (
+      11434,
+      11435,
+      1234,
+      3000,
+      8080,
+      8000,
+      18789,
+      18793
+    )
+    ORDER BY lp.port;
+  description: |
+    Processes listening on ports associated with local LLM inference servers.
+
+    Port assignments:
+      11434   Ollama default API (http://localhost:11434)
+      11435   Ollama alternative
+      1234    LM Studio local server (default)
+      3000    Jan.ai server (default)
+      8080    Common local LLM wrapper (many tools)
+      8000    Common local LLM wrapper (many tools)
+      18789   OpenClaw gateway (WebSocket)
+      18793   OpenClaw canvas
+
+    A row on port 11434 or 1234 alone may be a legitimate dev tool. Correlate
+    with shadow-ai-apps and shadow-ai-running-processes for confirmation.
+
+    OpenClaw ports (18789, 18793) have no legitimate non-OpenClaw use and
+    should be treated as high-confidence indicators.
+  platform:

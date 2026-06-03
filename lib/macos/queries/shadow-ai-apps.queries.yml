@@ -7,18 +7,18 @@
       path
     FROM apps
     WHERE bundle_identifier IN (
-      'com.anthropic.claude',
+      'com.anthropic.claudefordesktop',
       'com.openai.chat',
-      'ai.lmstudio.app',
-      'com.ollama.ollama',
-      'com.google.Gemini',
+      'com.electron.ollama',
+      'com.exafunction.windsurf',
+      'com.todesktop.230313mzl4w4u92',
       'com.microsoft.Copilot',
+      'ai.lmstudio.app',
       'ai.perplexity.mac',
       'ai.jan.app',
-      'com.codeium.windsurf',
       'com.pieces.pfd',
       'com.amazon.q',
-      'com.todesktop.230313mzl4w4u92'
+      'com.google.Gemini'
     )
     OR name IN (
       'Claude',
@@ -29,7 +29,8 @@
       'Ollama',
       'Perplexity',
       'Jan',
-      'Pieces',
+      'PiecesOS',
+      'Pieces for Developers',
       'Gemini',
       'Microsoft Copilot',
       'Amazon Q'
@@ -41,12 +42,12 @@
     Matches on bundle identifier first (precise), then display name (catches
     renamed or repackaged builds). Bundle IDs are checked for:
 
-      com.anthropic.claude               Claude (Anthropic)
+      com.anthropic.claudefordesktop      Claude (Anthropic)
       com.openai.chat                    ChatGPT (OpenAI)
       com.todesktop.230313mzl4w4u92      Cursor AI code editor
-      com.codeium.windsurf               Windsurf AI code editor (Codeium)
+      com.exafunction.windsurf           Windsurf AI code editor (Codeium/Exafunction)
+      com.electron.ollama                Ollama menu bar app
       ai.lmstudio.app                    LM Studio (local LLM runner)
-      com.ollama.ollama                  Ollama menu bar app
       ai.perplexity.mac                  Perplexity
       com.google.Gemini                  Google Gemini
       com.microsoft.Copilot              Microsoft Copilot
@@ -123,3 +124,71 @@
     No rows means none of these processes are active right now. An installed app
     that has not been launched since last boot will not appear here.
   platform: macos
+
+- name: Shadow AI - Homebrew AI packages (macOS)
+  query: |
+    SELECT
+      name,
+      version,
+      path
+    FROM homebrew_packages
+    WHERE name IN (
+      'ollama',
+      'chatgpt',
+      'lm-studio',
+      'aider',
+      'fabric',
+      'sgpt',
+      'jan',
+      'claude-code'
+    )
+    ORDER BY name;
+  description: |
+    AI tools installed via Homebrew on this host.
+
+    Covers both formulae (CLI tools) and casks (GUI apps) in a single query.
+    Detected packages:
+      ollama        Local LLM daemon (formula)
+      chatgpt       ChatGPT desktop (cask)
+      lm-studio     LM Studio (cask)
+      aider         AI pair-programming CLI (formula)
+      fabric        AI augmentation framework (formula)
+      sgpt          shell-gpt (formula)
+      jan           Jan local LLM runner (cask)
+      claude-code   Claude Code CLI (formula)
+
+    Homebrew installs update independently of App Store and may not appear in
+    the apps table if the cask installs to a non-standard path.
+  platform: macos
+
+- name: Shadow AI - npm CLI tools (all platforms)
+  query: |
+    SELECT
+      name,
+      version,
+      path,
+      directory
+    FROM npm_packages
+    WHERE name IN (
+      '@google/gemini-cli',
+      '@anthropic-ai/claude-code',
+      '@github/copilot',
+      'openai',
+      'anthropic'
+    )
+    OR name LIKE '%copilot%'
+    OR name LIKE '%gemini-cli%'
+    OR name LIKE '%langchain%'
+    ORDER BY name;
+  description: |
+    AI tools installed as global npm packages on this host.
+
+    Covers CLI tools and SDKs installed via npm or npx:
+      @google/gemini-cli           Google Gemini CLI (binary: gemini, config: ~/.gemini/)
+      @anthropic-ai/claude-code    Claude Code CLI (binary: claude, config: ~/.claude/)
+      @github/copilot              GitHub Copilot CLI extension
+      openai                       OpenAI Node.js SDK (indicates AI development)
+      anthropic                    Anthropic Node.js SDK
+
+    Works on macOS, Linux, and Windows.
+  platform:

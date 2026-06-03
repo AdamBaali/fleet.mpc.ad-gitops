@@ -1,108 +1,74 @@
-- name: Shadow AI - VS Code AI extensions (macOS)
+- name: Shadow AI - VS Code AI extensions (all platforms)
   query: |
     SELECT
       u.username,
-      f.path,
-      f.filename,
-      f.mtime
+      e.vscode_edition,
+      e.name,
+      e.publisher,
+      e.publisher_id,
+      e.version,
+      e.path
     FROM users u
-    JOIN file f ON (
-      f.path LIKE '/Users/' || u.username || '/.vscode/extensions/github.copilot-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/github.copilot-chat-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/codeium.codeium-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/continue.continue-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/tabnine.tabnine-vscode-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/amazonwebservices.aws-toolkit-vscode-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/saoudrizwan.claude-dev-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/rooveterinaryinc.roo-cline-%'
-      OR f.path LIKE '/Users/' || u.username || '/.vscode/extensions/anysphere.cursor-%'
+    JOIN vscode_extensions e USING (uid)
+    WHERE e.publisher_id IN (
+      'github',
+      'codeium',
+      'tabnine',
+      'continue',
+      'amazonwebservices',
+      'sourcegraph',
+      'pieces-app',
+      'anysphere',
+      'augment',
+      'rooveterinaryinc',
+      'supermaven',
+      'saoudrizwan',
+      'kodu-ai',
+      'blackboxapp'
     )
-    WHERE u.uid >= 500
-    AND f.type = 'directory'
-    ORDER BY u.username, f.filename;
+    OR e.name LIKE '%Copilot%'
+    OR e.name LIKE '%Codeium%'
+    OR e.name LIKE '%Tabnine%'
+    OR e.name LIKE '%Continue%'
+    OR e.name LIKE '%Amazon Q%'
+    OR e.name LIKE '%Pieces%'
+    OR e.name LIKE '%Augment%'
+    OR e.name LIKE '%Supermaven%'
+    OR e.name LIKE '%Cody%'
+    OR e.name LIKE '%Kite%'
+    OR e.name LIKE '%Roo%'
+    OR e.name LIKE '%Cline%'
+    ORDER BY u.username, e.vscode_edition, e.name;
   description: |
-    VS Code AI extension directories installed per user (macOS).
+    AI coding extensions installed in any VS Code-compatible editor on this host.
 
-    Scans ~/.vscode/extensions/ for each non-system user (uid >= 500).
-    Each installed extension lives in its own directory named
-    <publisher>.<extension-id>-<version>/, so directory presence confirms
-    the extension is installed.
+    Uses the native vscode_extensions osquery table, which covers all IDE editions:
+      vscode     Visual Studio Code
+      cursor     Cursor AI code editor
+      windsurf   Windsurf AI code editor (Codeium/Exafunction)
+      vscodium   VSCodium (open-source VS Code build)
+      trae       Trae AI IDE (ByteDance)
 
-    Covered extensions:
-      github.copilot                     GitHub Copilot
-      github.copilot-chat                GitHub Copilot Chat
-      codeium.codeium                    Codeium
-      continue.continue                  Continue.dev
-      tabnine.tabnine-vscode             Tabnine
-      amazonwebservices.aws-toolkit-vscode  Amazon Q / CodeWhisperer
-      saoudrizwan.claude-dev             Cline (formerly Claude Dev)
-      rooveterinaryinc.roo-cline         Roo Code (Cline fork)
-      anysphere.cursor                   Cursor AI helper
+    The vscode_edition column identifies which editor the extension is installed in,
+    so Cursor and Windsurf installs are visible even without separate queries.
 
-    This query covers VS Code and VS Code-compatible editors (Cursor,
-    Windsurf, VSCodium) that share the ~/.vscode/extensions path.
-  platform: macos
+    Publisher IDs matched:
+      github                     GitHub Copilot + Copilot Chat
+      codeium                    Windsurf Plugin (formerly Codeium)
+      tabnine                    Tabnine
+      continue                   Continue.dev
+      amazonwebservices          Amazon Q Developer
+      sourcegraph                Sourcegraph Cody
+      pieces-app                 Pieces for Developers
+      anysphere                  Cursor AI helper extensions
+      augment                    Augment Code
+      rooveterinaryinc           Roo Code (formerly Roo-Cline)
+      supermaven                 Supermaven AI autocomplete
+      saoudrizwan                Cline (original, by saoudrizwan)
+      kodu-ai                    Kodu AI
+      blackboxapp                Blackbox AI
 
-- name: Shadow AI - VS Code AI extensions (Linux)
-  query: |
-    SELECT
-      u.username,
-      f.path,
-      f.filename,
-      f.mtime
-    FROM users u
-    JOIN file f ON (
-      f.path LIKE '/home/' || u.username || '/.vscode/extensions/github.copilot-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/github.copilot-chat-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/codeium.codeium-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/continue.continue-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/tabnine.tabnine-vscode-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/amazonwebservices.aws-toolkit-vscode-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/saoudrizwan.claude-dev-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/rooveterinaryinc.roo-cline-%'
-      OR f.path LIKE '/home/' || u.username || '/.vscode/extensions/anysphere.cursor-%'
-    )
-    WHERE u.uid >= 1000
-    AND f.type = 'directory'
-    ORDER BY u.username, f.filename;
-  description: |
-    VS Code AI extension directories installed per user (Linux).
+    Name patterns catch additional tools not covered by publisher matching.
 
-    Same logic as the macOS variant but scans /home/<user>/.vscode/extensions/
-    and filters for uid >= 1000 (standard Linux non-system user threshold).
-
-    Covered extensions: same set as the macOS query.
-    See shadow-ai-vscode-extensions (macOS) for the full list.
-  platform: linux
-
-- name: Shadow AI - VS Code AI extensions (Windows)
-  query: |
-    SELECT
-      u.username,
-      f.path,
-      f.filename,
-      f.mtime
-    FROM users u
-    JOIN file f ON (
-      f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\github.copilot-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\github.copilot-chat-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\codeium.codeium-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\continue.continue-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\tabnine.tabnine-vscode-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\amazonwebservices.aws-toolkit-vscode-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\saoudrizwan.claude-dev-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\rooveterinaryinc.roo-cline-%'
-      OR f.path LIKE 'C:\Users\' || u.username || '\.vscode\extensions\anysphere.cursor-%'
-    )
-    WHERE u.uid >= 1000
-    AND f.type = 'directory'
-    ORDER BY u.username, f.filename;
-  description: |
-    VS Code AI extension directories installed per user (Windows).
-
-    Scans C:\Users\<username>\.vscode\extensions\ for each non-system user.
-    Backslashes are literal in osquery SQLite and do not need escaping.
-
-    Covered extensions: same set as the macOS query.
-    See shadow-ai-vscode-extensions (macOS) for the full list.
-  platform: windows
+    No rows means no AI extensions are installed in any supported editor.
+  platform:

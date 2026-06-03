@@ -1,0 +1,68 @@
+- name: Shadow AI - MCP server configurations (all platforms)
+  query: |
+    WITH path_suffixes(suffix) AS (
+      VALUES
+        ('/.cursor/mcp.json'),
+        ('/Library/Application Support/Claude/claude_desktop_config.json'),
+        ('\AppData\Roaming\Claude\claude_desktop_config.json'),
+        ('/.claude.json'),
+        ('/Library/Application Support/Code/User/mcp.json'),
+        ('/.config/Code/User/mcp.json'),
+        ('\AppData\Roaming\Code\User\mcp.json'),
+        ('/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json'),
+        ('/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json'),
+        ('\AppData\Roaming\Code\User\globalStorage\rooveterinaryinc.roo-cline\settings\mcp_settings.json'),
+        ('/Library/Application Support/Code/User/globalStorage/augment.vscode-augment/augment-global-state/mcpServers.json'),
+        ('/.config/Code/User/globalStorage/augment.vscode-augment/augment-global-state/mcpServers.json'),
+        ('\AppData\Roaming\Code\User\globalStorage\augment.vscode-augment\augment-global-state\mcpServers.json'),
+        ('/.gemini/settings.json'),
+        ('/.lmstudio/mcp.json')
+    ),
+    full_paths AS (
+      SELECT u.directory || p.suffix AS full_path
+      FROM users u
+      JOIN path_suffixes p ON 1=1
+    ),
+    config_files AS (
+      SELECT f.path, group_concat(f.line, '') AS contents
+      FROM file_lines f
+      JOIN full_paths fp ON f.path = fp.full_path
+      GROUP BY f.path
+    )
+    SELECT
+      cf.path,
+      je.key AS server_name,
+      je.value AS server_config
+    FROM config_files cf
+    JOIN json_each(
+      COALESCE(
+        json_extract(cf.contents, '$.mcpServers'),
+        json_extract(cf.contents, '$.servers')
+      )
+    ) AS je;
+  description: |
+    MCP (Model Context Protocol) server configurations found on this host.
+
+    Reads MCP config files for all known AI clients and returns each registered
+    server as a row. An MCP server entry indicates the AI tool is configured to
+    call external services or local tools on behalf of the user.
+
+    Config files checked per user:
+      ~/.cursor/mcp.json                              Cursor
+      ~/Library/Application Support/Claude/claude_desktop_config.json  Claude desktop (macOS)
+      %APPDATA%\Claude\claude_desktop_config.json     Claude desktop (Windows)
+      ~/.claude.json                                  Claude Code CLI
+      VS Code user mcp.json                           VS Code
+      Roo-Cline mcp_settings.json                    Roo Code extension
+      Augment mcpServers.json                        Augment extension
+      ~/.gemini/settings.json                         Gemini CLI
+      ~/.lmstudio/mcp.json                            LM Studio
+
+    server_name is the key from the mcpServers object (the name the user gave
+    the server). server_config is the raw JSON value (command, args, env).
+
+    No rows means no MCP configs are present. The absence of a config file does
+    not mean the AI tool is not installed.
+
+    Source: Fleet published report (fleetdm.com/reports/get-mcp-client-configurations)
+  platform:

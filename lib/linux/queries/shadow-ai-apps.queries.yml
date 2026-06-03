@@ -10,24 +10,29 @@
       '/usr/local/bin/sgpt',
       '/usr/local/bin/lms',
       '/usr/local/bin/continue',
-      '/home/runner/.local/bin/ollama',
-      '/home/runner/.local/bin/aider'
+      '/usr/local/bin/gemini',
+      '/usr/local/bin/q',
+      '/usr/local/bin/claude',
+      '/usr/bin/gemini',
+      '/usr/bin/q'
     )
     ORDER BY path;
   description: |
     AI CLI tool binaries in standard system paths (Linux).
 
     Checks /usr/local/bin and /usr/bin for:
-      ollama    Local LLM daemon (also check running processes for user installs)
+      ollama    Local LLM daemon
       aider     AI pair-programming CLI
       fabric    AI augmentation framework (danielmiessler/fabric)
       sgpt      shell-gpt
       lms       LM Studio CLI
       continue  Continue.dev CLI
+      gemini    Google Gemini CLI (@google/gemini-cli, config: ~/.gemini/)
+      q         Amazon Q CLI (install dir: ~/q/bin/)
+      claude    Claude Code CLI (@anthropic-ai/claude-code, config: ~/.claude/)
 
-    User-local installs (~/.local/bin/ollama etc.) will not appear here unless
-    the service runs as a known system user. Use shadow-ai-processes to catch
-    user-space daemons regardless of install path.
+    User-local installs (~/.local/bin/) will not appear here. Use
+    shadow-ai-processes to catch user-space daemons regardless of install path.
   platform: linux
 
 - name: Shadow AI - running processes (Linux)
