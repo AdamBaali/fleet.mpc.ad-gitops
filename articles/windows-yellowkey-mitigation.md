@@ -65,7 +65,7 @@ controls:
     - path: ../windows/scripts/mitigate-windows-yellowkey.ps1
 ```
 
-1. Apply with `fleetctl gitops -f fleets/workstations.yml`.
+1. Apply with `fleetctl gitops -f fleets/flock-to-fedora.yml`.
 1. The policy runs on the next interval; failing hosts run the installer (default 60 seconds for the first check).
 1. Open the report. Run `mitigate-windows-yellowkey.ps1` against `exposed` hosts from Fleet > Controls > Scripts.
 1. Re-run the report. Those hosts move to `mitigated`.

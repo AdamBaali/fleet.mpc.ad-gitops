@@ -1,0 +1,64 @@
+# OpenClaw (clawdbot / moltbot / clawd) detection for Linux hosts.
+# Reference: https://fleetdm.com/guides/mitigation-assets-and-detection-patterns-for-ai-agents-like-openclaw
+#
+# Detection policies invert the usual sense: a clean host returns a row and
+# passes, a host showing the threat returns zero rows and fails. Wire a
+# failing-policy webhook (Settings > Integrations) to alert on a fail. No
+# run_script is attached. Removing a live agent or its files is a response
+# decision, not an automatic one, and the article's hardening path is
+# `openclaw security audit --deep --fix`, run deliberately.
+
+- name: OpenClaw AI agent not detected (Linux)
+  critical: true
+  query: |
+    SELECT 1 WHERE (
+        ((SELECT COUNT(*) FROM processes
+            WHERE name LIKE '%openclaw%' OR name LIKE '%clawdbot%'
+               OR name LIKE '%moltbot%' OR name = 'clawd'
+               OR cmdline LIKE '%openclaw%' OR cmdline LIKE '%clawdbot%'
+               OR cmdline LIKE '%moltbot%') > 0)
+      + ((SELECT COUNT(*) FROM listening_ports
+            WHERE port IN (18789, 18793)) > 0)
+      + ((SELECT COUNT(*) FROM systemd_units
+            WHERE id = 'openclaw-gateway.service'
+               OR id LIKE 'openclaw-gateway-%.service') > 0)
+      + ((SELECT COUNT(*) FROM file
+            WHERE path LIKE '/home/%/.openclaw/openclaw.json'
+               OR path LIKE '/home/%/.clawdbot/openclaw.json'
+               OR path LIKE '/home/%/.moltbot/openclaw.json'
+               OR path LIKE '/root/.openclaw/openclaw.json'
+               OR path LIKE '/root/.clawdbot/openclaw.json') > 0)
+    ) <= 2;
+  description: |
+    Scores four independent OpenClaw indicators and fails when three or more
+    are present at once: a matching process, a gateway listener on TCP 18789
+    or 18793, an openclaw-gateway systemd unit, and an openclaw.json config
+    file. Any one alone (a stray cmdline match, an unrelated port) keeps the
+    host passing, which is the threshold the OpenClaw guide uses to avoid
+    false positives. Three together is the running, listening, persistent,
+    installed agent.
+  resolution: |
+    Open the "OpenClaw investigation and threat hunting" reports to see
+    which indicators fired. Confirm the agent, then follow the OpenClaw
+    guide: isolate the host, capture the config and session directories, and
+    remediate with `openclaw security audit --deep --fix`.
+  platform: linux
+
+- name: OpenClaw systemd persistence absent (Linux)
+  critical: true
+  query: |
+    SELECT 1 WHERE NOT EXISTS (
+      SELECT 1 FROM systemd_units
+      WHERE id = 'openclaw-gateway.service'
+         OR id LIKE 'openclaw-gateway-%.service'
+    );
+  description: |
+    Fails when an openclaw-gateway systemd unit exists. A service unit with
+    that name is high-confidence persistence: the gateway is configured to
+    survive reboot. This is a single-indicator check by design, separate
+    from the scored policy above, because the unit name is unambiguous.
+  resolution: |
+    Identify the unit in the "OpenClaw systemd persistence" report
+    (fragment_path shows the unit file). Stop and disable it, remove the
+    unit file and the agent's config directory, then reload systemd.
+  platform: linux

@@ -1,0 +1,27 @@
+- name: Atomic deployment inventory (rpm-ostree)
+  automations_enabled: false
+  description: |
+    One row per rpm-ostree deployment from the rpm_ostree extension:
+    booted, staged, and rollback. rpm_packages reports only the booted
+    commit, so on Silverblue, Bluefin, and CoreOS hosts this report is the
+    only view of what is staged for the next boot and what the host can roll
+    back to.
+
+    booted = 1   running right now (what a SOC cares about)
+    staged = 1   downloaded and signed, applies on next reboot
+    pinned = 1   kept across upgrades, can be re-pinned by an adversary
+
+    A host returns rows only once the extension is loaded. Hosts pending the
+    extension show up as failing the rpm_ostree-extension policy, which
+    installs it.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT id, version, booted, staged, pinned, unlocked, osname,
+           container_image_reference, container_image_reference_digest,
+           manifest_digest, layered_packages,
+           datetime(timestamp, 'unixepoch') AS deployed
+    FROM rpm_ostree_deployments;

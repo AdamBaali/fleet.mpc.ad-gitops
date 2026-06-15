@@ -1,0 +1,38 @@
+name: "🐧 Flock to Fedora"
+policies:
+  # Windows
+  - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
+  # Linux: keep the rpm-ostree extension loaded, then the NIST controls it
+  # and the base osquery tables prove.
+  - path: ../lib/linux/policies/rpm-ostree-extension.policies.yml
+  - path: ../lib/linux/policies/nist-sc-28-luks.policies.yml
+  - path: ../lib/linux/policies/nist-ia-5-ssh-keys.policies.yml
+  # OpenClaw AI-agent detection (cross-platform, one file per platform).
+  - path: ../lib/linux/policies/openclaw-detection.policies.yml
+  - path: ../lib/macos/policies/openclaw-detection.policies.yml
+reports:
+  - path: ../lib/windows/reports/windows-yellowkey.reports.yml
+  - path: ../lib/linux/reports/rpm-ostree-deployments.reports.yml
+  - path: ../lib/linux/reports/nist-ia-5-ssh-keys.reports.yml
+  - path: ../lib/linux/reports/cve-scanning-baseline.reports.yml
+  - path: ../lib/linux/reports/openclaw-detection.reports.yml
+  - path: ../lib/macos/reports/openclaw-detection.reports.yml
+agent_options:
+controls:
+  scripts:
+    - path: ../lib/windows/scripts/mitigate-windows-yellowkey.ps1
+    - path: ../lib/windows/scripts/install-yellowkey-extension.ps1
+    # Fleet run_script remediation for the rpm-ostree-extension policy.
+    - path: ../lib/linux/scripts/install-rpm-ostree-extension.sh
+  macos_settings:
+    custom_settings:
+      # Trust the nanoca root CA so the ACME-issued cert chains validate.
+      - path: ../lib/macos/configuration-profiles/nanoca-root-ca-trust.mobileconfig
+      # Request an identity cert from the nanoca ACME server via managed device attestation.
+      - path: ../lib/macos/configuration-profiles/nanoca-acme.mobileconfig
+software:
+  packages:
+    - path: ../lib/macos/software/munki.yml
+settings:
+  secrets:
+    - secret: "$FLEET_WORKSTATIONS_ENROLL_SECRET"

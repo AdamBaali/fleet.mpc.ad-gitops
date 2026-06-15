@@ -10,7 +10,7 @@ You are helping with Fleet GitOps configuration files: $ARGUMENTS
 This repository keeps GitOps files at the root:
 
 - `default.yml` — global settings, `org_settings`, and `controls` that apply to all hosts ("All fleets").
-- `fleets/*.yml` — one file per Fleet fleet (e.g. `fleets/workstations.yml`). Fleet-scoped settings go under `settings:` (not `team_settings:`).
+- `fleets/*.yml` — one file per Fleet fleet (e.g. `fleets/flock-to-fedora.yml`). Fleet-scoped settings go under `settings:` (not `team_settings:`).
 - `lib/` — reusable assets referenced from `default.yml` and fleet files, organized by platform:
   - `lib/all/` — `agent-options/`, `labels/`, `icons/`, shared assets across platforms.
   - `lib/macos/` — `configuration-profiles/` (`.mobileconfig`), `declaration-profiles/` (DDM JSON), `enrollment-profiles/`, `policies/`, `reports/`, `scripts/`, `software/`, `commands/`, `misc/`.

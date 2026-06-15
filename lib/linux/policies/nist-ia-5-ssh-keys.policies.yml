@@ -1,0 +1,54 @@
+# NIST 800-53 IA-5(2), authenticator (SSH key) management. Each policy
+# passes when the host is clean: the query returns one row when no offending
+# key exists, and zero rows (fail) when one does. The matching reports in
+# lib/linux/reports/nist-ia-5-ssh-keys.reports.yml list the offending keys
+# for an auditor.
+
+- name: NIST IA-5(2) no SSH authorized_keys older than one year
+  query: |
+    SELECT 1 WHERE NOT EXISTS (
+      SELECT 1
+      FROM authorized_keys ak
+      JOIN file f ON f.path = ak.key_file
+      WHERE (strftime('%s', 'now') - f.mtime) > 31536000
+    );
+  description: |
+    Fails when any authorized_keys file backing a trusted key was last
+    modified more than 365 days ago. Stale keys are credentials nobody
+    rotated and nobody owns the risk for.
+  resolution: |
+    Review the aged keys in the "Stale SSH authorized_keys" report. Rotate
+    or remove each one, then re-run the report.
+  platform: linux
+
+- name: NIST IA-5(2) no orphaned SSH keys
+  query: |
+    SELECT 1 WHERE NOT EXISTS (
+      SELECT 1
+      FROM authorized_keys ak
+      LEFT JOIN users u USING (uid)
+      WHERE u.username IS NULL
+    );
+  description: |
+    Fails when an authorized_keys entry maps to a uid with no matching user
+    in passwd. These are ghosts: keys that still grant access after the
+    account they belonged to was deleted.
+  resolution: |
+    Review the orphaned keys in the "Orphaned SSH keys" report. Remove the
+    key files for the deleted accounts, then re-run the report.
+  platform: linux
+
+- name: NIST IA-5(2) no weak SSH key algorithms
+  query: |
+    SELECT 1 WHERE NOT EXISTS (
+      SELECT 1
+      FROM authorized_keys ak
+      WHERE ak.algorithm = 'ssh-dss'
+    );
+  description: |
+    Fails when any trusted key uses DSA (ssh-dss). DSA is fixed at 1024 bits,
+    is disabled by default in current OpenSSH, and does not meet IA-5(2).
+  resolution: |
+    Review the weak keys in the "Weak SSH key algorithms" report. Replace
+    each DSA key with ed25519 or RSA (>= 3072 bit), then re-run the report.
+  platform: linux

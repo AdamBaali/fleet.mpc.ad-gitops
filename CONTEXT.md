@@ -27,7 +27,7 @@ lib/windows/
 articles/windows-yellowkey-mitigation.md      # Customer-facing guide
 ```
 
-Referenced from `fleets/workstations.yml` (`policies`, `reports`, `controls.scripts`).
+Referenced from `fleets/flock-to-fedora.yml` (`policies`, `reports`, `controls.scripts`).
 
 ## How detection works
 

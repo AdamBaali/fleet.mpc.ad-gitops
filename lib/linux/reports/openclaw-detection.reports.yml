@@ -1,0 +1,288 @@
+# OpenClaw investigation and threat hunting reports for Linux hosts.
+# Reference: https://fleetdm.com/guides/mitigation-assets-and-detection-patterns-for-ai-agents-like-openclaw
+#
+# Investigation reports use snapshot logging (current state, daily).
+# Threat hunting reports use differential logging (new rows as they appear)
+# at a shorter interval, since the behaviour they catch is transient.
+
+# --- Investigation ---
+
+- name: OpenClaw running processes (Linux)
+  automations_enabled: false
+  description: |
+    Processes whose name or command line matches an OpenClaw alias
+    (openclaw, clawdbot, moltbot, clawd). The agent runs as Node.js, so the
+    cmdline match catches it when the binary is renamed.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT pid, name, path, cmdline, uid
+    FROM processes
+    WHERE name LIKE '%openclaw%' OR name LIKE '%clawdbot%'
+       OR name LIKE '%moltbot%' OR name = 'clawd'
+       OR cmdline LIKE '%openclaw%' OR cmdline LIKE '%clawdbot%'
+       OR cmdline LIKE '%moltbot%';
+
+- name: OpenClaw gateway listening ports (Linux)
+  automations_enabled: false
+  description: |
+    Listeners on the OpenClaw gateway ports: TCP 18789 (WebSocket gateway)
+    and TCP 18793 (canvas / A2UI host). The joined process shows what bound
+    them.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT lp.port, lp.address, lp.protocol,
+           p.name, p.path AS binary_path, p.cmdline, p.uid
+    FROM listening_ports lp
+    LEFT JOIN processes p USING (pid)
+    WHERE lp.port IN (18789, 18793)
+       OR p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%';
+
+- name: OpenClaw systemd persistence (Linux)
+  automations_enabled: false
+  description: |
+    systemd units that keep an OpenClaw gateway running across reboots.
+    fragment_path points at the unit file to remove.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT id, description, load_state, active_state, sub_state, fragment_path
+    FROM systemd_units
+    WHERE id = 'openclaw-gateway.service'
+       OR id LIKE 'openclaw-gateway-%.service';
+
+- name: OpenClaw credential and config files (Linux)
+  automations_enabled: false
+  description: |
+    OpenClaw .env and credential files on disk. These hold API keys and
+    tokens. mode shows whether they are readable beyond the owner.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT path, filename, size, mode, uid, gid,
+           datetime(mtime, 'unixepoch') AS modified
+    FROM file
+    WHERE path LIKE '/home/%/.clawdbot/.env'
+       OR path LIKE '/home/%/.openclaw/.env'
+       OR path LIKE '/home/%/.moltbot/.env'
+       OR path LIKE '/home/%/.openclaw/credentials/%.json'
+       OR path LIKE '/home/%/.clawdbot/credentials/%.json'
+       OR path LIKE '/root/.openclaw/.env'
+       OR path LIKE '/root/.clawdbot/.env';
+
+- name: OpenClaw world-readable secrets (Linux)
+  automations_enabled: false
+  description: |
+    OpenClaw config and credential files whose mode grants read to group or
+    other (last octal digit 4, 5, or 7). Recommended mode is 600.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT path, mode, uid, gid, size,
+           datetime(mtime, 'unixepoch') AS modified
+    FROM file
+    WHERE (path LIKE '/home/%/.openclaw/%' OR path LIKE '/home/%/.clawdbot/%'
+        OR path LIKE '/home/%/.moltbot/%')
+      AND (mode LIKE '%7' OR mode LIKE '%5' OR mode LIKE '%4')
+      AND (filename LIKE '%.env%' OR filename LIKE '%credentials%'
+        OR filename = 'openclaw.json');
+
+- name: OpenClaw memory poisoning (Linux)
+  automations_enabled: false
+  description: |
+    SOUL.md (behavioural instructions) and MEMORY.md (conversation context)
+    modified in the last two hours. Edits to these files reprogram the
+    agent's behaviour and are a memory-poisoning signal when unexpected.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT path, filename, size,
+           datetime(mtime, 'unixepoch') AS modified
+    FROM file
+    WHERE (path LIKE '/home/%/.clawdbot/%/SOUL.md'
+        OR path LIKE '/home/%/.openclaw/%/SOUL.md'
+        OR path LIKE '/home/%/.clawdbot/%/MEMORY.md'
+        OR path LIKE '/home/%/.openclaw/%/MEMORY.md')
+      AND mtime > (strftime('%s', 'now') - 7200);
+
+- name: OpenClaw session transcripts (Linux)
+  automations_enabled: false
+  description: |
+    Agent session transcripts (.jsonl). They contain prompts, tool calls,
+    and any secrets the agent handled, so their presence and permissions
+    matter for data exposure.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT path, filename, size,
+           datetime(mtime, 'unixepoch') AS modified,
+           datetime(ctime, 'unixepoch') AS created
+    FROM file
+    WHERE path LIKE '/home/%/.openclaw/agents/%/sessions/%.jsonl'
+       OR path LIKE '/home/%/.clawdbot/agents/%/sessions/%.jsonl';
+
+# --- Threat hunting ---
+
+- name: OpenClaw shell spawning (Linux)
+  automations_enabled: false
+  description: |
+    Shells and interpreters spawned by a Node.js or OpenClaw parent. The
+    agent shelling out to sh, bash, sudo, or python3 is the path from
+    prompt to command execution.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.pid, p.name, p.cmdline, p.uid,
+           pp.name AS parent_name, pp.cmdline AS parent_cmd
+    FROM processes p
+    JOIN processes pp ON p.parent = pp.pid
+    WHERE (pp.name = 'node' OR pp.cmdline LIKE '%openclaw%'
+        OR pp.cmdline LIKE '%clawdbot%')
+      AND p.name IN ('sh', 'bash', 'zsh', 'sudo', 'python3');
+
+- name: OpenClaw exposed network bindings (Linux)
+  automations_enabled: false
+  description: |
+    OpenClaw processes listening on all interfaces (0.0.0.0 or ::) rather
+    than loopback. An exposed gateway is reachable from the network, not
+    only the local host.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.name, p.pid, p.cmdline, p.uid,
+           lp.address, lp.port, lp.protocol,
+           CASE WHEN lp.address = '0.0.0.0' THEN 'EXPOSED'
+                WHEN lp.address = '::' THEN 'EXPOSED (IPv6)'
+                ELSE 'LOCAL' END AS exposure
+    FROM listening_ports lp
+    JOIN processes p ON lp.pid = p.pid
+    WHERE (p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%'
+        OR lp.port IN (18789, 18793))
+      AND lp.port NOT IN (22, 80, 443);
+
+- name: OpenClaw reverse shell indicators (Linux)
+  automations_enabled: false
+  description: |
+    Command lines carrying reverse-shell patterns: /dev/tcp redirects and
+    backgrounded interactive bash. Maps to the AuthTool dormant reverse
+    shell reported in the OpenClaw guide.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.pid, p.name, p.cmdline, u.username,
+           pp.name AS parent_name, pp.cmdline AS parent_cmd
+    FROM processes p
+    LEFT JOIN users u ON p.uid = u.uid
+    LEFT JOIN processes pp ON p.parent = pp.pid
+    WHERE p.cmdline LIKE '%/dev/tcp/%'
+       OR p.cmdline LIKE '%nohup%bash%-i%';
+
+- name: OpenClaw supply chain delivery (npx) (Linux)
+  automations_enabled: false
+  description: |
+    npx invocations, the OpenClaw guide's reported delivery path
+    (npx -y ...). Catches the agent or its installer pulling and running an
+    unvetted package.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.pid, p.name, p.cmdline, u.username
+    FROM processes p
+    LEFT JOIN users u ON p.uid = u.uid
+    WHERE p.name = 'npx' OR p.cmdline LIKE '%npx -y%';
+
+- name: OpenClaw pipe to shell (Linux)
+  automations_enabled: false
+  description: |
+    curl or wget piped straight into a shell, including the documented
+    clawd.bot/install one-liner. Download-and-run with no file written to
+    disk first.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.pid, p.name, p.cmdline, u.username
+    FROM processes p
+    LEFT JOIN users u ON p.uid = u.uid
+    WHERE p.cmdline LIKE '%curl%|%bash%'
+       OR p.cmdline LIKE '%wget%|%sh%'
+       OR p.cmdline LIKE '%clawd.bot/install%';
+
+- name: OpenClaw mDNS auto-discovery (Linux)
+  automations_enabled: false
+  description: |
+    Processes talking mDNS (UDP 5353), how OpenClaw gateways find each other
+    via the _openclaw-gw._tcp service. Cross-reference the source process
+    against the running-processes report.
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.name, p.pid, u.username,
+           po.local_address, po.local_port,
+           po.remote_address, po.remote_port
+    FROM process_open_sockets po
+    JOIN processes p ON po.pid = p.pid
+    LEFT JOIN users u ON p.uid = u.uid
+    WHERE po.remote_port = 5353 AND po.protocol = 17
+      AND (p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%'
+        OR p.name = 'node');
+
+- name: OpenClaw C2 infrastructure connections (Linux)
+  automations_enabled: false
+  description: |
+    Connections to OpenClaw command-and-control indicators from the guide:
+    glot.io and socifiapp.com (exfiltration), and IPs 91.92.242.30 and
+    54.91.154.110 (reverse shell / AMOS).
+  discard_data: false
+  interval: 3600
+  logging: differential
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT p.pid, p.name, p.cmdline, u.username,
+           po.remote_address, po.remote_port
+    FROM processes p
+    LEFT JOIN users u ON p.uid = u.uid
+    LEFT JOIN process_open_sockets po ON p.pid = po.pid
+    WHERE p.cmdline LIKE '%glot.io%' OR p.cmdline LIKE '%socifiapp%'
+       OR po.remote_address = '91.92.242.30'
+       OR po.remote_address = '54.91.154.110';

@@ -1,0 +1,59 @@
+# Inventory side of the NIST IA-5(2) SSH key policies. The policies in
+# lib/linux/policies/nist-ia-5-ssh-keys.policies.yml flag a host pass/fail;
+# these reports list the offending keys so an auditor can act on them.
+
+- name: Stale SSH authorized_keys
+  automations_enabled: false
+  description: |
+    Trusted SSH keys whose authorized_keys file was last modified more than
+    one year ago (NIST IA-5(2)). Each row is a credential due for rotation.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT u.username,
+           ak.key_file,
+           ak.algorithm,
+           datetime(f.mtime, 'unixepoch') AS key_modified
+    FROM authorized_keys ak
+    JOIN users u USING (uid)
+    JOIN file f ON f.path = ak.key_file
+    WHERE (strftime('%s', 'now') - f.mtime) > 31536000;
+
+- name: Orphaned SSH keys
+  automations_enabled: false
+  description: |
+    authorized_keys entries whose uid has no matching user in passwd. These
+    keys outlived the account they were issued to and still grant access.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT ak.uid,
+           ak.key_file,
+           ak.algorithm
+    FROM authorized_keys ak
+    LEFT JOIN users u USING (uid)
+    WHERE u.username IS NULL;
+
+- name: Weak SSH key algorithms
+  automations_enabled: false
+  description: |
+    Trusted SSH keys using DSA (ssh-dss), which is 1024-bit and disabled by
+    default in current OpenSSH. Replace with ed25519 or RSA >= 3072 bit.
+  discard_data: false
+  interval: 86400
+  logging: snapshot
+  observer_can_run: true
+  platform: linux
+  query: |
+    SELECT u.username,
+           ak.algorithm,
+           ak.key_file
+    FROM authorized_keys ak
+    JOIN users u USING (uid)
+    WHERE ak.algorithm = 'ssh-dss';
