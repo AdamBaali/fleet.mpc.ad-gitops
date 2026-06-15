@@ -7,7 +7,7 @@
 # live agent is a response decision, and the guide's hardening path is
 # `openclaw security audit --deep --fix`, run deliberately.
 
-- name: OpenClaw AI agent not detected
+- name: OpenClaw AI agent not detected (macOS)
   critical: true
   query: |
     SELECT 1 WHERE (
@@ -40,7 +40,7 @@
     remediate with `openclaw security audit --deep --fix`.
   platform: darwin
 
-- name: OpenClaw launchd persistence absent
+- name: OpenClaw launchd persistence absent (macOS)
   critical: true
   query: |
     SELECT 1 WHERE NOT EXISTS (

@@ -8,7 +8,7 @@
 # decision, not an automatic one, and the article's hardening path is
 # `openclaw security audit --deep --fix`, run deliberately.
 
-- name: OpenClaw AI agent not detected
+- name: OpenClaw AI agent not detected (Linux)
   critical: true
   query: |
     SELECT 1 WHERE (
@@ -44,7 +44,7 @@
     remediate with `openclaw security audit --deep --fix`.
   platform: linux
 
-- name: OpenClaw systemd persistence absent
+- name: OpenClaw systemd persistence absent (Linux)
   critical: true
   query: |
     SELECT 1 WHERE NOT EXISTS (

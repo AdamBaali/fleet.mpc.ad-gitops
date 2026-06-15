@@ -7,7 +7,7 @@
 
 # --- Investigation ---
 
-- name: OpenClaw running processes
+- name: OpenClaw running processes (Linux)
   automations_enabled: false
   description: |
     Processes whose name or command line matches an OpenClaw alias
@@ -26,7 +26,7 @@
        OR cmdline LIKE '%openclaw%' OR cmdline LIKE '%clawdbot%'
        OR cmdline LIKE '%moltbot%';
 
-- name: OpenClaw gateway listening ports
+- name: OpenClaw gateway listening ports (Linux)
   automations_enabled: false
   description: |
     Listeners on the OpenClaw gateway ports: TCP 18789 (WebSocket gateway)
@@ -45,7 +45,7 @@
     WHERE lp.port IN (18789, 18793)
        OR p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%';
 
-- name: OpenClaw systemd persistence
+- name: OpenClaw systemd persistence (Linux)
   automations_enabled: false
   description: |
     systemd units that keep an OpenClaw gateway running across reboots.
@@ -61,7 +61,7 @@
     WHERE id = 'openclaw-gateway.service'
        OR id LIKE 'openclaw-gateway-%.service';
 
-- name: OpenClaw credential and config files
+- name: OpenClaw credential and config files (Linux)
   automations_enabled: false
   description: |
     OpenClaw .env and credential files on disk. These hold API keys and
@@ -83,7 +83,7 @@
        OR path LIKE '/root/.openclaw/.env'
        OR path LIKE '/root/.clawdbot/.env';
 
-- name: OpenClaw world-readable secrets
+- name: OpenClaw world-readable secrets (Linux)
   automations_enabled: false
   description: |
     OpenClaw config and credential files whose mode grants read to group or
@@ -103,7 +103,7 @@
       AND (filename LIKE '%.env%' OR filename LIKE '%credentials%'
         OR filename = 'openclaw.json');
 
-- name: OpenClaw memory poisoning
+- name: OpenClaw memory poisoning (Linux)
   automations_enabled: false
   description: |
     SOUL.md (behavioural instructions) and MEMORY.md (conversation context)
@@ -124,7 +124,7 @@
         OR path LIKE '/home/%/.openclaw/%/MEMORY.md')
       AND mtime > (strftime('%s', 'now') - 7200);
 
-- name: OpenClaw session transcripts
+- name: OpenClaw session transcripts (Linux)
   automations_enabled: false
   description: |
     Agent session transcripts (.jsonl). They contain prompts, tool calls,
@@ -145,7 +145,7 @@
 
 # --- Threat hunting ---
 
-- name: OpenClaw shell spawning
+- name: OpenClaw shell spawning (Linux)
   automations_enabled: false
   description: |
     Shells and interpreters spawned by a Node.js or OpenClaw parent. The
@@ -165,7 +165,7 @@
         OR pp.cmdline LIKE '%clawdbot%')
       AND p.name IN ('sh', 'bash', 'zsh', 'sudo', 'python3');
 
-- name: OpenClaw exposed network bindings
+- name: OpenClaw exposed network bindings (Linux)
   automations_enabled: false
   description: |
     OpenClaw processes listening on all interfaces (0.0.0.0 or ::) rather
@@ -188,7 +188,7 @@
         OR lp.port IN (18789, 18793))
       AND lp.port NOT IN (22, 80, 443);
 
-- name: OpenClaw reverse shell indicators
+- name: OpenClaw reverse shell indicators (Linux)
   automations_enabled: false
   description: |
     Command lines carrying reverse-shell patterns: /dev/tcp redirects and
@@ -208,7 +208,7 @@
     WHERE p.cmdline LIKE '%/dev/tcp/%'
        OR p.cmdline LIKE '%nohup%bash%-i%';
 
-- name: OpenClaw supply chain delivery (npx)
+- name: OpenClaw supply chain delivery (npx) (Linux)
   automations_enabled: false
   description: |
     npx invocations, the OpenClaw guide's reported delivery path
@@ -225,7 +225,7 @@
     LEFT JOIN users u ON p.uid = u.uid
     WHERE p.name = 'npx' OR p.cmdline LIKE '%npx -y%';
 
-- name: OpenClaw pipe to shell
+- name: OpenClaw pipe to shell (Linux)
   automations_enabled: false
   description: |
     curl or wget piped straight into a shell, including the documented
@@ -244,7 +244,7 @@
        OR p.cmdline LIKE '%wget%|%sh%'
        OR p.cmdline LIKE '%clawd.bot/install%';
 
-- name: OpenClaw mDNS auto-discovery
+- name: OpenClaw mDNS auto-discovery (Linux)
   automations_enabled: false
   description: |
     Processes talking mDNS (UDP 5353), how OpenClaw gateways find each other
@@ -266,7 +266,7 @@
       AND (p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%'
         OR p.name = 'node');
 
-- name: OpenClaw C2 infrastructure connections
+- name: OpenClaw C2 infrastructure connections (Linux)
   automations_enabled: false
   description: |
     Connections to OpenClaw command-and-control indicators from the guide:

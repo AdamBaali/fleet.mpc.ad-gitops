@@ -7,7 +7,7 @@
 
 # --- Investigation ---
 
-- name: OpenClaw running processes
+- name: OpenClaw running processes (macOS)
   automations_enabled: false
   description: |
     Processes whose name or command line matches an OpenClaw alias
@@ -26,7 +26,7 @@
        OR cmdline LIKE '%openclaw%' OR cmdline LIKE '%clawdbot%'
        OR cmdline LIKE '%moltbot%';
 
-- name: OpenClaw gateway listening ports
+- name: OpenClaw gateway listening ports (macOS)
   automations_enabled: false
   description: |
     Listeners on the OpenClaw gateway ports: TCP 18789 (WebSocket gateway)
@@ -45,7 +45,7 @@
     WHERE lp.port IN (18789, 18793)
        OR p.name LIKE '%openclaw%' OR p.cmdline LIKE '%openclaw%';
 
-- name: OpenClaw launchd persistence
+- name: OpenClaw launchd persistence (macOS)
   automations_enabled: false
   description: |
     launchd jobs that relaunch an OpenClaw gateway. path points at the plist
@@ -61,7 +61,7 @@
     WHERE label IN ('ai.openclaw.gateway', 'com.clawdbot.gateway',
                     'bot.molt.gateway');
 
-- name: OpenClaw credential and config files
+- name: OpenClaw credential and config files (macOS)
   automations_enabled: false
   description: |
     OpenClaw .env and credential files on disk. These hold API keys and
@@ -81,7 +81,7 @@
        OR path LIKE '/Users/%/.openclaw/credentials/%.json'
        OR path LIKE '/Users/%/.clawdbot/credentials/%.json';
 
-- name: OpenClaw world-readable secrets
+- name: OpenClaw world-readable secrets (macOS)
   automations_enabled: false
   description: |
     OpenClaw config and credential files whose mode grants read to group or
@@ -101,7 +101,7 @@
       AND (filename LIKE '%.env%' OR filename LIKE '%credentials%'
         OR filename = 'openclaw.json');
 
-- name: OpenClaw memory poisoning
+- name: OpenClaw memory poisoning (macOS)
   automations_enabled: false
   description: |
     SOUL.md (behavioural instructions) and MEMORY.md (conversation context)
@@ -122,7 +122,7 @@
         OR path LIKE '/Users/%/.openclaw/%/MEMORY.md')
       AND mtime > (strftime('%s', 'now') - 7200);
 
-- name: OpenClaw session transcripts
+- name: OpenClaw session transcripts (macOS)
   automations_enabled: false
   description: |
     Agent session transcripts (.jsonl). They contain prompts, tool calls,
@@ -143,7 +143,7 @@
 
 # --- Threat hunting ---
 
-- name: OpenClaw Gatekeeper bypass
+- name: OpenClaw Gatekeeper bypass (macOS)
   automations_enabled: false
   description: |
     xattr clearing the com.apple.quarantine attribute. This is the
@@ -161,7 +161,7 @@
     WHERE p.cmdline LIKE '%xattr -c%'
        OR p.cmdline LIKE '%xattr -d com.apple.quarantine%';
 
-- name: OpenClaw shell spawning
+- name: OpenClaw shell spawning (macOS)
   automations_enabled: false
   description: |
     Shells and interpreters spawned by a Node.js or OpenClaw parent. The
@@ -181,7 +181,7 @@
         OR pp.cmdline LIKE '%clawdbot%')
       AND p.name IN ('sh', 'bash', 'zsh', 'sudo', 'python3');
 
-- name: OpenClaw exposed network bindings
+- name: OpenClaw exposed network bindings (macOS)
   automations_enabled: false
   description: |
     OpenClaw processes listening on all interfaces (0.0.0.0 or ::) rather
@@ -204,7 +204,7 @@
         OR lp.port IN (18789, 18793))
       AND lp.port NOT IN (22, 80, 443);
 
-- name: OpenClaw reverse shell indicators
+- name: OpenClaw reverse shell indicators (macOS)
   automations_enabled: false
   description: |
     Command lines carrying reverse-shell patterns: /dev/tcp redirects and
@@ -224,7 +224,7 @@
     WHERE p.cmdline LIKE '%/dev/tcp/%'
        OR p.cmdline LIKE '%nohup%bash%-i%';
 
-- name: OpenClaw supply chain delivery (npx)
+- name: OpenClaw supply chain delivery (npx) (macOS)
   automations_enabled: false
   description: |
     npx invocations, the OpenClaw guide's reported delivery path
@@ -241,7 +241,7 @@
     LEFT JOIN users u ON p.uid = u.uid
     WHERE p.name = 'npx' OR p.cmdline LIKE '%npx -y%';
 
-- name: OpenClaw pipe to shell
+- name: OpenClaw pipe to shell (macOS)
   automations_enabled: false
   description: |
     curl piped straight into a shell, including the documented
@@ -260,7 +260,7 @@
        OR p.cmdline LIKE '%curl%|%sh%'
        OR p.cmdline LIKE '%clawd.bot/install%';
 
-- name: OpenClaw C2 infrastructure connections
+- name: OpenClaw C2 infrastructure connections (macOS)
   automations_enabled: false
   description: |
     Connections to OpenClaw command-and-control indicators from the guide:
