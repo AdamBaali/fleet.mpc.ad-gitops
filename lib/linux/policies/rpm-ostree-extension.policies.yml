@@ -1,0 +1,33 @@
+- name: rpm_ostree osquery extension loaded
+  query: |
+    SELECT 1 FROM osquery_registry
+    WHERE registry = 'table' AND name = 'rpm_ostree_deployments' AND active = 1;
+  description: |
+    Passes when the rpm_ostree extension is loaded, so the atomic
+    deployment inventory report can read the rpm_ostree_deployments table.
+
+    osquery 5.23.0 ships no rpm_ostree_deployments table, so on Silverblue,
+    Bluefin, and CoreOS hosts Fleet sees only the booted commit through
+    rpm_packages and is blind to staged and rollback deployments. The
+    extension wraps `rpm-ostree status --json` and fills that gap.
+
+    The query checks osquery_registry (a table that always exists) for the
+    rpm_ostree_deployments table plugin. It returns one row when the
+    extension is loaded (pass) and zero rows when it is not (fail). It never
+    errors, so the policy always reports a clean pass or fail. Querying the
+    rpm_ostree_deployments table directly would error when the extension is
+    absent, which Fleet shows as neither passing nor failing and would not
+    trigger the installer.
+
+    Failing hosts run install-rpm-ostree-extension.sh. Fleet caps
+    run_script retries at 3 per failure; a host that still fails has likely
+    lost egress to the release URL or could not restart orbit.
+  resolution: |
+    install-rpm-ostree-extension.sh downloads the architecture-matching
+    binary to /var/lib/fleetd/extensions, registers it in
+    /var/lib/fleetd/osquery.flags, and restarts orbit. If a host stays
+    failing, check the script output in Fleet > Hosts > Activity and
+    confirm the host can reach raw.githubusercontent.com.
+  platform: linux
+  run_script:
+    path: ../scripts/install-rpm-ostree-extension.sh

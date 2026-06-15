@@ -1,1 +1,1 @@
-See CONTEXT.md for YellowKey (CVE-2026-45585) mitigation context. Match the style rules in that file for any work in this repo.
+See CONTEXT.md for YellowKey (CVE-2026-45585) mitigation context, and CONTEXT-flock-to-fedora.md for the Linux/atomic and OpenClaw detection assets. Match the style rules at the end of CONTEXT.md for any work in this repo.
