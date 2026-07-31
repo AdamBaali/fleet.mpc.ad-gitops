@@ -1,0 +1,23 @@
+- name: FileVault enabled (MacBooks)
+  critical: true
+  query: |
+    SELECT 1 FROM disk_encryption
+    WHERE user_uuid IS NOT '' AND filevault_status = 'on'
+    LIMIT 1;
+  description: |
+    Passes when FileVault is on for a logged-in user. disk_encryption
+    reports one row per encrypted volume/user pairing on macOS, so a match
+    with a non-empty user_uuid and filevault_status 'on' confirms the
+    volume is unlocked with FileVault active.
+
+    Scoped to the MacBooks label: laptops carry loss and theft exposure
+    that desktops (iMac, Mac mini, Mac Studio) don't, so this policy
+    doesn't apply to them.
+  resolution: |
+    Turn on FileVault: System Settings > Privacy & Security > FileVault >
+    Turn On. To enforce this instead of just flagging it, add a Disk
+    encryption configuration profile under controls.macos_settings in the
+    team's GitOps file.
+  platform: darwin
+  labels_include_any:
+    - MacBooks

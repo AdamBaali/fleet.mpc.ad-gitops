@@ -1,4 +1,10 @@
 name: "🐧 Flock to Fedora"
+labels:
+  - name: MacBooks
+    description: macOS laptops (MacBook Air and MacBook Pro), by hardware model.
+    platform: darwin
+    query: SELECT 1 FROM system_info WHERE hardware_model LIKE 'MacBook%';
+    label_membership_type: dynamic
 policies:
   # Windows
   - path: ../lib/windows/policies/windows-yellowkey-extension.policies.yml
@@ -10,6 +16,8 @@ policies:
   # OpenClaw AI-agent detection (cross-platform, one file per platform).
   - path: ../lib/linux/policies/openclaw-detection.policies.yml
   - path: ../lib/macos/policies/openclaw-detection.policies.yml
+  # FileVault, scoped to the MacBooks label above.
+  - path: ../lib/macos/policies/filevault-macbooks.policies.yml
 reports:
   - path: ../lib/windows/reports/windows-yellowkey.reports.yml
   - path: ../lib/linux/reports/rpm-ostree-deployments.reports.yml
