@@ -1,0 +1,19 @@
+# Lab fleet for testing the PingFederate and Duo conditional access guides
+# (fleetdm/fleet#54654). Critical policies and the MachineGuid report live here
+# so they never touch other fleets.
+name: "Ping Duo Lab"
+policies:
+  - path: ../lib/all/policies/ca-test.policies.yml
+  - path: ../lib/macos/policies/duo-desktop-installed.policies.yml
+  - path: ../lib/windows/policies/duo-desktop-installed.policies.yml
+reports:
+  - path: ../lib/windows/reports/windows-machine-guid.reports.yml
+agent_options:
+controls:
+software:
+  fleet_maintained_apps:
+    - slug: duo-desktop/darwin
+    - slug: duo-desktop/windows
+settings:
+  secrets:
+    - secret: "$FLEET_PING_DUO_LAB_ENROLL_SECRET"

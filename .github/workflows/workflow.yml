@@ -42,5 +42,6 @@ jobs:
           FLEET_URL: ${{ secrets.FLEET_URL }}
           FLEET_WORKSTATIONS_ENROLL_SECRET: ${{ secrets.FLEET_WORKSTATIONS_ENROLL_SECRET }}
           FLEET_GLOBAL_ENROLL_SECRET: ${{ secrets.FLEET_GLOBAL_ENROLL_SECRET }}
+          FLEET_PING_DUO_LAB_ENROLL_SECRET: ${{ secrets.FLEET_PING_DUO_LAB_ENROLL_SECRET }}
           
           

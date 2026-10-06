@@ -1,0 +1,10 @@
+# From the Duo guide, Step 3. Duo identifies Windows hosts by MachineGuid.
+- name: Windows MachineGuid
+  description: Collects the MachineGuid that Duo Desktop uses as the device ID on Windows.
+  query: |
+    SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid';
+  platform: windows
+  interval: 300
+  discard_data: false
+  observer_can_run: false
+  automations_enabled: false

@@ -1,0 +1,8 @@
+- name: Duo Desktop installed (macOS)
+  description: Duo Desktop reports device health to Duo Trusted Endpoints.
+  resolution: Fleet installs Duo Desktop when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM apps WHERE bundle_identifier = 'com.duosecurity.duo-device-health';
+  install_software:
+    fleet_maintained_app_slug: duo-desktop/darwin
