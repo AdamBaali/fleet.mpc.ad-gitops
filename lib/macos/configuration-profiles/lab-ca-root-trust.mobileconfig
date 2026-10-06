@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadCertificateFileName</key>
+            <string>fleet-lab-ca-root.cer</string>
+            <key>PayloadContent</key>
+            <data>MIIBsDCCAVWgAwIBAgIQMiMErOAtwYpaGT1bnAIp+zAKBggqhkjOPQQDAjA2MRUwEwYDVQQKEwxGbGVldCBMYWIgQ0ExHTAbBgNVBAMTFEZsZWV0IExhYiBDQSBSb290IENBMB4XDTI2MTAwNjExNTczMVoXDTM2MTAwMzExNTczMVowNjEVMBMGA1UEChMMRmxlZXQgTGFiIENBMR0wGwYDVQQDExRGbGVldCBMYWIgQ0EgUm9vdCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFvO2MdK6eQptc4ZL+KJhvDdM5Uo6JnFHR6qGnItL27iNd3c8lYzPx5/2eCopIQetn3Z+gZ0eFSJeUnAcM8kbYWjRTBDMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB0GA1UdDgQWBBTmyUjFezHAPwBM5PYbxyfgqjXKizAKBggqhkjOPQQDAgNJADBGAiEAsdN1LUVnZBGRQYHIjEiX30+kIISM9Iq0pXzF7Ytd3k8CIQC/c1Ua5k68JAZVlg1PjnzihBnTXSWJgVLPZ1SjPzRUkg==</data>
+            <key>PayloadDisplayName</key>
+            <string>Fleet Lab CA Root</string>
+            <key>PayloadIdentifier</key>
+            <string>com.apple.security.root.08BD9F24-A495-4E1E-83A9-34D669342712</string>
+            <key>PayloadType</key>
+            <string>com.apple.security.root</string>
+            <key>PayloadUUID</key>
+            <string>08BD9F24-A495-4E1E-83A9-34D669342712</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Lab CA root certificate</string>
+    <key>PayloadIdentifier</key>
+    <string>Fleet.LabCA.Root</string>
+    <key>PayloadScope</key>
+    <string>System</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>6ED3C200-93C1-46AB-BC59-FB8DFDFA8368</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>

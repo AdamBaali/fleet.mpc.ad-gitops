@@ -10,6 +10,14 @@ reports:
   - path: ../lib/windows/reports/windows-machine-guid.reports.yml
 agent_options:
 controls:
+  apple_settings:
+    configuration_profiles:
+      - path: ../lib/macos/configuration-profiles/lab-ca-root-trust.mobileconfig
+      - path: ../lib/macos/configuration-profiles/lab-ca-scep-user.mobileconfig
+  windows_settings:
+    configuration_profiles:
+      - path: ../lib/windows/configuration-profiles/lab-ca-root-trust.xml
+      - path: ../lib/windows/configuration-profiles/lab-ca-scep-user.xml
 software:
   fleet_maintained_apps:
     - slug: duo-desktop/darwin

@@ -1,0 +1,12 @@
+<Add>
+  <!-- Trust the step-ca root in the device root store so browsers accept the chain -->
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/FleetLabCARoot/EncodedCertificate</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">b64</Format>
+    </Meta>
+    <Data>MIIBsDCCAVWgAwIBAgIQMiMErOAtwYpaGT1bnAIp+zAKBggqhkjOPQQDAjA2MRUwEwYDVQQKEwxGbGVldCBMYWIgQ0ExHTAbBgNVBAMTFEZsZWV0IExhYiBDQSBSb290IENBMB4XDTI2MTAwNjExNTczMVoXDTM2MTAwMzExNTczMVowNjEVMBMGA1UEChMMRmxlZXQgTGFiIENBMR0wGwYDVQQDExRGbGVldCBMYWIgQ0EgUm9vdCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFvO2MdK6eQptc4ZL+KJhvDdM5Uo6JnFHR6qGnItL27iNd3c8lYzPx5/2eCopIQetn3Z+gZ0eFSJeUnAcM8kbYWjRTBDMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB0GA1UdDgQWBBTmyUjFezHAPwBM5PYbxyfgqjXKizAKBggqhkjOPQQDAgNJADBGAiEAsdN1LUVnZBGRQYHIjEiX30+kIISM9Iq0pXzF7Ytd3k8CIQC/c1Ua5k68JAZVlg1PjnzihBnTXSWJgVLPZ1SjPzRUkg==</Data>
+  </Item>
+</Add>
