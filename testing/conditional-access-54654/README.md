@@ -2,6 +2,7 @@
 
 Test lab for the PingFederate and Duo guides in fleetdm/fleet PR #54346. Everything here is from a throwaway test environment.
 
+- `STATUS.md`: where we are, what is running, how to resume, next steps. Start here.
 - `GUIDE-FINDINGS.md`: what to change in each guide.
 - `RESULTS.md`: every test with date, steps, result and evidence, in the order they were run.
 - `TEST_PLAN.md`: the test cases (P-n PingFederate, D-n Duo, L-n Linux).
