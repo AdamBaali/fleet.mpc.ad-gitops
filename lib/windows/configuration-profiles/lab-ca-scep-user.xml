@@ -113,7 +113,7 @@
   </Item>
 </Add>
 <Add>
-  <!-- SHA-1 fingerprint of the step-ca root certificate -->
+  <!-- SHA-1 fingerprint of the step-ca root certificate. Add it as the Fleet variable LAB_CA_THUMBPRINT (Controls > Variables), or as a repo secret for GitOps. -->
   <Item>
     <Target>
       <LocURI>./User/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/CAThumbprint</LocURI>
@@ -121,7 +121,7 @@
     <Meta>
       <Format xmlns="syncml:metinf">chr</Format>
     </Meta>
-    <Data>3AD625ACE2CD23CE2B159C9B1BD96D8D210902E1</Data>
+    <Data>$FLEET_SECRET_LAB_CA_THUMBPRINT</Data>
   </Item>
 </Add>
 <Exec>
