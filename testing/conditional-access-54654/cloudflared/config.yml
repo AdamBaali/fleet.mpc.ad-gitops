@@ -1,0 +1,8 @@
+tunnel: 80c61daa-72b7-4ea5-b039-204d66184b34
+credentials-file: /Users/adam/.cloudflared/80c61daa-72b7-4ea5-b039-204d66184b34.json
+ingress:
+  - hostname: scep.mpc.ad
+    service: https://localhost:9000
+    originRequest:
+      noTLSVerify: true
+  - service: http_status:404

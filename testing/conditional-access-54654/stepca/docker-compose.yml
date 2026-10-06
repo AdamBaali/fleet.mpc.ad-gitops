@@ -1,0 +1,17 @@
+# step-ca for the lab. First start initialises the CA into ./data.
+# Run from this directory: docker compose --env-file ../.env up -d
+services:
+  stepca:
+    image: smallstep/step-ca:latest
+    container_name: stepca
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data:/home/step
+    environment:
+      DOCKER_STEPCA_INIT_NAME: "Fleet Lab CA"
+      DOCKER_STEPCA_INIT_DNS_NAMES: "localhost,stepca,ping.lab,scep.mpc.ad"
+      DOCKER_STEPCA_INIT_ADDRESS: ":9000"
+      DOCKER_STEPCA_INIT_PROVISIONER_NAME: "admin"
+      DOCKER_STEPCA_INIT_PASSWORD: "${STEPCA_PASSWORD}"

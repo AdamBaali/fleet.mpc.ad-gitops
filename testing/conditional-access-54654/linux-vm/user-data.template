@@ -1,0 +1,42 @@
+#cloud-config
+hostname: lab-linux
+manage_etc_hosts: localhost
+users:
+  - name: lab
+    gecos: Lab User
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    passwd: "<crypt hash: openssl passwd -6 <password>>"
+ssh_pwauth: true
+package_update: true
+packages:
+  - ubuntu-desktop-minimal
+  - libnss3-tools
+  - qemu-guest-agent
+  - spice-vdagent
+  - openssh-server
+  - curl
+  - ca-certificates
+write_files:
+  - path: /usr/local/share/ca-certificates/fleet-lab-ca.crt
+    permissions: "0644"
+    content: |
+      <step-ca root certificate PEM>
+  - path: /etc/gdm3/custom.conf
+    permissions: "0644"
+    content: |
+      [daemon]
+      AutomaticLoginEnable=true
+      AutomaticLogin=lab
+runcmd:
+  - [ sh, -c, "update-ca-certificates" ]
+  - [ sh, -c, "GW=$(ip route show default | awk '{print $3}' | head -1); grep -q ping.lab /etc/hosts || echo \"$GW ping.lab\" >> /etc/hosts" ]
+  - [ sh, -c, "GW=$(ip route show default | awk '{print $3}' | head -1); curl -fsS -o /root/fleet-osquery.deb http://$GW:8000/fleet-osquery.deb" ]
+  - [ systemctl, enable, --now, qemu-guest-agent ]
+  - [ sh, -c, "DEBIAN_FRONTEND=noninteractive dpkg -i /root/fleet-osquery.deb || true" ]
+  - [ sh, -c, "ln -sf /usr/lib/systemd/system/gdm.service /etc/systemd/system/display-manager.service" ]
+  - [ systemctl, set-default, graphical.target ]
+  - [ sh, -c, "touch /var/lib/lab-cloudinit-done" ]
+final_message: "lab-linux cloud-init finished after $UPTIME seconds"
