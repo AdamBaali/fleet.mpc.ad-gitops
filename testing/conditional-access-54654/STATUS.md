@@ -76,6 +76,9 @@ Save progress with `tools/save-to-repo.sh "message"` (copies, scans for credenti
 - Mac-side screenshots capture Adam's own desktop: use screenshots from inside the guest only.
 - `get_page_text` on Duo's Policies page dumps 50 KB; use screenshots there.
 
+## Don't post yet
+Only post to the issue or send to Noah what `VALIDATION.md` marks Validated. The PingFederate Step 4 to 6 findings (variable names, criterion, attribute mapping, Client Auth fields) were found through the Admin API and need a check in the PingFederate UI first. The issue comment drafted in chat includes unvalidated items; reword it after validation.
+
 ## Open decisions for Adam
 - Linux Duo Desktop: skip, emulate x86-64, or use a real x86-64 machine.
 - Whether to use a branch + PR for the next pushes to the GitOps repo (pushes to `main` apply live).

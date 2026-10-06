@@ -4,7 +4,7 @@
 set -euo pipefail
 LAB="$(cd "$(dirname "$0")/.." && pwd)"; REPO=/Users/adam/Documents/GitHub/fleet.mpc.ad-gitops
 D="$REPO/testing/conditional-access-54654"; cd "$LAB"; mkdir -p "$D"
-cp RESULTS.md TEST_PLAN.md STATUS.md "$D/"
+cp RESULTS.md TEST_PLAN.md STATUS.md VALIDATION.md "$D/"
 for f in ping/docker-compose.yml ping/signin-test.sh ping/host-signin.sh; do cp "$f" "$D/ping/"; done
 cp ping/setup/*.sh ping/setup/api_schema.py "$D/ping/setup/"
 cp stepca/docker-compose.yml "$D/stepca/"; cp cloudflared/config.yml "$D/cloudflared/"
