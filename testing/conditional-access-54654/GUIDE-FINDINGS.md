@@ -38,6 +38,11 @@ Status: the design works. The Fleet APIs, the JSON paths and the critical-policy
 | 5 | Duo's integration page recommends daily syncs. The guide says every 5 minutes. | Keep 5 minutes only if D-12 passes. |
 | 6 | The sync script has `--dry_run` and `--delete_existing_cache`. | Mention `--dry_run` for the first run. |
 | 7 | The integration page shows the API network allow-list empty (open to all networks). | Suggest restricting it. |
+| 8 | Duo Desktop for Linux is x86-64 only. ARM is not supported yet (Duo documentation). Could not test Linux L-1, D-5 on an arm64 VM. | Add "x86-64" to the Linux requirements. |
+| 9 | If the only host for an OS fails a critical policy (with `REQUIRE_PASSING_CRITICAL_POLICIES=true`), the export is empty and Duo's `device_cache_sync.py` refuses to upload it (exit 1). The old cache stays, so the failing host stays trusted in Duo (D-8). | Document it, or have the workflow handle an empty list on purpose. |
+| 10 | A header-only or empty CSV is not a risk: Duo's script deletes the new cache and exits 1 without replacing the active one (D-10). A partial list is the risk. | Keep the "refuse a big drop" guard. |
+| 11 | A failed report fetch leaves `windows.csv` empty with no header; an invalid token fails before writing anything (D-9). | Write to temp files, move on success. |
+| 12 | Fleet showed policy changes after 134 to 148 seconds on a freshly started VM (4 to 35 seconds on other runs). Plan for up to a few minutes plus the sync interval (D-8). | Say a failing host can stay trusted for a few minutes plus one sync. |
 
 ## Secrets in profiles (both guides)
 `$FLEET_SECRET_*` variables work in the UI (**Controls > Variables**) and in GitOps (repo secret plus a `FLEET_SECRET_*` line in the workflow `env`). A GitOps dry run does not fully validate profiles with variables. Show both paths where a profile needs a value such as the CA thumbprint.

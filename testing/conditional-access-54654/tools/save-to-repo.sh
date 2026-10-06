@@ -11,7 +11,7 @@ cp stepca/docker-compose.yml "$D/stepca/"; cp cloudflared/config.yml "$D/cloudfl
 for f in create-vm.applescript vm-run.sh vm-runf.sh wait-agent.sh run-import.sh run-signin.sh; do cp "vm/linux/$f" "$D/linux-vm/"; done
 cp duo/start-demo.sh "$D/duo/"; [ -f duo/sync.sh ] && cp duo/sync.sh "$D/duo/"
 cp tests/mock_fleet.py tests/test_export_script.sh "$D/tests/"
-[ -f tools/save-to-repo.sh ] && mkdir -p "$D/tools" && cp tools/save-to-repo.sh "$D/tools/"
+[ -f tools/save-to-repo.sh ] && mkdir -p "$D/tools" && cp tools/save-to-repo.sh tools/test-d8-linux.sh "$D/tools/"
 # FINDINGS and README live in the repo only (edited there)
 python3 - "$D" <<'PY'
 import re,os,glob,subprocess,sys

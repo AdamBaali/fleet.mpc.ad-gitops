@@ -239,3 +239,20 @@ Trial account "Mountain Path Consulting" (30 days left). Nothing pre-existing wa
 | User | `lab-test` (`DU6OCRC83UV8R21K83AK`, lab-test@mpc.ad), Active, not enrolled, in `fleet-lab`. Plan: use a Duo bypass code for the 2FA step. |
 | Policy | "Fleet lab - trusted endpoints only": Trusted Endpoints rule = "Block endpoints that are not trusted". Applied as an **Application-Group policy** to the Web SDK app + group `fleet-lab` only. |
 Notes for the guide: the integration page says daily syncs are recommended and shows the API network allow-list empty (open to all networks). The script has `--dry_run` and `--delete_existing_cache` options. The Web SDK app, `adam` user and existing policies were not touched.
+
+
+### Linux Duo tests (2026-10-06)
+
+**Blocker found: Duo Desktop for Linux is x86-64 only** (per Duo's documentation, ARM is not supported yet; Debian 11/12, Ubuntu 22.04/24.04/26.04, CentOS Stream, RHEL). The Linux test VM on this Apple Silicon Mac is arm64, so Duo Desktop cannot be installed. Blocked on Linux: D-1 (Duo Desktop install), L-1 (ID Duo Desktop reports vs CSV), D-5 (Linux host allowed and denied by Duo). Options: an x86-64 Linux machine, or an emulated x86-64 VM (slow). Guide note: say Linux hosts need x86-64.
+
+| ID | Result |
+| --- | --- |
+| D-3 | **PASS** on the live lab Fleet with the real Linux host. `linux.csv` has the host's UUID (equal to its DMI product UUID). |
+| D-4 (Linux) | **PASS.** `--dry_run`: cache created, 1 device uploaded, cache deleted, "Devices synced: 1". Real run: cache created, 1 uploaded, activated. Count matches the CSV. The integration stays disabled. |
+| D-8 (Linux, sync level; script `tools/test-d8-linux.sh`) | **FAIL as designed, important finding.** With `REQUIRE_PASSING_CRITICAL_POLICIES=true` the failing host leaves the CSV (0 rows). Duo's `device_cache_sync.py` **refuses an empty list** (exit 1, "No device IDs read from input column", the new cache is deleted) so the previously active cache, which still contains the failing host, stays. When the failing host is the only host for that OS, trust is never revoked. With two or more hosts the list shrinks and works. After the fix the host returns on the next sync. Fleet showed the change after about 134 s (fail) and 148 s (fix) on a freshly started VM; earlier runs took 4 to 35 s. |
+| D-9 | **PASS for exit code, FAIL for leftovers.** Bad report id: export exits 56 (HTTP 404), but `windows.csv` is left **empty with no header** (truncated before the failure). Invalid token: exits 56 (401) before writing anything; the old files are untouched. |
+| D-10 | **Duo's script protects against it.** A header-only or empty CSV: the script creates a cache, deletes it, prints "No device IDs read from input column: device_id" and exits 1. The active cache is not replaced. The risk is not an empty upload, it is a partial list (hosts missing because of an API error or a Fleet outage returning fewer rows). The guard in the plan (refuse a drop of more than 50% unless `FORCE=true`) is still needed. |
+| L-2 | **Inconclusive.** Fleet reported the same UUID after masking the DMI product UUID and `/etc/machine-id` inside the guest, but the masks were not visible to the `orbit` service (the guest agent runs in its own mount namespace), so nothing was proven. Needs an SMBIOS change on the VM and Duo Desktop. Also learned: deleting a host in Fleet repeatedly while orbit retries can leave orbit crash-looping on `401 ... device_token` (exits instead of re-enrolling); fix by stopping orbit and removing `/opt/orbit/secret-orbit-node-key.txt`. The lab VM's `hardware_serial` shows the cloud-init seed URL (lab artifact). |
+| D-7, D-12 | Not run; need the scheduled sync (launchd) and Duo Desktop. D-11 needs Windows hosts. |
+
+New guide findings from these tests: (1) Linux needs x86-64 for Duo Desktop; (2) a single remaining host that fails a critical policy is never removed from Duo's cache because the sync script refuses an empty list; (3) a failed report fetch leaves `windows.csv` empty; (4) the sync script's `--dry_run` is a safe first step.
