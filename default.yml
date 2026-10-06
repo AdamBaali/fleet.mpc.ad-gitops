@@ -6,6 +6,12 @@ agent_options:
 controls:
   windows_enabled_and_configured: true
 org_settings:
+  certificate_authorities:
+    # Lab step-ca for the PingFederate and Duo guides (fleetdm/fleet#54654).
+    custom_scep_proxy:
+      - name: LAB_CA
+        url: https://scep.mpc.ad/scep/fleet-scep
+        challenge: $FLEET_LAB_CA_SCEP_CHALLENGE
   server_settings:
     server_url: $FLEET_URL
   org_info:
