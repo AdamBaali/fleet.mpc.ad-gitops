@@ -1,0 +1,8 @@
+- name: Firefox installed (macOS)
+  description: Firefox is used to test certificate sign-in to PingFederate (P-16).
+  resolution: Fleet installs Firefox when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM apps WHERE bundle_identifier = 'org.mozilla.firefox';
+  install_software:
+    fleet_maintained_app_slug: firefox/darwin
