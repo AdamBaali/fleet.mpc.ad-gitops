@@ -7,8 +7,12 @@
         <dict>
             <key>PayloadContent</key>
             <dict>
+                <key>AllowAllAppsAccess</key>
+                <true/>
                 <key>Challenge</key>
                 <string>$FLEET_VAR_CUSTOM_SCEP_CHALLENGE_LAB_CA</string>
+                <key>KeyIsExtractable</key>
+                <false/>
                 <key>Key Type</key>
                 <string>RSA</string>
                 <key>Key Usage</key>
