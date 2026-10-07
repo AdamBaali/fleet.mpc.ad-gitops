@@ -43,3 +43,17 @@ If the VM isn't enrolled any more, enroll it first or use the host UUID of which
 | macOS and Windows sign-in, Fleet auto-renewal | **Not tested.** |
 
 When a row is validated, change its Outcome here, then update `GUIDE-FINDINGS.md`, then post.
+
+
+## UI check results (2026-10-07, PingFederate 13.1.3, signed in by Adam, driven in Chrome)
+
+| ID | Outcome |
+| --- | --- |
+| V-1 | **Confirmed.** The Resource Path box is plain text with no variable picker. Its help text only gives `${username}` as an example, so nothing tells the user the real names are `${ad.<adapter ID>.CN}` and `${ds.<source ID>.<attribute>}`. The negative case (`${hostUUID}` denied, "Unknown Key") was proven earlier from the server log; the UI edits the same object. |
+| V-2 | **Confirmed.** The saved config uses `${ad.x509lab.CN}` and `${ds.fleetByUuid.fleetHostID}`, and a sign-in with it returns `code=` (rerun today). |
+| V-3 | **Partly confirmed.** The Contract Fulfillment screen is where each contract attribute (`fleetHostID`, `hostUUID`, `subject`) is mapped from a source (here `fleetHostID` from "Other (Fleet host by UUID)"). The UI has no fetch-everything option. The "fails without the mapping" result is from the earlier log test. |
+| V-4 | **Confirmed.** Issuance Criteria rows are Source / Attribute / Condition / Value, with a plain text Value and no hint about variables. The current config has only `failingCriticalPolicies` equal to `0`. The "can never pass" result is from the earlier log (`Comparison Value: ${hostUUID}`). |
+| V-5 | **Confirmed by P-12** (valid certificate for a UUID not in Fleet: clean `access_denied`). |
+| V-6 | **Confirmed and refined.** The adapter has Client Auth Port (9032) and Client Auth Hostname (ping.lab); help text: "the port/hostname configured to use client-certificate authentication". The **port is required** (validation error when empty). With the port set and the hostname empty, sign-in still works, so the hostname is optional. Adapter restored; sign-in works again. |
+| V-7 to V-9 | Not run. V-7 only matters for OAuth test clients, not the guide. |
+Result: the Step 4 to 6 commit (`06fefa1d39`) plus the port fix are supported. Not edited in the UI: V-1, V-3, V-4 negatives (log-proven earlier, not repeated in the UI).

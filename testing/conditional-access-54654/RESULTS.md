@@ -256,3 +256,111 @@ Notes for the guide: the integration page says daily syncs are recommended and s
 | D-7, D-12 | Not run; need the scheduled sync (launchd) and Duo Desktop. D-11 needs Windows hosts. |
 
 New guide findings from these tests: (1) Linux needs x86-64 for Duo Desktop; (2) a single remaining host that fails a critical policy is never removed from Duo's cache because the sync script refuses an empty list; (3) a failed report fetch leaves `windows.csv` empty; (4) the sync script's `--dry_run` is a safe first step.
+
+## Host A: this Mac (macOS 15.7.7, arm64), 2026-10-07
+
+Fleet host 10 `MPC-Adam`, UUID `EBC70BCE-29B7-5389-8356-2AC6A7D8C240`, fleet Ping Duo Lab. Adam's own Mac, used as host A.
+
+**Enrollment steps and findings**
+- The Mac still had an MDM profile for `fleet.mpc.ad`, but Fleet had no host with that UUID or serial (404). Profiles can't reach an orphaned enrollment. Adam removed it by hand.
+- An older fleetd install in `/opt/orbit` (also pointed at `fleet.mpc.ad`) made `installer -pkg` fail with "error moving files to final destination" (`shove: Error relinking ... Fleet Desktop.app/Contents/CodeResources: Operation not permitted`). Moved it aside to `/opt/orbit.old-20261007` (delete at teardown); reinstall worked and the host appeared in about a minute. Not a guide issue.
+- The `fleetctl package` pkg is unsigned (`installer.log`: "not signed"); fine for `installer`, would be blocked if opened by double-click without a right-click open.
+- MDM: Adam turned it on from Fleet Desktop > My device ("On (manual)", User Approved).
+
+| ID | Result | Evidence |
+| --- | --- | --- |
+| P-1 | **PASS** | Profile `Fleet.LabCA.Scep` installed. Login keychain holds identity `EBC70BCE-...` (CN = host UUID, OU = renewal ID, issuer Fleet Lab CA Intermediate CA, RSA, EKU clientAuth only, KU digitalSignature + keyEncipherment, valid 90 days to 2027-01-05). The step-ca root is in the System keychain; `curl https://ping.lab:9031` gives no TLS error. Fleet showed profile status "verifying" for a while after install. |
+| P-14 Safari (baseline) | picker shown | Safari shows "The website ping.lab requires a client certificate" with one identity. macOS always asks; there is no auto-select for Safari. Waiting for Continue. |
+
+Notes: `security verify-cert` on the leaf says `CSSMERR_TP_NOT_TRUSTED` (intermediate not in the keychain), yet Safari lists the identity and PingFederate has the intermediate. To check whether this blocks Chrome. `/etc/hosts` got `127.0.0.1 ping.lab` on this Mac (remove at teardown). A Mac-side screenshot captured Adam's Slack; deleted. Don't take full-screen captures on this host.
+
+### P-14 Safari on macOS: keychain key prompt (2026-10-07) **guide finding**
+After Continue in Safari's certificate picker, macOS asked for permission to use the private key in the login keychain (Adam confirmed it was a login keychain prompt). Sign-in did not complete until allowed. Cause: the lab SCEP payload (`lab-ca-scep-user.mobileconfig`) has no `AllowAllAppsAccess`.
+- Fleet's own examples set `AllowAllAppsAccess` true (and `KeyIsExtractable` false): `articles/connect-end-user-to-wifi-with-certificate.md`, `articles/enable-okta-verify-on-macOS-with-configuration-profile.md`, `docs/solutions/macos/configuration-profiles/okta-device-access-scep-*.mobileconfig`.
+- `articles/pingfederate-conditional-access-integration.md` Step 3 (macOS) says only "Set `PayloadScope` to `User`". **Proposed edit:** also set `AllowAllAppsAccess` to `true` (otherwise the first browser use prompts for the login password) and `KeyIsExtractable` to `false`; point to the Wi-Fi guide's SCEP example.
+- Lab fix (pending): add both keys to `lib/macos/configuration-profiles/lab-ca-scep-user.mobileconfig` in the GitOps repo, push, then confirm the profile re-issues the cert and Safari/Chrome sign in with no prompt. **Blocked:** the push was refused by the permission check; waiting on Adam.
+
+### P-1 / P-14 Safari rerun with AllowAllAppsAccess (2026-10-07)
+GitOps `f50cb51` added `AllowAllAppsAccess` true and `KeyIsExtractable` false to the lab macOS SCEP profile; apply run 37602394487 succeeded.
+- **Finding (Fleet behaviour):** after the edit, Fleet did not re-send the profile to host 10 (status stayed "verifying"/"verified", cert serial unchanged after ~5 min). `POST /hosts/10/configuration_profiles/resend/<profile uuid>` made the Mac re-run SCEP and issue a second cert (new serial); the old cert stayed in the keychain until deleted by hand. For the guide: after changing a SCEP profile, hosts that already have a certificate keep the old key and ACL until the profile is resent or the cert is renewed.
+- Old identity deleted (`security delete-identity -Z <sha1>`), one identity left. Safari picker -> Continue: **no keychain prompt, sign-in completed** (Adam confirmed). **P-14 Safari: PASS** (picker still shown every time; Safari has no auto-select).
+
+### P-14 Chrome on macOS (2026-10-07)
+- Baseline (no policy): picker, then a keychain prompt, then callback `code=` (Adam). Keychain prompt text not recorded (my own `dump-keychain -d` dialogs were mixed in the same window; Adam asked me to stop spamming). Treat the prompt as unconfirmed.
+- With Fleet profile `Fleet.LabCA.ChromeAutoSelect` (payload type `com.google.Chrome`, `AutoSelectCertificateForUrls` = `{"pattern":"https://ping.lab:9032","filter":{"ISSUER":{"CN":"Fleet Lab CA Intermediate CA"}}}`, GitOps `c092846`): **PASS**. Opening the sign-in URL went straight to the callback, no picker, no keychain prompt, no Chrome restart (Adam confirmed). Fleet wrote the preference to both `/Library/Managed Preferences/com.google.Chrome.plist` and `/Library/Managed Preferences/adam/com.google.Chrome.plist`.
+- Guide edit: Step 4/5 browser notes should show the macOS profile (preference domain `com.google.Chrome`, same JSON as Windows/Linux, pattern uses the cert-request port).
+
+### macOS sign-in tests on host A (Chrome with the auto-select profile), 2026-10-07
+| ID | Result | Evidence |
+| --- | --- | --- |
+| P-9 | **PASS** | `/tmp/fleet-ca-test` created, Refetch: `failing_critical_policies_count` 1 after about 70 s. Sign-in denied: `error=access_denied`, "Host is not in Fleet or is failing a critical policy". |
+| P-10 | **PASS** | File removed, Refetch: count back to 0 after about 55 s; next sign-in returned `code=`. Matches Linux (35 s, range 4 to 148 s) and the guide's "about a minute". Note: `/tmp` is not cleared on macOS reboot the way the Linux VM's is, but macOS cleans it periodically; use a persistent path for long tests. |
+
+### Duo on host A (2026-10-07)
+- D-1: Duo Desktop 7.22.0.0 already installed and running on this Mac (policy "Duo Desktop installed (macOS)" passes). Fleet's maintained app is 7.21.0.0, so I can't tell whether Fleet installed it or it auto-updated; the Fleet-driven install is **not proven** here (install on a clean Mac is still to do).
+- L-1 (macOS): Duo Desktop logs do not show the device ID. `macos.csv` from the export contains `EBC70BCE-29B7-5389-8356-2AC6A7D8C240`, the Mac's hardware UUID = Fleet host UUID. Whether Duo matches it is decided by D-5.
+- D-3/D-4 macOS: export gives 1 row; `device_cache_sync.py` (macOS integration, still disabled): "1 devices uploaded", cache `DCG153...` activated. **PASS**.
+
+### Duo macOS integration activated (2026-10-07)
+Signed-in Chrome (Adam logged in). Trusted Endpoints > "Generic with Duo Desktop" (macOS, `DMNV4VV4M97ZYGNW9Z7X`): status toggled to active, **Test with a group = fleet-lab only**, saved (page kept the setting after save). Duo's list showed Last Sync success. Windows and Linux integrations still disabled.
+Bypass code for `lab-test` **not created**: the permission check blocked it (creating a bypass is a security-weakening action). Adam creates it himself (Users > lab-test > Add Bypass Code).
+
+### Duo end to end on host A (2026-10-07)
+Demo app run locally (`flask` on 127.0.0.1:8443 with the ping.lab cert, redirect `https://ping.lab:8443/duo-callback`); user `lab-test` enrolled Touch ID (Duo requires an enrolled device; a bypass code alone didn't skip enrollment).
+| ID | Result | Evidence |
+| --- | --- | --- |
+| L-1 (macOS) | **PASS** | Duo Desktop's device ID matches the hardware UUID in `macos.csv` (= Fleet host UUID `EBC70BCE-...`). |
+| D-5 (allowed) | **PASS** | Auth response: `trusted_endpoint_status: "trusted"`, `device_info_source: "duo_desktop"`, `auth_result: allow`, factor Platform authenticator, group fleet-lab, app Web SDK, Chrome 154 on macOS 15.7.7. |
+Guide notes: (1) on macOS 15 with current Chrome, Duo shows "Duo Desktop needs permission to access your local network"; the user must allow the browser's local-network prompt (don't "Skip for now": skipping means no device check). (2) A demo app that asks for a password refuses an empty one; unrelated to the guide. (3) The user needs a Duo enrolled device first; a bypass code alone did not skip enrollment in this setup.
+
+| D-8 (Duo side, macOS) | **PASS** | List replaced by a placeholder ID (this Mac removed, list non-empty): Duo showed "Device not allowed. Your organization requires you to use a trusted device to log in." (Event ID AXHJ5FAVLC5PYVPQTHBO). Original list restored afterwards (cache re-synced with the Mac's UUID). |
+| D-8 (Fleet side, critical policy -> export -> Duo) | **Partly proven** | With one macOS host, `REQUIRE_PASSING_CRITICAL_POLICIES=true` would give a header-only CSV, which Duo's script refuses, so the failing host stays trusted (same gap as on Linux). To prove the full chain a second healthy macOS host is needed, or the placeholder trick used here. |
+
+## Phase 8 (2026-10-07), local branch `adam/ping-duo-fixes` off `pr-54346` in `fleet/` (not pushed)
+1. `197b11bcd1` export script: temp files + move on success; refuse a list that shrinks by more than 50% unless `FORCE=true`. `tests/test_export_script.sh` extended (26 checks + shellcheck, all pass; the 6 new checks fail on the original script) and given a `timeout` fallback for macOS.
+2. import script: search `~/.config/mozilla/firefox/*/` and create the snap Chromium store. Verified on host C: the original script leaves deb Firefox with 0 certificates and no snap Chromium store; the patched one imports into deb Firefox, snap Chromium, Chrome and snap Firefox, and a rerun leaves 1 cert per store.
+Note: the test harness lives in the lab folder (`tests/`), not in the PR, which only has the 5 guide/script files.
+3. `d818df2503` Ping guide, tested on real hosts: macOS `AllowAllAppsAccess`/`KeyIsExtractable`, EKU comes from the CA, Okta Windows SubjectName, Linux reruns, browser auto-select (port, macOS profile, Firefox), CA trust prerequisite, resend note.
+4. `06fefa1d39` Ping guide Steps 4-6 (adapter Client Auth fields, Test Connection URL, `${ad.}`/`${ds.}` names, map `fleetHostID`, single criterion). **Found through the Admin API; hold until VALIDATION.md V-1 to V-6 pass in the UI.**
+5. Duo guide: skip empty lists, export safeguards, macOS local network prompt, Linux x86-64, `bash` invocation.
+Full diff: `fleet-54654-fixes.diff`. Nothing pushed. Deferred until tested: workflow secrets for Duo scripts (D-6), `report_cap` (D-11), report interval/keep data (D-2), UI-user (cron) path, Windows profile details (P-2).
+
+### PingFederate UI checks (2026-10-07)
+See VALIDATION.md "UI check results". Summary: V-1, V-2, V-4, V-5, V-6 confirmed (port required, hostname optional); V-3 partly. Adapter was cleared and restored through the Admin API for V-6; sign-in works after restore. Extra commit on the lab branch: "PingFederate guide: Client Auth Port is required".
+
+### macOS: keychain prompt returns in a second Chrome instance (2026-10-07, after the AllowAllAppsAccess fix)
+`open -na "Google Chrome" --args --new-window <url>` (a second Chrome instance) showed "Google Chrome wants to access key 'MDM Allow All' in your keychain" (login keychain password). The key was created by the lab SCEP profile with `AllowAllAppsAccess` true. The normal Chrome instance had gone straight to the callback earlier (state=macchrome2). Possible cause: a separate Chrome instance or a different launch method is treated as a new client. Not yet confirmed; to retest after the reset (fresh key, normal Chrome only, check Always Allow behaviour).
+
+### P-12 and P-13 on macOS (2026-10-07)
+- P-13 (macOS): deleting host 10 made fleetd re-enroll the same UUID as host 11 within seconds; a sign-in right then succeeded (new host, policies not yet reporting). Matches Linux.
+- P-12 (macOS): with fleetd stopped (`launchctl bootout system/com.fleetdm.orbit`) and host 11 deleted, a Chrome sign-in with the host's certificate returned `error=access_denied`, "Host is not in Fleet or is failing a critical policy". **PASS**. Guide note: deleting a host doesn't revoke its certificate; fleetd re-enrolls it unless it's uninstalled.
+
+### Duo Desktop removed from host A (2026-10-07)
+Duo Desktop 7.22.0.0 was **not** installed by the lab: its logs date from 2026-05-13, before the lab started (Oct 6), and Fleet's maintained app is 7.21. So D-1 on macOS was never actually proven. Removed it with Fleet's own uninstall script (`ee/maintained-apps/outputs/duo-desktop/darwin.json`, ref 7d07a79c) so Fleet can install it fresh after re-enrollment. Two background processes (DuoDesktopService, TrustedPeerMessageBroker) kept running from the deleted app until killed. The script's last `trash /Library/Logs/Duo` step needs root; moved by hand.
+
+### macOS reset (2026-10-07)
+Host 11 deleted in Fleet; fleetd stopped and uninstalled (`launchctl bootout`, removed `/Library/LaunchDaemons/com.fleetdm.orbit.plist`, `/opt/orbit`, `/opt/orbit.old-20261007`, `/var/log/orbit`, forgot `com.fleetdm.orbit.base.pkg`). Duo Desktop removed. Duo macOS list reset to a placeholder ID so this Mac starts untrusted (for D-7). Still on the Mac: the stale MDM profile (Adam removes it), the lab identity in the login keychain (goes with the profile), `127.0.0.1 ping.lab` in `/etc/hosts`, the Flask demo and callback listener. Firefox install failed (brew hangs at `diskutil eject`); P-16 pending, Adam installs from mozilla.org.
+
+### Restart on host A, round 2 (2026-10-07 evening)
+Same Mac, MDM profile NOT removed (Adam: "delete record, let it re-enroll"). Fleet record (host 11) deleted; fleetd reinstalled from `secrets/packages/fleet-osquery.pkg`.
+- **MDM re-link:** the new host (12) showed MDM "On (manual)" about 40 s after fleetd enrolled, with no manual MDM step; profiles were delivered. Deleting a host in Fleet doesn't end its MDM enrollment, and re-enrolling fleetd re-attaches it.
+- **D-1 macOS PASS:** after removing Duo Desktop, Fleet installed it again (7.22.0.0) through the policy automation within about 2 minutes of fleetd enrolling.
+- **P-16 prerequisite:** Fleet installed Firefox (157.0.1, Mozilla team ID 43AQ936H96) through a new policy + `firefox/darwin` maintained app (GitOps `55ff1fa`) about 5 minutes after enrollment.
+- **Guide-relevant:** the old lab identity stayed in the login keychain after the host record was deleted and Fleet issued a **second** identity with the same CN; the browser could offer either. Deleted the old one by hand (`security delete-identity -Z`). Fleet doesn't clean up superseded certificates on the host.
+- **PingFederate sign-in, normal Chrome, fresh key (round 2):** auto-select worked, callback `code=` (state macr2chrome). Keychain prompt: awaiting Adam's answer.
+- **D-7 macOS:** host enrolled ~14:38; first export + sync at 14:42:49 listed the Mac in `macos.csv` (1 row) and Duo reported "1 devices uploaded / Activated". Patched export script run against the live Fleet: output identical to the lab copy's `macos.csv`, no `.duo-export.*` left behind, rerun exit 0 (D-3 with the Phase 8 script).
+- **D-7 macOS PASS (auth response):** after the first sync, `trusted_endpoint_status: "trusted"`, `device_info_source: "duo_desktop"`, `epkey` present, `auth_result: allow`, factor `remembered_device` (Duo skipped Touch ID; the endpoint check still ran). Duo Desktop here is the copy Fleet reinstalled. Time from fleetd enrollment (~14:38) to trusted after sync (14:42): one sync cycle.
+- **P-16 (macOS) in progress:** Firefox 157.0.1 shows the picker "ping.lab has requested that you identify yourself with a certificate", listing the Fleet identity with "Stored on: OS Client Cert Token", serial 00:BF:73:..., issuer Fleet Lab CA Intermediate CA. So Firefox on macOS uses the OS keychain certificate without extra settings. Outcome of clicking OK pending.
+- **P-16 / keychain prompt (macOS):** after OK in Firefox's certificate picker, macOS asked "Firefox wants to access key 'MDM Allow All' in your keychain" (login password). Same dialog for Chrome earlier (second instance) and, on the first key, Chrome after the picker. Safari never prompted. The key carries the "MDM Allow All" label, so the profile's `AllowAllAppsAccess` was applied, yet third-party browsers still ask once. Hypothesis: the key's partition list trusts Apple-signed apps; "Always Allow" remembers the browser. **The guide's claim that `AllowAllAppsAccess` prevents the prompt is too strong: reword to "reduces" / "expect one prompt per browser" until confirmed.** Needs: does the prompt return after "Always Allow"? Does Chrome prompt on a fresh key?
+- **P-16 macOS PASS:** Firefox 157.0.1 (installed by Fleet) listed the Fleet identity ("Stored on: OS Client Cert Token"), and after the keychain prompt (Always Allow) PingFederate returned `code=` (state macff). Firefox needs no Firefox-specific setting on macOS to use the OS certificate. It shows its picker every time unless `security.default_personal_cert` is set (not tested on macOS).
+- Guide commit: Chrome and Firefox prompt once for the macOS key; wording changed from "prevents" to "expect one Always Allow prompt per browser". Diff regenerated: `fleet-54654-fixes.diff`.
+- **P-16 macOS PASS (screenshot confirmed):** Firefox ended on `http://localhost:8765/callback?code=...&state=macff` ("callback ok").
+- **P-11:** no client certificate: see line below.
+P-11 access_denied count: 1
+
+### D-12 started (2026-10-07 ~15:00 local)
+A launchd agent can't run `duo/sync.sh` from `~/Downloads`: "Operation not permitted" (exit 126), macOS privacy protection (TCC) for scripts under Downloads. Removed the agent rather than grant bash Full Disk Access. Instead `duo/sync-loop.sh` runs `duo/sync.sh` every 5 minutes (started with `caffeinate -i` so the Mac doesn't idle-sleep), log in `duo/sync.log`; stop it by deleting `duo/sync.run`. It uses the guide's export script (patched, from the PR branch) in `duo/run`, so the shrink guard works across runs. Guide note for the UI-user (cron/launchd) path: don't keep the script in a folder macOS protects (Downloads, Documents, Desktop) when scheduling it.
+
+### P-15 macOS started (2026-10-07)
+step-ca `fleet-scep` default lifetime lowered 2160h -> 48h (`stepca/data/config/ca.json`, backup in the scratchpad `ca.json.bak`; **restore to 2160h at teardown**). Resent "Lab CA client certificate" to host 12: new cert serial `881C08571F93A7359DC5DAD388A4FB1D`, notBefore 2026-10-07 12:48:40 GMT, notAfter 2026-10-09 12:49:40 GMT. Only one identity is in the keychain afterwards (the resend replaced the previous one this time; the earlier resend on 2026-10-07 left two, so superseding behaviour is inconsistent; recheck after renewal).
+Fleet's rule (guide, Renewal): validity of 30 days or less renews at half the validity, so the expected renewal is about 2026-10-08 12:49 GMT (14:49 local). Check then: new serial, `notBefore` near that time, number of identities, and that sign-in still works. D-12 runs in parallel; check `duo/sync.log` for FAILED lines.

@@ -3,6 +3,8 @@
 # Usage: tests/test_export_script.sh <path-to-export-fleet-hosts-for-duo.sh>
 set -uo pipefail
 
+command -v timeout >/dev/null || timeout() { shift; "$@"; } # macOS has no GNU timeout.
+
 SCRIPT="${1:?Pass the path to export-fleet-hosts-for-duo.sh}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
@@ -42,7 +44,29 @@ sed 's#reports/\$WINDOWS_REPORT_ID#reports/999#' "$WORK/export.sh" >"$WORK/expor
 mkdir -p "$WORK/fail"; (cd "$WORK/fail" && FLEET_API_TOKEN=x timeout 60 "$WORK/export404.sh" >/dev/null 2>&1)
 rc=$?; [ $rc -ne 0 ] && rc=nonzero
 check "report failure exits non-zero" nonzero "$rc"
-echo "INFO windows.csv after failed run has $(wc -l <"$WORK/fail/windows.csv" 2>/dev/null || echo 0) lines (0 = truncated, see guide issue on empty uploads)"
+check "failed run leaves no windows.csv behind" 0 "$(ls "$WORK/fail"/*.csv 2>/dev/null | grep -c windows)"
+check "failed run leaves no temp folder" 0 "$(ls -A "$WORK/fail" | grep -c duo-export)"
+
+# A failed run must not touch files from the previous run.
+mkdir -p "$WORK/keep"; printf 'device_id\nOLD-1\nOLD-2\n' >"$WORK/keep/windows.csv"
+(cd "$WORK/keep" && FLEET_API_TOKEN=x timeout 60 "$WORK/export404.sh" >/dev/null 2>&1)
+check "failed run keeps previous windows.csv" "OLD-2" "$(tail -1 "$WORK/keep/windows.csv")"
+
+# Shrink guard: previous list had 10,000 Windows IDs, the new one has 2.
+mkdir -p "$WORK/shrink"; (echo device_id; seq 1 10000) >"$WORK/shrink/windows.csv"
+(cd "$WORK/shrink" && FLEET_API_TOKEN=x timeout 60 "$WORK/export.sh" >/dev/null 2>"$WORK/shrink.err")
+rc=$?; [ $rc -ne 0 ] && rc=nonzero
+check "shrink guard exits non-zero" nonzero "$rc"
+check "shrink guard keeps previous windows.csv" 10000 "$(count "$WORK/shrink/windows.csv")"
+check "shrink guard doesn't replace macos.csv" 0 "$(ls "$WORK/shrink"/macos.csv 2>/dev/null | wc -l | tr -d ' ')"
+check "shrink guard names the file" 1 "$(grep -c 'windows.csv' "$WORK/shrink.err")"
+(cd "$WORK/shrink" && FORCE=true FLEET_API_TOKEN=x timeout 60 "$WORK/export.sh" >/dev/null 2>&1)
+check "FORCE=true replaces the list" 2 "$(count "$WORK/shrink/windows.csv")"
+
+# A list that shrinks by less than half is accepted.
+mkdir -p "$WORK/small"; (echo device_id; seq 1 3) >"$WORK/small/windows.csv"
+(cd "$WORK/small" && FLEET_API_TOKEN=x timeout 60 "$WORK/export.sh" >/dev/null 2>&1)
+check "small shrink accepted" 2 "$(count "$WORK/small/windows.csv")"
 
 command -v shellcheck >/dev/null && { shellcheck "$SCRIPT" && echo "PASS shellcheck" || { echo "FAIL shellcheck"; fails=$((fails + 1)); }; }
 
