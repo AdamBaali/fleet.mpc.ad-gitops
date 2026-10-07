@@ -1,0 +1,6 @@
+# 2026-10-07T18:43:08Z
+$ git -C fleet log --oneline -1 -- docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh | cat; shellcheck fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh && echo 'shellcheck: clean'
+
+197b11bcd1 Duo export script: write CSVs to temp files, refuse a list that shrinks by more than half
+shellcheck: clean
+

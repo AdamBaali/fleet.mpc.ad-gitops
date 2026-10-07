@@ -1,0 +1,13 @@
+# 2026-10-07T18:08:03Z (in the Linux VM lab-linux, as root)
+$ id labx >/dev/null 2>&1 && userdel -r labx 2>/dev/null; useradd -m -s /bin/bash labx; ls -a /home/labx | head -8; echo '--- stores before any import:'; bash /tmp/liststores.sh | sed -n '/user labx/,/^== user [^l]/p' | head -6
+
+.
+..
+.bash_logout
+.bashrc
+.profile
+--- stores before any import:
+== user labx
+  (no store) /home/labx/.pki/nssdb
+  (no store) /home/labx/snap/chromium/current/.pki/nssdb
+== user ubuntu

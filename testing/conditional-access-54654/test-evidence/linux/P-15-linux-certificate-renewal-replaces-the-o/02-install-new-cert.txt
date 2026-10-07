@@ -1,0 +1,6 @@
+# 2026-10-07T18:41:56Z (in the Linux VM lab-linux, as root)
+$ cp -p /opt/company/certificate.pem /opt/company/certificate.pem.bak; cp -p /opt/company/CustomerUserNetworkAccess.key /opt/company/CustomerUserNetworkAccess.key.bak; cp /tmp/renew.crt /opt/company/certificate.pem; cp /tmp/renew.key /opt/company/CustomerUserNetworkAccess.key; chmod 600 /opt/company/CustomerUserNetworkAccess.key; unlink /tmp/renew.key; echo 'new certificate file:'; openssl x509 -in /opt/company/certificate.pem -noout -serial -enddate
+
+new certificate file:
+serial=333DA756E56B8F0C8EEBA6383A9D6132
+notAfter=Nov  6 18:41:55 2026 GMT

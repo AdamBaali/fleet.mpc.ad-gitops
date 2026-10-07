@@ -1,0 +1,12 @@
+# 2026-10-07T18:43:53Z
+$ git -C fleet show pr-54346:docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh > /tmp/export-original.sh; bash tests/test_export_script.sh /tmp/export-original.sh 2>&1 | grep -E 'FAIL|failed|All checks' ; unlink /tmp/export-original.sh
+
+FAIL failed run leaves no windows.csv behind (expected 0, got 1)
+PASS failed run leaves no temp folder
+FAIL failed run keeps previous windows.csv (expected OLD-2, got )
+FAIL shrink guard exits non-zero (expected nonzero, got 0)
+FAIL shrink guard keeps previous windows.csv (expected 10000, got 2)
+FAIL shrink guard doesn't replace macos.csv (expected 0, got 1)
+FAIL shrink guard names the file (expected 1, got 0)
+6 check(s) failed
+

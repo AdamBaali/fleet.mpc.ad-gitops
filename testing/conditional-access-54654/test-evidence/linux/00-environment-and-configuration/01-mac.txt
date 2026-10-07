@@ -1,0 +1,11 @@
+# 2026-10-07T18:06:36Z
+$ sw_vers; uname -m; docker --version; fleetctl --version 2>&1 | head -1; step version 2>&1 | head -1
+
+ProductName:		macOS
+ProductVersion:		15.7.7
+BuildVersion:		24G720
+arm64
+Docker version 29.6.2, build dfc4efb
+fleetctl - version 4.92.1
+Smallstep CLI/0.31.0 (darwin/arm64)
+

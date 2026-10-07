@@ -1,0 +1,8 @@
+# 2026-10-07T18:34:22Z (in the Linux VM lab-linux, as root)
+$ mkdir -p /var/snap/chromium/current/policies/managed; mv /var/snap/chromium/current/policies/managed/lab-autoselect.json /tmp/lab-autoselect.json.bak 2>/dev/null; unlink /var/snap/chromium/current/policies/managed/fleet-autoselect.json 2>/dev/null; echo 'policy directory contents:'; ls -la /var/snap/chromium/current/policies/managed; echo '(no policy files)'
+
+policy directory contents:
+total 8
+drwxr-xr-x 2 root root 4096 Oct  7 18:34 .
+drwxr-xr-x 3 root root 4096 Oct  6 14:37 ..
+(no policy files)

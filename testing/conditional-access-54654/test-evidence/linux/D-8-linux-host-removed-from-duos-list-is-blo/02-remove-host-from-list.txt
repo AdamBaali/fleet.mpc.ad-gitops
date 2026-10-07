@@ -1,0 +1,19 @@
+# 2026-10-07T18:50:00Z
+$ echo 'Uploading a list that does NOT contain 86d7dc8e-3373-47af-86dd-56a1cd517e2f (a placeholder ID keeps the list non-empty, because Duo refuses an empty one):'; cat /var/folders/r2/5ymv629d7jbdn_pfkh7tzd6r0000gp/T//linux-placeholder.csv; echo; python3 evidence/duo-upload.py linux /var/folders/r2/5ymv629d7jbdn_pfkh7tzd6r0000gp/T//linux-placeholder.csv
+
+Uploading a list that does NOT contain 86d7dc8e-3373-47af-86dd-56a1cd517e2f (a placeholder ID keeps the list non-empty, because Duo refuses an empty one):
+device_id
+00000000-0000-4000-8000-000000000002
+
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: <integration-key-id>
+New cache created cache_key: DCT5QC4EKDWWN7QB0P7X
+Attempting to upload devices count: 1
+Uploading 1 device(s)
+1 devices uploaded
+Attempting to activate device cache cache_key: DCT5QC4EKDWWN7QB0P7X
+Activated device cache cache_key: DCT5QC4EKDWWN7QB0P7X
+Devices synced: 1
+
+exit code 0

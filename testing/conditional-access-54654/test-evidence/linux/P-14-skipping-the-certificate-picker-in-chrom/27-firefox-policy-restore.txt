@@ -1,0 +1,7 @@
+# 2026-10-07T18:41:21Z (in the Linux VM lab-linux, as root)
+$ cat > /usr/lib/firefox/distribution/policies.json <<'EOF'
+{"policies":{"Preferences":{"security.default_personal_cert":{"Value":"Select Automatically","Status":"locked"}}}}
+EOF
+cat /usr/lib/firefox/distribution/policies.json
+
+{"policies":{"Preferences":{"security.default_personal_cert":{"Value":"Select Automatically","Status":"locked"}}}}

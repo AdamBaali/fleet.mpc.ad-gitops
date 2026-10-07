@@ -1,0 +1,19 @@
+# 2026-10-07T18:55:26Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/serverSettings | jq '{base_url:.rolesAndProtocols|keys}' 2>/dev/null; docker exec pingfederate sh -c 'grep -E "^pf\.(secondary\.https|https)\.port" /opt/out/instance/bin/run.properties'; docker port pingfederate
+
+{
+  "base_url": [
+    "enableIdpDiscovery",
+    "idpRole",
+    "oauthRole",
+    "spRole"
+  ]
+}
+pf.https.port=9031
+pf.secondary.https.port=-1
+9031/tcp -> 0.0.0.0:9031
+9031/tcp -> [::]:9031
+9032/tcp -> 0.0.0.0:9032
+9032/tcp -> [::]:9032
+9999/tcp -> 0.0.0.0:9999
+9999/tcp -> [::]:9999

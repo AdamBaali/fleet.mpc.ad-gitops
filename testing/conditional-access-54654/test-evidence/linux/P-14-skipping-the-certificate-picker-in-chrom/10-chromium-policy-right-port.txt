@@ -1,0 +1,7 @@
+# 2026-10-07T18:36:04Z (in the Linux VM lab-linux, as root)
+$ cat > /var/snap/chromium/current/policies/managed/fleet-autoselect.json <<'EOF'
+{"AutoSelectCertificateForUrls": ["{\"pattern\":\"https://ping.lab:9032\",\"filter\":{\"ISSUER\":{\"CN\":\"Fleet Lab CA Intermediate CA\"}}}"]}
+EOF
+cat /var/snap/chromium/current/policies/managed/fleet-autoselect.json
+
+{"AutoSelectCertificateForUrls": ["{\"pattern\":\"https://ping.lab:9032\",\"filter\":{\"ISSUER\":{\"CN\":\"Fleet Lab CA Intermediate CA\"}}}"]}

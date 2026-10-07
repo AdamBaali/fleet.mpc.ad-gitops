@@ -1,0 +1,17 @@
+# 2026-10-07T18:43:06Z (in the Linux VM lab-linux, as root)
+$ tail -14 /var/log/duo-desktop/duo-desktop.log | cut -c1-230
+
+2026-10-07 17:55:33.3934|DEBUG|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|retrieving compkey
+2026-10-07 17:55:33.4570|DEBUG|DuoDeviceHealthLibrary.Communication.Rpc.Handlers.GetComputerKeyHandler|Retrieving and decrypting compkey took 28ms
+2026-10-07 17:55:33.4689|ERROR|DuoDeviceHealthLibrary.Communication.Rpc.Handlers.GetComputerKeyHandler|Error loading computer key
+2026-10-07 17:55:33.4760|ERROR|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|Failed to sign health payload|System.InvalidOperationException Error loading computer key
+2026-10-07 17:55:33.4770|DEBUG|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|Clearing out compkey and dakey
+2026-10-07 17:55:33.4798|DEBUG|DuoDeviceHealth.HttpHandler|sending unsigned health payload
+2026-10-07 17:55:33.4995|DEBUG|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|sending health report data to https://3.endpointhealth.duosecurity.com/v2/healthapp/device/health?_req_trace_group=2b44bd8626e86d07688cc57a
+2026-10-07 17:55:34.3521|DEBUG|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|send payload took 851ms
+2026-10-07 17:55:34.3527|DEBUG|DuoDeviceHealthLibrary.Logging.DebugMetricReporter|Duration metric suppressed for debug: duration.send_payload (851ms)
+2026-10-07 17:55:34.3537|DEBUG|DuoDeviceHealthLibrary.Health.DeviceHealthReporter|Got response: 200 'OK'
+2026-10-07 18:43:17.8361|DEBUG|DuoDeviceHealth.Program|Processing http request (GET) [https://localhost:53100/]
+2026-10-07 18:43:17.8539|DEBUG|DuoDeviceHealth.Program|Closing connection
+2026-10-07 18:43:17.8666|DEBUG|DuoDeviceHealth.Program|Processing http request (GET) [http://localhost:53106/]
+2026-10-07 18:43:17.8716|DEBUG|DuoDeviceHealth.Program|Closing connection

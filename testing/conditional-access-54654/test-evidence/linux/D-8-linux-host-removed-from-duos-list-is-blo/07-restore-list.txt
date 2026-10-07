@@ -1,0 +1,19 @@
+# 2026-10-07T18:51:13Z
+$ echo 'Restoring the real list (the 5-minute loop would also do this):'; cat duo/run/linux.csv; echo; python3 evidence/duo-upload.py linux duo/run/linux.csv
+
+Restoring the real list (the 5-minute loop would also do this):
+device_id
+86d7dc8e-3373-47af-86dd-56a1cd517e2f
+
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: <integration-key-id>
+New cache created cache_key: DC0CKCHE3PVV04GOLW9W
+Attempting to upload devices count: 1
+Uploading 1 device(s)
+1 devices uploaded
+Attempting to activate device cache cache_key: DC0CKCHE3PVV04GOLW9W
+Activated device cache cache_key: DC0CKCHE3PVV04GOLW9W
+Devices synced: 1
+
+exit code 0

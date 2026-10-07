@@ -1,0 +1,16 @@
+# 2026-10-07T18:07:40Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/resetstores.sh; echo '--- stores after reset:'; bash /tmp/liststores.sh
+
+reset done
+--- stores after reset:
+== user lab
+  0 x 'Fleet device certificate'  in  /home/lab/.pki/nssdb
+  0 x 'Fleet device certificate'  in  /home/lab/.config/mozilla/firefox/ynqapdfi.default-release
+  0 x 'Fleet device certificate'  in  /home/lab/snap/firefox/common/.mozilla/firefox/1vz435e9.default
+  (no store) /home/lab/snap/chromium/current/.pki/nssdb
+== user lab2
+  0 x 'Fleet device certificate'  in  /home/lab2/.pki/nssdb
+  (no store) /home/lab2/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  0 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb
+  (no store) /home/ubuntu/snap/chromium/current/.pki/nssdb

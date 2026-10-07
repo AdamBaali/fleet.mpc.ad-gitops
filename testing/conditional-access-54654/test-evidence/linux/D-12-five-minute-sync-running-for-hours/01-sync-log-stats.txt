@@ -1,0 +1,17 @@
+# 2026-10-07T18:44:49Z
+$ python3 evidence/syncstats.py; echo; echo 'last 6 log lines:'; tail -6 duo/sync.log
+
+first run : 2026-10-07T12:48:21Z
+last run  : 2026-10-07T18:39:49Z
+sync cycles (distinct minutes): 70
+median gap between cycles: 300 s, max gap: 720 s
+FAILED lines: 0
+synced lines: macos 68 | linux 68 | windows skipped 68
+
+last 6 log lines:
+2026-10-07T18:34:44Z macos: 1 synced
+2026-10-07T18:34:44Z windows: no hosts, skipped
+2026-10-07T18:34:45Z linux: 1 synced
+2026-10-07T18:39:48Z macos: 1 synced
+2026-10-07T18:39:48Z windows: no hosts, skipped
+2026-10-07T18:39:49Z linux: 1 synced

@@ -1,0 +1,14 @@
+# 2026-10-07T18:43:47Z
+$ W=$(mktemp -d); sed -e 's#https://fleet.example.com#https://fleet.mpc.ad#' -e 's#<Windows-MachineGuid-report-ID>#69#' fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh > $W/export.sh; cd $W; printf 'device_id\nOLD-1\nOLD-2\n' > macos.csv; printf 'device_id\nOLD-W1\n' > windows.csv; printf 'device_id\nOLD-L1\n' > linux.csv; sed -i '' 's#reports/$WINDOWS_REPORT_ID#reports/999999#' export.sh; FLEET_API_TOKEN=$FLEET_TOKEN_DUO bash export.sh; echo "exit code: $?"; echo '--- files after the failed run (should still be the OLD ones, no .duo-export folder):'; ls -A; head -3 macos.csv
+
+curl: (56) The requested URL returned error: 404
+exit code: 56
+--- files after the failed run (should still be the OLD ones, no .duo-export folder):
+export.sh
+linux.csv
+macos.csv
+windows.csv
+device_id
+OLD-1
+OLD-2
+

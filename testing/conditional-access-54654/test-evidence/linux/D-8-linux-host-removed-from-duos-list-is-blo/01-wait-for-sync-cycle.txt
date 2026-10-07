@@ -1,0 +1,5 @@
+# 2026-10-07T18:49:24Z
+$ echo 'last Linux sync before waiting:' 2026-10-07T18:44:53Z; for i in $(seq 1 70); do n=$(grep 'linux:' duo/sync.log | tail -1 | awk '{print $1}'); [ "$n" != '2026-10-07T18:44:53Z' ] && { echo "new cycle finished at $n"; break; }; sleep 5; done
+
+last Linux sync before waiting: 2026-10-07T18:44:53Z
+new cycle finished at 2026-10-07T18:49:56Z

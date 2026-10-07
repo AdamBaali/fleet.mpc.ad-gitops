@@ -1,0 +1,10 @@
+# 2026-10-07T18:09:42Z
+$ echo 'PingFederate server log, decoded (lines written during that sign-in):'; docker exec pingfederate sh -c 'tail -n +11300 /opt/out/instance/log/server.log' | grep -E 'Unknown Key|Comparison Value|Actual Value|Authorization failed' | python3 evidence/logkeys.py
+
+PingFederate server log, decoded (lines written during that sign-in):
+18:09:40,083 lookup 'fleetHealth': Unknown Key (fleetHostID)
+   keys PingFederate says are available: ad.x509lab.CN, ad.x509lab.ClientCertificateChain, ad.x509lab.IssuerDN, ad.x509lab.SerialNumber, ad.x509lab.SubjectDN, ad.x509lab.cn, ad.x509lab.issuer_CN, ad.x509lab.issuer_O, ad.x509lab.issuer_cn, ad.x509lab.issuer_o, ds.fleetByUuid.fleetHostID
+18:09:40,084 Authorization failed.  The following criterion was not met...
+Comparison Value: 0
+Actual Value(s): No Value
+

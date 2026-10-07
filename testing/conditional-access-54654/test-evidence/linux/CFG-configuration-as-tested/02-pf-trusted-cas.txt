@@ -1,0 +1,21 @@
+# 2026-10-07T18:55:25Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/certificates/ca | jq '[.items[]|{id,subjectDN,issuerDN,validFrom:.validFrom,expires:.expires,keySize}]'
+
+[
+  {
+    "id": "steplabintermediate",
+    "subjectDN": "CN=Fleet Lab CA Intermediate CA, O=Fleet Lab CA",
+    "issuerDN": "CN=Fleet Lab CA Root CA, O=Fleet Lab CA",
+    "validFrom": "2026-10-06T11:57:32Z",
+    "expires": "2036-10-03T11:57:32Z",
+    "keySize": 256
+  },
+  {
+    "id": "steplabroot",
+    "subjectDN": "CN=Fleet Lab CA Root CA, O=Fleet Lab CA",
+    "issuerDN": "CN=Fleet Lab CA Root CA, O=Fleet Lab CA",
+    "validFrom": "2026-10-06T11:57:31Z",
+    "expires": "2036-10-03T11:57:31Z",
+    "keySize": 256
+  }
+]

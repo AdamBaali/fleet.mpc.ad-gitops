@@ -1,0 +1,33 @@
+# 2026-10-07T18:43:51Z
+$ bash tests/test_export_script.sh fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh 2>&1 | tail -32
+
+PASS require=false exits 0
+PASS require=false header
+PASS require=false no iOS/Chrome in linux.csv
+PASS require=false deleted host dropped
+PASS require=false Windows guids unique
+PASS require=false linux count
+PASS require=true exits 0
+PASS require=true header
+PASS require=true no iOS/Chrome in linux.csv
+PASS require=true deleted host dropped
+PASS require=true Windows guids unique
+PASS require=true linux count
+PASS trust-all macOS count (pagination)
+PASS trust-all Windows count
+PASS critical-only macOS count
+PASS critical-only Windows count
+PASS report failure exits non-zero
+PASS failed run leaves no windows.csv behind
+PASS failed run leaves no temp folder
+PASS failed run keeps previous windows.csv
+PASS shrink guard exits non-zero
+PASS shrink guard keeps previous windows.csv
+PASS shrink guard doesn't replace macos.csv
+PASS shrink guard names the file
+PASS FORCE=true replaces the list
+PASS small shrink accepted
+PASS shellcheck
+
+All checks passed
+

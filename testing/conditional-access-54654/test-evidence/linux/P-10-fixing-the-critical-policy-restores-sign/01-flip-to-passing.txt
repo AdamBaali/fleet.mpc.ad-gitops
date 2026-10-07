@@ -1,0 +1,27 @@
+# 2026-10-07T18:13:54Z
+$ bash evidence/flip.sh pass
+
+18:13:54 T+0s   action: remove /tmp/fleet-ca-test in the VM
+ls: cannot access '/tmp/fleet-ca-test': No such file or directory
+failing_critical_policies_count before Refetch: 1
+18:14:01 T+7s  Refetch requested (same as 'Refetch' on the My device page)
+18:14:09 T+15s   failing_critical_policies_count=1
+18:14:16 T+22s   failing_critical_policies_count=1
+18:14:25 T+31s   failing_critical_policies_count=1
+18:14:32 T+38s   failing_critical_policies_count=1
+18:14:39 T+45s   failing_critical_policies_count=1
+18:14:47 T+53s   failing_critical_policies_count=1
+18:14:55 T+61s   failing_critical_policies_count=1
+18:15:03 T+69s   failing_critical_policies_count=1
+18:15:10 T+76s   failing_critical_policies_count=1
+18:15:19 T+85s   failing_critical_policies_count=1
+18:15:26 T+92s   failing_critical_policies_count=1
+18:15:34 T+100s   failing_critical_policies_count=1
+18:15:42 T+108s   failing_critical_policies_count=1
+18:15:49 T+115s   failing_critical_policies_count=1
+18:15:57 T+123s   failing_critical_policies_count=1
+18:16:04 T+130s   failing_critical_policies_count=1
+18:16:12 T+138s   failing_critical_policies_count=1
+18:16:20 T+146s   failing_critical_policies_count=0
+RESULT: Fleet saw the change 146 seconds after the change was made (target count 0)
+

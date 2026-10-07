@@ -1,0 +1,9 @@
+# 2026-10-07T18:07:08Z
+$ curl -s -H "Authorization: Bearer $FLEET_TOKEN_PING" "$FLEET_URL/api/v1/fleet/hosts/identifier/86d7dc8e-3373-47af-86dd-56a1cd517e2f?exclude_software=true" | jq '{uuid:.host.uuid, id:.host.id, hostname:.host.hostname}'
+
+{
+  "uuid": "86d7dc8e-3373-47af-86dd-56a1cd517e2f",
+  "id": 9,
+  "hostname": "lab-linux"
+}
+

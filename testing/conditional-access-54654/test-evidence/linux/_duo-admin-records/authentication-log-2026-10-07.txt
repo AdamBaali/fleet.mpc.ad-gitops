@@ -1,0 +1,16 @@
+Duo Admin Panel > Reports > Authentication Log, "Last 24 hours", read by Claude in Chrome at about 18:56 UTC on 2026-10-07 (text copied from the page; the lab's public IP replaced by <public-ip>).
+User: lab-test, application: Web SDK (the Duo demo app).
+
+Timestamp (UTC)   Result   Reason (as Duo shows it)                           Access device
+18:53:28          Granted  Valid passcode                                      Ubuntu 24.04, as reported by Duo Desktop   <- D-8 recovery (real list restored)
+18:50:58          Denied   Endpoint is not trusted                             Ubuntu 24.04, as reported by Duo Desktop   <- D-8 (host removed from the list)
+                           (expanded row: Hostname lab-linux, Firefox 157.0, Duo Desktop Installed, Firewall Off, Encryption Off,
+                            System Password Set, Gravesend ENG United Kingdom <public-ip>, "Not a Trusted Endpoint, determined by Duo Desktop")
+18:46:59          Granted  Valid passcode                                      Ubuntu 24.04, as reported by Duo Desktop   <- D-5 / L-1
+17:56:22          Granted  Valid passcode                                      Ubuntu 24.04, as reported by Duo Desktop   (first allowed Linux sign-in)
+17:46:18          Denied   Endpoint is not trusted                             Ubuntu 24.04, as reported by Duo Desktop   (first attempt after activating the integration; endpoint "Unknown")
+17:38:19          Denied   Duo Desktop was not installed or running            Ubuntu, as reported by the browser         (service was crash-looping)
+12:43:30          Granted  Authentication trusted by Risk-based remembered devices   Mac OS X 15.7.7, as reported by Duo Desktop   (macOS)
+11:22:48          Denied   Endpoint is not trusted                             Mac OS X 15.7.7, as reported by Duo Desktop   (macOS, host removed from the list)
+11:14:59          Granted  User approved (platform authenticator)              Mac OS X 15.7.7, as reported by Duo Desktop   (macOS)
+11:14:48          Enrolled lab-test                                            Mac OS X 10.15.7, as reported by the browser

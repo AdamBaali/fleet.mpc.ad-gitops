@@ -1,0 +1,7 @@
+# 2026-10-07T18:07:08Z
+$ curl -sk -X POST -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/dataStores/fleet-rest/actions/Hwb3LA/invokeAction | jq .
+
+{
+  "message": "The connection test HTTP GET request to the data store returned the following response: \n\nResponse code: 200\nStatus message: OK\n\nThe server log may contain additional details about this test."
+}
+

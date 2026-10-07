@@ -1,0 +1,68 @@
+# 2026-10-07T18:55:26Z
+$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/configuration-profiles/lab-ca-scep-user.mobileconfig
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadContent</key>
+            <dict>
+                <key>AllowAllAppsAccess</key>
+                <true/>
+                <key>Challenge</key>
+                <string>$FLEET_VAR_CUSTOM_SCEP_CHALLENGE_LAB_CA</string>
+                <key>KeyIsExtractable</key>
+                <false/>
+                <key>Key Type</key>
+                <string>RSA</string>
+                <key>Key Usage</key>
+                <integer>5</integer>
+                <key>Keysize</key>
+                <integer>2048</integer>
+                <key>Subject</key>
+                <array>
+                    <array>
+                        <array>
+                            <string>CN</string>
+                            <string>$FLEET_VAR_HOST_UUID</string>
+                        </array>
+                    </array>
+                    <array>
+                        <array>
+                            <string>OU</string>
+                            <string>$FLEET_VAR_CERTIFICATE_RENEWAL_ID</string>
+                        </array>
+                    </array>
+                </array>
+                <key>URL</key>
+                <string>$FLEET_VAR_CUSTOM_SCEP_PROXY_URL_LAB_CA</string>
+            </dict>
+            <key>PayloadDisplayName</key>
+            <string>Lab CA SCEP</string>
+            <key>PayloadIdentifier</key>
+            <string>com.apple.security.scep.9FC5732A-01E4-49A4-BB5C-3F4FB0BDA559</string>
+            <key>PayloadType</key>
+            <string>com.apple.security.scep</string>
+            <key>PayloadUUID</key>
+            <string>9FC5732A-01E4-49A4-BB5C-3F4FB0BDA559</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Lab CA client certificate</string>
+    <key>PayloadIdentifier</key>
+    <string>Fleet.LabCA.Scep</string>
+    <key>PayloadScope</key>
+    <string>User</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>1A8A818D-A453-486A-AB0B-5F58F2581E00</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>

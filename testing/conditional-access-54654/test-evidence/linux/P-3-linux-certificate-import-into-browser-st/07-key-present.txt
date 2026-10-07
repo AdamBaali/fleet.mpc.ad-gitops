@@ -1,0 +1,12 @@
+# 2026-10-07T18:07:47Z (in the Linux VM lab-linux, as root)
+$ runuser -u lab -- certutil -K -d sql:/home/lab/.pki/nssdb 2>&1 | head -3; runuser -u lab -- certutil -L -d sql:/home/lab/.pki/nssdb | head -6
+
+certutil: Checking token "NSS Certificate DB" in slot "NSS User Private Key and Certificate Services"
+< 0> rsa      fb1d58f413a80f3f7a17a8662c1395571753807e   Fleet device certificate
+< 1> rsa      e9e1ba697471e483233f3dee9fb5793e2b602157   Fleet device certificate
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+Fleet Lab CA Intermediate CA - Fleet Lab CA                  ,,   
+Fleet Lab CA Root                                            CT,, 

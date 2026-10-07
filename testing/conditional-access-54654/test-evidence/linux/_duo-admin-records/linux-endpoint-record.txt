@@ -1,0 +1,13 @@
+Duo Admin Panel > Devices > Endpoints > "Lab Test's Ubuntu Device" (EPBXQCG5T0RRF1PNK3QE), read by Claude in Chrome on 2026-10-07.
+
+AFTER D-8 RECOVERY (about 18:56 UTC, real list restored and a new sign-in made):
+  User: lab-test (lab-test@mpc.ad)    Duo Desktop 4.7.0    OS: Ubuntu 24.04    Browser: Firefox 157.0
+  Trusted Endpoint: Yes - "Trusted endpoint enrolled in your management system, via device health"
+  Authenticator: Not Enrolled    Registration Status: Not Registered
+  Device health last collected by Duo Desktop: today    Firewall Off, Disk Encryption Off, Password Set
+
+WHILE BLOCKED (about 18:52 UTC, host removed from the list at 18:50, before the recovery sign-in):
+  Trusted Endpoint: No - "Endpoint is not enrolled in your management system, via device health"
+
+EARLIER (about 17:50 UTC, the first attempt):
+  Trusted Endpoint: Unknown - "Unable to communicate with device health app"

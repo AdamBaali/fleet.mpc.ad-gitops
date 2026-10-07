@@ -1,0 +1,5 @@
+# 2026-10-07T18:43:06Z (in the Linux VM lab-linux, as root)
+$ curl -sk -m 10 -o /dev/null -w 'https://localhost:53100/ -> %{http_code}\n' https://localhost:53100/; curl -s -m 10 -o /dev/null -w 'http://localhost:53106/ -> %{http_code}\n' http://localhost:53106/
+
+https://localhost:53100/ -> 404
+http://localhost:53106/ -> 404

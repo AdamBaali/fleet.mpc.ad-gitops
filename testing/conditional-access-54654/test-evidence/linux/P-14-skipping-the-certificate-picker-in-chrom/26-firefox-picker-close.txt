@@ -1,0 +1,4 @@
+# 2026-10-07T18:41:18Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/killbr.sh
+
+callback.log: 

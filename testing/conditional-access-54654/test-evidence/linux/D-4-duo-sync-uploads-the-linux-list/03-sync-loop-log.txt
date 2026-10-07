@@ -1,0 +1,17 @@
+# 2026-10-07T18:43:10Z
+$ echo 'Real syncs by the 5-minute loop (duo/sync.log), last 12 lines:'; tail -12 duo/sync.log
+
+Real syncs by the 5-minute loop (duo/sync.log), last 12 lines:
+2026-10-07T18:24:37Z macos: 1 synced
+2026-10-07T18:24:37Z windows: no hosts, skipped
+2026-10-07T18:24:38Z linux: 1 synced
+2026-10-07T18:29:41Z macos: 1 synced
+2026-10-07T18:29:41Z windows: no hosts, skipped
+2026-10-07T18:29:42Z linux: 1 synced
+2026-10-07T18:34:44Z macos: 1 synced
+2026-10-07T18:34:44Z windows: no hosts, skipped
+2026-10-07T18:34:45Z linux: 1 synced
+2026-10-07T18:39:48Z macos: 1 synced
+2026-10-07T18:39:48Z windows: no hosts, skipped
+2026-10-07T18:39:49Z linux: 1 synced
+

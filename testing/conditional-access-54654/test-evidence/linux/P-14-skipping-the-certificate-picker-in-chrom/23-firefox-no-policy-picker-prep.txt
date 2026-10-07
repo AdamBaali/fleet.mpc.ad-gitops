@@ -1,0 +1,5 @@
+# 2026-10-07T18:40:57Z (in the Linux VM lab-linux, as root)
+$ unlink /usr/lib/firefox/distribution/policies.json 2>/dev/null; ls /usr/lib/firefox/distribution; echo '(policies.json removed again for a quick look at the picker)'
+
+distribution.ini
+(policies.json removed again for a quick look at the picker)

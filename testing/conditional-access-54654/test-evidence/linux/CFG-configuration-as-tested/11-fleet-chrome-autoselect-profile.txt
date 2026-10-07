@@ -1,0 +1,38 @@
+# 2026-10-07T18:55:26Z
+$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/configuration-profiles/lab-chrome-autoselect.mobileconfig
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>AutoSelectCertificateForUrls</key>
+            <array>
+                <string>{"pattern":"https://ping.lab:9032","filter":{"ISSUER":{"CN":"Fleet Lab CA Intermediate CA"}}}</string>
+            </array>
+            <key>PayloadDisplayName</key>
+            <string>Chrome certificate auto-select</string>
+            <key>PayloadIdentifier</key>
+            <string>com.google.Chrome.Fleet.LabAutoSelect</string>
+            <key>PayloadType</key>
+            <string>com.google.Chrome</string>
+            <key>PayloadUUID</key>
+            <string>6D2C0B7E-5E0A-4F59-9B0E-3C1A7D8F4A21</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Lab Chrome certificate auto-select</string>
+    <key>PayloadIdentifier</key>
+    <string>Fleet.LabCA.ChromeAutoSelect</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>B3F1D5A2-7C44-4E0B-A9D6-1E2F8C3B5D70</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>

@@ -1,0 +1,6 @@
+# 2026-10-07T18:47:44Z
+$ echo 'Demo app log (callback from the VM at 192.168.64.x):'; grep duo-callback duo/demo.log | tail -2 | sed -E 's/(state|duo_code)=[^& ]+/\1=<x>/g'
+
+Demo app log (callback from the VM at 192.168.64.x):
+192.168.64.6 - - [07/Oct/2026 19:56:55] "GET /duo-callback?state=<x>&duo_code=<x> HTTP/1.1" 200 -
+192.168.64.6 - - [07/Oct/2026 20:47:14] "GET /duo-callback?state=<x>&duo_code=<x> HTTP/1.1" 200 -

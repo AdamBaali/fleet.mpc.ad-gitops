@@ -1,0 +1,6 @@
+# 2026-10-07T18:17:05Z
+$ echo "Fleet lookup for 0935f82c-9fc2-41d2-b6f7-69066f75b507:"; fleetctl api '/hosts/identifier/0935f82c-9fc2-41d2-b6f7-69066f75b507' 2>&1 | grep -v -E 'Warning|Version|Client|Server' | head -2
+
+Fleet lookup for 0935f82c-9fc2-41d2-b6f7-69066f75b507:
+Error: Got non 2XX return of 404
+

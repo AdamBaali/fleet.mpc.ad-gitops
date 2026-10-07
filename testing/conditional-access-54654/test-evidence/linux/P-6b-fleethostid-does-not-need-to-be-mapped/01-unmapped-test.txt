@@ -1,0 +1,14 @@
+# 2026-10-07T18:10:12Z
+$ cd ping/setup && bash .p6b.sh
+
+contract extended attributes before: ["fleetHostID","hostUUID"]
+contract extended attributes now:    ["hostUUID"]
+contract fulfillment keys now:       ["hostUUID","subject"]
+lookup 2 still uses:                 /api/v1/fleet/hosts/${ds.fleetByUuid.fleetHostID}/health
+PingFederate log position before the sign-in: line 11458
+client: lab-linux | resolves ping.lab -> 192.168.64.1 | 2026-10-07T18:10:24Z
+redirects=3
+final_url=http://localhost:8765/callback?code=<code>&state=ev
+WARN/ERROR lines written to the PingFederate server log during that sign-in: 0
+[contract and policy restored]
+

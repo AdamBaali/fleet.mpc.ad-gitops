@@ -1,0 +1,9 @@
+# 2026-10-07T18:41:56Z (in the Linux VM lab-linux, as root)
+$ /opt/company/import-patched.sh 2>&1 | tail -2; echo 'after the rerun:'; for d in /home/lab/.pki/nssdb /home/lab/.config/mozilla/firefox/ynqapdfi.default-release /home/lab/snap/chromium/current/.pki/nssdb; do echo "$d: $(runuser -u lab -- certutil -L -d sql:$d -n "Fleet device certificate" -a 2>/dev/null | openssl x509 -noout -serial 2>/dev/null) entries=$(runuser -u lab -- certutil -L -d sql:$d 2>/dev/null | grep -c "Fleet device certificate")"; done
+
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+after the rerun:
+/home/lab/.pki/nssdb: serial=333DA756E56B8F0C8EEBA6383A9D6132 entries=1
+/home/lab/.config/mozilla/firefox/ynqapdfi.default-release: serial=333DA756E56B8F0C8EEBA6383A9D6132 entries=1
+/home/lab/snap/chromium/current/.pki/nssdb: serial=333DA756E56B8F0C8EEBA6383A9D6132 entries=1

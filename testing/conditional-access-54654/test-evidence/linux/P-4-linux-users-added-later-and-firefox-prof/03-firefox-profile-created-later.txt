@@ -1,0 +1,18 @@
+# 2026-10-07T18:08:06Z (in the Linux VM lab-linux, as root)
+$ runuser -u labx -- mkdir -p /home/labx/.mozilla/firefox/lab01.default && runuser -u labx -- certutil -N -d sql:/home/labx/.mozilla/firefox/lab01.default --empty-password; echo '--- a Firefox profile now exists (simulated: empty NSS database), before rerun:'; bash /tmp/liststores.sh | sed -n '/user labx/,$p' | head -6; echo; /opt/company/import-patched.sh >/dev/null 2>&1; echo '--- after rerunning the script:'; bash /tmp/liststores.sh | sed -n '/user labx/,$p' | head -6
+
+--- a Firefox profile now exists (simulated: empty NSS database), before rerun:
+== user labx
+  1 x 'Fleet device certificate'  in  /home/labx/.pki/nssdb
+  0 x 'Fleet device certificate'  in  /home/labx/.mozilla/firefox/lab01.default
+  (no store) /home/labx/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  1 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb
+
+--- after rerunning the script:
+== user labx
+  1 x 'Fleet device certificate'  in  /home/labx/.pki/nssdb
+  1 x 'Fleet device certificate'  in  /home/labx/.mozilla/firefox/lab01.default
+  (no store) /home/labx/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  1 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb

@@ -1,0 +1,15 @@
+# 2026-10-07T18:07:44Z (in the Linux VM lab-linux, as root)
+$ /opt/company/import-patched.sh >/dev/null 2>&1; echo '--- after a second run (renewal replaces, no duplicates):'; bash /tmp/liststores.sh
+
+--- after a second run (renewal replaces, no duplicates):
+== user lab
+  1 x 'Fleet device certificate'  in  /home/lab/.pki/nssdb
+  1 x 'Fleet device certificate'  in  /home/lab/.config/mozilla/firefox/ynqapdfi.default-release
+  1 x 'Fleet device certificate'  in  /home/lab/snap/firefox/common/.mozilla/firefox/1vz435e9.default
+  1 x 'Fleet device certificate'  in  /home/lab/snap/chromium/current/.pki/nssdb
+== user lab2
+  1 x 'Fleet device certificate'  in  /home/lab2/.pki/nssdb
+  (no store) /home/lab2/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  1 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb
+  (no store) /home/ubuntu/snap/chromium/current/.pki/nssdb

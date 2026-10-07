@@ -1,0 +1,8 @@
+. evidence/lib.sh
+PFA='https://localhost:9999/pf-admin-api/v1'; AUTH="-u Administrator:\$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate'"
+ev_init P-5 "Fleet REST data store connection" "PingFederate's REST data store can call Fleet with the Observer API token." "Test Connection succeeds; Fleet returns the three values the guide maps (host UUID, host ID, failing critical policy count)." >/dev/null
+ev_cmd P-5 datastore-config "curl -sk $AUTH $PFA/dataStores/fleet-rest | jq '{id,name,type,baseUrl:(.configuration.fields[]|select(.name==\"Base URL\" or .name==\"Test Connection URL\")|{(.name):.value}) , tables:[.configuration.tables[]|{name,rows:[.rows[]|[.fields[]|{(.name):(if .name==\"Header Value\" then \"<token>\" else .value end)}]|add]}]}'" >/dev/null
+ev_cmd P-5 test-connection "curl -sk -X POST $AUTH $PFA/dataStores/fleet-rest/actions/Hwb3LA/invokeAction | jq ." >/dev/null
+ev_cmd P-5 fleet-lookup-1 "curl -s -H \"Authorization: Bearer \$FLEET_TOKEN_PING\" \"\$FLEET_URL/api/v1/fleet/hosts/identifier/86d7dc8e-3373-47af-86dd-56a1cd517e2f?exclude_software=true\" | jq '{uuid:.host.uuid, id:.host.id, hostname:.host.hostname}'" >/dev/null
+ev_cmd P-5 fleet-lookup-2 "HID=\$(curl -s -H \"Authorization: Bearer \$FLEET_TOKEN_PING\" \"\$FLEET_URL/api/v1/fleet/hosts/identifier/86d7dc8e-3373-47af-86dd-56a1cd517e2f?exclude_software=true\" | jq -r .host.id); curl -s -H \"Authorization: Bearer \$FLEET_TOKEN_PING\" \"\$FLEET_URL/api/v1/fleet/hosts/\$HID/health\" | jq '{failing_critical_policies_count:.health.failing_critical_policies_count}'" >/dev/null
+ev_cmd P-5 observer-role "curl -s -H \"Authorization: Bearer \$FLEET_TOKEN_PING\" \$FLEET_URL/api/v1/fleet/me | jq '{name:.user.name,global_role:.user.global_role,api_only:.user.api_only}'" >/dev/null

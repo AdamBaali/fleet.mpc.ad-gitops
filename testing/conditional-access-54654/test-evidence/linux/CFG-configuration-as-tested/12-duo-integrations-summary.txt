@@ -1,0 +1,33 @@
+# 2026-10-07T18:55:26Z
+$ echo 'Three Generic Trusted Endpoints integrations in Duo (Generic with Duo Desktop): macOS (active, group fleet-lab), Linux (active, group fleet-lab), Windows (not activated).'; echo 'Duo Web SDK app + policy: Trusted Endpoints = block endpoints that are not trusted, applied to the app and group fleet-lab.'; echo 'Test user: lab-test (Touch ID enrolled on the Mac; bypass code used on Linux).'; echo; echo 'Sync workflow (GitOps repo):'; cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/.github/workflows/duo-sync.yml | sed -n 1,25p
+
+Three Generic Trusted Endpoints integrations in Duo (Generic with Duo Desktop): macOS (active, group fleet-lab), Linux (active, group fleet-lab), Windows (not activated).
+Duo Web SDK app + policy: Trusted Endpoints = block endpoints that are not trusted, applied to the app and group fleet-lab.
+Test user: lab-test (Touch ID enrolled on the Mac; bypass code used on Linux).
+
+Sync workflow (GitOps repo):
+name: 'Sync Fleet hosts to Duo Trusted Endpoints'
+
+# Manual only until D-12 finishes. Then add the schedule:
+#   schedule:
+#     - cron: "2-59/5 * * * *"   # every 5 minutes, off the top of the hour
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5

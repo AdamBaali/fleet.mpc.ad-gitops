@@ -1,0 +1,13 @@
+# 2026-10-07T18:07:36Z (in the Linux VM lab-linux, as root)
+$ openssl x509 -in /opt/company/certificate.pem -noout -subject -issuer -serial -dates -ext extendedKeyUsage 2>&1; echo; sha256sum /opt/company/import-original.sh /opt/company/import-patched.sh | cut -c1-16,65-
+
+subject=CN = 86d7dc8e-3373-47af-86dd-56a1cd517e2f
+issuer=O = Fleet Lab CA, CN = Fleet Lab CA Intermediate CA
+serial=1D27D231C36BF5C5B1714A549CC785AB
+notBefore=Oct  6 14:37:45 2026 GMT
+notAfter=Nov  5 14:38:45 2026 GMT
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+
+f61a071853f9cffb  /opt/company/import-original.sh
+7fcbfb78fa6917ea  /opt/company/import-patched.sh

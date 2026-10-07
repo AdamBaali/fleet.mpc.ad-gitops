@@ -1,0 +1,24 @@
+# 2026-10-07T18:43:56Z
+$ python3 - <<'P'
+import re,os,subprocess
+t=open('secrets/duo/linux/device_cache_sync.py').read()
+blk=re.search(r"MKEY_CREDENTIALS = \{\n.*?\n\}\n",t,re.S).group(0)
+env=dict(os.environ,DUO_MKEY=re.search(r"'(DM[A-Z0-9]{18})'",blk).group(1),DUO_IKEY=re.search(r"'API_IKEY'\s*:\s*'([^']+)'",blk).group(1),DUO_SKEY=re.search(r"'API_SKEY'\s*:\s*'([^']+)'",blk).group(1),DUO_API_HOST=re.search(r"'API_HOST'\s*:\s*'([^']+)'",blk).group(1))
+open('/tmp/empty-ev.csv','w').write('device_id\n')
+r=subprocess.run(['.venv/bin/python','/Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/duo/device_cache_sync.py','--infile','/tmp/empty-ev.csv','--device_id_column','device_id','--dry_run'],env=env,capture_output=True,text=True)
+o=(r.stdout+r.stderr)
+for k in ('DUO_SKEY','DUO_IKEY','DUO_MKEY'): o=o.replace(env[k],'<'+k.lower()+'>')
+print('(header-only CSV, --dry_run)'); print(o); print('exit code',r.returncode)
+P
+
+(header-only CSV, --dry_run)
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: <duo_mkey>
+New cache created cache_key: DC2KFE98JOM9S0IYG6EV
+Attempting to delete existing cache cache_key:DC2KFE98JOM9S0IYG6EV
+Deleted existing cache cache_key: DC2KFE98JOM9S0IYG6EV
+No device IDs read from input column: device_id
+
+exit code 1
+

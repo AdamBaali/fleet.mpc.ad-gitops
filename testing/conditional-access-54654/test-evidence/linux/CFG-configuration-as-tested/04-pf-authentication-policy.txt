@@ -1,0 +1,45 @@
+# 2026-10-07T18:55:26Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/authenticationPolicies/default | jq '.authnSelectionTrees[0]|{name,adapter:.rootNode.action.authenticationSource.sourceRef.id,on_success:.rootNode.children[1].action.authenticationPolicyContractRef.id,lookup_1:.rootNode.children[1].action.attributeMapping.attributeSources[0].filterFields[0].value,lookup_2:.rootNode.children[1].action.attributeMapping.attributeSources[1].filterFields[0].value,fulfillment:.rootNode.children[1].action.attributeMapping.attributeContractFulfillment,criteria:.rootNode.children[1].action.attributeMapping.issuanceCriteria.conditionalCriteria}'
+
+{
+  "name": "Fleet device check",
+  "adapter": "x509lab",
+  "on_success": "fleetcontract",
+  "lookup_1": "/api/v1/fleet/hosts/identifier/${ad.x509lab.CN}?exclude_software=true",
+  "lookup_2": "/api/v1/fleet/hosts/${ds.fleetByUuid.fleetHostID}/health",
+  "fulfillment": {
+    "fleetHostID": {
+      "source": {
+        "type": "CUSTOM_DATA_STORE",
+        "id": "fleetByUuid"
+      },
+      "value": "fleetHostID"
+    },
+    "subject": {
+      "source": {
+        "type": "ADAPTER",
+        "id": "x509lab"
+      },
+      "value": "SubjectDN"
+    },
+    "hostUUID": {
+      "source": {
+        "type": "ADAPTER",
+        "id": "x509lab"
+      },
+      "value": "CN"
+    }
+  },
+  "criteria": [
+    {
+      "errorResult": "Host is not in Fleet or is failing a critical policy",
+      "source": {
+        "type": "CUSTOM_DATA_STORE",
+        "id": "fleetHealth"
+      },
+      "attributeName": "failingCriticalPolicies",
+      "condition": "EQUALS",
+      "value": "0"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# 2026-10-07T18:43:07Z
+$ W=$(mktemp -d); sed -e 's#https://fleet.example.com#https://fleet.mpc.ad#' -e 's#<Windows-MachineGuid-report-ID>#69#' fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh > $W/export.sh; cd $W; FLEET_API_TOKEN=$FLEET_TOKEN_DUO bash export.sh; echo; echo 'files:'; ls -A; for f in macos windows linux; do echo "== $f.csv"; cat $f.csv; done
+
+       2 macos.csv
+       1 windows.csv
+       2 linux.csv
+       5 total
+
+files:
+export.sh
+linux.csv
+macos.csv
+windows.csv
+== macos.csv
+device_id
+EBC70BCE-29B7-5389-8356-2AC6A7D8C240
+== windows.csv
+device_id
+== linux.csv
+device_id
+86d7dc8e-3373-47af-86dd-56a1cd517e2f
+

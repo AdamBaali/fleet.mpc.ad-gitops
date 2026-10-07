@@ -1,0 +1,16 @@
+# 2026-10-07T18:08:04Z (in the Linux VM lab-linux, as root)
+$ /opt/company/import-patched.sh 2>&1 | tail -3; echo '--- stores for labx after the script:'; bash /tmp/liststores.sh | sed -n '/user labx/,$p' | head -6; ls -d /home/labx/.mozilla /home/labx/.config/mozilla /home/labx/snap/firefox 2>&1 | head -3
+
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+--- stores for labx after the script:
+== user labx
+  1 x 'Fleet device certificate'  in  /home/labx/.pki/nssdb
+  (no store) /home/labx/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  1 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb
+  (no store) /home/ubuntu/snap/chromium/current/.pki/nssdb
+ls: cannot access '/home/labx/.mozilla': No such file or directory
+ls: cannot access '/home/labx/.config/mozilla': No such file or directory
+ls: cannot access '/home/labx/snap/firefox': No such file or directory

@@ -1,0 +1,13 @@
+# 2026-10-07T18:43:48Z
+$ W=$(mktemp -d); sed -e 's#https://fleet.example.com#https://fleet.mpc.ad#' -e 's#<Windows-MachineGuid-report-ID>#69#' fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh > $W/export.sh; cd $W; printf 'device_id\nOLD-1\nOLD-2\n' > macos.csv; printf 'device_id\nOLD-W1\n' > windows.csv; printf 'device_id\nOLD-L1\n' > linux.csv; FLEET_API_TOKEN=not-a-real-token bash export.sh; echo "exit code: $?"; echo '--- files after (unchanged):'; ls -A; cat linux.csv
+
+curl: (56) The requested URL returned error: 401
+exit code: 56
+--- files after (unchanged):
+export.sh
+linux.csv
+macos.csv
+windows.csv
+device_id
+OLD-L1
+

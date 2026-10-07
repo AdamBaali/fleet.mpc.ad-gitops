@@ -1,0 +1,9 @@
+# 2026-10-07T18:41:55Z (in the Linux VM lab-linux, as root)
+$ echo 'file:'; openssl x509 -in /opt/company/certificate.pem -noout -serial -enddate; for d in /home/lab/.pki/nssdb /home/lab/.config/mozilla/firefox/ynqapdfi.default-release /home/lab/snap/chromium/current/.pki/nssdb; do echo "$d: $(runuser -u lab -- certutil -L -d sql:$d -n "Fleet device certificate" -a 2>/dev/null | openssl x509 -noout -serial 2>/dev/null) entries=$(runuser -u lab -- certutil -L -d sql:$d 2>/dev/null | grep -c "Fleet device certificate")"; done
+
+file:
+serial=6B493BCDF63B4EDCD4D800361D057E56
+notAfter=Nov  6 18:41:41 2026 GMT
+/home/lab/.pki/nssdb: serial=6B493BCDF63B4EDCD4D800361D057E56 entries=1
+/home/lab/.config/mozilla/firefox/ynqapdfi.default-release: serial=6B493BCDF63B4EDCD4D800361D057E56 entries=1
+/home/lab/snap/chromium/current/.pki/nssdb: serial=6B493BCDF63B4EDCD4D800361D057E56 entries=1

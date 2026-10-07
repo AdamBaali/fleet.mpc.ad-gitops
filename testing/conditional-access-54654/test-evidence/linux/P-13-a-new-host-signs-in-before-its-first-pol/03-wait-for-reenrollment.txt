@@ -1,0 +1,7 @@
+# 2026-10-07T18:42:21Z
+$ t0=$(date +%s); for i in $(seq 1 40); do r=$(fleetctl api '/hosts/identifier/86d7dc8e-3373-47af-86dd-56a1cd517e2f' 2>/dev/null | jq -c '{id:.host.id,status:.host.status,policies_with_results:([.host.policies[]?|select(.response!=null and .response!="")]|length)}' 2>/dev/null); if [ -n "$r" ]; then echo "T+$(($(date +%s)-t0))s host is back: $r"; break; fi; echo "T+$(($(date +%s)-t0))s not enrolled yet"; sleep 3; done
+
+T+1s not enrolled yet
+T+4s not enrolled yet
+T+8s host is back: {"id":13,"status":"online","policies_with_results":0}
+

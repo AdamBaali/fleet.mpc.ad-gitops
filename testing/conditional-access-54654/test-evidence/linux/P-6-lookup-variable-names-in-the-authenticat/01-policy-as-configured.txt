@@ -1,0 +1,21 @@
+# 2026-10-07T18:09:32Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/authenticationPolicies/default | jq '.authnSelectionTrees[0].rootNode.children[1].action.attributeMapping | {lookup_1:.attributeSources[0].filterFields[0].value, lookup_2:.attributeSources[1].filterFields[0].value, contract_fulfillment_keys:(.attributeContractFulfillment|keys), issuance_criteria:[.issuanceCriteria.conditionalCriteria[]|{source:.source.id,attribute:.attributeName,condition,value}]}'
+
+{
+  "lookup_1": "/api/v1/fleet/hosts/identifier/${ad.x509lab.CN}?exclude_software=true",
+  "lookup_2": "/api/v1/fleet/hosts/${ds.fleetByUuid.fleetHostID}/health",
+  "contract_fulfillment_keys": [
+    "fleetHostID",
+    "hostUUID",
+    "subject"
+  ],
+  "issuance_criteria": [
+    {
+      "source": "fleetHealth",
+      "attribute": "failingCriticalPolicies",
+      "condition": "EQUALS",
+      "value": "0"
+    }
+  ]
+}
+

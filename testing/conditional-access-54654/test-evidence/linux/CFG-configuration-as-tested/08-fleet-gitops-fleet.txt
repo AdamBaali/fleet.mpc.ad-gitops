@@ -1,0 +1,46 @@
+# 2026-10-07T18:55:26Z
+$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/fleets/ping-duo-lab.yml; echo; echo '--- certificate authority (default.yml):'; grep -n -B2 -A8 'custom_scep_proxy' /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/default.yml | sed -E 's/(challenge: ).*/\1<from a GitHub secret>/'
+
+# Lab fleet for testing the PingFederate and Duo conditional access guides
+# (fleetdm/fleet#54654). Critical policies and the MachineGuid report live here
+# so they never touch other fleets.
+name: "Ping Duo Lab"
+policies:
+  - path: ../lib/all/policies/ca-test.policies.yml
+  - path: ../lib/macos/policies/duo-desktop-installed.policies.yml
+  - path: ../lib/macos/policies/firefox-installed.policies.yml
+  - path: ../lib/windows/policies/duo-desktop-installed.policies.yml
+reports:
+  - path: ../lib/windows/reports/windows-machine-guid.reports.yml
+agent_options:
+controls:
+  apple_settings:
+    configuration_profiles:
+      - path: ../lib/macos/configuration-profiles/lab-ca-root-trust.mobileconfig
+      - path: ../lib/macos/configuration-profiles/lab-ca-scep-user.mobileconfig
+      - path: ../lib/macos/configuration-profiles/lab-chrome-autoselect.mobileconfig
+  windows_settings:
+    configuration_profiles:
+      - path: ../lib/windows/configuration-profiles/lab-ca-root-trust.xml
+      - path: ../lib/windows/configuration-profiles/lab-ca-scep-user.xml
+software:
+  fleet_maintained_apps:
+    - slug: duo-desktop/darwin
+    - slug: duo-desktop/windows
+    - slug: firefox/darwin
+settings:
+  secrets:
+    - secret: "$FLEET_PING_DUO_LAB_ENROLL_SECRET"
+
+--- certificate authority (default.yml):
+9-  certificate_authorities:
+10-    # Lab step-ca for the PingFederate and Duo guides (fleetdm/fleet#54654).
+11:    custom_scep_proxy:
+12-      - name: LAB_CA
+13-        url: https://scep.mpc.ad/scep/fleet-scep
+14-        challenge: <from a GitHub secret>
+15-  server_settings:
+16-    server_url: $FLEET_URL
+17-  org_info:
+18-    org_name: Fleet
+19-  secrets:

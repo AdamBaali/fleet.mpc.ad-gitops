@@ -1,0 +1,10 @@
+# 2026-10-07T18:43:04Z (in the Linux VM lab-linux, as root)
+$ dpkg -l duo-desktop | tail -1 | cut -c1-90; systemctl is-active duo-desktop; systemctl show duo-desktop -p NRestarts -p ActiveEnterTimestamp | tr '\n' ' '; echo; ss -ltn 2>/dev/null | grep -E ':(53100|53106)' | head -4
+
+ii  duo-desktop:amd64 4.7.0        amd64        Duo Desktop
+active
+NRestarts=0 ActiveEnterTimestamp=Wed 2026-10-07 17:52:46 UTC 
+LISTEN 0      512        127.0.0.1:53100      0.0.0.0:*          
+LISTEN 0      512        127.0.0.1:53106      0.0.0.0:*          
+LISTEN 0      512            [::1]:53106         [::]:*          
+LISTEN 0      512            [::1]:53100         [::]:*          

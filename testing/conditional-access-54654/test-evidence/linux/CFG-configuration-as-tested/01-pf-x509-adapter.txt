@@ -1,0 +1,26 @@
+# 2026-10-07T18:55:25Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/idp/adapters/x509lab | jq '{id,name,pluginDescriptorRef:.pluginDescriptorRef.id,fields:[.configuration.fields[]|{(.name):.value}]|add,attribute_contract:[.attributeContract.coreAttributes[].name]}'
+
+{
+  "id": "x509lab",
+  "name": "Fleet X.509",
+  "pluginDescriptorRef": "com.pingidentity.adapters.idp.clientcert.ClientCertIdpAuthnAdapter",
+  "fields": {
+    "Client Auth Port": "9032",
+    "Client Auth Hostname": "ping.lab",
+    "Parse Client Cert Subject and Issuer DNs": "true",
+    "Match Issuer DN in Client X.509 certificate": "false",
+    "Return Success On SLO": "true",
+    "Authentication Context": "Default",
+    "Custom Authentication Context": "",
+    "Include Subject Alternative Name (SAN)": "false",
+    "Skip Redirect Back": "false"
+  },
+  "attribute_contract": [
+    "IssuerDN",
+    "SerialNumber",
+    "SubjectDN",
+    "email",
+    "ClientCertificateChain"
+  ]
+}

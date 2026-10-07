@@ -1,0 +1,12 @@
+. evidence/lib.sh
+UUID=86d7dc8e-3373-47af-86dd-56a1cd517e2f
+ev_init P-15 "Linux: certificate renewal replaces the old certificate" "A renewed certificate (new serial) is imported by rerunning the script; the old one is replaced, not duplicated; sign-in works with the new one. Fleet does not auto-renew Linux certificates." "Exactly one 'Fleet device certificate' per store, with the new serial." >/dev/null
+SER='for d in /home/lab/.pki/nssdb /home/lab/.config/mozilla/firefox/ynqapdfi.default-release /home/lab/snap/chromium/current/.pki/nssdb; do echo "$d: $(runuser -u lab -- certutil -L -d sql:$d -n "Fleet device certificate" -a 2>/dev/null | openssl x509 -noout -serial 2>/dev/null) entries=$(runuser -u lab -- certutil -L -d sql:$d 2>/dev/null | grep -c "Fleet device certificate")"; done'
+ev_vm P-15 before "echo 'file:'; openssl x509 -in /opt/company/certificate.pem -noout -serial -enddate; $SER" >/dev/null
+docker exec -e PW="$STEPCA_PASSWORD" stepca sh -c 'echo "$PW" > /tmp/pw.txt; step ca certificate "'"$UUID"'" /tmp/renew.crt /tmp/renew.key --provisioner admin --provisioner-password-file /tmp/pw.txt --kty RSA --size 2048 --not-after 720h --force >/tmp/issue.log 2>&1; unlink /tmp/pw.txt; tail -1 /tmp/issue.log' | redact
+TMP=$(mktemp -d); docker cp stepca:/tmp/renew.crt $TMP/renew.crt >/dev/null; docker cp stepca:/tmp/renew.key $TMP/renew.key >/dev/null
+$U file push lab-linux /tmp/renew.crt < $TMP/renew.crt >/dev/null 2>&1; $U file push lab-linux /tmp/renew.key < $TMP/renew.key >/dev/null 2>&1; rm -rf $TMP
+ev_vm P-15 install-new-cert "cp -p /opt/company/certificate.pem /opt/company/certificate.pem.bak; cp -p /opt/company/CustomerUserNetworkAccess.key /opt/company/CustomerUserNetworkAccess.key.bak; cp /tmp/renew.crt /opt/company/certificate.pem; cp /tmp/renew.key /opt/company/CustomerUserNetworkAccess.key; chmod 600 /opt/company/CustomerUserNetworkAccess.key; unlink /tmp/renew.key; echo 'new certificate file:'; openssl x509 -in /opt/company/certificate.pem -noout -serial -enddate" >/dev/null
+ev_vm P-15 rerun-import-script "/opt/company/import-patched.sh 2>&1 | tail -2; echo 'after the rerun:'; $SER" >/dev/null
+ev_vm P-15 signin-with-new-cert "bash /tmp/signin.sh cert" >/dev/null
+ev_note P-15 "Fleet's renewal guide states automatic renewal is not supported for Linux, so a script (like the guide's EST/Hydrant step plus import-certificate-to-browsers.sh) has to fetch and import the new certificate. The macOS renewal is tracked separately in evidence/renewal."

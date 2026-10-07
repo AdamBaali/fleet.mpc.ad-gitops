@@ -1,0 +1,6 @@
+# 2026-10-07T18:09:36Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/signin.sh cert
+
+client: lab-linux | resolves ping.lab -> 192.168.64.1 | 2026-10-07T18:09:47Z
+redirects=3
+final_url=http://localhost:8765/callback?error_description=uuid mismatch&state=ev&error=access_denied#.

@@ -1,0 +1,19 @@
+# 2026-10-07T18:07:37Z (in the Linux VM lab-linux, as root)
+$ /opt/company/import-original.sh 2>&1 | tail -6; echo '--- stores after the ORIGINAL (PR) script:'; bash /tmp/liststores.sh
+
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+pk12util: PKCS12 IMPORT SUCCESSFUL
+--- stores after the ORIGINAL (PR) script:
+== user lab
+  1 x 'Fleet device certificate'  in  /home/lab/.pki/nssdb
+  0 x 'Fleet device certificate'  in  /home/lab/.config/mozilla/firefox/ynqapdfi.default-release
+  1 x 'Fleet device certificate'  in  /home/lab/snap/firefox/common/.mozilla/firefox/1vz435e9.default
+  (no store) /home/lab/snap/chromium/current/.pki/nssdb
+== user lab2
+  1 x 'Fleet device certificate'  in  /home/lab2/.pki/nssdb
+  (no store) /home/lab2/snap/chromium/current/.pki/nssdb
+== user ubuntu
+  1 x 'Fleet device certificate'  in  /home/ubuntu/.pki/nssdb
+  (no store) /home/ubuntu/snap/chromium/current/.pki/nssdb

@@ -1,0 +1,6 @@
+# 2026-10-07T18:09:35Z
+$ echo A:\ guide\ wording\ \$\{hostUUID\}\ in\ lookup\ 1; (cd ping/setup && bash ./.var-A.sh | tail -1)
+
+A: guide wording ${hostUUID} in lookup 1
+{"trees":1}
+

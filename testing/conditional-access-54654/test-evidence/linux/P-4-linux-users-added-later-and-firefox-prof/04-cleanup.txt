@@ -1,0 +1,5 @@
+# 2026-10-07T18:08:09Z (in the Linux VM lab-linux, as root)
+$ userdel -r labx 2>&1; id labx 2>&1 | head -1
+
+userdel: labx mail spool (/var/mail/labx) not found
+id: ‘labx’: no such user

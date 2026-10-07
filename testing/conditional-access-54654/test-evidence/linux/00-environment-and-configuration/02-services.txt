@@ -1,0 +1,8 @@
+# 2026-10-07T18:06:36Z
+$ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'; docker exec stepca step-ca version 2>&1 | head -1; curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/version
+
+NAMES          IMAGE                                   STATUS
+pingfederate   pingidentity/pingfederate:2609-13.1.3   Up 29 hours (healthy)
+stepca         smallstep/step-ca:latest                Up 2 minutes (healthy)
+Smallstep CA/0.30.2 (linux/arm64)
+{"version":"13.1.3.0"}

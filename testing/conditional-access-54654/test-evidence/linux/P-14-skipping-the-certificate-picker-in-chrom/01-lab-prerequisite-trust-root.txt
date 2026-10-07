@@ -1,0 +1,10 @@
+# 2026-10-07T18:34:21Z (in the Linux VM lab-linux, as root)
+$ certutil -A -d sql:/home/lab/snap/chromium/current/.pki/nssdb -n FleetLabCAroot -t CT,, -i /opt/company/step-ca-root.crt; chown -R lab:lab /home/lab/snap/chromium/current/.pki; certutil -L -d sql:/home/lab/snap/chromium/current/.pki/nssdb | head -6; echo 'Lab prerequisite: the browser must trust the CA that issued the PingFederate server certificate. The P-3 reset had removed this trust for Chromium.'
+
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+Fleet Lab CA Intermediate CA - Fleet Lab CA                  ,,   
+Fleet device certificate                                     u,u,u
+Lab prerequisite: the browser must trust the CA that issued the PingFederate server certificate. The P-3 reset had removed this trust for Chromium.

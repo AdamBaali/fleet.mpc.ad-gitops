@@ -1,0 +1,108 @@
+# 2026-10-07T18:07:08Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/dataStores/fleet-rest | jq '{id,name,type,baseUrl:(.configuration.fields[]|select(.name=="Base URL" or .name=="Test Connection URL")|{(.name):.value}) , tables:[.configuration.tables[]|{name,rows:[.rows[]|[.fields[]|{(.name):(if .name=="Header Value" then "<token>" else .value end)}]|add]}]}'
+
+{
+  "id": "fleet-rest",
+  "name": "Fleet",
+  "type": "CUSTOM",
+  "baseUrl": {
+    "Base URL": "https://fleet.mpc.ad"
+  },
+  "tables": [
+    {
+      "name": "HTTP Request Headers",
+      "rows": [
+        {
+          "Header Name": "Authorization",
+          "Header Value": "<token>"
+        }
+      ]
+    },
+    {
+      "name": "Attributes",
+      "rows": [
+        {
+          "Local Attribute": "fleetHostUUID",
+          "JSON Response Attribute Path": "/host/uuid"
+        },
+        {
+          "Local Attribute": "fleetHostID",
+          "JSON Response Attribute Path": "/host/id"
+        },
+        {
+          "Local Attribute": "failingCriticalPolicies",
+          "JSON Response Attribute Path": "/health/failing_critical_policies_count"
+        },
+        {
+          "Local Attribute": "fleetHostname",
+          "JSON Response Attribute Path": "/host/hostname"
+        },
+        {
+          "Local Attribute": "fleetTeamID",
+          "JSON Response Attribute Path": "/host/team_id"
+        },
+        {
+          "Local Attribute": "fleetHostIDText",
+          "JSON Response Attribute Path": "/host/id"
+        }
+      ]
+    },
+    {
+      "name": "Base URLs and Tags",
+      "rows": []
+    }
+  ]
+}
+{
+  "id": "fleet-rest",
+  "name": "Fleet",
+  "type": "CUSTOM",
+  "baseUrl": {
+    "Test Connection URL": "https://fleet.mpc.ad/api/v1/fleet/me"
+  },
+  "tables": [
+    {
+      "name": "HTTP Request Headers",
+      "rows": [
+        {
+          "Header Name": "Authorization",
+          "Header Value": "<token>"
+        }
+      ]
+    },
+    {
+      "name": "Attributes",
+      "rows": [
+        {
+          "Local Attribute": "fleetHostUUID",
+          "JSON Response Attribute Path": "/host/uuid"
+        },
+        {
+          "Local Attribute": "fleetHostID",
+          "JSON Response Attribute Path": "/host/id"
+        },
+        {
+          "Local Attribute": "failingCriticalPolicies",
+          "JSON Response Attribute Path": "/health/failing_critical_policies_count"
+        },
+        {
+          "Local Attribute": "fleetHostname",
+          "JSON Response Attribute Path": "/host/hostname"
+        },
+        {
+          "Local Attribute": "fleetTeamID",
+          "JSON Response Attribute Path": "/host/team_id"
+        },
+        {
+          "Local Attribute": "fleetHostIDText",
+          "JSON Response Attribute Path": "/host/id"
+        }
+      ]
+    },
+    {
+      "name": "Base URLs and Tags",
+      "rows": []
+    }
+  ]
+}
+

@@ -1,0 +1,10 @@
+# 2026-10-07T18:42:14Z
+$ fleetctl api '/hosts/identifier/86d7dc8e-3373-47af-86dd-56a1cd517e2f' 2>/dev/null | jq '{id:.host.id, uuid:.host.uuid, status:.host.status, enrolled:.host.last_enrolled_at}'
+
+{
+  "id": 9,
+  "uuid": "86d7dc8e-3373-47af-86dd-56a1cd517e2f",
+  "status": "online",
+  "enrolled": "2026-10-06T16:05:02Z"
+}
+

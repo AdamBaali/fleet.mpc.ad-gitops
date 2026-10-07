@@ -1,0 +1,5 @@
+# 2026-10-07T18:39:02Z (in the Linux VM lab-linux, as root)
+$ echo 'user_pref("toolkit.startup.max_resumed_crashes", -1);' > /home/lab/.config/mozilla/firefox/ynqapdfi.default-release/user.js; chown lab:lab /home/lab/.config/mozilla/firefox/ynqapdfi.default-release/user.js; cat /home/lab/.config/mozilla/firefox/ynqapdfi.default-release/user.js; echo 'Test harness setting only: the harness kills the browser between cases, which otherwise triggers the Troubleshoot Mode prompt.'
+
+user_pref("toolkit.startup.max_resumed_crashes", -1);
+Test harness setting only: the harness kills the browser between cases, which otherwise triggers the Troubleshoot Mode prompt.

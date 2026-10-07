@@ -1,0 +1,4 @@
+# 2026-10-07T18:40:42Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/killbr.sh
+
+callback.log: 2026-10-07T18:40:09.783013 /callback?code=<code>&state=ev14

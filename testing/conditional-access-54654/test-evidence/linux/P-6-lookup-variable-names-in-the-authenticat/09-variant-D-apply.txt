@@ -1,0 +1,6 @@
+# 2026-10-07T18:09:39Z
+$ echo D:\ guide\ wording\ \$\{fleetHostID\}\ in\ lookup\ 2; (cd ping/setup && bash ./.var-D.sh | tail -1)
+
+D: guide wording ${fleetHostID} in lookup 2
+{"trees":1}
+

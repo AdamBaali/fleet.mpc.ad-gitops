@@ -1,0 +1,6 @@
+# 2026-10-07T18:09:36Z
+$ echo C:\ second\ criterion\ fleetHostUUID\ equals\ \$\{hostUUID\}\ \(guide\ wording\); (cd ping/setup && bash ./.var-C.sh | tail -1)
+
+C: second criterion fleetHostUUID equals ${hostUUID} (guide wording)
+{"trees":1}
+

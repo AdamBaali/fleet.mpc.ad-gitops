@@ -1,0 +1,14 @@
+# 2026-10-07T18:55:26Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/authenticationPolicyContracts/fleetcontract | jq '{id,name,core:[.coreAttributes[].name],extended:[.extendedAttributes[].name]}'
+
+{
+  "id": "fleetcontract",
+  "name": "Fleet device check",
+  "core": [
+    "subject"
+  ],
+  "extended": [
+    "fleetHostID",
+    "hostUUID"
+  ]
+}

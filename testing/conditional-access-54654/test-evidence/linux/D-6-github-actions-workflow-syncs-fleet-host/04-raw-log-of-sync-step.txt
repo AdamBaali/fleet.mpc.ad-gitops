@@ -1,0 +1,31 @@
+# 2026-10-07T18:44:48Z
+$ TMP=$(mktemp -d); gh api repos/AdamBaali/fleet.mpc.ad-gitops/actions/runs/37646267078/logs > $TMP/l.zip 2>/dev/null; echo 'Lines from the workflow log (secret values are masked by GitHub; env block omitted):'; unzip -p $TMP/l.zip 0_sync.txt | sed -E 's/^[^ ]*Z //' | grep -E 'csv|total|Starting|Attempting|Uploading|devices uploaded|Activated|Devices synced|skipped|Run bash' | grep -v -E 'DUO_|FLEET_API_TOKEN|MKEY|IKEY|SKEY' | sed -E 's/\x1b\[[0-9;]*m//g' | cut -c1-170; rm -rf $TMP
+
+Lines from the workflow log (secret values are masked by GitHub; env block omitted):
+##[group]Run bash duo/export-fleet-hosts-for-duo.sh
+  if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
+      python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
+    echo "$os: no credentials or no hosts, skipped"
+  2 macos.csv
+  1 windows.csv
+  2 linux.csv
+  5 total
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: ***
+Attempting to upload devices count: 1
+Uploading 1 device(s)
+1 devices uploaded
+Attempting to activate device cache cache_key: DCQU7KPWG1KXLAGPH9LC
+Activated device cache cache_key: DCQU7KPWG1KXLAGPH9LC
+Devices synced: 1
+windows: no credentials or no hosts, skipped
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: ***
+Attempting to upload devices count: 1
+Uploading 1 device(s)
+1 devices uploaded
+Attempting to activate device cache cache_key: DCIJ3DCUI7IRO2ARAKR1
+Activated device cache cache_key: DCIJ3DCUI7IRO2ARAKR1
+Devices synced: 1

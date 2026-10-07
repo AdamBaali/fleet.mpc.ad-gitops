@@ -1,0 +1,9 @@
+# 2026-10-07T18:07:10Z
+$ curl -s -H "Authorization: Bearer $FLEET_TOKEN_PING" $FLEET_URL/api/v1/fleet/me | jq '{name:.user.name,global_role:.user.global_role,api_only:.user.api_only}'
+
+{
+  "name": "ping-observer",
+  "global_role": "observer",
+  "api_only": true
+}
+

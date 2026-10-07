@@ -1,0 +1,11 @@
+# 2026-10-07T18:17:05Z
+$ echo 'Certificate issued by the lab CA for a UUID Fleet has never seen (CN below); private key not saved in the evidence.'; docker exec stepca sh -c 'step certificate inspect /tmp/ghost.crt --short 2>&1 | head -12'
+
+Certificate issued by the lab CA for a UUID Fleet has never seen (CN below); private key not saved in the evidence.
+X.509v3 TLS Certificate (RSA 2048) [Serial: 2221...2435]
+  Subject:     0935f82c-9fc2-41d2-b6f7-69066f75b507
+  Issuer:      Fleet Lab CA Intermediate CA
+  Provisioner: admin [ID: _5E_...NUFo]
+  Valid from:  2026-10-07T18:16:04Z
+          to:  2026-10-07T19:17:04Z
+

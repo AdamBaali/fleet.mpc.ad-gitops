@@ -1,0 +1,45 @@
+# 2026-10-07T18:55:26Z
+$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/all/policies/ca-test.policies.yml /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/policies/duo-desktop-installed.policies.yml /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/policies/firefox-installed.policies.yml
+
+# Test policies for the PingFederate and Duo conditional access guides
+# (fleetdm/fleet#54654). Creating the flag file flips a host to failing.
+
+- name: CA test - flag file absent (macOS and Linux)
+  description: Passes while /tmp/fleet-ca-test does not exist. Create the file to make the host fail this critical policy.
+  resolution: Delete /tmp/fleet-ca-test.
+  platform: darwin,linux
+  critical: true
+  query: |
+    SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM file WHERE path = '/tmp/fleet-ca-test');
+
+- name: CA test - flag file absent (Windows)
+  description: Passes while C:\fleet-ca-test does not exist. Create the file to make the host fail this critical policy.
+  resolution: Delete C:\fleet-ca-test.
+  platform: windows
+  critical: true
+  query: |
+    SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM file WHERE path = 'C:\fleet-ca-test');
+
+- name: CA test - always fails (non-critical)
+  description: Always fails. Hosts that fail only non-critical policies must still sign in.
+  resolution: None. This policy is meant to fail.
+  platform: darwin,linux,windows
+  critical: false
+  query: |
+    SELECT 1 WHERE 1 = 0;
+- name: Duo Desktop installed (macOS)
+  description: Duo Desktop reports device health to Duo Trusted Endpoints.
+  resolution: Fleet installs Duo Desktop when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM apps WHERE bundle_identifier = 'com.duosecurity.duo-device-health';
+  install_software:
+    fleet_maintained_app_slug: duo-desktop/darwin
+- name: Firefox installed (macOS)
+  description: Firefox is used to test certificate sign-in to PingFederate (P-16).
+  resolution: Fleet installs Firefox when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM apps WHERE bundle_identifier = 'org.mozilla.firefox';
+  install_software:
+    fleet_maintained_app_slug: firefox/darwin

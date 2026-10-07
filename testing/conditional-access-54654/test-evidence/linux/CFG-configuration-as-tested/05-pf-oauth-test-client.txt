@@ -1,0 +1,15 @@
+# 2026-10-07T18:55:26Z
+$ curl -sk -u Administrator:$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate' https://localhost:9999/pf-admin-api/v1/oauth/clients/labclient | jq '{clientId,name,grantTypes,redirectUris,restrictScopes,defaultAccessTokenManagerRef:.defaultAccessTokenManagerRef.id}'
+
+{
+  "clientId": "labclient",
+  "name": "Lab test client",
+  "grantTypes": [
+    "AUTHORIZATION_CODE"
+  ],
+  "redirectUris": [
+    "http://localhost:8765/callback"
+  ],
+  "restrictScopes": false,
+  "defaultAccessTokenManagerRef": "atmref"
+}

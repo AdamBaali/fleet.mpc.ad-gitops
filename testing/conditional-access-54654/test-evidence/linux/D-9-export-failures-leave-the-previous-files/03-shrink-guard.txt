@@ -1,0 +1,14 @@
+# 2026-10-07T18:43:49Z
+$ W=$(mktemp -d); sed -e 's#https://fleet.example.com#https://fleet.mpc.ad#' -e 's#<Windows-MachineGuid-report-ID>#69#' fleet/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh > $W/export.sh; cd $W; printf 'device_id\nOLD-1\nOLD-2\n' > macos.csv; printf 'device_id\nOLD-W1\n' > windows.csv; printf 'device_id\nOLD-L1\n' > linux.csv; (echo device_id; seq 1 300) > windows.csv; FLEET_API_TOKEN=$FLEET_TOKEN_DUO bash export.sh; echo "exit code: $?"; echo "windows.csv still has $(( $(wc -l < windows.csv) - 1 )) rows (300 before, live Fleet has 0 Windows hosts)"; echo; echo '--- same run with FORCE=true:'; FORCE=true FLEET_API_TOKEN=$FLEET_TOKEN_DUO bash export.sh | tail -4; echo "windows.csv now has $(( $(wc -l < windows.csv) - 1 )) rows"
+
+Refusing to replace windows.csv: 300 device IDs before, 0 now. Set FORCE=true to continue.
+exit code: 1
+windows.csv still has 300 rows (300 before, live Fleet has 0 Windows hosts)
+
+--- same run with FORCE=true:
+       2 macos.csv
+       1 windows.csv
+       2 linux.csv
+       5 total
+windows.csv now has 0 rows
+
