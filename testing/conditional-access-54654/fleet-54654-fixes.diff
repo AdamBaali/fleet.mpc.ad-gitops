@@ -1,0 +1,214 @@
+diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
+index 3b6388ff63..1b0c47a310 100644
+--- a/articles/pingfederate-conditional-access-integration.md
++++ b/articles/pingfederate-conditional-access-integration.md
+@@ -13,6 +13,7 @@ How it works:
+ ## Prerequisites
+ 
+ - A certificate authority (CA) connected to Fleet. See [supported CAs](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate). Best practice is a dedicated issuing CA used only for these certificates, because PingFederate trusts every certificate the CA issues.
++- Hosts that trust the certificate PingFederate presents. If your own CA issued it, deploy that CA's root certificate to your hosts with a certificate profile. Browsers show a security warning otherwise.
+ - PingFederate with the X.509 Certificate Integration Kit [installed](https://docs.pingidentity.com/integrations/x509/x509_certificate_integration_kit/pf_x509_certificate_ik_deploying_the_integration_files.html), including setting `pf.secondary.https.port`.
+ 
+ ## Step 1: Create a Fleet API user
+@@ -25,26 +26,27 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
+ 
+ ## Step 3: Deploy the certificate
+ 
+-For every platform, set the certificate's CN to `$FLEET_VAR_HOST_UUID` and include the TLS client authentication extended key usage.
++For every platform, set the certificate's CN to `$FLEET_VAR_HOST_UUID`. The certificate also needs the TLS client authentication extended key usage (EKU). Your CA sets the EKU, not the profile, so check your CA's certificate template.
+ 
+ ### macOS
+ 
+-Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it.
++Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it. In the SCEP payload, set `AllowAllAppsAccess` to `true` and `KeyIsExtractable` to `false`. Even then, macOS asks the end user for their login keychain password the first time Chrome or Firefox uses the certificate. They select **Always Allow** once. Safari doesn't ask. See the [custom SCEP example](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate) for a profile.
+ 
+ ### Windows
+ 
+-Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands in the user certificate store. See [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile) for an example profile.
++Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands in the user certificate store. See [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile) for an example profile. The example sets `SubjectName` to the host's serial number. Change it to `CN=$FLEET_VAR_HOST_UUID,OU=$FLEET_VAR_CERTIFICATE_RENEWAL_ID` so the CN is the host's UUID and Fleet can renew the certificate.
+ 
+ ### Linux
+ 
+ 1. Follow the [Hydrant](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate#hydrant) or [EST](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate#any-est-enrollment-over-secure-transport-ca) steps. In the script, set the CSR's subject to `/CN=$FLEET_VAR_HOST_UUID`.
+-2. Linux browsers don't read certificates from the filesystem. Append [`import-certificate-to-browsers.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/linux/scripts/import-certificate-to-browsers.sh) to your script, updating the paths. It imports the certificate into each user's Chrome and Firefox stores, including snap installs. Hosts need `libnss3-tools` (Debian/Ubuntu) or `nss-tools` (RHEL).
++2. Linux browsers don't read certificates from the filesystem. Append [`import-certificate-to-browsers.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/linux/scripts/import-certificate-to-browsers.sh) to your script, updating the paths. It imports the certificate into each user's Chrome and Firefox stores, including snap installs. Hosts need `libnss3-tools` (Debian/Ubuntu) or `nss-tools` (RHEL). The script only imports into browser stores that exist. Run it again after a user first opens Firefox, and for users added later.
+ 
+ ## Step 4: Configure the X.509 adapter
+ 
+ 1. In PingFederate, import your CA's certificate as a trusted CA.
+ 2. Create an X.509 Certificate IdP Adapter instance.
+-3. Map the certificate's CN to an adapter attribute (for example, `hostUUID`).
++3. Set **Client Auth Port** to your secondary HTTPS port (`pf.secondary.https.port`). PingFederate requires it. Set **Client Auth Hostname** to the host name browsers use to reach PingFederate.
++4. Make sure the adapter returns the certificate's CN. You use it in Step 6.
+ 
+ ## Step 5: Add Fleet as a data store
+ 
+@@ -52,7 +54,8 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+ 2. For **Type**, select **Rest API**.
+ 3. For **Base URL**, enter your Fleet server URL.
+ 4. Add the Fleet API token from Step 1 as an `Authorization: Bearer <token>` header.
+-5. Add these attributes:
++5. For **Test Connection URL**, enter `/api/v1/fleet/me` and select **Test Connection**.
++6. Add these attributes:
+ 
+ | Local attribute | JSON response attribute path |
+ |---|---|
+@@ -64,11 +67,12 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+ 
+ 1. Add the X.509 adapter from Step 4 to your authentication policy.
+ 2. On the adapter's success path, map to a policy contract. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
+-   - First, with the resource path `/api/v1/fleet/hosts/identifier/${hostUUID}?exclude_software=true`
+-   - Second, with the resource path `/api/v1/fleet/hosts/${fleetHostID}/health`
+-3. On **Issuance Criteria**, add:
+-   - `fleetHostUUID` equals `${hostUUID}` (host is in Fleet)
+-   - `failingCriticalPolicies` equals `0` (host is passing critical policies)
++   - First, with the resource path `/api/v1/fleet/hosts/identifier/${ad.<adapter ID>.CN}?exclude_software=true`
++   - Second, with the resource path `/api/v1/fleet/hosts/${ds.<first source ID>.fleetHostID}/health`
++
++   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. PingFederate only recognizes names in this form.
++3. On **Contract Fulfillment**, map `fleetHostID` from the first Fleet source to an attribute on the policy contract. PingFederate only fetches an attribute that something uses, so the second lookup fails without this.
++4. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
+ 
+ Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
+ 
+@@ -84,11 +88,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+ ## Troubleshooting
+ 
+ - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
++- **Browser asks for the login keychain password (macOS)**: Expected the first time Chrome or Firefox uses the certificate. The end user selects **Always Allow**. If Safari asks too, set `AllowAllAppsAccess` to `true` in the SCEP payload. Fleet doesn't resend a changed profile to a host that already has a certificate. Resend the profile to the host, or wait for the certificate to renew.
+ - **Sign-in denied for a managed host**: Check that the certificate's CN matches the host's UUID in Fleet.
+ - **Sign-in still denied after fixing a policy**: Select **Refetch** on the **My device** page, wait for the policy results to update, then sign in again.
+ - **Data store errors**: Check the API token and that PingFederate can reach your Fleet server.
+ 
+-To skip the certificate picker in Chrome and Edge, deploy the `AutoSelectCertificateForUrls` policy for your PingFederate URL.
++## Skip the certificate picker
++
++- **Chrome and Edge**: Deploy the `AutoSelectCertificateForUrls` policy. Use the host name and port that ask for the certificate, not the sign-in URL's port. For example: `{"pattern":"https://ping.example.com:9032","filter":{"ISSUER":{"CN":"<your CA's common name>"}}}`. On macOS, deploy it in a configuration profile with the payload type `com.google.Chrome` (`com.microsoft.Edge` for Edge). On Windows and Linux, use the registry or a policy file.
++- **Firefox**: Set `security.default_personal_cert` to `Select Automatically` with an [enterprise policy](https://mozilla.github.io/policy-templates/). Firefox asks every time otherwise.
++- **Safari**: Always asks. There's no policy to skip it.
+ 
+ <meta name="articleTitle" value="Conditional access: PingFederate">
+ <meta name="authorFullName" value="Noah Talerman">
+diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
+index c0401c7c0f..f30de0ad69 100644
+--- a/articles/require-fleet-managed-hosts-in-duo.md
++++ b/articles/require-fleet-managed-hosts-in-duo.md
+@@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
+ ## Prerequisites
+ 
+ - A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
++- For Linux, x86-64 hosts. Duo Desktop doesn't support Linux on ARM.
+ - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
+ 
+ ## Step 1: Create a Fleet API user
+@@ -48,7 +49,7 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+ 
+ 1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh) and set your Fleet URL and the report ID from Step 3.
+ 2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
+-3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
++3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts.
+ 4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
+ 
+ ```yaml
+@@ -66,14 +67,18 @@ jobs:
+           python-version: "3.12"
+       - run: pip install "duo-client>=4.3.0"
+       - run: |
+-          ./export-fleet-hosts-for-duo.sh
+-          for os in macos windows linux; do python duo/$os/device_cache_sync.py --infile $os.csv; done
++          bash export-fleet-hosts-for-duo.sh
++          for os in macos windows linux; do
++            if [ "$(wc -l <$os.csv)" -gt 1 ]; then python duo/$os/device_cache_sync.py --infile $os.csv; fi
++          done
+         env:
+           FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
+ ```
+ 
+ Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
+ 
++The script writes the files only if every request succeeds. If a list is more than 50% smaller than the previous files in the same folder, it exits without replacing them. Set `FORCE=true` to replace them anyway. On a fresh checkout, like a GitHub Actions run, there are no previous files, so this check doesn't apply.
++
+ ## Step 6: Turn on the policy
+ 
+ 1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
+@@ -90,6 +95,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+ ## Troubleshooting
+ 
+ - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
++- **macOS asks for local network access**: Duo Desktop talks to the browser over the local network. When Duo shows "Duo Desktop needs permission to access your local network", allow the browser's prompt. If you select **Skip for now**, Duo can't read the device ID and blocks the host. In **System Settings > Privacy & Security > Local Network**, make sure the browser is on.
+ - **Windows host missing from `windows.csv`**: Check that the Step 3 report has results for the host.
+ 
+ <meta name="articleTitle" value="Require Fleet-managed hosts in Duo">
+diff --git a/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh b/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
+index 7cf21f0dda..84acbb11ee 100755
+--- a/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
++++ b/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
+@@ -3,12 +3,19 @@
+ # Writes macos.csv, windows.csv, and linux.csv for Duo's device_cache_sync.py, with the
+ # device IDs of Fleet hosts. Set REQUIRE_PASSING_CRITICAL_POLICIES=true to only include hosts
+ # that are passing all critical policies. Needs curl and jq.
++# The files are written to a temporary folder and moved into place only if everything succeeds.
++# If a list is more than 50% smaller than the previous file in this folder, the script exits without
++# replacing the files. Set FORCE=true to replace them anyway.
+ set -euo pipefail
+ 
+ FLEET_URL="https://fleet.example.com"
+ FLEET_API_TOKEN="${FLEET_API_TOKEN:?Set FLEET_API_TOKEN}"
+ WINDOWS_REPORT_ID="<Windows-MachineGuid-report-ID>"
+ REQUIRE_PASSING_CRITICAL_POLICIES="${REQUIRE_PASSING_CRITICAL_POLICIES:-false}"
++FORCE="${FORCE:-false}"
++
++out=$(mktemp -d ./.duo-export.XXXXXX)
++trap 'rm -rf "$out"' EXIT
+ 
+ api() {
+   curl -fsS -H "Authorization: Bearer $FLEET_API_TOKEN" "$FLEET_URL/api/v1/fleet/$1"
+@@ -25,14 +32,27 @@ done
+ trusted=$(jq --argjson require "$REQUIRE_PASSING_CRITICAL_POLICIES" '[.[] | select(($require | not) or ([.policies[]? | select(.critical and .response == "fail")] | length == 0))]' <<<"$hosts")
+ 
+ # Duo identifies macOS and Linux hosts by hardware UUID, the same as Fleet's host UUID.
+-jq -r '"device_id", (.[] | select(.platform == "darwin") | .uuid)' <<<"$trusted" >macos.csv
+-jq -r '"device_id", (.[] | select(.platform as $p | ["darwin", "windows", "ios", "ipados", "android", "chrome"] | index($p) | not) | .uuid)' <<<"$trusted" >linux.csv
++jq -r '"device_id", (.[] | select(.platform == "darwin") | .uuid)' <<<"$trusted" >"$out/macos.csv"
++jq -r '"device_id", (.[] | select(.platform as $p | ["darwin", "windows", "ios", "ipados", "android", "chrome"] | index($p) | not) | .uuid)' <<<"$trusted" >"$out/linux.csv"
+ 
+ # Duo identifies Windows hosts by MachineGuid, collected by the Fleet report.
+ api "reports/$WINDOWS_REPORT_ID/report" |
+   jq -r --argjson trusted "$trusted" '
+     ($trusted | map(select(.platform == "windows") | .id)) as $ids |
+     "device_id", ([.results[] | select(.host_id as $h | $ids | index($h)) | .columns.machine_guid] | unique[])
+-  ' >windows.csv
++  ' >"$out/windows.csv"
++
++refused=false
++for f in macos windows linux; do
++  [ -f "$f.csv" ] || continue
++  old=$(($(wc -l <"$f.csv") - 1))
++  new=$(($(wc -l <"$out/$f.csv") - 1))
++  if [ "$old" -gt 0 ] && [ $((new * 2)) -lt "$old" ] && [ "$FORCE" != "true" ]; then
++    echo "Refusing to replace $f.csv: $old device IDs before, $new now. Set FORCE=true to continue." >&2
++    refused=true
++  fi
++done
++[ "$refused" = "true" ] && exit 1
+ 
++mv "$out"/*.csv .
+ wc -l macos.csv windows.csv linux.csv
+diff --git a/docs/solutions/linux/scripts/import-certificate-to-browsers.sh b/docs/solutions/linux/scripts/import-certificate-to-browsers.sh
+index 073d577512..cc085a4355 100755
+--- a/docs/solutions/linux/scripts/import-certificate-to-browsers.sh
++++ b/docs/solutions/linux/scripts/import-certificate-to-browsers.sh
+@@ -18,9 +18,11 @@ for home in /home/*; do
+     -name "$NICKNAME" -out "$p12" -passout pass:
+   chown "$user" "$p12"
+ 
+-  # Chrome/Chromium, Firefox (deb and snap), and snap Chromium keep separate stores.
++  # Chrome/Chromium, Firefox (deb, snap, and Mozilla's apt package), and snap Chromium keep separate stores.
+   dbs=("$home/.pki/nssdb")
+-  for d in "$home"/.mozilla/firefox/*/ "$home"/snap/firefox/common/.mozilla/firefox/*/ "$home"/snap/chromium/current/.pki/nssdb/; do
++  # Snap Chromium doesn't create its store until it first runs, so create it here.
++  [ -d "$home/snap/chromium/current" ] && dbs+=("$home/snap/chromium/current/.pki/nssdb")
++  for d in "$home"/.mozilla/firefox/*/ "$home"/.config/mozilla/firefox/*/ "$home"/snap/firefox/common/.mozilla/firefox/*/; do
+     [ -f "$d/cert9.db" ] && dbs+=("${d%/}")
+   done
+ 
