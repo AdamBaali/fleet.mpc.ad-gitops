@@ -22,6 +22,12 @@ as a note until it has been run.
 | "Hosts that trust the PingFederate server certificate" prerequisite | Ping prerequisites | Lab-only so far (root-trust profile) |
 | Fleet doesn't resend an edited SCEP profile to a host with a certificate | Ping troubleshooting | Repeat once on a new host and record the Fleet version |
 
+## Corrected and scoped (2026-10-07 evening)
+- **Retracted:** "`fleetHostID` must be mapped." It doesn't need to be (tested: unmapped and removed from the contract, sign-in succeeds, 0 log errors).
+- **Confirmed with log text:** `${hostUUID}` and `${fleetHostID}` give `Unknown Key` in a lookup path; `${ad.<adapter ID>.CN}` and `${ds.<source ID>.<attribute>}` work; the criterion value `${hostUUID}` is compared as literal text.
+- **Limits:** only one PingFederate configuration was built (version 13.1.3, adapter 1.3.2, adapter ID `x509lab`, policy contract mapping under an authentication policy). Expression-based criteria were not tried, so "can never match" is for plain criteria only. Other versions or contexts (for example an IdP connection's attribute source) may use other names.
+- **Client Auth Port:** required on 13.1.3 (the adapter won't save without it); older X.509 kit versions were not checked.
+
 ## To run tomorrow (2026-10-08)
 1. P-15: after about 14:49 local the macOS certificate should renew by itself (48 h certificate issued about 14:49 on 2026-10-07). Record the new serial, the identity count in the keychain and that sign-in still works.
 2. D-12: read `duo/sync.log` for FAILED lines and the count of runs. Then stop the local loop (delete `duo/sync.run`).

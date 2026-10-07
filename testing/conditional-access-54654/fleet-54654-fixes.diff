@@ -1,5 +1,5 @@
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..5b5f0acc4a 100644
+index 3b6388ff63..7cfa1c0d81 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -53,7 +53,7 @@ index 3b6388ff63..5b5f0acc4a 100644
  
  | Local attribute | JSON response attribute path |
  |---|---|
-@@ -64,11 +67,12 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+@@ -64,11 +67,11 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
  
  1. Add the X.509 adapter from Step 4 to your authentication policy.
  2. On the adapter's success path, map to a policy contract. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
@@ -65,13 +65,12 @@ index 3b6388ff63..5b5f0acc4a 100644
 +   - First, with the resource path `/api/v1/fleet/hosts/identifier/${ad.<adapter ID>.CN}?exclude_software=true`
 +   - Second, with the resource path `/api/v1/fleet/hosts/${ds.<first source ID>.fleetHostID}/health`
 +
-+   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. PingFederate only recognizes names in this form.
-+3. On **Contract Fulfillment**, map `fleetHostID` from the first Fleet source to an attribute on the policy contract. PingFederate only fetches an attribute that something uses, so the second lookup fails without this.
-+4. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
++   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. `${hostUUID}` and `${fleetHostID}` don't resolve in a lookup path.
++3. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
  
  Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
  
-@@ -84,11 +88,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+@@ -84,11 +87,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
@@ -90,7 +89,7 @@ index 3b6388ff63..5b5f0acc4a 100644
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
 diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-index c0401c7c0f..f30de0ad69 100644
+index c0401c7c0f..b61a6d4d33 100644
 --- a/articles/require-fleet-managed-hosts-in-duo.md
 +++ b/articles/require-fleet-managed-hosts-in-duo.md
 @@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
@@ -101,29 +100,96 @@ index c0401c7c0f..f30de0ad69 100644
  - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
  
  ## Step 1: Create a Fleet API user
-@@ -48,7 +49,7 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+@@ -46,16 +47,50 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
  
- 1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh) and set your Fleet URL and the report ID from Step 3.
+ ## Step 5: Sync hosts
+ 
+-1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh) and set your Fleet URL and the report ID from Step 3.
++1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh), set your Fleet URL and the report ID from Step 3, and save it in your repository as `duo/export-fleet-hosts-for-duo.sh`.
  2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
 -3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
+-4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
 +3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts.
- 4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
++4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
++
++Duo's script has the integration's keys written into it, so don't commit it as is. Edit it to read the keys from environment variables instead. Replace the `MKEY_CREDENTIALS = {...}` block near the top with this:
++
++```python
++import os
++
++MKEY_CREDENTIALS = {
++    os.environ['DUO_MKEY']: {
++        'API_IKEY': os.environ['DUO_IKEY'],
++        'API_SKEY': os.environ['DUO_SKEY'],
++        'API_HOST': os.environ['DUO_API_HOST'],
++    }
++}
++```
++
++The edited file holds no secrets, so you can save it in your repository as `duo/device_cache_sync.py`. Use that one file for all three integrations.
++
++In your repository's **Settings > Secrets and variables > Actions**, add these secrets. Find the values in the `MKEY_CREDENTIALS` block of each script you downloaded in Step 4:
++
++- `FLEET_API_TOKEN`: the token from Step 1.
++- `DUO_API_HOST`: your Duo API hostname.
++- For each of `MACOS`, `WINDOWS`, and `LINUX`: `DUO_<OS>_MKEY` (the integration ID, which starts with `DM`), `DUO_<OS>_IKEY`, and `DUO_<OS>_SKEY`.
++
++Then add this workflow, for example as `.github/workflows/duo-sync.yml`:
  
  ```yaml
-@@ -66,14 +67,18 @@ jobs:
++name: Sync Fleet hosts to Duo Trusted Endpoints
++
+ on:
+   schedule:
+     - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
+   workflow_dispatch:
++
++concurrency:
++  group: ${{ github.workflow }}
++  cancel-in-progress: false
++
++permissions:
++  contents: read
++
+ jobs:
+   sync:
+     runs-on: ubuntu-latest
+@@ -65,15 +100,39 @@ jobs:
+         with:
            python-version: "3.12"
        - run: pip install "duo-client>=4.3.0"
-       - run: |
+-      - run: |
 -          ./export-fleet-hosts-for-duo.sh
 -          for os in macos windows linux; do python duo/$os/device_cache_sync.py --infile $os.csv; done
-+          bash export-fleet-hosts-for-duo.sh
-+          for os in macos windows linux; do
-+            if [ "$(wc -l <$os.csv)" -gt 1 ]; then python duo/$os/device_cache_sync.py --infile $os.csv; fi
-+          done
++      - name: Export Fleet hosts and sync to Duo
          env:
            FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
++          DUO_API_HOST: ${{ secrets.DUO_API_HOST }}
++          DUO_MACOS_MKEY: ${{ secrets.DUO_MACOS_MKEY }}
++          DUO_MACOS_IKEY: ${{ secrets.DUO_MACOS_IKEY }}
++          DUO_MACOS_SKEY: ${{ secrets.DUO_MACOS_SKEY }}
++          DUO_WINDOWS_MKEY: ${{ secrets.DUO_WINDOWS_MKEY }}
++          DUO_WINDOWS_IKEY: ${{ secrets.DUO_WINDOWS_IKEY }}
++          DUO_WINDOWS_SKEY: ${{ secrets.DUO_WINDOWS_SKEY }}
++          DUO_LINUX_MKEY: ${{ secrets.DUO_LINUX_MKEY }}
++          DUO_LINUX_IKEY: ${{ secrets.DUO_LINUX_IKEY }}
++          DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
++        run: |
++          bash duo/export-fleet-hosts-for-duo.sh
++          for os in macos windows linux; do
++            up=$(echo "$os" | tr a-z A-Z)
++            mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
++            if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
++              DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
++                python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
++            else
++              echo "$os: no credentials or no hosts, skipped"
++            fi
++          done
  ```
  
++No GitHub? Run the same export and upload steps on a schedule anywhere that can reach Fleet and Duo, like cron, a systemd timer, or Windows Task Scheduler. Set the same environment variables in the job. On macOS, don't keep the scripts in Downloads, Documents, or Desktop. macOS blocks scheduled jobs from reading those folders.
++
  Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
  
 +The script writes the files only if every request succeeds. If a list is more than 50% smaller than the previous files in the same folder, it exits without replacing them. Set `FORCE=true` to replace them anyway. On a fresh checkout, like a GitHub Actions run, there are no previous files, so this check doesn't apply.
@@ -131,7 +197,7 @@ index c0401c7c0f..f30de0ad69 100644
  ## Step 6: Turn on the policy
  
  1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
-@@ -90,6 +95,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+@@ -90,6 +149,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
  ## Troubleshooting
  
  - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
