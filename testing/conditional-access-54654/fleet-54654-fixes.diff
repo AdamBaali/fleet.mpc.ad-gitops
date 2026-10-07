@@ -89,7 +89,7 @@ index 3b6388ff63..7cfa1c0d81 100644
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
 diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-index c0401c7c0f..b61a6d4d33 100644
+index c0401c7c0f..904655366d 100644
 --- a/articles/require-fleet-managed-hosts-in-duo.md
 +++ b/articles/require-fleet-managed-hosts-in-duo.md
 @@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
@@ -130,7 +130,7 @@ index c0401c7c0f..b61a6d4d33 100644
 +
 +In your repository's **Settings > Secrets and variables > Actions**, add these secrets. Find the values in the `MKEY_CREDENTIALS` block of each script you downloaded in Step 4:
 +
-+- `FLEET_API_TOKEN`: the token from Step 1.
++- `DUO_FLEET_API_TOKEN`: the token from Step 1. Use this name, not `FLEET_API_TOKEN`. If your repository is a GitOps repository, it already uses `FLEET_API_TOKEN` for a token with different permissions, and replacing it breaks your GitOps runs.
 +- `DUO_API_HOST`: your Duo API hostname.
 +- For each of `MACOS`, `WINDOWS`, and `LINUX`: `DUO_<OS>_MKEY` (the integration ID, which starts with `DM`), `DUO_<OS>_IKEY`, and `DUO_<OS>_SKEY`.
 +
@@ -163,7 +163,8 @@ index c0401c7c0f..b61a6d4d33 100644
 -          for os in macos windows linux; do python duo/$os/device_cache_sync.py --infile $os.csv; done
 +      - name: Export Fleet hosts and sync to Duo
          env:
-           FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
+-          FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
++          FLEET_API_TOKEN: ${{ secrets.DUO_FLEET_API_TOKEN }}
 +          DUO_API_HOST: ${{ secrets.DUO_API_HOST }}
 +          DUO_MACOS_MKEY: ${{ secrets.DUO_MACOS_MKEY }}
 +          DUO_MACOS_IKEY: ${{ secrets.DUO_MACOS_IKEY }}
