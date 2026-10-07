@@ -1,5 +1,5 @@
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..1b0c47a310 100644
+index 3b6388ff63..5b5f0acc4a 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -39,7 +39,7 @@ index 3b6388ff63..1b0c47a310 100644
  2. Create an X.509 Certificate IdP Adapter instance.
 -3. Map the certificate's CN to an adapter attribute (for example, `hostUUID`).
 +3. Set **Client Auth Port** to your secondary HTTPS port (`pf.secondary.https.port`). PingFederate requires it. Set **Client Auth Hostname** to the host name browsers use to reach PingFederate.
-+4. Make sure the adapter returns the certificate's CN. You use it in Step 6.
++4. The adapter's `CN` attribute holds the certificate's common name, which is the host's UUID. You use it in Step 6.
  
  ## Step 5: Add Fleet as a data store
  
@@ -75,7 +75,7 @@ index 3b6388ff63..1b0c47a310 100644
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
-+- **Browser asks for the login keychain password (macOS)**: Expected the first time Chrome or Firefox uses the certificate. The end user selects **Always Allow**. If Safari asks too, set `AllowAllAppsAccess` to `true` in the SCEP payload. Fleet doesn't resend a changed profile to a host that already has a certificate. Resend the profile to the host, or wait for the certificate to renew.
++- **Browser asks for the login keychain password (macOS)**: Expected the first time Chrome or Firefox uses the certificate. The end user selects **Always Allow**. If Safari asks too, set `AllowAllAppsAccess` to `true` in the SCEP payload. Fleet doesn't resend a changed profile to a host that already has a certificate. Resend the profile from the host's **Host details** page, the end user's **My device** page, or the [API](https://fleetdm.com/docs/rest-api/rest-api#resend-configuration-profile). Or wait for the certificate to renew.
  - **Sign-in denied for a managed host**: Check that the certificate's CN matches the host's UUID in Fleet.
  - **Sign-in still denied after fixing a policy**: Select **Refetch** on the **My device** page, wait for the policy results to update, then sign in again.
  - **Data store errors**: Check the API token and that PingFederate can reach your Fleet server.
@@ -83,7 +83,7 @@ index 3b6388ff63..1b0c47a310 100644
 -To skip the certificate picker in Chrome and Edge, deploy the `AutoSelectCertificateForUrls` policy for your PingFederate URL.
 +## Skip the certificate picker
 +
-+- **Chrome and Edge**: Deploy the `AutoSelectCertificateForUrls` policy. Use the host name and port that ask for the certificate, not the sign-in URL's port. For example: `{"pattern":"https://ping.example.com:9032","filter":{"ISSUER":{"CN":"<your CA's common name>"}}}`. On macOS, deploy it in a configuration profile with the payload type `com.google.Chrome` (`com.microsoft.Edge` for Edge). On Windows and Linux, use the registry or a policy file.
++- **Chrome and Edge**: Deploy the `AutoSelectCertificateForUrls` policy. Use the host name and port that ask for the certificate, not the sign-in URL's port. For example: `{"pattern":"https://ping.example.com:9032","filter":{"ISSUER":{"CN":"<your CA's common name>"}}}`. On macOS, deploy it in a configuration profile with the payload type `com.google.Chrome` (`com.microsoft.Edge` for Edge).
 +- **Firefox**: Set `security.default_personal_cert` to `Select Automatically` with an [enterprise policy](https://mozilla.github.io/policy-templates/). Firefox asks every time otherwise.
 +- **Safari**: Always asks. There's no policy to skip it.
  
