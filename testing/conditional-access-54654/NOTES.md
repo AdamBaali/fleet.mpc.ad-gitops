@@ -37,5 +37,5 @@ as a note until it has been run.
 
 ## Later (needs hardware or a decision)
 - Windows x64 test machine: P-2, D-1, D-2, D-5, D-7, D-8, D-11, L-1 and the Windows sign-in tests.
-- Linux x86-64: Duo Desktop, L-1, D-5; Fleet's EST path for Linux.
+- Linux: Duo Desktop ran under x86 emulation and passed D-5 and L-1. Still open: a controlled test of whether the TPM matters, D-8 sign-in block on Linux, a Fleet-driven install of the custom package, and Fleet's EST path.
 - Noah: should the guide say a new host signs in before its first policy run (P-13)?
