@@ -15,3 +15,6 @@ Duo's side: the D-5 Auth Response (screenshots 06 to 07 in the D-5 folder) shows
 product_uuid = Fleet host UUID = linux.csv row = 86d7dc8e-3373-47af-86dd-56a1cd517e2f, and Duo marked the endpoint trusted. Case matched (lowercase). The /etc/machine-id fallback is not used because this VM exposes a product UUID. L-2 (a VM without one) was not tested.
 
 _Finished 2026-10-07T18:49:11Z_
+
+Terminal screenshot in the VM (added 2026-10-08)
+- `03-terminal-device-id.png` (VM screenshot)

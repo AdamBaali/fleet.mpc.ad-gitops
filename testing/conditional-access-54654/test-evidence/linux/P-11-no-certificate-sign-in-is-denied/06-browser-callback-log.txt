@@ -1,0 +1,6 @@
+# 2026-10-07T23:17:56Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/killbr.sh
+
+callback.log: 2026-10-07T23:17:54.692279 /callback?error_description=Authentication+failed.&state=ev14&error=access_denied
+2026-10-07T23:17:54.724791 /favicon.ico
+[exit 0]

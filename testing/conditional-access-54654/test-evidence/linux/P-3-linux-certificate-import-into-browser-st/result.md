@@ -18,3 +18,7 @@
 The fixed script imports into all four stores (Chrome NSS, deb Firefox, snap Firefox, snap Chromium) and a rerun leaves one certificate per store. The original PR script missed the deb Firefox profile (~/.config/mozilla/firefox) and the snap Chromium store: 2 of 4 stores. Guide fix: commit 4702723cce.
 
 _Finished 2026-10-07T18:08:03Z_
+
+
+Terminal screenshot in the VM (added 2026-10-08)
+- `09-terminal-certificate-in-stores.png` (VM screenshot)

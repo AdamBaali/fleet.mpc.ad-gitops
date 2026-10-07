@@ -1,0 +1,5 @@
+# 2026-10-07T23:17:05Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/br.sh chromium
+
+started chromium
+[exit 0]

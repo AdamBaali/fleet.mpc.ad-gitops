@@ -1,0 +1,7 @@
+# 2026-10-07T23:17:04Z (in the Linux VM lab-linux, as root)
+$ mv /var/snap/chromium/current/policies/managed/fleet-autoselect.json /tmp/fleet-autoselect.json.keep; ls -la /var/snap/chromium/current/policies/managed
+
+total 8
+drwxr-xr-x 2 root root 4096 Oct  7 23:17 .
+drwxr-xr-x 3 root root 4096 Oct  6 14:37 ..
+[exit 0]

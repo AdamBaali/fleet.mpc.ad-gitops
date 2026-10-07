@@ -15,3 +15,6 @@
 Duo Desktop 4.7.0 (amd64 package from Duo's download link) is installed and its service is active, answering on HTTPS 53100 and HTTP 53106. It needed lab workarounds because the VM is ARM: amd64 multiarch, x86 libraries, QEMU 10 user-mode emulation, DOTNET_EnableWriteXorExecute=0. A Fleet-driven install of the custom package and a real x86-64 host were not tested.
 
 _Finished 2026-10-07T18:43:07Z_
+
+Terminal screenshot in the VM (added 2026-10-08)
+- `05-terminal-duo-desktop-running.png` (VM screenshot)

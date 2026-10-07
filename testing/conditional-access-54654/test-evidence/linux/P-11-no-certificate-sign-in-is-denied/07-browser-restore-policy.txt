@@ -1,0 +1,5 @@
+# 2026-10-07T23:17:59Z (in the Linux VM lab-linux, as root)
+$ mv /tmp/fleet-autoselect.json.keep /var/snap/chromium/current/policies/managed/fleet-autoselect.json; ls /var/snap/chromium/current/policies/managed
+
+fleet-autoselect.json
+[exit 0]
