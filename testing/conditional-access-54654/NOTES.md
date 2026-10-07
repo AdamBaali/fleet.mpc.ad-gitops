@@ -1,0 +1,35 @@
+# Notes: what is tested, what is not, and what to run next (#54654)
+
+Rule for the public lab repo: upload only what has been run and tested. Everything below that is untested stays
+as a note until it has been run.
+
+## Tested and uploaded
+- Export script temp files and shrink guard (26 checks plus shellcheck; also run against the live Fleet).
+- Linux import script fixes (Ubuntu 24.04: deb Firefox, snap Chromium, snap Firefox, Chrome).
+- PingFederate: variable names, Client Auth Port (UI), criteria, sign-in tests on macOS and Linux.
+- macOS: SCEP profile, keychain prompts (Safari none; Chrome and Firefox once), Chrome auto-select profile, Firefox.
+- Duo on macOS and Linux: export, sync, trusted and not trusted, D-6 workflow (run 37646267078 with the keyless script and secrets).
+
+## In the guide diff but not tested yet (do not treat as proven)
+| Item | Where | To test |
+| --- | --- | --- |
+| Okta Verify Windows `SubjectName` should be `CN=$FLEET_VAR_HOST_UUID,OU=$FLEET_VAR_CERTIFICATE_RENEWAL_ID` | Ping Step 3 (Windows) | Windows host, P-2 |
+| `com.microsoft.Edge` payload for Edge auto-select | Ping, skip the picker | An Edge on macOS (dropped for now, Chrome behaves the same) |
+| Duo Desktop doesn't support Linux ARM or Windows ARM | Duo prerequisites | From Duo's docs (Windows: "Intel processors only"); Linux ARM from Duo's docs and the arm64 VM that couldn't install it |
+| Schedule trigger in the guide's workflow (`cron: "2-59/5 * * * *"`) | Duo Step 5 | Enable on `duo-sync.yml` after D-12 ends, watch a few runs |
+| The shrink guard on a fresh Actions checkout | Duo Step 5 | It can't fire (no previous files); the guide says so. A cache step would be needed to make it work |
+| Resend a profile from Host details, My device, or the API | Ping troubleshooting | Check the Host details button in the UI (the API was tested) |
+| "Hosts that trust the PingFederate server certificate" prerequisite | Ping prerequisites | Lab-only so far (root-trust profile) |
+| Fleet doesn't resend an edited SCEP profile to a host with a certificate | Ping troubleshooting | Repeat once on a new host and record the Fleet version |
+
+## To run tomorrow (2026-10-08)
+1. P-15: after about 14:49 local the macOS certificate should renew by itself (48 h certificate issued about 14:49 on 2026-10-07). Record the new serial, the identity count in the keychain and that sign-in still works.
+2. D-12: read `duo/sync.log` for FAILED lines and the count of runs. Then stop the local loop (delete `duo/sync.run`).
+3. Enable the Actions schedule (`on: schedule`) and watch 3 runs; this tests the guide's exact `on:` block.
+4. UI path via the API on a scratch fleet: custom SCEP CA, profile with `$FLEET_VAR_*` and `$FLEET_SECRET_*`, critical policy, report with keep data and interval.
+5. Restore step-ca `fleet-scep` lifetime to 2160 h after P-15 (backup of `ca.json` in the session scratchpad).
+
+## Later (needs hardware or a decision)
+- Windows x64 test machine: P-2, D-1, D-2, D-5, D-7, D-8, D-11, L-1 and the Windows sign-in tests.
+- Linux x86-64: Duo Desktop, L-1, D-5; Fleet's EST path for Linux.
+- Noah: should the guide say a new host signs in before its first policy run (P-13)?
