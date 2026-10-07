@@ -1,6 +1,6 @@
-# Status and handoff: fleetdm/fleet#54654 lab (as of 2026-10-07, end of day 2)
+# Status and handoff: fleetdm/fleet#54654 lab (as of 2026-10-07 21:30 UTC; see HANDOFF.md for next steps)
 
-Detail for every test is in `RESULTS.md`. `VALIDATION.md` holds the PingFederate UI checks. The plan is `TEST_PLAN.md`. The guide and script fixes are in `fleet-54654-fixes.diff` (6 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, not pushed).
+Detail for every test is in `RESULTS.md`. `VALIDATION.md` holds the PingFederate UI checks. The plan is `TEST_PLAN.md`. The guide and script fixes are in `fleet-54654-fixes.diff` (12 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, not pushed).
 
 ## Where we are
 macOS and Linux are tested. Windows is blocked: Duo Desktop for Windows supports Intel only, and the lab Mac can only run Windows on ARM. An x64 test machine is requested.
@@ -13,7 +13,7 @@ macOS and Linux are tested. Windows is blocked: Duo Desktop for Windows supports
 | P-5 / P-6 data store, `${fleetHostID}` | pass (names differ from the guide) | pass | not run |
 | P-7 to P-13 sign-in decisions | pass | pass | not run |
 | P-14 browser auto-select | Safari asks, Chrome profile pass, Firefox picker | Chromium and Firefox pass | not run |
-| P-15 renewal | running (48 h certificate, renews about 24 h in) | script replace pass | not run |
+| P-15 renewal | running (28.5 h cert A8EA..., renewal window opens 00:09 UTC Oct 8; check after 01:10 UTC) | script replace pass | not run |
 | P-16 Firefox with OS certificate | pass | n/a | not run |
 | D-1 Duo Desktop install via Fleet | pass | manual `dpkg -i` under x86 emulation (works; Fleet-driven install not tested) | blocked (Intel only) |
 | D-2 MachineGuid report | n/a | n/a | not run |
@@ -29,7 +29,7 @@ macOS and Linux are tested. Windows is blocked: Duo Desktop for Windows supports
 
 ## Running now
 - `duo/sync-loop.sh` (D-12), started 2026-10-07 about 15:00 local. Stop it by deleting `duo/sync.run`.
-- step-ca `fleet-scep` lifetime is 48 h for the P-15 test. Restore to 2160 h at teardown (backup of `ca.json` in the scratchpad).
+- step-ca `fleet-scep` lifetime is 1710 min for the P-15 test. Restore to 2160 h at teardown (backup of `ca.json` in the scratchpad).
 - Lab services: `stepca`, `pingfederate` (Docker), Cloudflare tunnel `fleet-lab-scep`, Duo demo on `https://ping.lab:8443`, callback listener on 8765.
 - The `lab-windows` UTM VM (Windows 11 ARM) installed, then stuck in recovery after a forced stop. Optional for the PingFederate-only Windows tests.
 
