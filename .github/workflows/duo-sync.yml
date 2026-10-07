@@ -1,0 +1,53 @@
+name: 'Sync Fleet hosts to Duo Trusted Endpoints'
+
+# Manual only until the repository secrets below exist. Then add the schedule:
+#   schedule:
+#     - cron: "2-59/5 * * * *"   # every 5 minutes, off the top of the hour
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "duo-client>=4.3.0"
+      # Duo's device_cache_sync.py files contain integration keys, so they are stored as base64 secrets
+      # and written to disk at run time. Secrets: DUO_MACOS_SCRIPT, DUO_WINDOWS_SCRIPT, DUO_LINUX_SCRIPT.
+      - name: Restore Duo sync scripts
+        env:
+          DUO_MACOS_SCRIPT: ${{ secrets.DUO_MACOS_SCRIPT }}
+          DUO_WINDOWS_SCRIPT: ${{ secrets.DUO_WINDOWS_SCRIPT }}
+          DUO_LINUX_SCRIPT: ${{ secrets.DUO_LINUX_SCRIPT }}
+        run: |
+          for os in macos windows linux; do
+            var="DUO_$(echo "$os" | tr a-z A-Z)_SCRIPT"
+            mkdir -p "duo/$os"
+            if [ -n "${!var}" ]; then echo "${!var}" | base64 -d > "duo/$os/device_cache_sync.py"; else echo "No secret for $os, skipping."; fi
+          done
+      - name: Export Fleet hosts and sync to Duo
+        env:
+          FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
+        run: |
+          bash duo/export-fleet-hosts-for-duo.sh
+          for os in macos windows linux; do
+            if [ -f "duo/$os/device_cache_sync.py" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
+              python "duo/$os/device_cache_sync.py" --infile "$os.csv" --device_id_column device_id
+            else
+              echo "$os: no script or no hosts, skipped"
+            fi
+          done
