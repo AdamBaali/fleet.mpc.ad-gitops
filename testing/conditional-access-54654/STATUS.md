@@ -15,10 +15,10 @@ macOS and Linux are tested. Windows is blocked: Duo Desktop for Windows supports
 | P-14 browser auto-select | Safari asks, Chrome profile pass, Firefox picker | Chromium and Firefox pass | not run |
 | P-15 renewal | running (48 h certificate, renews about 24 h in) | script replace pass | not run |
 | P-16 Firefox with OS certificate | pass | n/a | not run |
-| D-1 Duo Desktop install via Fleet | pass | blocked (x86-64 only) | blocked (Intel only) |
+| D-1 Duo Desktop install via Fleet | pass | manual `dpkg -i` under x86 emulation (works; Fleet-driven install not tested) | blocked (Intel only) |
 | D-2 MachineGuid report | n/a | n/a | not run |
 | D-3, D-4 export and sync | pass | pass | not run |
-| D-5, L-1 trusted / not trusted | pass | blocked | not run |
+| D-5, L-1 trusted / not trusted | pass | pass (trusted via Duo Desktop under emulation, ID = product_uuid) | not run |
 | D-6 GitHub Actions workflow | not run (needs private repo and secrets) | | |
 | D-7 new host appears after sync | pass | | not run |
 | D-8 critical policy drops the host | pass at the Duo level (full chain needs a second host) | sync level pass | not run |
