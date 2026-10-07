@@ -2,7 +2,7 @@
 
 Context for Claude Code working on the Linux/atomic and OpenClaw assets in
 this repo. Read this first. The YellowKey pattern has its own context in
-`CONTEXT.md`; match the style rules at the end of that file.
+`../../CONTEXT.md`; match the style rules at the end of that file.
 
 ## What this is
 
