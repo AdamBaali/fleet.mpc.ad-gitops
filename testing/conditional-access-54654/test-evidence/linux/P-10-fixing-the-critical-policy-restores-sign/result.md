@@ -14,3 +14,10 @@
 Removing the flag file and selecting Refetch: Fleet showed failing_critical_policies_count 0 after 146 seconds. The next sign-in returned an authorization code.
 
 _Finished 2026-10-07T18:16:33Z_
+
+### Browser re-run with screenshots (2026-10-07)
+- `04-browser-flip-to-passing.txt`: `bash evidence/flip.sh pass`
+- `05-browser-launch.txt` (VM): `bash /tmp/br.sh chromium`
+- `06-browser-signin-restored.png` (VM screenshot)
+- `07-browser-callback-log.txt` (VM): `bash /tmp/killbr.sh`
+- Browser screenshots added 2026-10-07 (Chromium in the VM; one-time sign-in code masked).

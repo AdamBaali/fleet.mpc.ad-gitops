@@ -15,3 +15,10 @@
 Creating the flag file and selecting Refetch: Fleet showed failing_critical_policies_count 1 after 160 seconds. Sign-in was then denied with error=access_denied and the message Host is not in Fleet or is failing a critical policy.
 
 _Finished 2026-10-07T18:16:33Z_
+
+### Browser re-run with screenshots (2026-10-07)
+- `05-browser-flip-to-failing.txt`: `bash evidence/flip.sh fail`
+- `06-browser-launch.txt` (VM): `bash /tmp/br.sh chromium`
+- `07-browser-signin-denied.png` (VM screenshot)
+- `08-browser-callback-log.txt` (VM): `bash /tmp/killbr.sh`
+- Browser screenshots added 2026-10-07 (Chromium in the VM; one-time sign-in code masked).

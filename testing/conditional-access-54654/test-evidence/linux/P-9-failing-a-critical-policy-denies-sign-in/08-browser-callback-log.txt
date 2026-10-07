@@ -1,0 +1,6 @@
+# 2026-10-07T21:47:56Z (in the Linux VM lab-linux, as root)
+$ bash /tmp/killbr.sh
+
+callback.log: 2026-10-07T21:47:30.175994 /callback?error_description=Host+is+not+in+Fleet+or+is+failing+a+critical+policy&state=ev14&error=access_denied
+2026-10-07T21:47:30.217138 /favicon.ico
+[exit 0]

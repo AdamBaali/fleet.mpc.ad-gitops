@@ -1,0 +1,30 @@
+# 2026-10-07T21:44:21Z
+$ bash evidence/flip.sh fail
+
+21:44:21 T+0s   action: create /tmp/fleet-ca-test in the VM
+-rw-r--r-- 1 root root 0 Oct  7 21:44 /tmp/fleet-ca-test
+[exit 0]
+failing_critical_policies_count before Refetch: 0
+21:44:27 T+6s  Refetch requested (same as 'Refetch' on the My device page)
+21:44:35 T+14s   failing_critical_policies_count=0
+21:44:43 T+22s   failing_critical_policies_count=0
+21:44:51 T+30s   failing_critical_policies_count=0
+21:44:59 T+38s   failing_critical_policies_count=0
+21:45:07 T+46s   failing_critical_policies_count=0
+21:45:14 T+53s   failing_critical_policies_count=0
+21:45:23 T+62s   failing_critical_policies_count=0
+21:45:30 T+69s   failing_critical_policies_count=0
+21:45:38 T+77s   failing_critical_policies_count=0
+21:45:46 T+85s   failing_critical_policies_count=0
+21:45:55 T+94s   failing_critical_policies_count=0
+21:46:02 T+101s   failing_critical_policies_count=0
+21:46:10 T+109s   failing_critical_policies_count=0
+21:46:18 T+117s   failing_critical_policies_count=0
+21:46:26 T+125s   failing_critical_policies_count=0
+21:46:34 T+133s   failing_critical_policies_count=0
+21:46:42 T+141s   failing_critical_policies_count=0
+21:46:50 T+149s   failing_critical_policies_count=0
+21:46:58 T+157s   failing_critical_policies_count=0
+21:47:06 T+165s   failing_critical_policies_count=0
+21:47:14 T+173s   failing_critical_policies_count=1
+RESULT: Fleet saw the change 173 seconds after the change was made (target count 1)
