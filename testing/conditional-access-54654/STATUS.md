@@ -19,7 +19,7 @@ macOS and Linux are tested. Windows is blocked: Duo Desktop for Windows supports
 | D-2 MachineGuid report | n/a | n/a | not run |
 | D-3, D-4 export and sync | pass | pass | not run |
 | D-5, L-1 trusted / not trusted | pass | pass (trusted via Duo Desktop under emulation, ID = product_uuid) | not run |
-| D-6 GitHub Actions workflow | not run (needs private repo and secrets) | | |
+| D-6 GitHub Actions workflow | pass (run 37646267078: macOS and Linux synced, Windows skipped; keyless script plus secrets; schedule not enabled yet) | pass | not run |
 | D-7 new host appears after sync | pass | | not run |
 | D-8 critical policy drops the host | pass at the Duo level (full chain needs a second host) | sync level pass | not run |
 | D-9, D-10 export failures | pass | pass | |
