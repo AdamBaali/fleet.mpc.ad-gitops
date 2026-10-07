@@ -41,6 +41,9 @@ Test the PingFederate and Duo conditional-access guides and scripts in [fleetdm/
 5. **Things that hang or are blocked here:** `hdiutil attach` and `brew install --cask` (disk image eject); UTM can't read ISOs by path (attach through the UTM UI); `launchd` can't run scripts under `~/Downloads` (macOS privacy protection); the permission classifier blocks bypass-code creation, editing permission settings, and credential-handling edits (ask Adam to do those or add an `autoMode` rule); `~/.claude/projects` is root-owned so Claude memory can't be written.
 6. **Adam's preferences:** short messages; do the work yourself instead of handing him commands (except sign-ins, passwords, and permission changes); clean evidence he can review outside Claude; presentable reports.
 
+## GitOps repo and runner (2026-10-07)
+Workflows pinned to `ubuntu-24.04` (ubuntu-latest becomes Ubuntu 26 on 2026-10-19: test before moving), Node 24 actions, no annotations. The live apply skips pushes that only change `testing/`, `duo/` or markdown. Open: Dependabot alert on `extensions/windows_yellowkey` (thrift, fix 0.24.0).
+
 ## Resume checklist
 ```bash
 cd /Users/adam/Downloads/fleet-54654-lab

@@ -39,3 +39,11 @@ as a note until it has been run.
 - Windows x64 test machine: P-2, D-1, D-2, D-5, D-7, D-8, D-11, L-1 and the Windows sign-in tests.
 - Linux: Duo Desktop ran under x86 emulation and passed D-5 and L-1. Still open: a controlled test of whether the TPM matters, D-8 sign-in block on Linux, a Fleet-driven install of the custom package, and Fleet's EST path.
 - Noah: should the guide say a new host signs in before its first policy run (P-13)?
+
+## GitOps repo hygiene (2026-10-07)
+- **Runner:** GitHub-hosted, now pinned to `ubuntu-24.04` (Ubuntu 24.04.5, image 20261002.596). `ubuntu-latest` moves to Ubuntu 26 on **2026-10-19**. Before moving the pin: run the apply once on `ubuntu-26.04` from a branch and check `fleetctl` installs.
+- **Actions:** `checkout@v6`, `setup-python@v6` (the old versions raised a "Node.js 20 is deprecated" warning). Both workflows now run with no annotations.
+- **Live apply only when Fleet config changes:** pushes touching only `testing/`, `duo/`, markdown files or `duo-sync.yml` no longer run the apply. Pull requests still dry-run; the nightly 06:00 UTC apply is unchanged.
+- **Duo workflow:** `timeout-minutes: 10`; token secret is `DUO_FLEET_API_TOKEN`.
+- **History:** 7 failed apply runs from 15:42 to 18:58 UTC on 2026-10-07 were the token mix-up (see RESULTS.md). Left in place on purpose.
+- **Still open:** one Dependabot alert (high): `github.com/apache/thrift` in `extensions/windows_yellowkey/go.mod`, fixed in 0.24.0. Not touched.
