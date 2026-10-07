@@ -1,6 +1,6 @@
 name: 'Sync Fleet hosts to Duo Trusted Endpoints'
 
-# Manual only until the repository secrets below exist. Then add the schedule:
+# Manual only until D-12 finishes. Then add the schedule:
 #   schedule:
 #     - cron: "2-59/5 * * * *"   # every 5 minutes, off the top of the hour
 on:
@@ -26,28 +26,31 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install "duo-client>=4.3.0"
-      # Duo's device_cache_sync.py files contain integration keys, so they are stored as base64 secrets
-      # and written to disk at run time. Secrets: DUO_MACOS_SCRIPT, DUO_WINDOWS_SCRIPT, DUO_LINUX_SCRIPT.
-      - name: Restore Duo sync scripts
-        env:
-          DUO_MACOS_SCRIPT: ${{ secrets.DUO_MACOS_SCRIPT }}
-          DUO_WINDOWS_SCRIPT: ${{ secrets.DUO_WINDOWS_SCRIPT }}
-          DUO_LINUX_SCRIPT: ${{ secrets.DUO_LINUX_SCRIPT }}
-        run: |
-          for os in macos windows linux; do
-            var="DUO_$(echo "$os" | tr a-z A-Z)_SCRIPT"
-            mkdir -p "duo/$os"
-            if [ -n "${!var}" ]; then echo "${!var}" | base64 -d > "duo/$os/device_cache_sync.py"; else echo "No secret for $os, skipping."; fi
-          done
+      # duo/device_cache_sync.py is Duo's script with the credentials block replaced by environment variables,
+      # so the file holds no secrets. Secrets: FLEET_API_TOKEN, DUO_API_HOST, and for each of MACOS, WINDOWS
+      # and LINUX: DUO_<OS>_MKEY (integration key ID, starts with DM), DUO_<OS>_IKEY and DUO_<OS>_SKEY.
       - name: Export Fleet hosts and sync to Duo
         env:
           FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
+          DUO_API_HOST: ${{ secrets.DUO_API_HOST }}
+          DUO_MACOS_MKEY: ${{ secrets.DUO_MACOS_MKEY }}
+          DUO_MACOS_IKEY: ${{ secrets.DUO_MACOS_IKEY }}
+          DUO_MACOS_SKEY: ${{ secrets.DUO_MACOS_SKEY }}
+          DUO_WINDOWS_MKEY: ${{ secrets.DUO_WINDOWS_MKEY }}
+          DUO_WINDOWS_IKEY: ${{ secrets.DUO_WINDOWS_IKEY }}
+          DUO_WINDOWS_SKEY: ${{ secrets.DUO_WINDOWS_SKEY }}
+          DUO_LINUX_MKEY: ${{ secrets.DUO_LINUX_MKEY }}
+          DUO_LINUX_IKEY: ${{ secrets.DUO_LINUX_IKEY }}
+          DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
         run: |
           bash duo/export-fleet-hosts-for-duo.sh
           for os in macos windows linux; do
-            if [ -f "duo/$os/device_cache_sync.py" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
-              python "duo/$os/device_cache_sync.py" --infile "$os.csv" --device_id_column device_id
+            up=$(echo "$os" | tr a-z A-Z)
+            mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
+            if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
+              DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
+                python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
             else
-              echo "$os: no script or no hosts, skipped"
+              echo "$os: no credentials or no hosts, skipped"
             fi
           done
