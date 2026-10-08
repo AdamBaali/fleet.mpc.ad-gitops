@@ -11,3 +11,9 @@ Window-only captures of Adam's browser (Fleet and Duo Admin, lab accounts). The 
 | `duo-applications-web-sdk.png` | Duo Applications: the Web SDK app with the group policy "Fleet lab - trusted endpoints only" for group `fleet-lab` |
 
 Not captured: the Duo authentication log (the URL tab showed "Not Found") and the PingFederate admin console (the browser pane refuses https://localhost; capture it in your own browser at https://localhost:9999/pingfederate if wanted).
+
+## Added later (2026-10-08)
+| File | What it shows |
+| --- | --- |
+| `fleet-ca-lab-ca-settings.png` | The LAB_CA edit form: name `LAB_CA`, SCEP URL `https://scep.mpc.ad/scep/fleet-scep`; the challenge field is masked by Fleet (dots only) |
+| `duo-authentication-log-top.png` | Duo Authentication Log, last 24 hours: 13 authentications (green granted, red denied). Newest row: Granted, `lab-test`, Web SDK, Mac OS X 15.7.7 "As reported by Duo Desktop", 9:05:43 UTC (the recovery sign-in after the D-8 block). The denial rows are below the visible part of the page |
