@@ -3,5 +3,4 @@
 Fleet for the Linux atomic (rpm-ostree), OpenClaw detection, NIST checks and Windows YellowKey assets.
 
 - **Config:** `../flock-to-fedora.yml`.
-- **Context and style rules:** [CONTEXT.md](CONTEXT.md).
 - **YellowKey extension source:** `extensions/windows_yellowkey/`.

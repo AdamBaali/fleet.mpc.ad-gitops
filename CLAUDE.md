@@ -1,1 +1,5 @@
-See README.md for how this repository is organized. See `fleets/flock-to-fedora/CONTEXT.md` for the Windows YellowKey (CVE-2026-45585) mitigation and the Linux/atomic and OpenClaw detection assets. Match the style rules at the end of that file for any work in this repo.
+See README.md for how this repository is organized.
+
+Writing style for docs and comments: short, declarative sentences in the active voice. Sentence case headings. No em dashes.
+No filler words (very, really, actually, basically, just, powerful, seamless). Say "hosts", not "endpoints" or "agents".
+Comments explain why a choice was made, not what the code does. Never commit secrets.
