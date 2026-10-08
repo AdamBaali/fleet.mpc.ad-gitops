@@ -47,3 +47,9 @@ as a note until it has been run.
 - **Duo workflow:** `timeout-minutes: 10`; token secret is `DUO_FLEET_API_TOKEN`.
 - **History:** 7 failed apply runs from 15:42 to 18:58 UTC on 2026-10-07 were the token mix-up (see RESULTS.md). Left in place on purpose.
 - **Still open:** one Dependabot alert (high): `github.com/apache/thrift` in `extensions/windows_yellowkey/go.mod`, fixed in 0.24.0. Not touched.
+
+## 2026-10-08 additions
+- GitHub schedule on `duo-sync.yml` has not fired in 2 h (see HANDOFF.md). Cause unknown.
+- Picture evidence gaps: see HANDOFF.md "Still has NO pictures".
+- `product_uuid` is root-only on Ubuntu; fine for Duo Desktop (root), but a guide check run as a normal user will fail.
+- The overnight P-15 watcher log is `evidence/renewal/overnight.log`; add its outcome to RESULTS.md.
