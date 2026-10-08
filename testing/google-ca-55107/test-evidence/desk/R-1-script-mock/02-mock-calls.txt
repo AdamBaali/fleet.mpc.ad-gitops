@@ -1,0 +1,35 @@
+GET https://fleet.mock/api/v1/fleet/hosts?per_page=50&page=0&device_mapping=true 
+GET https://fleet.mock/api/v1/fleet/hosts?per_page=50&page=1&device_mapping=true 
+GET https://cloudidentity.googleapis.com/v1/devices?customer=customers/my_customer&view=USER_ASSIGNED_DEVICES&pageSize=100&pageToken= 
+GET https://cloudidentity.googleapis.com/v1/devices?customer=customers/my_customer&view=USER_ASSIGNED_DEVICES&pageSize=100&pageToken=P2 
+GET https://cloudidentity.googleapis.com/v1/devices/-/deviceUsers?customer=customers/my_customer&pageSize=100&pageToken= 
+GET https://cloudidentity.googleapis.com/v1/devices/A1/deviceUsers/u1/clientStates/C0mock-fleet?customer=customers/C0mock 
+GET https://cloudidentity.googleapis.com/v1/devices/A2/deviceUsers/u2/clientStates/C0mock-fleet?customer=customers/C0mock 
+PATCH https://cloudidentity.googleapis.com/v1/devices/A2/deviceUsers/u2/clientStates/C0mock-fleet?customer=customers/C0mock&updateMask=managed,complianceState,customId {
+  "managed": "MANAGED",
+  "complianceState": "COMPLIANT",
+  "customId": "2"
+}
+GET https://cloudidentity.googleapis.com/v1/devices/B1/deviceUsers/u3/clientStates/C0mock-fleet?customer=customers/C0mock 
+GET https://cloudidentity.googleapis.com/v1/devices/C1/deviceUsers/u4/clientStates/C0mock-fleet?customer=customers/C0mock 
+GET https://cloudidentity.googleapis.com/v1/devices/D1/deviceUsers/u5/clientStates/C0mock-fleet?customer=customers/C0mock 
+PATCH https://cloudidentity.googleapis.com/v1/devices/D1/deviceUsers/u5/clientStates/C0mock-fleet?customer=customers/C0mock&updateMask=managed,complianceState,customId {
+  "managed": "MANAGED",
+  "complianceState": "COMPLIANT",
+  "customId": "4"
+}
+GET https://cloudidentity.googleapis.com/v1/devices/E1/deviceUsers/u6/clientStates/C0mock-fleet?customer=customers/C0mock 
+GET https://cloudidentity.googleapis.com/v1/devices/E2/deviceUsers/u7/clientStates/C0mock-fleet?customer=customers/C0mock 
+GET https://cloudidentity.googleapis.com/v1/devices/G1/deviceUsers/u8/clientStates/C0mock-fleet?customer=customers/C0mock 
+PATCH https://cloudidentity.googleapis.com/v1/devices/G1/deviceUsers/u8/clientStates/C0mock-fleet?customer=customers/C0mock&updateMask=managed,complianceState,customId {
+  "managed": "MANAGED",
+  "complianceState": "COMPLIANT",
+  "customId": "9"
+}
+GET https://cloudidentity.googleapis.com/v1/devices/R1/deviceUsers/u9/clientStates/C0mock-fleet?customer=customers/C0mock 
+PATCH https://cloudidentity.googleapis.com/v1/devices/R1/deviceUsers/u9/clientStates/C0mock-fleet?customer=customers/C0mock&updateMask=managed,complianceState,customId {
+  "managed": "UNMANAGED",
+  "complianceState": "NON_COMPLIANT",
+  "customId": ""
+}
+GET https://cloudidentity.googleapis.com/v1/devices/N1/deviceUsers/u11/clientStates/C0mock-fleet?customer=customers/C0mock 
