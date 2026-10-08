@@ -6,7 +6,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 28 |
+| PASS | 29 |
 | PARTIAL | 2 |
 | info | 2 |
 
@@ -16,6 +16,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Linux | D-1: Duo Desktop for Linux installed and running | PARTIAL | [open](#d-1-duo-desktop-for-linux-installed-and-running) |
 | Linux | D-10: Duo's script refuses an empty list | PASS | [open](#d-10-duos-script-refuses-an-empty-list) |
 | Linux | D-12: Five-minute sync running for hours | PARTIAL | [open](#d-12-five-minute-sync-running-for-hours) |
+| Linux | D-1b: Fleet installs Duo Desktop on Linux through a policy | PASS | [open](#d-1b-fleet-installs-duo-desktop-on-linux-through-a-policy) |
 | Linux | D-3: Export script writes the three CSVs | PASS | [open](#d-3-export-script-writes-the-three-csvs) |
 | Linux | D-4: Duo sync uploads the Linux list | PASS | [open](#d-4-duo-sync-uploads-the-linux-list) |
 | Linux | D-5: Linux host: Duo trusts it and sign-in succeeds | PASS | [open](#d-5-linux-host-duo-trusts-it-and-sign-in-succeeds) |
@@ -103,6 +104,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![terminal sync stats](test-evidence/linux/D-12-five-minute-sync-running-for-hours/02-terminal-sync-stats.png)
 
+
+---
+
+### D-1b: Fleet installs Duo Desktop on Linux through a policy
+
+**Result: PASS** · [full notes](test-evidence/linux/D-1b-fleet-installs-duo-desktop-on-linux/result.md)
+
+- **Objective:** a Linux host without Duo Desktop gets it from Fleet through policy automation, as for macOS and Windows.
+- **Expected:** the policy fails, Fleet installs the custom package, the policy passes.
+
+**Output:** [01-timeline.txt](test-evidence/linux/D-1b-fleet-installs-duo-desktop-on-linux/01-timeline.txt)
 
 ---
 

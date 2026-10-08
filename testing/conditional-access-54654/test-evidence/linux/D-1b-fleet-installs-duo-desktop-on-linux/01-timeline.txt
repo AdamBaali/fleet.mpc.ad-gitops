@@ -1,0 +1,9 @@
+2026-10-08 (UTC), host lab-linux (Ubuntu 24.04 ARM, Duo Desktop 4.7.0 x86-64 under emulation)
+13:16:51  Duo Desktop purged from the VM (dpkg -P); Refetch requested
+13:17:18  policy "Duo Desktop installed (Linux)": pass (not yet rerun)
+13:17:41  policy: fail; Fleet queues the software install (upcoming activity: installed_software)
+13:18:34  dpkg shows the package half-configured (iF); the service is inactive
+13:18:51  package installed (ii duo-desktop:amd64 4.7.0); service active
+13:19:24  Fleet activity: installed_software, status installed, software duo-desktop
+Total: about 1 minute 45 seconds from the failed policy to a running service.
+Note: an earlier run with `dpkg -r` (package removed, config kept) left a row with status "rc" and the policy kept passing. The policy query now also requires status = 'install ok installed'.

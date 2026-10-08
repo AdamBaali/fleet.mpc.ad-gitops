@@ -3,6 +3,6 @@
   resolution: Fleet installs Duo Desktop when this policy fails.
   platform: linux
   query: |
-    SELECT 1 FROM deb_packages WHERE name = 'duo-desktop';
+    SELECT 1 FROM deb_packages WHERE name = 'duo-desktop' AND status = 'install ok installed';
   install_software:
     package_path: ../software/duo-desktop.yml
