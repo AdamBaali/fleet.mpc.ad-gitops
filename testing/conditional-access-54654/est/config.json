@@ -1,0 +1,8 @@
+{
+  "mock_ca": {"certificates": "/data/ca.crt", "private_key": "/data/ca.key"},
+  "tls": {"listen_address": "0.0.0.0:8444", "certificates": "/data/tls.crt", "private_key": "/data/tls.key"},
+  "allowed_hosts": ["scep.mpc.ad", "localhost", "127.0.0.1"],
+  "healthcheck_password": "lab",
+  "rate_limit": 150,
+  "timeout": 30
+}
