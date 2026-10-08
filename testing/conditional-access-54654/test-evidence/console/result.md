@@ -32,3 +32,7 @@ The token row in the data store summary is a real Fleet API token (the read-only
 Note: PingFederate warns that using its console in several tabs can corrupt its configuration. Capture it from one tab and use Cancel, not Save.
 | `pingfederate-contract-mapping-attribute-sources.png` | Authentication policy contract mapping, Attribute Sources & User Lookup: the two lookups **Fleet host by UUID** and **Fleet host health** |
 | `pingfederate-contract-mapping-summary.png` | The whole Step 6 configuration on one page. Lookup 1 `fleetByUuid`: resource path `/api/v1/fleet/hosts/identifier/${ad.x509lab.CN}?exclude_software=true`. Lookup 2 `fleetHealth`: `/api/v1/fleet/hosts/${ds.fleetByUuid.fleetHostID}/health`. Contract fulfillment: `fleetHostID` from the data store, `hostUUID` = CN (adapter), `subject` = SubjectDN (adapter). Issuance criterion: `fleetHealth` attribute `failingCriticalPolicies` equal to `0`, error message "Host is not in Fleet or is failing a critical policy". This is also the evidence for P-6: the second lookup uses `${ds.fleetByUuid.fleetHostID}` and the first uses `${ad.x509lab.CN}`, not `${hostUUID}` or `${fleetHostID}` |
+
+## Result: INFO
+
+Reference pictures, not a test.

@@ -22,3 +22,7 @@ for p in c['authority']['provisioners']:
     out['provisioners'].append(q)
 print(json.dumps(out,indent=1))"`
 - `08-stepca-template.txt`: `cat stepca/data/templates/scep-client.tpl`
+
+## Result: INFO
+
+How the lab was set up. Not a test.

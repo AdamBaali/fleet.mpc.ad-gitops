@@ -1,5 +1,8 @@
 # Conditional access guides: lab testing (fleetdm/fleet#54654)
 
+**Start here:** [EVIDENCE.md](EVIDENCE.md) lists every test with its result, pictures and links to the raw output. The reusable method is in [`../_framework`](../_framework).
+
+
 Test lab for the PingFederate and Duo guides in fleetdm/fleet PR #54346. Everything here is from a throwaway test environment.
 
 - `HANDOFF.md`: **start here**. The project, where everything is, status, open items, working rules, and how to resume.
