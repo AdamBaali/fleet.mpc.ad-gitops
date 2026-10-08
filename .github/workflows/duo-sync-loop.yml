@@ -44,14 +44,14 @@ jobs:
           DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
         run: |
           sync_once() {
-            bash duo/export-fleet-hosts-for-duo.sh || return 1
+            bash fleets/ping-duo-lab/duo-sync/export-fleet-hosts-for-duo.sh || return 1
             local rc=0
             for os in macos windows linux; do
               up=$(echo "$os" | tr a-z A-Z)
               mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
               if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
                 DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
-                  python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id || rc=1
+                  python fleets/ping-duo-lab/duo-sync/device_cache_sync.py --infile "$os.csv" --device_id_column device_id || rc=1
               else
                 echo "$os: no credentials or no hosts, skipped"
               fi

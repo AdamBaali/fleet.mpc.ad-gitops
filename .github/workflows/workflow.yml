@@ -7,7 +7,7 @@ on:
     # Notes, test evidence and the Duo sync don't change Fleet, so they don't need a live apply.
     paths-ignore:
       - 'testing/**'
-      - 'duo/**'
+      - 'fleets/*/**'
       - '**.md'
       - '.github/workflows/duo-sync*.yml'
   pull_request:

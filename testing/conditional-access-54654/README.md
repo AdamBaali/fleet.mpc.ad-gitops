@@ -13,4 +13,4 @@ The reusable method is in [`../_framework`](../_framework).
 | [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md) | What the tests showed about each guide |
 | [NOTES.md](NOTES.md) | What was not tested and how the lab differs from production |
 | `test-evidence/` | Raw output and pictures (`linux/`, `macos/`, `console/`, `renewal/`) |
-| `ping/`, `stepca/`, `duo/`, `est/`, `linux-vm/`, `tests/`, `tools/` | Setup scripts and helpers used to build the lab |
+| `lab-setup/` (ping, stepca, est, duo, linux-vm), `tests/`, `tools/` | Scripts and helpers used to build the lab |

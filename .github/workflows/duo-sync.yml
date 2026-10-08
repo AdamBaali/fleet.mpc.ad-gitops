@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install "duo-client>=4.3.0"
-      # duo/device_cache_sync.py is Duo's script with the credentials block replaced by environment variables,
+      # fleets/ping-duo-lab/duo-sync/device_cache_sync.py is Duo's script with the credentials block replaced by environment variables,
       # so the file holds no secrets. Secrets: DUO_FLEET_API_TOKEN (not FLEET_API_TOKEN, which the GitOps workflow uses), DUO_API_HOST, and for each of MACOS, WINDOWS
       # and LINUX: DUO_<OS>_MKEY (integration key ID, starts with DM), DUO_<OS>_IKEY and DUO_<OS>_SKEY.
       - name: Export Fleet hosts and sync to Duo
@@ -45,13 +45,13 @@ jobs:
           DUO_LINUX_IKEY: ${{ secrets.DUO_LINUX_IKEY }}
           DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
         run: |
-          bash duo/export-fleet-hosts-for-duo.sh
+          bash fleets/ping-duo-lab/duo-sync/export-fleet-hosts-for-duo.sh
           for os in macos windows linux; do
             up=$(echo "$os" | tr a-z A-Z)
             mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
             if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
               DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
-                python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
+                python fleets/ping-duo-lab/duo-sync/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
             else
               echo "$os: no credentials or no hosts, skipped"
             fi
