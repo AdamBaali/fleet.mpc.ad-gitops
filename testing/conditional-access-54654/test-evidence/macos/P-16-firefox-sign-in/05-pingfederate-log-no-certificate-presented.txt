@@ -1,0 +1,2 @@
+2026-10-08 08:43:32,817 tid:9aMOgpDk2ztZhekXX0nH_3ZNq_E WARN  [com.pingidentity.adapters.idp.clientcert.ClientCertIdpAuthnAdapter] [X509000] No Client Certificate was presented.
+2026-10-08 08:43:48,755 tid:9aMOgpDk2ztZhekXX0nH_3ZNq_E WARN  [com.pingidentity.adapters.idp.clientcert.ClientCertIdpAuthnAdapter] [X509000] No Client Certificate was presented.
