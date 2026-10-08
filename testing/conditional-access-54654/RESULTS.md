@@ -323,10 +323,10 @@ Note: the test harness lives in the lab folder (`tests/`), not in the PR, which 
 3. `d818df2503` Ping guide, tested on real hosts: macOS `AllowAllAppsAccess`/`KeyIsExtractable`, EKU comes from the CA, Okta Windows SubjectName, Linux reruns, browser auto-select (port, macOS profile, Firefox), CA trust prerequisite, resend note.
 4. `06fefa1d39` Ping guide Steps 4-6 (adapter Client Auth fields, Test Connection URL, `${ad.}`/`${ds.}` names, map `fleetHostID`, single criterion). **Found through the Admin API; hold until VALIDATION.md V-1 to V-6 pass in the UI.**
 5. Duo guide: skip empty lists, export safeguards, macOS local network prompt, Linux x86-64, `bash` invocation.
-Full diff: `fleet-54654-fixes.diff`. Nothing pushed. Deferred until tested: workflow secrets for Duo scripts (D-6), `report_cap` (D-11), report interval/keep data (D-2), UI-user (cron) path, Windows profile details (P-2).
+The guide changes now live on a branch based on Noah's PR. Nothing pushed. Deferred until tested: workflow secrets for Duo scripts (D-6), `report_cap` (D-11), report interval/keep data (D-2), UI-user (cron) path, Windows profile details (P-2).
 
 ### PingFederate UI checks (2026-10-07)
-See VALIDATION.md "UI check results". Summary: V-1, V-2, V-4, V-5, V-6 confirmed (port required, hostname optional); V-3 partly. Adapter was cleared and restored through the Admin API for V-6; sign-in works after restore. Extra commit on the lab branch: "PingFederate guide: Client Auth Port is required".
+The UI checks were later confirmed with the console pictures in EVIDENCE.md. Summary: V-1, V-2, V-4, V-5, V-6 confirmed (port required, hostname optional); V-3 partly. Adapter was cleared and restored through the Admin API for V-6; sign-in works after restore. Extra commit on the lab branch: "PingFederate guide: Client Auth Port is required".
 
 ### macOS: keychain prompt returns in a second Chrome instance (2026-10-07, after the AllowAllAppsAccess fix)
 `open -na "Google Chrome" --args --new-window <url>` (a second Chrome instance) showed "Google Chrome wants to access key 'MDM Allow All' in your keychain" (login keychain password). The key was created by the lab SCEP profile with `AllowAllAppsAccess` true. The normal Chrome instance had gone straight to the callback earlier (state=macchrome2). Possible cause: a separate Chrome instance or a different launch method is treated as a new client. Not yet confirmed; to retest after the reset (fresh key, normal Chrome only, check Always Allow behaviour).

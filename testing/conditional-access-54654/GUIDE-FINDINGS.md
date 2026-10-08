@@ -1,7 +1,7 @@
 # Guide findings: PingFederate and Duo (fleetdm/fleet#54654, PR #54346)
 
 What the lab tests showed, grouped by guide. Evidence for each item is in `RESULTS.md`. Test IDs (P-n, D-n, L-n) are from `TEST_PLAN.md`.
-**Validation:** items marked in `VALIDATION.md` as not yet validated were found through the PingFederate Admin API and still need a check in the UI. Don't treat them as final.
+**Validation:** items first found through the PingFederate Admin API were found through the PingFederate Admin API and still need a check in the UI. Don't treat them as final.
 
 Status: the design works. The Fleet APIs, the JSON paths and the critical-policy logic are correct. The PingFederate setup steps need the fixes below.
 

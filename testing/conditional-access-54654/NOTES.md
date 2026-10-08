@@ -49,8 +49,8 @@ as a note until it has been run.
 - **Still open:** one Dependabot alert (high): `github.com/apache/thrift` in `extensions/windows_yellowkey/go.mod`, fixed in 0.24.0. Not touched.
 
 ## 2026-10-08 additions
-- GitHub schedule on `duo-sync.yml` has not fired in 2 h (see HANDOFF.md). Cause unknown.
-- Picture evidence gaps: see HANDOFF.md "Still has NO pictures".
+- GitHub schedule on `duo-sync.yml` has not fired in 2 h (see RESULTS.md). Cause unknown.
+- Picture evidence gaps: all tests now have pictures, see EVIDENCE.md.
 - `product_uuid` is root-only on Ubuntu; fine for Duo Desktop (root), but a guide check run as a normal user will fail.
 - The overnight P-15 watcher log is `evidence/renewal/overnight.log`; add its outcome to RESULTS.md.
 
