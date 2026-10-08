@@ -103,10 +103,22 @@ index 3b6388ff63..ef2f38f9ff 100644
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
 diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-index c0401c7c0f..6d7a06f814 100644
+index c0401c7c0f..137cd5b1aa 100644
 --- a/articles/require-fleet-managed-hosts-in-duo.md
 +++ b/articles/require-fleet-managed-hosts-in-duo.md
-@@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
+@@ -5,16 +5,17 @@ This guide shows how to block Duo sign-in from hosts that aren't managed by Flee
+ How it works:
+ 
+ 1. Duo Desktop on each host reports the host's device ID to Duo at sign-in.
+-2. Every few minutes, a script exports the device IDs of your Fleet hosts, and Duo's sync script uploads them to Duo.
++2. Once a day, a script exports the device IDs of your Fleet hosts, and Duo's sync script uploads them to Duo.
+ 3. Duo's [Trusted Endpoints](https://duo.com/docs/trusted-endpoints-generic-duo-desktop) policy blocks sign-in from hosts that aren't on the list.
+ 
+ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access-integration), Duo doesn't need a certificate on the host.
+ 
+-> **Note:** [Conditional access](https://fleetdm.com/guides/conditional-access) with Duo, which also blocks hosts that are failing critical Fleet policies, is coming soon. Fleet will add an activity when a host refetches ([macOS, iOS, and iPadOS](https://github.com/fleetdm/fleet/issues/50576), [Windows](https://github.com/fleetdm/fleet/issues/50577), [Linux](https://github.com/fleetdm/fleet/issues/50578)), so the sync can run as soon as an end user fixes an issue and selects **Refetch**. Until then, the best practice is to trust every host in Fleet. If you also block failing hosts today, an end user who fixes the issue can't sign in until the next sync, up to 5 minutes later. To block failing hosts anyway, [mark those policies as critical](https://fleetdm.com/guides/pingfederate-conditional-access-integration#step-2-mark-critical-policies) and set `REQUIRE_PASSING_CRITICAL_POLICIES=true` when you run the export script.
++> **Note:** [Conditional access](https://fleetdm.com/guides/conditional-access) with Duo, which also blocks hosts that are failing critical Fleet policies, is coming soon. Fleet will add an activity when a host refetches ([macOS, iOS, and iPadOS](https://github.com/fleetdm/fleet/issues/50576), [Windows](https://github.com/fleetdm/fleet/issues/50577), [Linux](https://github.com/fleetdm/fleet/issues/50578)), so the sync can run as soon as an end user fixes an issue and selects **Refetch**. Until then, the best practice is to trust every host in Fleet. If you also block failing hosts today, an end user who fixes the issue can't sign in until the next sync, up to a day later. To block failing hosts anyway, [mark those policies as critical](https://fleetdm.com/guides/pingfederate-conditional-access-integration#step-2-mark-critical-policies) and set `REQUIRE_PASSING_CRITICAL_POLICIES=true` when you run the export script.
+ 
  ## Prerequisites
  
  - A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
@@ -114,7 +126,7 @@ index c0401c7c0f..6d7a06f814 100644
  - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
  
  ## Step 1: Create a Fleet API user
-@@ -46,16 +47,52 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+@@ -46,16 +47,50 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
  
  ## Step 5: Sync hosts
  
@@ -124,9 +136,7 @@ index c0401c7c0f..6d7a06f814 100644
 -3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
 -4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
 +3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts. Add `--dry_run` the first time to check the file without changing what Duo holds.
-+4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
-+
-+> **GitHub Actions schedules are best effort.** GitHub can start a scheduled run late or skip it when it's busy. In testing, a 5-minute schedule started a run twice in 11 hours. Each run counts as at least 1 minute, so a 5-minute schedule uses about 8,600 minutes a month. That's more than the 2,000 free minutes of a private repository. If you need the list to stay current, run the same steps from a server with cron or a systemd timer, or call the workflow with `workflow_dispatch` from a scheduler you already run.
++4. Schedule these steps to run once a day, which is what [Duo recommends](https://duo.com/docs/trusted-endpoints-generic-duo-desktop). The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
 +
 +Duo's script has the integration's keys written into it, so don't commit it as is. Edit it to read the keys from environment variables instead. Replace the `MKEY_CREDENTIALS = {...}` block near the top with this:
 +
@@ -157,7 +167,8 @@ index c0401c7c0f..6d7a06f814 100644
 +
  on:
    schedule:
-     - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
+-    - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
++    - cron: "17 6 * * *" # Once a day at 06:17 UTC, away from the top of the hour when GitHub is busiest
    workflow_dispatch:
 +
 +concurrency:
@@ -170,7 +181,7 @@ index c0401c7c0f..6d7a06f814 100644
  jobs:
    sync:
      runs-on: ubuntu-latest
-@@ -65,15 +102,39 @@ jobs:
+@@ -65,15 +100,36 @@ jobs:
          with:
            python-version: "3.12"
        - run: pip install "duo-client>=4.3.0"
@@ -205,16 +216,14 @@ index c0401c7c0f..6d7a06f814 100644
 +          done
  ```
  
+-Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
 +No GitHub? Run the same export and upload steps on a schedule anywhere that can reach Fleet and Duo, like cron, a systemd timer, or Windows Task Scheduler. Set the same environment variables in the job. On macOS, don't keep the scripts in Downloads, Documents, or Desktop. macOS blocks scheduled jobs from reading those folders.
-+
- Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
  
-+The export script includes every Fleet host. To leave out hosts that fail a critical policy, set `REQUIRE_PASSING_CRITICAL_POLICIES=true`. Duo's script refuses an empty list, so if your only host fails, nothing is uploaded and Duo keeps trusting it until another host is in the list.
-+
++Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync. To let a new host in sooner, run the workflow by hand from the **Actions** tab (**Run workflow**).
  ## Step 6: Turn on the policy
  
  1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
-@@ -90,6 +151,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+@@ -90,6 +146,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
  ## Troubleshooting
  
  - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.

@@ -63,3 +63,6 @@ as a note until it has been run.
 
 ## 2026-10-08: scope decision
 Adam decided the export script improvements (temp files, 50% shrink guard, `FORCE=true`) are out of scope for the PR. The commit is reverted on `adam/ping-duo-fixes` (`547fd977c9`) and the guide no longer describes them. The tests (D-9, D-10) and the lab's own copy of the script keep the safeguards as evidence; the idea stays here as an option for a later change.
+
+## 2026-10-08: sync interval decision
+Adam chose to keep the guide simple and follow Duo's recommendation (daily sync, see duo.com/docs/trusted-endpoints-generic-duo-desktop). The Duo guide and the lab workflow now run once a day (`17 6 * * *`); the half-hourly loop idea is dropped. The 5-minute local loop stays as D-12 evidence only. Trade-off: a newly enrolled host can wait up to a day for its first sign-in unless someone runs the workflow by hand.

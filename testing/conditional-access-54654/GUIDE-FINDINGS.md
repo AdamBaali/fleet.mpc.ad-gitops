@@ -63,7 +63,7 @@ Proven by tests; each is in `RESULTS.md` with pictures.
 
 **Duo guide**
 - `REQUIRE_PASSING_CRITICAL_POLICIES` is off by default. A list with only one host can never become empty (Duo's script refuses an empty upload and the lab wrapper skips it), so a single failing host stays trusted until another host is in the list. Say so, or turn the filter on in the example.
-- A 5-minute GitHub Actions schedule is not reliable: two scheduled runs in 11 hours. A private repository on the free plan (2,000 minutes a month) runs out in about 7 days at one run every 5 minutes. Offer an external scheduler calling `workflow_dispatch`, a server the customer already has, or a longer interval, and set the expectation that scheduled runs can be late.
+- A 5-minute GitHub Actions schedule is not reliable: two scheduled runs in 11 hours. A private repository on the free plan (2,000 minutes a month) runs out in about 7 days at one run every 5 minutes. Decision: follow Duo's recommendation and sync once a day. The guide's workflow runs daily and can be run by hand to let a new host in sooner.
 
 **Certificate renewal (both guides)**
 - Fleet renews a custom SCEP certificate once less than half its lifetime is left (30 days or less) or 30 days are left (longer), in whole days, checked hourly. A certificate valid for only 1 day never renews; Fleet's docs require at least 2 days. The lab renewed 29 minutes after the window opened, twice.
