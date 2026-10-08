@@ -1,5 +1,5 @@
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..1e577a2731 100644
+index 3b6388ff63..ef2f38f9ff 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -10,7 +10,7 @@ index 3b6388ff63..1e577a2731 100644
  - PingFederate with the X.509 Certificate Integration Kit [installed](https://docs.pingidentity.com/integrations/x509/x509_certificate_integration_kit/pf_x509_certificate_ik_deploying_the_integration_files.html), including setting `pf.secondary.https.port`.
  
  ## Step 1: Create a Fleet API user
-@@ -25,26 +26,27 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
+@@ -25,26 +26,28 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
  
  ## Step 3: Deploy the certificate
  
@@ -39,11 +39,12 @@ index 3b6388ff63..1e577a2731 100644
  2. Create an X.509 Certificate IdP Adapter instance.
 -3. Map the certificate's CN to an adapter attribute (for example, `hostUUID`).
 +3. Set **Client Auth Port** to your secondary HTTPS port (`pf.secondary.https.port`). PingFederate requires it. Set **Client Auth Hostname** to the host name browsers use to reach PingFederate.
-+4. The adapter's `CN` attribute holds the certificate's common name, which is the host's UUID. You use it in Step 6.
++4. Set PingFederate's base URL and virtual host name to the host name browsers use. Otherwise redirects go to `localhost`.
++5. The adapter's `CN` attribute holds the certificate's common name, which is the host's UUID. You use it in Step 6.
  
  ## Step 5: Add Fleet as a data store
  
-@@ -52,7 +54,8 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+@@ -52,25 +55,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
  2. For **Type**, select **Rest API**.
  3. For **Base URL**, enter your Fleet server URL.
  4. Add the Fleet API token from Step 1 as an `Authorization: Bearer <token>` header.
@@ -53,24 +54,37 @@ index 3b6388ff63..1e577a2731 100644
  
  | Local attribute | JSON response attribute path |
  |---|---|
-@@ -64,11 +67,11 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+-| `fleetHostUUID` | `/host/uuid` |
+ | `fleetHostID` | `/host/id` |
+ | `failingCriticalPolicies` | `/health/failing_critical_policies_count` |
  
- 1. Add the X.509 adapter from Step 4 to your authentication policy.
- 2. On the adapter's success path, map to a policy contract. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
+ ## Step 6: Build the authentication policy
+ 
+-1. Add the X.509 adapter from Step 4 to your authentication policy.
+-2. On the adapter's success path, map to a policy contract. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
 -   - First, with the resource path `/api/v1/fleet/hosts/identifier/${hostUUID}?exclude_software=true`
 -   - Second, with the resource path `/api/v1/fleet/hosts/${fleetHostID}/health`
 -3. On **Issuance Criteria**, add:
 -   - `fleetHostUUID` equals `${hostUUID}` (host is in Fleet)
 -   - `failingCriticalPolicies` equals `0` (host is passing critical policies)
++PingFederate looks up the host in Fleet in two calls. The first finds the host by the certificate's UUID. The second checks that host's critical policies.
+ 
+-Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
++1. Create an authentication policy contract. The default `subject` attribute is enough.
++2. Add the X.509 adapter from Step 4 to your authentication policy. On its success path, map to the policy contract.
++3. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
 +   - First, with the resource path `/api/v1/fleet/hosts/identifier/${ad.<adapter ID>.CN}?exclude_software=true`
 +   - Second, with the resource path `/api/v1/fleet/hosts/${ds.<first source ID>.fleetHostID}/health`
 +
 +   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. `${hostUUID}` and `${fleetHostID}` don't resolve in a lookup path.
-+3. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
++4. On **Contract Fulfillment**, map `subject` to the adapter's `CN`. PingFederate requires every contract attribute to have a value.
++5. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
++
++Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a few minutes, and their next sign-in works right away.
  
- Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
+ ## Step 7: Test
  
-@@ -84,11 +87,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+@@ -84,11 +91,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
@@ -89,7 +103,7 @@ index 3b6388ff63..1e577a2731 100644
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
 diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-index c0401c7c0f..d9c9927778 100644
+index c0401c7c0f..6d7a06f814 100644
 --- a/articles/require-fleet-managed-hosts-in-duo.md
 +++ b/articles/require-fleet-managed-hosts-in-duo.md
 @@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
@@ -109,7 +123,7 @@ index c0401c7c0f..d9c9927778 100644
  2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
 -3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
 -4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
-+3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts.
++3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts. Add `--dry_run` the first time to check the file without changing what Duo holds.
 +4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
 +
 +> **GitHub Actions schedules are best effort.** GitHub can start a scheduled run late or skip it when it's busy. In testing, a 5-minute schedule started a run twice in 11 hours. Each run counts as at least 1 minute, so a 5-minute schedule uses about 8,600 minutes a month. That's more than the 2,000 free minutes of a private repository. If you need the list to stay current, run the same steps from a server with cron or a systemd timer, or call the workflow with `workflow_dispatch` from a scheduler you already run.

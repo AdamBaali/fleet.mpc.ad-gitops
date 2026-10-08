@@ -468,3 +468,11 @@ Terminal window captures for D-3, D-4, D-9, D-10, D-12, P-4, P-5, P-6, P-6b, P-1
 3. `REQUIRE_PASSING_CRITICAL_POLICIES` is off by default, and a list with a single host can never become empty, so one failing host stays trusted until another host is in the list.
 4. A 5-minute GitHub Actions schedule is unreliable and costly on private repositories.
 5. `product_uuid` is readable only by root on Ubuntu (Duo Desktop runs as root).
+
+## P-6c: what the policy contract needs (2026-10-08) PASS
+Question: does Step 6 need the extra contract attributes and mappings, and is `fleetHostUUID` used?
+- **Subject not fulfilled:** the Admin API rejects the policy: "The attribute 'subject' is missing from the attribute contract fulfillment." So `subject` must be mapped.
+- **Extended attributes not fulfilled:** rejected the same way for `fleetHostID` ("missing from the attribute contract fulfillment"). Every attribute on the contract must have a value, so the simplest contract has only the default `subject`.
+- **Minimal setup** (`ping/setup/variants/minimal-contract-subject-only.sh`): contract with only `subject`, subject mapped to the adapter, both lookups unchanged, criterion `failingCriticalPolicies` equals 0, no `fleetHostUUID` anywhere. Results from the Linux VM: passing host got a code; failing critical policy denied ("Host is not in Fleet or is failing a critical policy"; Fleet saw it after 198 s); unknown host denied; after recovery (131 s) the host got a code again.
+- The lab was then restored to the earlier configuration (contract with `hostUUID` and `fleetHostID`) so the saved screenshots still match.
+- **Guide changes:** Step 6 now says to create a contract with only `subject`, map `subject` to `CN`, and notes that every contract attribute needs a value. `fleetHostUUID` is dropped from the Step 5 table.
