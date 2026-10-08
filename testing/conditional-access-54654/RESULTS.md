@@ -416,3 +416,20 @@ Fix (19:03 UTC): Fleet can't re-issue an API token, so I created a new API-only 
 ### P-15 macOS: plan changed (2026-10-07 19:40 UTC)
 The 6h57m certificate (issued 18:03:49, expiring 01:00:49 UTC Oct 8, `DATEDIFF`=1) was not renewed by 19:37 UTC although it was eligible under a half-day reading and Fleet's hourly job should have run at least once. Fleet computes validity with `DATEDIFF` (whole calendar days) and renews when `not_valid_after < NOW + validity_period/2 DAY`; for `DATEDIFF`=1 the half is 0.5 day, which MySQL does not apply as half a day, and Fleet's docs only support renewal for validity of 2 days or more. So that certificate would probably renew only after it expires. Other checks at 19:37: Fleet error store empty (`fleetctl debug errors`), no new InstallProfile command for the host since 12:40Z (user-channel resends don't appear in `fleetctl get mdm-commands --host`), activity log shows only GitOps applies and my two resends, profile status verified. Server logs (the "Renewing MDM managed certificates" line) are on Render and not readable through `fleetctl`.
 New test: step-ca `fleet-scep` lifetime 1710 min; certificate serial `A8EAEE3123AB6DC21B5F51A9AC816738` issued 2026-10-07 19:38:51 GMT, expires 2026-10-09 00:09:51 GMT (28h31m, `DATEDIFF`=2). By Fleet's rule the renewal window opens 2026-10-08 00:09 UTC; expect a new serial after the next hourly job (by about 01:10 UTC). The watcher `evidence/renewal/watch.sh` keeps logging every 5 minutes. If it renews, record: new serial, notBefore, number of identities, and a sign-in.
+
+## P-15 macOS certificate renewal (2026-10-08): PASS (renewed twice, unattended)
+**Setup:** step-ca `fleet-scep` lifetime 1710 min (28.5 h) so renewal happens within a day. The first certificate (7 h, `DATEDIFF`=1 day) never renewed: Fleet counts whole days (see 2026-10-07 notes).
+**Observed (watch log `evidence/renewal/watch.log`, `overnight.log`):**
+| Certificate | Issued (UTC) | Expires (UTC) | Fleet renewal window opens | Renewed at |
+| --- | --- | --- | --- | --- |
+| `A8EAEE31...` | 2026-10-07 19:38:51 | 2026-10-09 00:09:51 | 2026-10-08 00:09:51 | `F0F14345...` issued 00:39:01 (29 min later) |
+| `F0F14345...` | 2026-10-08 00:39:01 | 2026-10-09 05:10:01 | 2026-10-08 05:10:01 | `F7313E7E...` issued 05:38:40 (29 min later) |
+| `F7313E7E...` | 2026-10-08 05:38:40 | 2026-10-09 10:09:40 | 2026-10-08 10:09:40 | expected about 10:38 |
+- The login keychain held exactly 1 identity before and after each renewal (171 watcher samples, none with 2): the old certificate is replaced, not left behind.
+- Profile `Lab CA client certificate` shows `verifying` for a few minutes after each renewal, then `verified`. No activity-log entry and no host "upcoming activity" appear for a renewal; the only evidence is the keychain and the profile status.
+- The renewal comes about 29 minutes after the window opens, because Fleet's check runs hourly (at about :38 past the hour in this instance).
+- With a 28.5 h certificate the rule is `validity = DATEDIFF(notAfter, notBefore)` = 1 or 2 days; a validity of 1 day (28.5 h spanning two dates gives 1) renews when under 1 day is left, so the certificate renews about every 5 hours. This is a lab artefact of the short lifetime, not a guide issue. Production certificates (a year, or 30+ days) renew 30 days out.
+- Still to do: confirm a Chrome sign-in works with the renewed certificate (needs a visible Chrome window on the Mac; do when Adam is at the Mac).
+
+## GitHub scheduled Duo sync (2026-10-08): PARTIAL
+Cron `2-59/5 * * * *` was on `main` from 2026-10-07 22:12 UTC. First scheduled run came at 02:02 UTC, about 4 hours later, and only 1 scheduled run was seen in the next 6 hours. GitHub does not guarantee schedule timing; new or low-traffic schedules can be delayed or skipped. A 5-minute Actions schedule is therefore not reliable for the 5-minute Duo sync the guide promises. The local loop (`duo/sync-loop.sh`) kept a steady 300 s median gap (235 cycles, 0 failed).

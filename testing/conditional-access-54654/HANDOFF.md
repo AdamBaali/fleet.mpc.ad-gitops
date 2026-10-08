@@ -2,7 +2,12 @@
 
 **Read this first when resuming.** It is the clean, current picture: the project, where everything is, what is done and open, what is running, how to work safely, and exactly what to do next. Last updated 2026-10-08 00:20 UTC (see the "Update" block right below).
 
-## Update 2026-10-08 00:20 UTC (read this first)
+## Update 2026-10-08 08:20 UTC (newest)
+- **P-15 macOS renewal PASSED, unattended, twice:** `A8EAEE31` renewed at 00:39 UTC (29 min after the window opened) to `F0F14345`, which renewed at 05:38 to `F7313E7E` (expires 2026-10-09 10:09:40 UTC). One identity in the keychain every time. Next renewal expected about 10:38 UTC. Details in `RESULTS.md` ("P-15 macOS certificate renewal"), logs in `evidence/renewal/{watch,overnight}.log`. Still open: a Chrome sign-in with a renewed certificate (needs a visible Chrome window; do when Adam is at the Mac).
+- **GitHub schedule:** fired once (02:02 UTC, success), about 4 h after it reached `main`, and only 1 run since. Not reliable for a 5-minute sync. Local loop: 235 cycles, 0 failed.
+- The overnight watcher exited at the renewal; `watch.sh` and `sync-loop.sh` still run.
+
+## Update 2026-10-08 00:20 UTC (older, superseded where it conflicts)
 - **Overnight watcher is running:** `evidence/renewal/overnight.sh` (under `caffeinate`) logs every 5 min to `evidence/renewal/overnight.log` and exits when the Mac certificate serial changes (baseline `A8EAEE3123AB6DC21B5F51A9AC816738`) or after 9 h (about 09:12 UTC). Also running: `watch.sh`, `duo/sync-loop.sh` (133 cycles, 0 failures), Docker `stepca` + `pingfederate`, tunnel, UTM `lab-linux`. Keep the Mac plugged in, awake, online. First thing: `tail -20 evidence/renewal/overnight.log`.
 - **P-15 macOS renewal:** Fleet's window opened 00:09:51 UTC. Not renewed yet at 00:12. Nothing queued on host 12. Fleet's hourly job runs on Render (not readable with `fleetctl`). If it never renews: check `fleetctl api /hosts/12/activities/upcoming`, the Fleet error store, and whether the profile's cert validity of 2 days is below Fleet's 2-day minimum.
 - **GitHub schedule did not fire:** `duo-sync.yml` has `schedule: cron "2-59/5 * * * *"` on `main` (commit `c20a80e`, pushed about 22:12 UTC). Actions enabled, workflow active, yet no run with `event=schedule` after 2 h. Investigate in the morning (try a different minute pattern, `*/10`, check the Actions tab banner, repo activity). The local loop keeps D-12 going.

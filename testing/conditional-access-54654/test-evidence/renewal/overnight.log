@@ -1,0 +1,20 @@
+2026-10-08T00:12:30Z start, baseline serial A8EAEE3123AB6DC21B5F51A9AC816738
+2026-10-08T00:12:32Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:17:35Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:22:37Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:27:39Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:32:42Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:37:44Z A8EAEE3123AB6DC21B5F51A9AC816738 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:42:46Z F0F143450B9F241144F81F49293681E8 upcoming=0 last_host_activity=[2026-10-07T19:39:27 resent_configuration_profile] schedule_runs=[]
+2026-10-08T00:42:46Z RENEWED: serial F0F143450B9F241144F81F49293681E8 from Oct  8 00:39:01 2026 GMT to Oct  9 05:10:01 2026 GMT
+serial F0F143450B9F241144F81F49293681E8 from Oct  8 00:39:01 2026 GMT to Oct  9 05:10:01 2026 GMT
+2026-10-07T19:39:27 resent_configuration_profile
+2026-10-07T18:04:32 resent_configuration_profile
+2026-10-07T12:49:31 resent_configuration_profile
+2026-10-07T12:42:22 installed_software
+2026-10-07T12:39:23 installed_software
+{"n":"Fleetd configuration","s":"verified"}
+{"n":"Fleet root certificate authority (CA)","s":"verified"}
+{"n":"Lab Chrome certificate auto-select","s":"verified"}
+{"n":"Lab CA root certificate","s":"verified"}
+{"n":"Lab CA client certificate","s":"verifying"}
