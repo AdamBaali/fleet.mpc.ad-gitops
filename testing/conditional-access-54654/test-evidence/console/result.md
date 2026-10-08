@@ -17,3 +17,10 @@ Not captured: the Duo authentication log (the URL tab showed "Not Found") and th
 | --- | --- |
 | `fleet-ca-lab-ca-settings.png` | The LAB_CA edit form: name `LAB_CA`, SCEP URL `https://scep.mpc.ad/scep/fleet-scep`; the challenge field is masked by Fleet (dots only) |
 | `duo-authentication-log.png` | Duo Authentication Log (zoomed out, last 24 hours, all rows for `lab-test`, Web SDK app). **Mac:** Denied "Endpoint is not trusted" at 9:02:55 UTC (the D-8 block) then Granted at 9:05:43 after the sync restored the Mac, both "as reported by Duo Desktop". Earlier Mac rows: Denied "Endpoint is not trusted" 11:22 on Oct 7 (before the Mac was in the list), Granted 12:43. **Linux (Ubuntu 24.04, Duo Desktop under emulation):** Denied "Duo Desktop was not installed or running" 5:38 PM, Denied "Endpoint is not trusted" 5:46 PM and 6:50 PM (D-8), Granted with a bypass code at 5:56, 6:46 and 6:53 PM. Your admin name and the profile area are masked |
+
+## PingFederate admin console (2026-10-08)
+| File | What it shows |
+| --- | --- |
+| `pingfederate-idp-adapter-x509lab.png` | Summary of the IdP adapter instance "Fleet X.509" (`x509lab`, X.509 Certificate IdP Adapter 1.3.2): **Client Auth Port 9032**, **Client Auth Hostname ping.lab**, parse subject and issuer DNs on, extended contract attributes (ClientCertificateChain, email...) |
+| `pingfederate-data-store-fleet.png` | Summary of the REST data store "Fleet": base URL `https://fleet.mpc.ad`, method GET, header `Authorization: Bearer <token masked>`, attributes `fleetHostUUID /host/uuid`, `fleetHostID /host/id`, `failingCriticalPolicies /health/failing_critical_policies_count`, `fleetHostname`, `fleetTeamID`, `fleetHostIDText` |
+The token row in the data store summary is a real Fleet API token (the read-only `ping-observer` user). It is masked in the saved picture. Do not capture that row unmasked.
