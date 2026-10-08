@@ -1,12 +1,10 @@
 name: 'Sync Fleet hosts to Duo Trusted Endpoints'
 
-# GitHub's schedule event is best effort: a "*/5" cron fired about twice in 10 hours in testing. So the
-# schedule starts a run every 30 minutes (off the top of the hour) and each run syncs every 5 minutes
-# for about 28 minutes. Run it by hand with "Run workflow". Note: this uses about 28 runner minutes per half hour
-# (free in a public repository; a private repository on the free plan has 2,000 minutes a month).
+# Once a day, as Duo recommends. GitHub schedules are best effort, so a run can start late. Run it by hand
+# from the Actions tab (Run workflow) to let a new host in sooner.
 on:
   schedule:
-    - cron: "3,33 * * * *"
+    - cron: "17 6 * * *" # Once a day at 06:17 UTC, as Duo recommends. Run it by hand from the Actions tab to let a new host in sooner.
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +21,7 @@ defaults:
 jobs:
   sync:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -47,25 +45,14 @@ jobs:
           DUO_LINUX_IKEY: ${{ secrets.DUO_LINUX_IKEY }}
           DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
         run: |
-          sync_once() {
-            bash duo/export-fleet-hosts-for-duo.sh || return 1
-            local rc=0
-            for os in macos windows linux; do
-              up=$(echo "$os" | tr a-z A-Z)
-              mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
-              if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
-                DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
-                  python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id || rc=1
-              else
-                echo "$os: no credentials or no hosts, skipped"
-              fi
-            done
-            return $rc
-          }
-          failed=0; end=$((SECONDS + 1680))   # keep syncing for 28 minutes
-          while :; do
-            echo "::group::sync at $(date -u +%H:%M:%S)"; sync_once || { failed=1; echo "::warning::this cycle failed"; }; echo "::endgroup::"
-            next=$((SECONDS + 300)); [ "$next" -ge "$end" ] && break
-            sleep 300
+          bash duo/export-fleet-hosts-for-duo.sh
+          for os in macos windows linux; do
+            up=$(echo "$os" | tr a-z A-Z)
+            mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
+            if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
+              DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
+                python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id
+            else
+              echo "$os: no credentials or no hosts, skipped"
+            fi
           done
-          exit $failed
