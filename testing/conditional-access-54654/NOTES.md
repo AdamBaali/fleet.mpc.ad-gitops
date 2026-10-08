@@ -53,3 +53,10 @@ as a note until it has been run.
 - Picture evidence gaps: see HANDOFF.md "Still has NO pictures".
 - `product_uuid` is root-only on Ubuntu; fine for Duo Desktop (root), but a guide check run as a normal user will fail.
 - The overnight P-15 watcher log is `evidence/renewal/overnight.log`; add its outcome to RESULTS.md.
+
+## GitHub Actions schedule for the Duo sync (2026-10-08): reliability and cost
+- **Observed:** with `cron: "2-59/5 * * * *"` on `main` from 22:12 UTC, the first scheduled run came at 02:02 UTC and the second at 08:50 UTC (2 runs in about 11 hours; the local loop did 235 cycles in the same period). GitHub's docs say schedules can be delayed or dropped under load, run only on the default branch, and (public repos) switch off after 60 days without activity.
+- **Fleet's own repo** only schedules daily or 6-hourly jobs, off the top of the hour, never every 5 minutes (`fleet/.github/workflows`).
+- **Cost:** a 5-minute run is about 288 runs a day. Each is billed as at least 1 minute, so a private repository on the free plan (2,000 minutes a month) would use it up in about 7 days. Public repositories are free.
+- **Options for the guide:** (1) an external scheduler (cron on a server, Cloudflare Worker, cron-job.org) calling `workflow_dispatch` with a fine-grained token (Actions write, one repo): reliable clock, extra secret; (2) keep a GitHub schedule but set expectations of 15 to 60 minutes of lag and say it is best effort; (3) the lab's workaround: a half-hourly schedule whose run loops every 5 minutes for 28 minutes. It keeps a 5-to-10-minute cadence but uses about 28 runner minutes per half hour (public repos only); (4) run the sync from a server or VM the customer already has (the local loop in this lab).
+- **Lab change (not yet tested):** `duo-sync.yml` now uses `cron: "3,33 * * * *"` and loops for 28 minutes. To test: push, watch 3 or more scheduled runs, record start times and the gaps between syncs.
