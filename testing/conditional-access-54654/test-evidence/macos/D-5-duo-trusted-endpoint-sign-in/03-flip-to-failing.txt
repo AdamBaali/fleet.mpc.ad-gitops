@@ -1,0 +1,19 @@
+08:50:13 T+0s  created /tmp/fleet-ca-test on the Mac; count now 0
+08:50:15 refetch requested
+08:50:20 T+7s failing_critical_policies_count=0
+08:50:25 T+12s failing_critical_policies_count=0
+08:50:31 T+18s failing_critical_policies_count=0
+08:50:36 T+23s failing_critical_policies_count=0
+08:50:42 T+29s failing_critical_policies_count=0
+08:50:47 T+34s failing_critical_policies_count=0
+08:50:52 T+39s failing_critical_policies_count=0
+08:50:58 T+45s failing_critical_policies_count=0
+08:51:03 T+50s failing_critical_policies_count=0
+08:51:08 T+55s failing_critical_policies_count=0
+08:51:14 T+61s failing_critical_policies_count=0
+08:51:19 T+66s failing_critical_policies_count=0
+08:51:24 T+71s failing_critical_policies_count=0
+08:51:30 T+77s failing_critical_policies_count=0
+08:51:35 T+82s failing_critical_policies_count=0
+08:51:40 T+87s failing_critical_policies_count=1
+RESULT: Fleet saw the change after 87s

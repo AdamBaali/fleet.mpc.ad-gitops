@@ -1,0 +1,8 @@
+# macOS D-8: the Mac is blocked when it is not in Duo's list, and returns after the next sync
+- **Date:** 2026-10-08 (UTC), host `MPC-Adam`, Chrome, Duo Desktop running, user `lab-test`.
+- **Fleet side:** the critical policy `CA test: flag file absent` fails when `/tmp/fleet-ca-test` exists. Fleet saw it after 87 s, and after the file was removed Fleet saw the pass after 62 s (`01`/`05` flip logs, `macflip.sh`).
+- **Duo side (set by hand):** the lab's 5-minute loop runs the guide's export script with `REQUIRE_PASSING_CRITICAL_POLICIES` off, so it does not drop failing hosts. To test Duo's behaviour I uploaded a macOS list without this Mac. A placeholder ID keeps the list non-empty because Duo's script refuses an empty one (`03-remove-mac-from-list.txt`, right after a loop cycle, `02`).
+- **Blocked:** the sign-in that passed in D-5 ended at **"Device not allowed. Your organization requires you to use a trusted device to log in."** (`04-chrome-device-not-allowed.png`; Duo URL masked).
+- **Recovered:** after the policy passed again and the next sync (09:04:48 UTC, `06`) put the Mac back in the list, the same sign-in returned the Auth Response with `device_info_source: duo_desktop` (`07-chrome-recovered-auth-response.png`; IP, location and code masked).
+- **Result: PASS** for Duo's side and for the restore path. The Fleet-to-CSV filter itself was proven on Linux (sync level) with `REQUIRE_PASSING_CRITICAL_POLICIES=true`.
+- **Guide notes:** the critical-policy filter is opt-in (default `false`), and a list with a single host cannot become empty (Duo's script refuses an empty list and the guide's wrapper skips it), so a lone failing host stays trusted until another host is in the list.

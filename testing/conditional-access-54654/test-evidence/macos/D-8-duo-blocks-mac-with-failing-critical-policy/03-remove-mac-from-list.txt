@@ -1,0 +1,15 @@
+Uploading a list WITHOUT this Mac (a placeholder keeps the list non-empty; Duo refuses an empty one):
+device_id
+00000000-0000-4000-8000-000000000001
+Starting Duo Device Sync Script Version: 1.1.2 Duo_Client Version: 5.7.0
+Starting device sync
+Attempting to create new cache for mkey: <integration-key-id>
+New cache created cache_key: DCTSFA5PD73ZDKXH8HRA
+Attempting to upload devices count: 1
+Uploading 1 device(s)
+1 devices uploaded
+Attempting to activate device cache cache_key: DCTSFA5PD73ZDKXH8HRA
+Activated device cache cache_key: DCTSFA5PD73ZDKXH8HRA
+Devices synced: 1
+
+exit code 0
