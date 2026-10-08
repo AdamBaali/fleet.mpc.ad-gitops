@@ -15,3 +15,5 @@
 Confirmed: a user created later only gets the Chrome store when the script runs, and a Firefox profile created after the import stays empty until the script is run again. Guide note added (rerun after Firefox first opens and for new users).
 
 _Finished 2026-10-07T18:08:23Z_
+
+- `05-terminal-certificate-in-stores.png`: Certificates in the lab user's browser stores (system NSS, snap Chromium, Firefox profile) (Terminal window capture on the Mac, added 2026-10-08). Each store holds the lab CA and the Fleet device certificate.

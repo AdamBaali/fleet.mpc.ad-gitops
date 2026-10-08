@@ -82,6 +82,6 @@ _Configuration as tested: [CFG-configuration-as-tested](CFG-configuration-as-tes
 
 - macOS results and the renewal test: [`RESULTS.md`](../../RESULTS.md) and [`renewal/`](../renewal/) (a watcher logs the macOS certificate every 5 minutes; a 7-hour certificate that crosses midnight UTC should renew on Fleet's hourly job).
 - Duo Admin Panel records: [`_duo-admin-records/`](_duo-admin-records/).
-- Tests are re-runnable: [`*.sh` in this folder's parent](../) are the scripts that produced this folder.
+- Tests are re-runnable: [`evidence/*.sh`](../) are the scripts that produced this folder.
 
-_Generated 2026-10-07 18:56 UTC from `results.tsv` and each test's `result.md`._
+_Generated 2026-10-08 09:57 UTC from `results.tsv` and each test's `result.md`._

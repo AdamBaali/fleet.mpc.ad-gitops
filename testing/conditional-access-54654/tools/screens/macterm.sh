@@ -1,16 +1,18 @@
 #!/bin/bash
-# usage: macterm.sh <outfile.png> <scriptfile>   -- runs the script in a fresh Terminal window, captures that window only, closes it
+# usage: macterm.sh <outfile.png> <scriptfile>
+# Opens a NEW Terminal window, runs the script, captures only that window (its AppleScript window id is its CGWindowID), then closes only that window.
 OUT="$1"; SCRIPT="$2"
-if pgrep -x Terminal >/dev/null && [ "$(osascript -e 'tell application "Terminal" to count of windows')" != 0 ]; then echo "Terminal already has windows; refusing"; exit 1; fi
-osascript >/dev/null <<AS
+WID=$(osascript <<AS
 tell application "Terminal"
   activate
   do script "clear; bash $SCRIPT; echo; echo '--- done ---'"
   set bounds of front window to {60, 60, 1260, 820}
+  return id of front window
 end tell
 AS
-for i in $(seq 1 60); do sleep 2; busy=$(osascript -e 'tell application "Terminal" to get busy of front window' 2>/dev/null); [ "$busy" = false ] && break; done
+)
+for i in $(seq 1 90); do sleep 2; busy=$(osascript -e "tell application \"Terminal\" to get busy of window id $WID" 2>/dev/null); [ "$busy" = false ] && break; done
 sleep 2
-W=$(/tmp/winid Terminal); screencapture -x -o -l$W "$OUT"
-osascript -e 'tell application "Terminal" to close front window saving no' >/dev/null 2>&1
-sleep 1; osascript -e 'tell application "Terminal" to quit' >/dev/null 2>&1; echo "saved $OUT"
+screencapture -x -o -l$WID "$OUT"
+osascript -e "tell application \"Terminal\" to close window id $WID saving no" >/dev/null 2>&1
+echo "saved $OUT (window $WID)"

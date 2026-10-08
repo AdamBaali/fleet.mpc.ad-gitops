@@ -15,3 +15,5 @@
 Run 37646267078 on main of the public lab repo: the keyless duo/device_cache_sync.py plus ten repo secrets synced macOS (1 device) and Linux (1 device) and skipped Windows (no hosts). Works from any repo; the earlier base64-script-secret idea was replaced because only the keys are secret.
 
 _Finished 2026-10-07T18:44:49Z_
+
+- `05-terminal-actions-runs-and-secrets.png`: gh run list for the Duo sync workflow and the secret names (Terminal window capture on the Mac, added 2026-10-08). Six manual runs succeeded; two scheduled runs (02:02 and 08:50 UTC) also succeeded; secret names only, no values.

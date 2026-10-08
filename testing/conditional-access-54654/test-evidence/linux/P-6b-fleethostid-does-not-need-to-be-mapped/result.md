@@ -14,3 +14,5 @@
 With fleetHostID removed from the policy contract and not mapped, the second lookup still resolved ${ds.fleetByUuid.fleetHostID}, sign-in succeeded and the log had 0 WARN/ERROR lines. The earlier claim that it must be mapped was wrong and was removed from the guide.
 
 _Finished 2026-10-07T18:10:36Z_
+
+- `04-terminal-signin-with-policy-as-configured.png`: Sign-in from the Linux VM with that policy (Terminal window capture on the Mac, added 2026-10-08). Returns an authorization code, so fleetHostID is used by the second lookup without being mapped separately.

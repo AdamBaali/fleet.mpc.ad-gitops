@@ -24,3 +24,5 @@
 PingFederate accepts only ad.<adapter ID>.<attribute> and ds.<source ID>.<attribute> names (it lists the available keys in its log). The guide wording ${hostUUID} and ${fleetHostID} gives Unknown Key; a criterion with value ${hostUUID} is compared as literal text. See P-6b for the fleetHostID mapping correction.
 
 _Finished 2026-10-07T18:10:36Z_
+
+- `14-terminal-policy-as-configured.png`: The configured policy via the PingFederate Admin API (Terminal window capture on the Mac, added 2026-10-08). Lookup 1 uses ${ad.x509lab.CN}, lookup 2 uses ${ds.fleetByUuid.fleetHostID}, issuance criterion failingCriticalPolicies equals 0.

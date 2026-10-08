@@ -16,3 +16,5 @@
 PingFederate Test Connection returned HTTP 200; with the Observer-only token Fleet returned the host UUID, host ID and failing_critical_policies_count.
 
 _Finished 2026-10-07T18:07:26Z_
+
+- `06-terminal-fleet-lookups.png`: The two Fleet API lookups with the read-only ping-observer token (Terminal window capture on the Mac, added 2026-10-08). Host ID, UUID, hostname and team ID, then failing_critical_policies_count 0; the token's role is observer, API only. Token not shown.

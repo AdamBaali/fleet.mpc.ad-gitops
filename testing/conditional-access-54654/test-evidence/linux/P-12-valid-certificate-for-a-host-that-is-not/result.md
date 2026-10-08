@@ -15,3 +15,5 @@
 A valid lab-CA certificate for a UUID that Fleet does not have gets a clean access_denied redirect (not a server error page). PingFederate logs a warning for the Fleet 404.
 
 _Finished 2026-10-07T18:17:09Z_
+
+- `05-terminal-unknown-host.png`: A lab-CA certificate for a UUID Fleet has never seen (fresh UUID each run) (Terminal window capture on the Mac, added 2026-10-08). Fleet answers 404 for the host, and the sign-in ends at access_denied with 'Host is not in Fleet or is failing a critical policy'. The certificate and key were deleted afterwards.
