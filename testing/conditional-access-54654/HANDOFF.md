@@ -2,7 +2,15 @@
 
 **Read this first when resuming.** It is the clean, current picture: the project, where everything is, what is done and open, what is running, how to work safely, and exactly what to do next. Last updated 2026-10-08 00:20 UTC (see the "Update" block right below).
 
-## Update 2026-10-08 08:20 UTC (newest)
+## Update 2026-10-08 11:00 UTC (newest, macOS pictures done)
+- **macOS window-only screenshots now exist** in `evidence/macos/` (also `test-evidence/macos/` in the public repo): `P-15-renewed-certificate-chrome-sign-in`, `P-9-10-chrome-critical-policy-flip` (61 s fail, 66 s recover; denied/ok shots), `P-14-safari-sign-in` (picker, keychain prompt "MDM Allow All", deny -> "can't establish a secure connection", allow -> callback ok), `P-16-firefox-sign-in` (OS Client Cert Token, two failed attempts with PingFederate `[X509000] No Client Certificate was presented`, third attempt PASS after quitting Firefox and choosing Always Allow). Firefox was installed by Fleet from FMA `firefox/darwin` (policy automation, 2026-10-07 12:42 UTC).
+- **Method (window only):** `/tmp/winid <App>` (build from `tools/screens/winid.swift`) prints the window id, `screencapture -x -o -l<id> file.png`, masks with `/tmp/maskbox file x y w h ...` (`tools/screens/maskbox.swift`, top-left pixels; mask sign-in codes and the Chrome profile area). Only capture when the app has a single window you opened. Keystrokes via osascript are blocked, so Adam must click dialogs. `evidence/macflip.sh fail|pass` flips the Mac's critical policy.
+- **Skipped:** Keychain Access window (list never populated in a window capture and the login keychain holds personal items) and a Duo Desktop window (menu bar app). Keychain proof stays text: `evidence/renewal/certinfo.py` output.
+- **Guide findings:** each browser needs a one-time keychain "Always Allow" for the SCEP key even with `AllowAllAppsAccess`; a denied prompt looks like "Authentication failed" (no certificate); Firefox must be restarted after a wrong answer.
+- **Unpushed commits** in the public repo (local): `529b526`, `703ea1c`, `95156ef` (macOS evidence) and `29b8141` if not yet pushed: Adam pushes via GitHub Desktop.
+- **Still open:** Fleet and Duo console pages (pane tabs need Adam's sign-in; my tools cannot save pane screenshots, so text evidence only); PingFederate admin (pane refuses localhost https); Windows x64; draft PR; GitHub schedule unreliable (1 run in 10 h).
+
+## Update 2026-10-08 08:20 UTC
 - **P-15 macOS renewal PASSED, unattended, twice:** `A8EAEE31` renewed at 00:39 UTC (29 min after the window opened) to `F0F14345`, which renewed at 05:38 to `F7313E7E` (expires 2026-10-09 10:09:40 UTC). One identity in the keychain every time. Next renewal expected about 10:38 UTC. Details in `RESULTS.md` ("P-15 macOS certificate renewal"), logs in `evidence/renewal/{watch,overnight}.log`. Still open: a Chrome sign-in with a renewed certificate (needs a visible Chrome window; do when Adam is at the Mac).
 - **GitHub schedule:** fired once (02:02 UTC, success), about 4 h after it reached `main`, and only 1 run since. Not reliable for a 5-minute sync. Local loop: 235 cycles, 0 failed.
 - The overnight watcher exited at the renewal; `watch.sh` and `sync-loop.sh` still run.
