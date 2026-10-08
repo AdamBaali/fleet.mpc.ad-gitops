@@ -79,7 +79,7 @@ The GitOps repo itself (applies to the lab Fleet): `.github/workflows/workflow.y
 3. **Turn on the Actions schedule:** stop the local loop (`rm duo/sync.run`), add `schedule: - cron: "2-59/5 * * * *"` to `duo-sync.yml` in the GitOps repo, push, watch 3 scheduled runs.
 4. **UI-only (non-GitOps) path:** check through the API on a scratch fleet: custom SCEP CA, profile with `$FLEET_VAR_*` and `$FLEET_SECRET_*`, critical policy, report with keep-data and interval, Duo scheduling without GitOps.
 5. **Open the draft PR** in fleetdm/fleet with the 12 local commits on `adam/ping-duo-fixes` (Adam does this; keep it draft until Windows x64 testing is done). Post `ISSUE_UPDATE.md` as the issue comment (Adam posts it).
-6. **Windows:** blocked on an x64 test machine (office server request, ticket confidential#17869; Proxmox suggested). Duo Desktop for Windows is Intel-only. The ARM VM `lab-windows` is stuck in recovery and can be deleted.
+6. **Windows:** blocked on an x64 test machine (office server request, internal ticket; Proxmox suggested). Duo Desktop for Windows is Intel-only. The ARM VM `lab-windows` is stuck in recovery and can be deleted.
 7. **Still untested:** Linux EST path, L-2 (no product UUID), D-7 on Linux, Fleet-driven Duo Desktop install on Linux, whether the TPM mattered for Duo on Linux.
 8. **Question for Noah:** should the guide say a brand-new host signs in before its first policy run (P-13 passes)?
 

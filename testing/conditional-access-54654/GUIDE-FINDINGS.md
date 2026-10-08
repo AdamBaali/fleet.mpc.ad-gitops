@@ -51,3 +51,22 @@ Status: the design works. The Fleet APIs, the JSON paths and the critical-policy
 
 ## Lab notes that are not guide issues
 GitOps resets a CA added in the UI, so declare it in `default.yml`. The Duo demo needs an HTTPS redirect URI with a hostname, not an IP. UTM cannot attach removable media by script; the Linux VM is built with cloud-init over HTTP (`linux-vm/`).
+
+## Added 2026-10-08 (macOS finished, schedule tested)
+Proven by tests; each is in `RESULTS.md` with pictures.
+
+**PingFederate guide, macOS browsers**
+- Even with `AllowAllAppsAccess` set, the first use of the key by Safari, Chrome and Firefox shows "wants to access key 'MDM Allow All' in your keychain". The user must enter the login keychain password and choose **Always Allow**, once per browser. Say so in the guide.
+- If the prompt is refused or dismissed, PingFederate logs `[X509000] No Client Certificate was presented` and the user sees "Authentication failed". That looks like a missing certificate.
+- Firefox remembers "no certificate" for the session. Quit and reopen it after a wrong answer.
+- Safari has no auto-select policy; its picker always appears.
+
+**Duo guide**
+- `REQUIRE_PASSING_CRITICAL_POLICIES` is off by default. A list with only one host can never become empty (Duo's script refuses an empty upload and the lab wrapper skips it), so a single failing host stays trusted until another host is in the list. Say so, or turn the filter on in the example.
+- A 5-minute GitHub Actions schedule is not reliable: two scheduled runs in 11 hours. A private repository on the free plan (2,000 minutes a month) runs out in about 7 days at one run every 5 minutes. Offer an external scheduler calling `workflow_dispatch`, a server the customer already has, or a longer interval, and set the expectation that scheduled runs can be late.
+
+**Certificate renewal (both guides)**
+- Fleet renews a custom SCEP certificate once less than half its lifetime is left (30 days or less) or 30 days are left (longer), in whole days, checked hourly. A certificate valid for only 1 day never renews; Fleet's docs require at least 2 days. The lab renewed 29 minutes after the window opened, twice.
+
+**Linux**
+- `/sys/class/dmi/id/product_uuid` is readable only by root on Ubuntu. Duo Desktop runs as root, but a check run as a normal user fails.

@@ -433,3 +433,38 @@ New test: step-ca `fleet-scep` lifetime 1710 min; certificate serial `A8EAEE3123
 
 ## GitHub scheduled Duo sync (2026-10-08): PARTIAL
 Cron `2-59/5 * * * *` was on `main` from 2026-10-07 22:12 UTC. First scheduled run came at 02:02 UTC, about 4 hours later, and only 1 scheduled run was seen in the next 6 hours. GitHub does not guarantee schedule timing; new or low-traffic schedules can be delayed or skipped. A 5-minute Actions schedule is therefore not reliable for the 5-minute Duo sync the guide promises. The local loop (`duo/sync-loop.sh`) kept a steady 300 s median gap (235 cycles, 0 failed).
+
+## 2026-10-08: macOS finished, with window-only pictures (evidence in `evidence/macos/`, `evidence/console/`)
+Host `MPC-Adam` (macOS 15.7.7, fleet Ping Duo Lab), certificate `F7313E7E...` (renewed by Fleet), Duo Desktop 7.22, Firefox installed by Fleet.
+
+| Test | Result | Evidence |
+| --- | --- | --- |
+| P-15 sign-in with the renewed certificate (Chrome) | **PASS**, straight to the callback | `macos/P-15-renewed-certificate-chrome-sign-in` |
+| P-9 / P-10 critical policy flip (Chrome) | **PASS**. Fleet saw the failure 61 s (87 s on the second run) after the flag file was created and the pass 66 s after it was removed. Denied with "Host is not in Fleet or is failing a critical policy"; allowed again after | `macos/P-9-10-chrome-critical-policy-flip` |
+| P-14 Safari | **PASS after Allow**. Safari always shows its own certificate picker. After Continue, macOS asks for the login keychain password for the "MDM Allow All" key even with `AllowAllAppsAccess`. Deny leads to "can't establish a secure connection"; Allow signs in | `macos/P-14-safari-sign-in` |
+| P-16 Firefox with the OS certificate | **PASS on the third attempt**. Firefox offers the keychain certificate ("OS Client Cert Token"). Attempts 1 and 2 sent no certificate (PingFederate: `[X509000] No Client Certificate was presented`): a refused keychain prompt, then Firefox remembered "no certificate" until it was restarted | `macos/P-16-firefox-sign-in` |
+| D-5 Duo trusts the Mac | **PASS**. `device_info_source` is `duo_desktop` | `macos/D-5-duo-trusted-endpoint-sign-in` |
+| D-8 Duo blocks the Mac when it is not in the list, then recovers | **PASS** at Duo's level: Denied "Endpoint is not trusted" (9:02:55 UTC), Granted at 9:05:43 UTC after the next sync. The list without the Mac was uploaded by hand (placeholder ID), because the lab loop runs with `REQUIRE_PASSING_CRITICAL_POLICIES` off and a one-host list cannot go empty | `macos/D-8-duo-blocks-mac-with-failing-critical-policy`, `console/duo-authentication-log.png` |
+| Firefox from Fleet-maintained apps | **PASS**. `firefox/darwin` installed by policy automation on 2026-10-07 12:42 UTC | host software list |
+
+### P-15 renewal result (details above, "P-15 macOS certificate renewal")
+Renewed twice without anyone at the Mac (00:39 and 05:38 UTC, each about 29 minutes after Fleet's window opened, one identity in the keychain each time). Considered done: behaviour seen and documented. No further renewals are being tracked.
+
+### D-12 five-minute Duo sync (local loop `duo/sync-loop.sh`)
+From 2026-10-07 12:48 UTC to 2026-10-08 09:40 UTC: 253 cycles, median gap 300 s, longest gap 720 s (the Mac was busy or asleep), **0 failed** (macOS 246 syncs, Linux 246, Windows skipped: no hosts). Picture: `linux/D-12-.../*-terminal-sync-stats.png`. **PASS** for the script and the loop; see the GitHub Actions schedule finding below for the Actions version.
+
+### GitHub Actions schedule (D-6): PARTIAL
+A `*/5` cron fired twice in 11 hours (02:02 and 08:50 UTC). The workflow works and each run succeeds, but GitHub does not run a 5-minute schedule on time. Changed to a half-hourly schedule whose run loops every 5 minutes for 28 minutes (`duo-sync.yml`, not tested yet). Cost: about 288 runs a day for a 5-minute schedule, so a private repository on the free plan would use its 2,000 minutes in about a week.
+
+### Console pages (pictures in `evidence/console/`)
+Fleet host policies (Mac and Linux), OS settings for Ping Duo Lab, LAB_CA custom SCEP, Duo Endpoints (both hosts Trusted Endpoint: Yes), Duo Applications, Duo Authentication Log, PingFederate adapter `x509lab` (port 9032, host `ping.lab`), REST data store, OAuth client, authentication policy, and the contract mapping summary with both lookups and the issuance criterion.
+
+### Linux screenshots added
+Terminal window captures for D-3, D-4, D-9, D-10, D-12, P-4, P-5, P-6, P-6b, P-12 and D-6, and browser captures for P-7 to P-11. D-9's picture shows the shrink guard (refuses to replace `windows.csv`, exit 1), not a plain "bad report ID" error.
+
+### New guide findings from today
+1. Every browser needs a one-time keychain "Always Allow" for the SCEP key, even with `AllowAllAppsAccess`. A refused prompt looks like a missing certificate ("Authentication failed").
+2. Firefox must be restarted after a wrong certificate answer.
+3. `REQUIRE_PASSING_CRITICAL_POLICIES` is off by default, and a list with a single host can never become empty, so one failing host stays trusted until another host is in the list.
+4. A 5-minute GitHub Actions schedule is unreliable and costly on private repositories.
+5. `product_uuid` is readable only by root on Ubuntu (Duo Desktop runs as root).
