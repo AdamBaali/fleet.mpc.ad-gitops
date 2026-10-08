@@ -1,5 +1,5 @@
 # 2026-10-07T18:55:26Z
-$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/all/policies/ca-test.policies.yml /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/policies/duo-desktop-installed.policies.yml /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/policies/firefox-installed.policies.yml
+$ cat <gitops-repo>/lib/all/policies/ca-test.policies.yml <gitops-repo>/lib/macos/policies/duo-desktop-installed.policies.yml <gitops-repo>/lib/macos/policies/firefox-installed.policies.yml
 
 # Test policies for the PingFederate and Duo conditional access guides
 # (fleetdm/fleet#54654). Creating the flag file flips a host to failing.

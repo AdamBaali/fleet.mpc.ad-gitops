@@ -1,7 +1,7 @@
 . evidence/lib.sh
 R=AdamBaali/fleet.mpc.ad-gitops
 ev_init D-6 "GitHub Actions workflow syncs Fleet hosts to Duo" "A workflow in a GitHub repo (any repo, GitOps or not) runs the export and Duo's keyless sync script using secrets." "Run succeeds; macOS and Linux synced; Windows skipped (no hosts)." >/dev/null
-ev_cmd D-6 workflow-file "cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/.github/workflows/duo-sync.yml" >/dev/null
+ev_cmd D-6 workflow-file "cat <gitops-repo>/.github/workflows/duo-sync.yml" >/dev/null
 ev_cmd D-6 secrets-configured "gh secret list -R $R | awk '{print \$1, \$2, \$3}'" >/dev/null
 ev_cmd D-6 run-summary "gh run view 37646267078 -R $R --json databaseId,conclusion,event,createdAt,updatedAt,headSha,jobs -q '{run:.databaseId, conclusion, event, started:.createdAt, finished:.updatedAt, sha:.headSha[0:7], steps:[.jobs[0].steps[]|{n:.number,name:.name,conclusion}]}'" >/dev/null
 ev_cmd D-6 raw-log-of-sync-step "TMP=\$(mktemp -d); gh api repos/$R/actions/runs/37646267078/logs > \$TMP/l.zip 2>/dev/null; unzip -p \$TMP/l.zip 'sync/5_*' | sed -E 's/^[0-9T:.Z-]+ //' | grep -v -E '^\\s*\$|DUO_.*_(MKEY|IKEY|SKEY):|FLEET_API_TOKEN:|DUO_API_HOST:|##\\[' | cut -c1-170; rm -rf \$TMP" >/dev/null
@@ -23,7 +23,7 @@ t=open('secrets/duo/linux/device_cache_sync.py').read()
 blk=re.search(r\"MKEY_CREDENTIALS = \\{\\n.*?\\n\\}\\n\",t,re.S).group(0)
 env=dict(os.environ,DUO_MKEY=re.search(r\"'(DM[A-Z0-9]{18})'\",blk).group(1),DUO_IKEY=re.search(r\"'API_IKEY'\\s*:\\s*'([^']+)'\",blk).group(1),DUO_SKEY=re.search(r\"'API_SKEY'\\s*:\\s*'([^']+)'\",blk).group(1),DUO_API_HOST=re.search(r\"'API_HOST'\\s*:\\s*'([^']+)'\",blk).group(1))
 open('/tmp/empty-ev.csv','w').write('device_id\n')
-r=subprocess.run(['.venv/bin/python','/Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/duo/device_cache_sync.py','--infile','/tmp/empty-ev.csv','--device_id_column','device_id','--dry_run'],env=env,capture_output=True,text=True)
+r=subprocess.run(['.venv/bin/python','<gitops-repo>/duo/device_cache_sync.py','--infile','/tmp/empty-ev.csv','--device_id_column','device_id','--dry_run'],env=env,capture_output=True,text=True)
 o=(r.stdout+r.stderr)
 for k in ('DUO_SKEY','DUO_IKEY','DUO_MKEY'): o=o.replace(env[k],'<'+k.lower()+'>')
 print('(header-only CSV, --dry_run)'); print(o); print('exit code',r.returncode)

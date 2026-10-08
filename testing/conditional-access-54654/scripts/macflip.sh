@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: macflip.sh fail|pass -- create/remove /tmp/fleet-ca-test on this Mac, refetch host 12, wait until Fleet's failing_critical_policies_count matches
-cd /Users/adam/Downloads/fleet-54654-lab; set -a; . .env; set +a
+cd <lab>; set -a; . .env; set +a
 want=$([ "$1" = fail ] && echo 1 || echo 0)
 count() { curl -s -H "Authorization: Bearer $FLEET_TOKEN_PING" "$FLEET_URL/api/v1/fleet/hosts/12/health" | jq -r '.health.failing_critical_policies_count'; }
 t0=$(date +%s); [ "$1" = fail ] && touch /tmp/fleet-ca-test || rm -f /tmp/fleet-ca-test

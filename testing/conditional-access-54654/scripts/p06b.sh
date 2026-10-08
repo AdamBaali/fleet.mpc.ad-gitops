@@ -22,7 +22,7 @@ echo "contract extended attributes now:    $(pf "$PF_API/authenticationPolicyCon
 echo "contract fulfillment keys now:       $(pf "$PF_API/authenticationPolicies/default" | jq -c '[.authnSelectionTrees[0].rootNode.children[1].action.attributeMapping.attributeContractFulfillment|keys[]]')"
 echo "lookup 2 still uses:                 $(pf "$PF_API/authenticationPolicies/default" | jq -r '.authnSelectionTrees[0].rootNode.children[1].action.attributeMapping.attributeSources[1].filterFields[0].value')"
 MARK=$(docker exec pingfederate sh -c 'wc -l < /opt/out/instance/log/server.log'); echo "PingFederate log position before the sign-in: line $MARK"
-bash /Users/adam/Downloads/fleet-54654-lab/vm/linux/vm-run.sh 'bash /tmp/signin.sh cert' | sed -E 's/code=[A-Za-z0-9_.~-]+/code=<code>/'
+bash <lab>/vm/linux/vm-run.sh 'bash /tmp/signin.sh cert' | sed -E 's/code=[A-Za-z0-9_.~-]+/code=<code>/'
 echo "WARN/ERROR lines written to the PingFederate server log during that sign-in: $(docker exec pingfederate sh -c "tail -n +$MARK /opt/out/instance/log/server.log" | grep -c -E 'WARN|ERROR')"
 unlink .p6b-policy.sh 2>/dev/null
 E

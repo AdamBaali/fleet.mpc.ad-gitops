@@ -1,5 +1,5 @@
 # 2026-10-07T18:55:26Z
-$ echo 'Three Generic Trusted Endpoints integrations in Duo (Generic with Duo Desktop): macOS (active, group fleet-lab), Linux (active, group fleet-lab), Windows (not activated).'; echo 'Duo Web SDK app + policy: Trusted Endpoints = block endpoints that are not trusted, applied to the app and group fleet-lab.'; echo 'Test user: lab-test (Touch ID enrolled on the Mac; bypass code used on Linux).'; echo; echo 'Sync workflow (GitOps repo):'; cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/.github/workflows/duo-sync.yml | sed -n 1,25p
+$ echo 'Three Generic Trusted Endpoints integrations in Duo (Generic with Duo Desktop): macOS (active, group fleet-lab), Linux (active, group fleet-lab), Windows (not activated).'; echo 'Duo Web SDK app + policy: Trusted Endpoints = block endpoints that are not trusted, applied to the app and group fleet-lab.'; echo 'Test user: lab-test (Touch ID enrolled on the Mac; bypass code used on Linux).'; echo; echo 'Sync workflow (GitOps repo):'; cat <gitops-repo>/.github/workflows/duo-sync.yml | sed -n 1,25p
 
 Three Generic Trusted Endpoints integrations in Duo (Generic with Duo Desktop): macOS (active, group fleet-lab), Linux (active, group fleet-lab), Windows (not activated).
 Duo Web SDK app + policy: Trusted Endpoints = block endpoints that are not trusted, applied to the app and group fleet-lab.

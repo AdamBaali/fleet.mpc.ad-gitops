@@ -1,5 +1,5 @@
 # 2026-10-07T18:44:47Z
-$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/.github/workflows/duo-sync.yml
+$ cat <gitops-repo>/.github/workflows/duo-sync.yml
 
 name: 'Sync Fleet hosts to Duo Trusted Endpoints'
 

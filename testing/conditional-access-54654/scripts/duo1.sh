@@ -14,14 +14,14 @@ ev_cmd D-3 script-version "git -C fleet log --oneline -1 -- docs/solutions/api-s
 ev_verdict D-3 PASS "The export (guide script plus temp-file and shrink-guard fix) wrote macos.csv and linux.csv with one UUID each and header-only windows.csv; no temp folder was left behind."
 # D-4
 ev_init D-4 "Duo sync uploads the Linux list" "Duo's device_cache_sync.py (keyless copy reading its keys from environment variables) creates a cache, uploads the CSV, and activates it." "Devices synced: 1." >/dev/null
-ev_cmd D-4 sync-script-no-secrets "echo 'The script file in the GitOps repo holds no keys:'; grep -c -E \"API_SKEY.*[A-Za-z0-9]{30}\" /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/duo/device_cache_sync.py | sed 's/^/lines with a hard-coded secret key: /'; sed -n '/^import os/,/^}/p' /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/duo/device_cache_sync.py | head -12" >/dev/null
+ev_cmd D-4 sync-script-no-secrets "echo 'The script file in the GitOps repo holds no keys:'; grep -c -E \"API_SKEY.*[A-Za-z0-9]{30}\" <gitops-repo>/duo/device_cache_sync.py | sed 's/^/lines with a hard-coded secret key: /'; sed -n '/^import os/,/^}/p' <gitops-repo>/duo/device_cache_sync.py | head -12" >/dev/null
 ev_cmd D-4 linux-sync-dry-run "python3 - <<'P'
 import re,os,subprocess
 t=open('secrets/duo/linux/device_cache_sync.py').read()
 blk=re.search(r\"MKEY_CREDENTIALS = \\{\\n.*?\\n\\}\\n\",t,re.S).group(0)
 env=dict(os.environ,DUO_MKEY=re.search(r\"'(DM[A-Z0-9]{18})'\",blk).group(1),DUO_IKEY=re.search(r\"'API_IKEY'\\s*:\\s*'([^']+)'\",blk).group(1),DUO_SKEY=re.search(r\"'API_SKEY'\\s*:\\s*'([^']+)'\",blk).group(1),DUO_API_HOST=re.search(r\"'API_HOST'\\s*:\\s*'([^']+)'\",blk).group(1))
 csv='/tmp/linux-ev.csv'; open(csv,'w').write('device_id\n$UUID\n')
-r=subprocess.run(['.venv/bin/python','/Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/duo/device_cache_sync.py','--infile',csv,'--device_id_column','device_id','--dry_run'],env=env,capture_output=True,text=True)
+r=subprocess.run(['.venv/bin/python','<gitops-repo>/duo/device_cache_sync.py','--infile',csv,'--device_id_column','device_id','--dry_run'],env=env,capture_output=True,text=True)
 o=(r.stdout+r.stderr)
 for k in ('DUO_SKEY','DUO_IKEY','DUO_MKEY'): o=o.replace(env[k],'<'+k.lower()+'>')
 print('(--dry_run: uploads the list, then deletes the new cache instead of activating it)'); print(o); print('exit',r.returncode)

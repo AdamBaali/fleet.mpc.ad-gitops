@@ -1,5 +1,5 @@
 # 2026-10-07T18:55:26Z
-$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/windows/configuration-profiles/lab-ca-scep-user.xml | sed -E 's#(CAThumbprint</LocURI>.*<Data>)[^<]*#\1<fleet secret variable>#'
+$ cat <gitops-repo>/lib/windows/configuration-profiles/lab-ca-scep-user.xml | sed -E 's#(CAThumbprint</LocURI>.*<Data>)[^<]*#\1<fleet secret variable>#'
 
 <Add>
   <!-- Certificate goes in the user store (Cert:\CurrentUser\My). Fleet fills in the certificate ID. -->

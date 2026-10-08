@@ -5,7 +5,7 @@
 - **Expected:** Run succeeds; macOS and Linux synced; Windows skipped (no hosts).
 
 ## Steps and evidence
-- `01-workflow-file.txt`: `cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/.github/workflows/duo-sync.yml`
+- `01-workflow-file.txt`: `cat <gitops-repo>/.github/workflows/duo-sync.yml`
 - `02-secrets-configured.txt`: `gh secret list -R AdamBaali/fleet.mpc.ad-gitops | awk '{print $1, $2, $3}'`
 - `03-run-summary.txt`: `gh run view 37646267078 -R AdamBaali/fleet.mpc.ad-gitops --json databaseId,conclusion,event,createdAt,updatedA`
 - `04-raw-log-of-sync-step.txt`: `TMP=$(mktemp -d); gh api repos/AdamBaali/fleet.mpc.ad-gitops/actions/runs/37646267078/logs > $TMP/l.zip 2>/dev`

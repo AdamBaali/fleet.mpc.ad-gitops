@@ -1,5 +1,5 @@
 # 2026-10-07T18:55:26Z
-$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/fleets/ping-duo-lab.yml; echo; echo '--- certificate authority (default.yml):'; grep -n -B2 -A8 'custom_scep_proxy' /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/default.yml | sed -E 's/(challenge: ).*/\1<from a GitHub secret>/'
+$ cat <gitops-repo>/fleets/ping-duo-lab.yml; echo; echo '--- certificate authority (default.yml):'; grep -n -B2 -A8 'custom_scep_proxy' <gitops-repo>/default.yml | sed -E 's/(challenge: ).*/\1<from a GitHub secret>/'
 
 # Lab fleet for testing the PingFederate and Duo conditional access guides
 # (fleetdm/fleet#54654). Critical policies and the MachineGuid report live here

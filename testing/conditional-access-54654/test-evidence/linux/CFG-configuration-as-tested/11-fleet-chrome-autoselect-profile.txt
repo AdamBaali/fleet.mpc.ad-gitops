@@ -1,5 +1,5 @@
 # 2026-10-07T18:55:26Z
-$ cat /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/lib/macos/configuration-profiles/lab-chrome-autoselect.mobileconfig
+$ cat <gitops-repo>/lib/macos/configuration-profiles/lab-chrome-autoselect.mobileconfig
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
