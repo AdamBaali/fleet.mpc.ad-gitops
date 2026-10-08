@@ -1,0 +1,5 @@
+# 2026-10-08T08:28:54Z
+serial F7313E7EE5A51BEB697B4C43D5902B4D from Oct  8 05:38:40 2026 GMT to Oct  9 10:09:40 2026 GMT
+
+Chrome window: one window, URL after sign-in (code redacted):
+http://localhost:8765/callback?code=<code>&state=macchrome3
