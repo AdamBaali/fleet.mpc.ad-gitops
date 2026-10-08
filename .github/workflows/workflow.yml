@@ -9,7 +9,7 @@ on:
       - 'testing/**'
       - 'duo/**'
       - '**.md'
-      - '.github/workflows/duo-sync.yml'
+      - '.github/workflows/duo-sync*.yml'
   pull_request:
   workflow_dispatch: # allows manual triggering
   schedule:

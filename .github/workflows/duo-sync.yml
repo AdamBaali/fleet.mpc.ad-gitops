@@ -1,10 +1,10 @@
 name: 'Sync Fleet hosts to Duo Trusted Endpoints'
 
-# Once a day, as Duo recommends. GitHub schedules are best effort, so a run can start late. Run it by hand
-# from the Actions tab (Run workflow) to let a new host in sooner.
+# Every 5 minutes, off the top of the hour. GitHub runs schedules on a best-effort basis, so a run can start
+# late or be skipped (two scheduled runs in 11 hours in testing). Run it by hand from the Actions tab if needed.
 on:
   schedule:
-    - cron: "17 6 * * *" # Once a day at 06:17 UTC, as Duo recommends. Run it by hand from the Actions tab to let a new host in sooner.
+    - cron: "2-59/5 * * * *"
   workflow_dispatch:
 
 concurrency:

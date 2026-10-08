@@ -1,0 +1,69 @@
+name: 'Sync Fleet hosts to Duo (loop)'
+
+# Test of a steadier 5-minute sync. GitHub starts this run every 30 minutes (best effort), and each run syncs
+# every 5 minutes for about 28 minutes. It bills about 28 minutes per run: free in a public repository only.
+# Keep it in its own workflow so its concurrency group never holds up the GitOps apply.
+on:
+  schedule:
+    - cron: "3,33 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install "duo-client>=4.3.0"
+      - name: Export Fleet hosts and sync to Duo every 5 minutes for 28 minutes
+        env:
+          FLEET_API_TOKEN: ${{ secrets.DUO_FLEET_API_TOKEN }}
+          DUO_API_HOST: ${{ secrets.DUO_API_HOST }}
+          DUO_MACOS_MKEY: ${{ secrets.DUO_MACOS_MKEY }}
+          DUO_MACOS_IKEY: ${{ secrets.DUO_MACOS_IKEY }}
+          DUO_MACOS_SKEY: ${{ secrets.DUO_MACOS_SKEY }}
+          DUO_WINDOWS_MKEY: ${{ secrets.DUO_WINDOWS_MKEY }}
+          DUO_WINDOWS_IKEY: ${{ secrets.DUO_WINDOWS_IKEY }}
+          DUO_WINDOWS_SKEY: ${{ secrets.DUO_WINDOWS_SKEY }}
+          DUO_LINUX_MKEY: ${{ secrets.DUO_LINUX_MKEY }}
+          DUO_LINUX_IKEY: ${{ secrets.DUO_LINUX_IKEY }}
+          DUO_LINUX_SKEY: ${{ secrets.DUO_LINUX_SKEY }}
+        run: |
+          sync_once() {
+            bash duo/export-fleet-hosts-for-duo.sh || return 1
+            local rc=0
+            for os in macos windows linux; do
+              up=$(echo "$os" | tr a-z A-Z)
+              mkey="DUO_${up}_MKEY"; ikey="DUO_${up}_IKEY"; skey="DUO_${up}_SKEY"
+              if [ -n "${!mkey}" ] && [ "$(wc -l <"$os.csv")" -gt 1 ]; then
+                DUO_MKEY="${!mkey}" DUO_IKEY="${!ikey}" DUO_SKEY="${!skey}" \
+                  python duo/device_cache_sync.py --infile "$os.csv" --device_id_column device_id || rc=1
+              else
+                echo "$os: no credentials or no hosts, skipped"
+              fi
+            done
+            return $rc
+          }
+          failed=0; end=$((SECONDS + 1680))
+          while :; do
+            echo "::group::sync at $(date -u +%H:%M:%S)"
+            sync_once || { failed=1; echo "::warning::this cycle failed"; }
+            echo "::endgroup::"
+            [ $((SECONDS + 300)) -ge "$end" ] && break
+            sleep 300
+          done
+          exit $failed
