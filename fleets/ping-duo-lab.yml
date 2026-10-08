@@ -6,6 +6,7 @@ policies:
   - path: ../lib/all/policies/ca-test.policies.yml
   - path: ../lib/macos/policies/duo-desktop-installed.policies.yml
   - path: ../lib/macos/policies/firefox-installed.policies.yml
+  - path: ../lib/linux/policies/duo-desktop-installed.policies.yml
   - path: ../lib/windows/policies/duo-desktop-installed.policies.yml
 reports:
   - path: ../lib/windows/reports/windows-machine-guid.reports.yml
@@ -25,6 +26,8 @@ software:
     - slug: duo-desktop/darwin
     - slug: duo-desktop/windows
     - slug: firefox/darwin
+  packages:
+    - path: ../lib/linux/software/duo-desktop.yml
 settings:
   secrets:
     - secret: "$FLEET_PING_DUO_LAB_ENROLL_SECRET"

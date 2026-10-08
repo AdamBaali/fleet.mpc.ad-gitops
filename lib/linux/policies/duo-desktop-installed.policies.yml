@@ -1,0 +1,8 @@
+- name: Duo Desktop installed (Linux)
+  description: Duo Desktop reports device health to Duo Trusted Endpoints.
+  resolution: Fleet installs Duo Desktop when this policy fails.
+  platform: linux
+  query: |
+    SELECT 1 FROM deb_packages WHERE name = 'duo-desktop';
+  install_software:
+    package_path: ../software/duo-desktop.yml

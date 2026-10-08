@@ -1,0 +1,3 @@
+# Duo Desktop for Linux (x86-64 .deb). Duo documents the download at
+# https://duo.com/docs/duo-desktop. Fleet downloads it and adds it as a custom package.
+- url: https://desktop.pkg.duosecurity.com/duo-desktop-latest.amd64.deb
