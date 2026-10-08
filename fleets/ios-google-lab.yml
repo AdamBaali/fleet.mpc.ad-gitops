@@ -1,5 +1,5 @@
 # Lab fleet for testing the Google conditional access guide for iPhones and iPads
-# (fleetdm/fleet#55107). Nothing else lives here so it never touches other fleets.
+# (draft guide fleetdm/fleet#55107). Nothing else lives here so it never touches other fleets.
 name: "iOS Google Lab"
 policies:
 reports:
