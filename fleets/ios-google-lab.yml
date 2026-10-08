@@ -1,0 +1,11 @@
+# Lab fleet for testing the Google conditional access guide for iPhones and iPads
+# (fleetdm/fleet#55107). Nothing else lives here so it never touches other fleets.
+name: "iOS Google Lab"
+policies:
+reports:
+agent_options:
+controls:
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_IOS_GOOGLE_LAB_ENROLL_SECRET"

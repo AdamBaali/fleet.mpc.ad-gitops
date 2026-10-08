@@ -21,6 +21,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Ping Duo Lab | Test the PingFederate and Duo guides (#54654) | `fleets/ping-duo-lab.yml` | `fleets/ping-duo-lab/`, `testing/conditional-access-54654/` |
 | Flock to Fedora | Linux atomic, OpenClaw and Windows YellowKey assets | `fleets/flock-to-fedora.yml` | `fleets/flock-to-fedora/` |
 | Linux LUKS Lab | Test Linux disk encryption behavior (#54871) | `fleets/linux-luks-lab.yml` | `testing/` project for #54871 |
+| iOS Google Lab | Test the Google conditional access guide for iPhones (fleetdm/fleet#55107) | `fleets/ios-google-lab.yml` | `testing/` project for #55107 |
 
 ## Adding a fleet or a test
 1. **Fleet:** add `fleets/<name>.yml` (the `name:` must be unique), put shared files under `lib/`, and add
