@@ -24,3 +24,5 @@ P`
 The keyless script created a cache, uploaded the Linux UUID and (in dry-run) discarded it; the 5-minute loop shows real runs with 'linux: 1 synced'. The script holds no keys; they come from environment variables.
 
 _Finished 2026-10-07T18:43:10Z_
+
+- `04-terminal-duo-sync-dry-run.png`: Duo sync script, Linux list, --dry_run (Terminal window capture on the Mac, added 2026-10-08). 1 device uploaded and the cache replaced; the GitOps copy of the script holds no hard-coded keys (0 lines).

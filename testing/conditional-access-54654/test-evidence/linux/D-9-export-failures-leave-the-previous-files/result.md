@@ -16,3 +16,5 @@
 Bad report ID and invalid token both exit non-zero and leave the previous CSVs untouched with no temp folder; the shrink guard refuses a 300-to-0 drop and FORCE=true overrides it. The 27-check harness passes on the fixed script; the original PR script fails 6 of the new checks.
 
 _Finished 2026-10-07T18:43:56Z_
+
+- `06-terminal-shrink-guard.png`: Export with a report ID that does not exist (999999) (Terminal window capture on the Mac, added 2026-10-08). The script refuses to replace windows.csv (1 ID before, 0 now), exits 1 and leaves the previous lists unchanged. This is the 50% shrink guard (FORCE=true overrides it).

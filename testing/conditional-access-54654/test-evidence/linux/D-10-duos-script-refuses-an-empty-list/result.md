@@ -22,3 +22,5 @@ P`
 Duo's script refuses a header-only CSV (no device IDs read) and exits 1, so an empty Fleet export cannot wipe the list. Consequence: the last host cannot be removed by an empty list (see the Duo guide note).
 
 _Finished 2026-10-07T18:43:57Z_
+
+- `02-terminal-empty-list.png`: Duo script with a header-only list (Terminal window capture on the Mac, added 2026-10-08). Duo's script exits 1 with 'No device IDs read from input column: device_id'; it does not upload an empty list.

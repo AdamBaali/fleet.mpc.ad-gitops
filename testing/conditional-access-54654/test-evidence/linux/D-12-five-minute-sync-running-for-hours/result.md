@@ -14,3 +14,5 @@ Full-day result pending: the loop is still running; this is a snapshot taken dur
 Snapshot: about 70 sync cycles over six hours, median gap 300 s, no FAILED lines and no Duo API errors or rate limits. The full day will be recorded tomorrow.
 
 _Finished 2026-10-07T18:54:45Z_
+
+- `02-terminal-sync-stats.png`: Sync stats at 2026-10-08 09:40 UTC (Terminal window capture on the Mac, added 2026-10-08). 253 cycles since 2026-10-07 12:48 UTC, median gap 300 s, max gap 720 s, 0 FAILED lines.

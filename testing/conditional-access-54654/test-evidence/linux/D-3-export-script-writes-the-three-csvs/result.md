@@ -13,3 +13,5 @@
 The export (guide script plus temp-file and shrink-guard fix) wrote macos.csv and linux.csv with one UUID each and header-only windows.csv; no temp folder was left behind.
 
 _Finished 2026-10-07T18:43:09Z_
+
+- `03-terminal-export-csvs.png`: Re-run of the guide export script against the lab Fleet (Terminal window capture on the Mac, added 2026-10-08). Shows macos.csv (1 host), windows.csv (0, header only) and linux.csv (1 host).
