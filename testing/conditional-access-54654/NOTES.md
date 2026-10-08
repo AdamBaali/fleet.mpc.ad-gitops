@@ -66,3 +66,6 @@ Adam decided the export script improvements (temp files, 50% shrink guard, `FORC
 
 ## 2026-10-08: sync interval decision
 Adam chose to keep the guide simple and follow Duo's recommendation (daily sync, see duo.com/docs/trusted-endpoints-generic-duo-desktop). The Duo guide and the lab workflow now run once a day (`17 6 * * *`); the half-hourly loop idea is dropped. The 5-minute local loop stays as D-12 evidence only. Trade-off: a newly enrolled host can wait up to a day for its first sign-in unless someone runs the workflow by hand.
+
+## 2026-10-08 (later): sync interval, final decision
+Adam wants the guide to keep the quick sync (a daily sync is too slow for a new host). The Duo guide is back to every 5 minutes with a short note on GitHub's limits (best effort, about 8,600 minutes a month) and the server option. The lab workflow goes back to `2-59/5 * * * *`.
