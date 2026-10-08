@@ -1,5 +1,5 @@
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..ef2f38f9ff 100644
+index 3b6388ff63..175fa97244 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -10,7 +10,7 @@ index 3b6388ff63..ef2f38f9ff 100644
  - PingFederate with the X.509 Certificate Integration Kit [installed](https://docs.pingidentity.com/integrations/x509/x509_certificate_integration_kit/pf_x509_certificate_ik_deploying_the_integration_files.html), including setting `pf.secondary.https.port`.
  
  ## Step 1: Create a Fleet API user
-@@ -25,26 +26,28 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
+@@ -25,26 +26,27 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
  
  ## Step 3: Deploy the certificate
  
@@ -39,12 +39,11 @@ index 3b6388ff63..ef2f38f9ff 100644
  2. Create an X.509 Certificate IdP Adapter instance.
 -3. Map the certificate's CN to an adapter attribute (for example, `hostUUID`).
 +3. Set **Client Auth Port** to your secondary HTTPS port (`pf.secondary.https.port`). PingFederate requires it. Set **Client Auth Hostname** to the host name browsers use to reach PingFederate.
-+4. Set PingFederate's base URL and virtual host name to the host name browsers use. Otherwise redirects go to `localhost`.
-+5. The adapter's `CN` attribute holds the certificate's common name, which is the host's UUID. You use it in Step 6.
++4. The adapter's `CN` attribute holds the certificate's common name, which is the host's UUID. You use it in Step 6.
  
  ## Step 5: Add Fleet as a data store
  
-@@ -52,25 +55,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+@@ -52,25 +54,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
  2. For **Type**, select **Rest API**.
  3. For **Base URL**, enter your Fleet server URL.
  4. Add the Fleet API token from Step 1 as an `Authorization: Bearer <token>` header.
@@ -84,7 +83,7 @@ index 3b6388ff63..ef2f38f9ff 100644
  
  ## Step 7: Test
  
-@@ -84,11 +91,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+@@ -84,11 +90,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.

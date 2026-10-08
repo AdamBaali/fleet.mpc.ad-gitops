@@ -69,3 +69,7 @@ Adam chose to keep the guide simple and follow Duo's recommendation (daily sync,
 
 ## 2026-10-08 (later): sync interval, final decision
 Adam wants the guide to keep the quick sync (a daily sync is too slow for a new host). The Duo guide is back to every 5 minutes with a short note on GitHub's limits (best effort, about 8,600 minutes a month) and the server option. The lab workflow goes back to `2-59/5 * * * *`.
+
+## 2026-10-08: lab versus production (what not to read into the results)
+Lab artifacts, not guide issues: PingFederate base URL `localhost`; step-ca's 24 h default certificate lifetime and the 28.5 h certificates used to see a renewal; the SCEP tunnel; `ping.lab` in `/etc/hosts`; Duo Desktop for Linux under x86 emulation on ARM; one host per OS, one Duo user, bypass codes; the lab's own CA root deployed by profile; a Duo trial and one Fleet instance on Render.
+Not covered by the lab: a large fleet (the export script pages 500 hosts at a time; `report_cap` untested), a real enterprise CA (NDES, DigiCert, Okta, Smallstep EST), PingFederate clustering or a real SP connection (tested with an OAuth client only), enterprise browser management beyond the profiles we wrote, and Windows.
