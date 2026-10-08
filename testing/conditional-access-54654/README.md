@@ -8,9 +8,10 @@ The reusable method is in [`../_framework`](../_framework).
 | File or folder | What it is |
 | --- | --- |
 | [EVIDENCE.md](EVIDENCE.md) | Generated page: every test, result, pictures, links to outputs |
+| [RESULTS.md](RESULTS.md) | One-line outcome per test |
 | [TEST_PLAN.md](TEST_PLAN.md) | The tests and how they pass |
-| [RESULTS.md](RESULTS.md) | Running log of every test and incident |
 | [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md) | What the tests showed about each guide |
 | [NOTES.md](NOTES.md) | What was not tested and how the lab differs from production |
-| `test-evidence/` | Raw output and pictures (`linux/`, `macos/`, `console/`, `renewal/`) |
-| `lab-setup/` (ping, stepca, est, duo, linux-vm), `tests/`, `tools/` | Scripts and helpers used to build the lab |
+| `test-evidence/` | Raw output and pictures: `linux/`, `macos/`, `console/`, `renewal/` |
+| `scripts/` | The scripts that ran the tests, and `scripts/tests/` for the export script |
+| `lab-setup/` | How the lab was built: `ping/`, `stepca/`, `est/`, `duo/`, `linux-vm/` |

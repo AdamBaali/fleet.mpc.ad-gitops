@@ -62,13 +62,13 @@ as a note until it has been run.
 - **Lab change (not yet tested):** `duo-sync.yml` now uses `cron: "3,33 * * * *"` and loops for 28 minutes. To test: push, watch 3 or more scheduled runs, record start times and the gaps between syncs.
 
 ## 2026-10-08: scope decision
-Adam decided the export script improvements (temp files, 50% shrink guard, `FORCE=true`) are out of scope for the PR. The commit is reverted on `adam/ping-duo-fixes` (`547fd977c9`) and the guide no longer describes them. The tests (D-9, D-10) and the lab's own copy of the script keep the safeguards as evidence; the idea stays here as an option for a later change.
+Decision: the export script improvements (temp files, 50% shrink guard, `FORCE=true`) are out of scope for the PR. The commit is reverted on `adam/ping-duo-fixes` (`547fd977c9`) and the guide no longer describes them. The tests (D-9, D-10) and the lab's own copy of the script keep the safeguards as evidence; the idea stays here as an option for a later change.
 
 ## 2026-10-08: sync interval decision
-Adam chose to keep the guide simple and follow Duo's recommendation (daily sync, see duo.com/docs/trusted-endpoints-generic-duo-desktop). The Duo guide and the lab workflow now run once a day (`17 6 * * *`); the half-hourly loop idea is dropped. The 5-minute local loop stays as D-12 evidence only. Trade-off: a newly enrolled host can wait up to a day for its first sign-in unless someone runs the workflow by hand.
+Decision:  keep the guide simple and follow Duo's recommendation (daily sync, see duo.com/docs/trusted-endpoints-generic-duo-desktop). The Duo guide and the lab workflow now run once a day (`17 6 * * *`); the half-hourly loop idea is dropped. The 5-minute local loop stays as D-12 evidence only. Trade-off: a newly enrolled host can wait up to a day for its first sign-in unless someone runs the workflow by hand.
 
 ## 2026-10-08 (later): sync interval, final decision
-Adam wants the guide to keep the quick sync (a daily sync is too slow for a new host). The Duo guide is back to every 5 minutes with a short note on GitHub's limits (best effort, about 8,600 minutes a month) and the server option. The lab workflow goes back to `2-59/5 * * * *`.
+Decision: keep the quick sync (a daily sync is too slow for a new host). The Duo guide is back to every 5 minutes with a short note on GitHub's limits (best effort, about 8,600 minutes a month) and the server option. The lab workflow goes back to `2-59/5 * * * *`.
 
 ## 2026-10-08: lab versus production (what not to read into the results)
 Lab artifacts, not guide issues: PingFederate base URL `localhost`; step-ca's 24 h default certificate lifetime and the 28.5 h certificates used to see a renewal; the SCEP tunnel; `ping.lab` in `/etc/hosts`; Duo Desktop for Linux under x86 emulation on ARM; one host per OS, one Duo user, bypass codes; the lab's own CA root deployed by profile; a Duo trial and one Fleet instance on Render.

@@ -6,8 +6,8 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 29 |
-| PARTIAL | 2 |
+| PASS | 30 |
+| PARTIAL | 1 |
 | info | 2 |
 
 | Group | Test | Result | Section |
@@ -15,7 +15,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Linux | 00: Environment and configuration | info | [open](#00-environment-and-configuration) |
 | Linux | D-1: Duo Desktop for Linux installed and running | PARTIAL | [open](#d-1-duo-desktop-for-linux-installed-and-running) |
 | Linux | D-10: Duo's script refuses an empty list | PASS | [open](#d-10-duos-script-refuses-an-empty-list) |
-| Linux | D-12: Five-minute sync running for hours | PARTIAL | [open](#d-12-five-minute-sync-running-for-hours) |
+| Linux | D-12: Five-minute sync running for hours | PASS | [open](#d-12-five-minute-sync-running-for-hours) |
 | Linux | D-1b: Fleet installs Duo Desktop on Linux through a policy | PASS | [open](#d-1b-fleet-installs-duo-desktop-on-linux-through-a-policy) |
 | Linux | D-3: Export script writes the three CSVs | PASS | [open](#d-3-export-script-writes-the-three-csvs) |
 | Linux | D-4: Duo sync uploads the Linux list | PASS | [open](#d-4-duo-sync-uploads-the-linux-list) |
@@ -93,7 +93,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### D-12: Five-minute sync running for hours
 
-**Result: PARTIAL** · [full notes](test-evidence/linux/D-12-five-minute-sync-running-for-hours/result.md)
+**Result: PASS** · [full notes](test-evidence/linux/D-12-five-minute-sync-running-for-hours/result.md)
 
 - **Objective:** The 5-minute sync runs without Duo API errors or rate limits.
 - **Expected:** No FAILED lines; a sync cycle about every 5 minutes.

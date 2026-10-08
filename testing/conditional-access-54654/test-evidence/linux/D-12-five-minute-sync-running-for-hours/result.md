@@ -9,9 +9,9 @@
 
 Full-day result pending: the loop is still running; this is a snapshot taken during the testing session.
 
-## Result: **PARTIAL**
+## Result: PASS
 
-Snapshot: about 70 sync cycles over six hours, median gap 300 s, no FAILED lines and no Duo API errors or rate limits. The full day will be recorded tomorrow.
+Final numbers: 253 cycles from 2026-10-07 12:48 UTC to 2026-10-08 09:40 UTC (about 21 hours), median gap 300 s, longest gap 720 s, 0 failed. macOS and Linux synced every cycle; Windows was skipped (no hosts).
 
 _Finished 2026-10-07T18:54:45Z_
 

@@ -1,6 +1,6 @@
 . evidence/lib.sh
 PFA='https://localhost:9999/pf-admin-api/v1'; AUTH="-u Administrator:\$PING_ADMIN_PASSWORD -H 'X-XSRF-Header: PingFederate'"
-G=/Users/adam/Documents/GitHub/fleet.mpc.ad-gitops
+G=~/Documents/GitHub/fleet.mpc.ad-gitops
 ev_init CFG "Configuration as tested" "Sanitized copies of the configuration the results depend on, so the lab can be rebuilt or shown to someone else." "Everything the guides tell a customer to configure, in its working form." >/dev/null
 ev_cmd CFG pf-x509-adapter "curl -sk $AUTH $PFA/idp/adapters/x509lab | jq '{id,name,pluginDescriptorRef:.pluginDescriptorRef.id,fields:[.configuration.fields[]|{(.name):.value}]|add,attribute_contract:[.attributeContract.coreAttributes[].name]}'" >/dev/null
 ev_cmd CFG pf-trusted-cas "curl -sk $AUTH $PFA/certificates/ca | jq '[.items[]|{id,subjectDN,issuerDN,validFrom:.validFrom,expires:.expires,keySize}]'" >/dev/null

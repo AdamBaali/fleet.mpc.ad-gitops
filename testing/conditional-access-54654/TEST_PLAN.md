@@ -77,4 +77,4 @@ Guides under test (PR #54346): `articles/pingfederate-conditional-access-integra
 - Every test has a result, and failures are fixed or documented.
 - Both guides were followed start to finish with no guessing.
 - Script changes pass shellcheck and the extended test script.
-- Adam has reviewed the diff.
+- The diff has been reviewed.
