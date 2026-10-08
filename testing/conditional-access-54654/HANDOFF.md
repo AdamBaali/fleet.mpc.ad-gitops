@@ -7,7 +7,7 @@
 - **Adam still has to:** push the local commits in GitHub Desktop (`a294c77`, `a6f3947`, `3375e20`) and commit `duo-sync.yml` (half-hourly schedule, 5-minute loop, untested). Then watch 3 scheduled runs (`gh run list --workflow duo-sync.yml`).
 - **Screenshot tooling:** `tools/screens/macterm.sh <png> <script>` opens a NEW Terminal window, captures only it, closes only it. `winid`, `maskbox` as before. Never close windows you did not open.
 - **lab-linux VM** had stopped on its own around 09:50 UTC; restarted with `utmctl start lab-linux`. Check `utmctl list` first when resuming.
-- **Still open:** Windows x64 (hardware), the draft PR (12 local commits on `adam/ping-duo-fixes`; the new findings are not yet in those commits), UI-only path, Linux EST/L-2/D-7, teardown, Dependabot alert. The `ping-observer` token appeared in one screenshot I viewed (masked in saved files); rotate at teardown.
+- **Still open:** Windows x64 (hardware), the draft PR (14 local commits on `adam/ping-duo-fixes`; the new findings are not yet in those commits), UI-only path, Linux EST/L-2/D-7, teardown, Dependabot alert. The `ping-observer` token appeared in one screenshot I viewed (masked in saved files); rotate at teardown.
 
 ## Update 2026-10-08 11:10 UTC (macOS Duo pictures done)
 - Added `evidence/macos/D-5-duo-trusted-endpoint-sign-in` and `evidence/macos/D-8-duo-blocks-mac-with-failing-critical-policy` (window-only; IP, location, codes masked). D-8 uploaded a placeholder list for the Mac by hand (`evidence/duo-upload.py macos <csv>`); the lab loop runs with `REQUIRE_PASSING_CRITICAL_POLICIES` off. The Mac was out of Duo's list for about 5 min and is back (09:04:48 UTC sync). Chrome window was left on the Duo callback page.
@@ -56,7 +56,7 @@ Test the PingFederate and Duo conditional-access guides and scripts in [fleetdm/
 | Test cases | `TEST_PLAN.md` |
 The GitOps repo itself (applies to the lab Fleet): `.github/workflows/workflow.yml` (apply), `.github/workflows/duo-sync.yml` + `duo/` (Duo sync), `fleets/ping-duo-lab.yml`, `docs/flock-to-fedora/CONTEXT.md` (moved out of the root).
 
-**On this Mac (`/Users/adam/Downloads/fleet-54654-lab/`):** the same files plus what is never published: `.env`, `secrets/`, `vm/` (disk images, ISOs; `lab-windows` is a stuck ARM VM, safe to delete), `stepca/data`, `evidence/_private/` (uncropped screenshots with the lab's public IP; fleet error dump), `fleet/` (PR checkout; the fixes are 12 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, **not pushed**), `ISSUE_UPDATE.md` (draft issue comment, not posted), `evidence/*.sh` + `lib.sh` (scripts that produced the evidence), `tools/save-to-repo.sh` (scan + commit + push the public repo; `NO_PUSH=1` to stage).
+**On this Mac (`/Users/adam/Downloads/fleet-54654-lab/`):** the same files plus what is never published: `.env`, `secrets/`, `vm/` (disk images, ISOs; `lab-windows` is a stuck ARM VM, safe to delete), `stepca/data`, `evidence/_private/` (uncropped screenshots with the lab's public IP; fleet error dump), `fleet/` (PR checkout; the fixes are 14 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, **not pushed**), `ISSUE_UPDATE.md` (draft issue comment, not posted), `evidence/*.sh` + `lib.sh` (scripts that produced the evidence), `tools/save-to-repo.sh` (scan + commit + push the public repo; `NO_PUSH=1` to stage).
 
 ## Status
 - **Tested:** macOS and Linux. Linux A-to-Z: 22 PASS, 2 PARTIAL (D-1 Duo Desktop runs on the ARM VM only through x86 emulation; D-12 day-long sync pending), 0 FAIL. macOS: P-1, P-9 to P-14, P-16, D-1, D-3 to D-8, L-1 pass. D-6 (Actions workflow) passes.
@@ -85,7 +85,7 @@ The GitOps repo itself (applies to the lab Fleet): `.github/workflows/workflow.y
 2. **D-12 result:** `python3 evidence/syncstats.py` (cycles, median gap, failed lines), update `D-12-*/result.md`, regenerate `python3 evidence/mkreport.py`.
 3. **Turn on the Actions schedule:** stop the local loop (`rm duo/sync.run`), add `schedule: - cron: "2-59/5 * * * *"` to `duo-sync.yml` in the GitOps repo, push, watch 3 scheduled runs.
 4. **UI-only (non-GitOps) path:** check through the API on a scratch fleet: custom SCEP CA, profile with `$FLEET_VAR_*` and `$FLEET_SECRET_*`, critical policy, report with keep-data and interval, Duo scheduling without GitOps.
-5. **Open the draft PR** in fleetdm/fleet with the 12 local commits on `adam/ping-duo-fixes` (Adam does this; keep it draft until Windows x64 testing is done). Post `ISSUE_UPDATE.md` as the issue comment (Adam posts it).
+5. **Open the draft PR** in fleetdm/fleet with the 14 local commits on `adam/ping-duo-fixes` (Adam does this; keep it draft until Windows x64 testing is done). Post `ISSUE_UPDATE.md` as the issue comment (Adam posts it).
 6. **Windows:** blocked on an x64 test machine (office server request, internal ticket; Proxmox suggested). Duo Desktop for Windows is Intel-only. The ARM VM `lab-windows` is stuck in recovery and can be deleted.
 7. **Still untested:** Linux EST path, L-2 (no product UUID), D-7 on Linux, Fleet-driven Duo Desktop install on Linux, whether the TPM mattered for Duo on Linux.
 8. **Question for Noah:** should the guide say a brand-new host signs in before its first policy run (P-13 passes)?

@@ -1,5 +1,5 @@
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..7cfa1c0d81 100644
+index 3b6388ff63..1e577a2731 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -20,7 +20,7 @@ index 3b6388ff63..7cfa1c0d81 100644
  ### macOS
  
 -Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it.
-+Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it. In the SCEP payload, set `AllowAllAppsAccess` to `true` and `KeyIsExtractable` to `false`. Even then, macOS asks the end user for their login keychain password the first time Chrome or Firefox uses the certificate. They select **Always Allow** once. Safari doesn't ask. See the [custom SCEP example](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate) for a profile.
++Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it. In the SCEP payload, set `AllowAllAppsAccess` to `true` and `KeyIsExtractable` to `false`. Even then, macOS asks the end user for their login keychain password the first time Safari, Chrome or Firefox uses the certificate. They select **Always Allow** once for each browser. See the [custom SCEP example](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate) for a profile.
  
  ### Windows
  
@@ -74,7 +74,7 @@ index 3b6388ff63..7cfa1c0d81 100644
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
-+- **Browser asks for the login keychain password (macOS)**: Expected the first time Chrome or Firefox uses the certificate. The end user selects **Always Allow**. If Safari asks too, set `AllowAllAppsAccess` to `true` in the SCEP payload. Fleet doesn't resend a changed profile to a host that already has a certificate. Resend the profile from the host's **Host details** page, the end user's **My device** page, or the [API](https://fleetdm.com/docs/rest-api/rest-api#resend-configuration-profile). Or wait for the certificate to renew.
++- **Browser asks for the login keychain password (macOS)**: Expected the first time Safari, Chrome or Firefox uses the certificate. The end user enters the password and selects **Always Allow**. If the prompt is refused, the browser sends no certificate and sign-in fails with "Authentication failed", the same as when there's no certificate. For Firefox, quit and reopen it before trying again, because it remembers the answer for the session. If you changed `AllowAllAppsAccess` after the certificate was issued, Fleet doesn't resend the profile to a host that already has a certificate. Resend it from the host's **Host details** page, the end user's **My device** page, or the [API](https://fleetdm.com/docs/rest-api/rest-api#resend-configuration-profile). Or wait for the certificate to renew.
  - **Sign-in denied for a managed host**: Check that the certificate's CN matches the host's UUID in Fleet.
  - **Sign-in still denied after fixing a policy**: Select **Refetch** on the **My device** page, wait for the policy results to update, then sign in again.
  - **Data store errors**: Check the API token and that PingFederate can reach your Fleet server.
@@ -89,7 +89,7 @@ index 3b6388ff63..7cfa1c0d81 100644
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
 diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-index c0401c7c0f..904655366d 100644
+index c0401c7c0f..58b38a346e 100644
 --- a/articles/require-fleet-managed-hosts-in-duo.md
 +++ b/articles/require-fleet-managed-hosts-in-duo.md
 @@ -15,6 +15,7 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
@@ -100,7 +100,7 @@ index c0401c7c0f..904655366d 100644
  - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
  
  ## Step 1: Create a Fleet API user
-@@ -46,16 +47,50 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+@@ -46,16 +47,52 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
  
  ## Step 5: Sync hosts
  
@@ -111,6 +111,8 @@ index c0401c7c0f..904655366d 100644
 -4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
 +3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts.
 +4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
++
++> **GitHub Actions schedules are best effort.** GitHub can start a scheduled run late or skip it when it's busy. In testing, a 5-minute schedule started a run twice in 11 hours. Each run counts as at least 1 minute, so a 5-minute schedule uses about 8,600 minutes a month. That's more than the 2,000 free minutes of a private repository. If you need the list to stay current, run the same steps from a server with cron or a systemd timer, or call the workflow with `workflow_dispatch` from a scheduler you already run.
 +
 +Duo's script has the integration's keys written into it, so don't commit it as is. Edit it to read the keys from environment variables instead. Replace the `MKEY_CREDENTIALS = {...}` block near the top with this:
 +
@@ -154,7 +156,7 @@ index c0401c7c0f..904655366d 100644
  jobs:
    sync:
      runs-on: ubuntu-latest
-@@ -65,15 +100,39 @@ jobs:
+@@ -65,15 +102,41 @@ jobs:
          with:
            python-version: "3.12"
        - run: pip install "duo-client>=4.3.0"
@@ -193,12 +195,14 @@ index c0401c7c0f..904655366d 100644
 +
  Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
  
++The export script includes every Fleet host. To leave out hosts that fail a critical policy, set `REQUIRE_PASSING_CRITICAL_POLICIES=true`. Duo's script refuses an empty list, so if your only host fails, nothing is uploaded and Duo keeps trusting it until another host is in the list.
++
 +The script writes the files only if every request succeeds. If a list is more than 50% smaller than the previous files in the same folder, it exits without replacing them. Set `FORCE=true` to replace them anyway. On a fresh checkout, like a GitHub Actions run, there are no previous files, so this check doesn't apply.
 +
  ## Step 6: Turn on the policy
  
  1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
-@@ -90,6 +149,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+@@ -90,6 +153,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
  ## Troubleshooting
  
  - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.

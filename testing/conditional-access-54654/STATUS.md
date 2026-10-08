@@ -1,6 +1,6 @@
 # Status: fleetdm/fleet#54654 lab (as of 2026-10-08 10:30 UTC)
 
-Detail for every test is in `RESULTS.md`; evidence with pictures is in `evidence/` (`linux/REPORT.md`, `macos/`, `console/`). The plan is `TEST_PLAN.md`. Guide and script fixes are in `fleet-54654-fixes.diff` (12 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, not pushed).
+Detail for every test is in `RESULTS.md`; evidence with pictures is in `evidence/` (`linux/REPORT.md`, `macos/`, `console/`). The plan is `TEST_PLAN.md`. Guide and script fixes are in `fleet-54654-fixes.diff` (14 local commits on branch `adam/ping-duo-fixes` off `pr-54346`, not pushed).
 
 ## Where we are
 macOS and Linux are tested end to end with evidence. **Windows is blocked** on an x64 test machine (Duo Desktop for Windows is Intel only; the lab Mac runs only Windows on ARM). The GitHub schedule fix is written but not tested.
