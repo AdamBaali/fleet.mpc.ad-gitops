@@ -73,3 +73,5 @@ Adam wants the guide to keep the quick sync (a daily sync is too slow for a new 
 ## 2026-10-08: lab versus production (what not to read into the results)
 Lab artifacts, not guide issues: PingFederate base URL `localhost`; step-ca's 24 h default certificate lifetime and the 28.5 h certificates used to see a renewal; the SCEP tunnel; `ping.lab` in `/etc/hosts`; Duo Desktop for Linux under x86 emulation on ARM; one host per OS, one Duo user, bypass codes; the lab's own CA root deployed by profile; a Duo trial and one Fleet instance on Render.
 Not covered by the lab: a large fleet (the export script pages 500 hosts at a time; `report_cap` untested), a real enterprise CA (NDES, DigiCert, Okta, Smallstep EST), PingFederate clustering or a real SP connection (tested with an OAuth client only), enterprise browser management beyond the profiles we wrote, and Windows.
+
+Protocol note: the Fleet check lives in the PingFederate authentication policy, so it should behave the same for SAML, OIDC and OAuth sign-ins. Only an OAuth authorization-code client was tested. A SAML SP connection and an OIDC app are open tests.

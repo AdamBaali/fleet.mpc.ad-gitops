@@ -27,6 +27,9 @@ macOS and Linux are tested end to end with evidence. **Windows is blocked** on a
 | D-12 5-minute sync for a day | pass (253 cycles, 0 failed) | | |
 | L-2 no product UUID | | inconclusive | |
 
+## What the lab did not cover
+Sign-in through a SAML or OIDC application (tested with an OAuth client that runs the same authentication policy), a real enterprise CA, a large fleet (`report_cap`), PingFederate clustering, Windows. See `NOTES.md`.
+
 ## Running now
 Local sync loop (`duo/sync-loop.sh`, stop by deleting `duo/sync.run`; ends the D-12 story), Docker `stepca` and `pingfederate`, the Cloudflare tunnel, UTM `lab-linux`. The certificate watcher is done. step-ca `fleet-scep` lifetime is 1710 min (restore to 2160 h at teardown).
 
