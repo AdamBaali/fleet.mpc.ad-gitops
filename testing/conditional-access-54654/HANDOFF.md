@@ -2,6 +2,13 @@
 
 **Read this first when resuming.** It is the clean, current picture: the project, where everything is, what is done and open, what is running, how to work safely, and exactly what to do next. Last updated 2026-10-08 00:20 UTC (see the "Update" block right below).
 
+## Update 2026-10-08 11:00 UTC (newest: everything but Windows is done and written up)
+- **Done and documented:** macOS and Linux with pictures (`evidence/linux`, `evidence/macos`, `evidence/console`), `RESULTS.md`, `STATUS.md`, `GUIDE-FINDINGS.md` (public repo copy) and the draft issue comment `ISSUE_UPDATE.md` (lab folder only, **not posted**; do not post to fleetdm/fleet until Adam says). P-15 renewal is closed (behaviour seen twice, documented); no more renewal tracking.
+- **Adam still has to:** push the local commits in GitHub Desktop (`a294c77`, `a6f3947`, `3375e20`) and commit `duo-sync.yml` (half-hourly schedule, 5-minute loop, untested). Then watch 3 scheduled runs (`gh run list --workflow duo-sync.yml`).
+- **Screenshot tooling:** `tools/screens/macterm.sh <png> <script>` opens a NEW Terminal window, captures only it, closes only it. `winid`, `maskbox` as before. Never close windows you did not open.
+- **lab-linux VM** had stopped on its own around 09:50 UTC; restarted with `utmctl start lab-linux`. Check `utmctl list` first when resuming.
+- **Still open:** Windows x64 (hardware), the draft PR (12 local commits on `adam/ping-duo-fixes`; the new findings are not yet in those commits), UI-only path, Linux EST/L-2/D-7, teardown, Dependabot alert. The `ping-observer` token appeared in one screenshot I viewed (masked in saved files); rotate at teardown.
+
 ## Update 2026-10-08 11:10 UTC (macOS Duo pictures done)
 - Added `evidence/macos/D-5-duo-trusted-endpoint-sign-in` and `evidence/macos/D-8-duo-blocks-mac-with-failing-critical-policy` (window-only; IP, location, codes masked). D-8 uploaded a placeholder list for the Mac by hand (`evidence/duo-upload.py macos <csv>`); the lab loop runs with `REQUIRE_PASSING_CRITICAL_POLICIES` off. The Mac was out of Duo's list for about 5 min and is back (09:04:48 UTC sync). Chrome window was left on the Duo callback page.
 - macOS pictures now cover: P-15 renewed sign-in, P-9/P-10 flip, P-14 Safari, P-16 Firefox, D-5, D-8. Not pictured on macOS: P-1/P-2 keychain (text only), D-1 Duo Desktop (menu bar app), D-3/D-4/D-6/D-7/D-12 (command-line, log evidence).
