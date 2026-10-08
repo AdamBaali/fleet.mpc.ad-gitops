@@ -42,3 +42,18 @@ Evidence: `test-evidence/admin-console/G-8-access-level/`. The CEL condition pic
 - Per Google's docs (Deploy Context-Aware Access): a newly assigned level starts in **monitor mode** and blocks nothing until it is
   switched to active. The guide's Step 4 doesn't say this. Finding, proposed edit: add "Select **Active**, not monitor".
 - The guide's test table (Step 5) can use Drive. Gmail is not activated on `mpc.ad` (needs MX).
+
+## R-1 Script syntax and lint (2026-10-09): PASS
+`docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh` from PR #55107 (83 lines): `bash -n` OK, `shellcheck -S warning` reports nothing.
+Read through for R-5: paging, `|| true` around the clientState read (a missing state returns 404, handled), a Google error aborts the run
+(`set -euo pipefail`), a removed Fleet host is set UNMANAGED on the next run, ambiguous matches print "Review" and are not marked managed.
+Not yet run against live data.
+
+## Fleet side
+Local commit in the GitOps repo (not pushed): `fleets/ios-google-lab.yml` ("iOS Google Lab") and the `FLEET_IOS_GOOGLE_LAB_ENROLL_SECRET`
+line in `.github/workflows/workflow.yml`. The repo secret doesn't exist yet: `tools/save-secret.sh` style, generate and pipe to
+`gh secret set` (needs Adam).
+
+## Open: access level assignment (G-8)
+Still not assigned. The permission classifier blocked selecting the OU in the assignment tree twice, even after Adam said go ahead
+in chat. It must be done by Adam in the console.
