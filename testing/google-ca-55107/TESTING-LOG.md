@@ -14,10 +14,12 @@ Lab: Fleet 4.92.3 (`fleet.mpc.ad`, fleet **iOS Google Lab**), Google Workspace *
 | GitHub Action as written | **Fails** | `google-github-actions/auth` DWD token: HTTP 400 |
 | GitHub Action fixed | Works | JWT signed in the job |
 | Access level + test OU + iPhone | Works | Drive opens with a non-Fleet diagnostic condition |
-| **Access level reading the Fleet state** | **Fails** | Denied with `device.vendors["fleet"]` and `device.vendors["<id-without-C>-fleet"]` while the state is MANAGED |
+| **Access level reading the Fleet state** | **Fails** | Denied with all 5 key forms and both fields, also after 99 minutes |
 
-Bottom line so far: the sync works after two fixes, but Google does not let the customer-written client state satisfy the access level
-for this iOS sign-in. One check left: a delay (Google documents 90 minutes for CrowdStrike signals). The question is open with Google.
+Bottom line: the sync works after two script fixes and one workflow fix, and Google stores the state ("fleet (custom)", Managed,
+Compliant). But Context-Aware Access never uses it for this iOS sign-in: every key form we found (5) and both fields fail, also after
+99 minutes, while a condition on Google's own device data passes on the same phone. Community PR fleetdm/fleet#46454 reports the same
+mechanism working on macOS with Endpoint Verification, so the gap is likely iOS with basic mobile management. Open with Google.
 
 ## Log
 | Time | What | Result | Evidence |
@@ -49,7 +51,14 @@ for this iOS sign-in. One check left: a delay (Google documents 90 minutes for C
 | 11:28 | Condition `device.vendors["<id-without-C>-fleet"].is_managed_device == true` | — | — |
 | 11:31 | Drive briefly showed its home screen while the phone was offline (cache), then blocked again on 5G | Not an allow | — |
 | 11:44 | Sign-in logged: **Access Denied**, unsatisfied | **FAIL** | `admin-console/C-1d-*` |
-| after 12:40 | Re-check with the state MANAGED for over 90 minutes | Pending | — |
+| 12:05 | Double-check: writes to the with-C partner ID get **403** (any `customer=`); any call with `customers/<customer-ID>` gets **400**. No-C partner ID confirmed | Confirmed | `iphone/C-1a-*` |
+| 12:09 | Sign-in: **Access Denied** (no-C or `key-<id-without-C>` condition) | FAIL | `admin-console/C-1d-*` |
+| 12:11 | Condition `device.vendors["key-<id-without-C>"]` (Google spec: "use the format key-acme where acme is the organization's customer ID") | Blocked | — |
+| 12:14 to 12:39 | OR of 3 keys, then 6 terms (3 keys x `is_managed_device` / `is_compliant_device`), text verified by screenshot | Blocked; no log row | — |
+| 12:25 | Admin console > Third-party integrations: partner list only (Lookout, Checkpoint, Omnissa, Jamf, CrowdStrike, Ivanti, Intune, Citrix). No custom option | Nothing to switch on | — |
+| 12:30 | Community PR fleetdm/fleet#46454 says CEL reads suffix-first `device.vendors["fleet-<id-without-C>"]` (verified on macOS with Endpoint Verification). A write to that partner name gets 403 | Lead | — |
+| 12:39 | Condition `device.vendors["fleet-<id-without-C>"].is_managed_device \|\| .is_compliant_device` | — | — |
+| 12:44 | Sign-in logged: **Access Denied**. State MANAGED/COMPLIANT for 99 minutes | **FAIL** (not a delay) | `admin-console/C-1d-*` |
 
 ## What we know works, and what doesn't
 - **Works:** Fleet API (List hosts with `device_mapping`), matching by email and device type, writing the client state (after the fixes),
@@ -70,3 +79,19 @@ for this iOS sign-in. One check left: a delay (Google documents 90 minutes for C
 - The tester's own phone, enrolled as Company-owned (manual), not BYOD.
 - Drive instead of Gmail (Gmail needs MX records on the lab domain).
 - Script and workflow fixed to get past the two failures above (diffs in `../../fleets/ios-google-lab/google-sync/` and `../../.github/workflows/google-sync.yml`).
+
+## Key forms tried (all with the state MANAGED/COMPLIANT)
+| Key | Source | Result |
+|---|---|---|
+| `<customer-ID>-fleet` | The draft guide | Denied |
+| `<id-without-C>-fleet` | clientStates reference (partner ID) | Denied (log 11:44) |
+| `fleet` | Admin console label "fleet (custom)" | Blocked (live, 11:08) |
+| `key-<id-without-C>` | Access level spec ("key-acme") | Blocked |
+| `fleet-<id-without-C>` | Community PR fleetdm/fleet#46454 (suffix-first) | Denied (log 12:44, 99 min after the write) |
+| `is_managed_device` and `is_compliant_device` | Access level spec | Both fail |
+| `device.is_admin_approved_device` (no Fleet data) | Diagnostic | **Allowed, Drive opened** (log 11:00) |
+
+## Idea not yet tested: approve/block instead of a client state
+`device.is_admin_approved_device` is evaluated on this iPhone. Basic-management devices are approved by default and can be blocked;
+the Cloud Identity API has `deviceUsers.block` and `deviceUsers.approve`. A sync could block every iOS device user that doesn't match a
+Fleet host. Trade-off: a new unmanaged phone gets in until the next sync (about 5 minutes). Untested.

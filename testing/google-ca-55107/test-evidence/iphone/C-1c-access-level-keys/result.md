@@ -18,6 +18,10 @@
 - The access level, the test OU assignment, the licences and the phone all work: a condition on data Google has passes, and Drive opens.
 - Both key forms the docs point to fail while Google's own console shows the state as Managed and Compliant.
 - Assignment scope found and fixed during the test: the level had been assigned at the top-level OU for Admin Console, Drive and Gmail (lockout risk). Moved to the test OU only (Drive and Gmail).
-- Not yet ruled out: a delay. The state is MANAGED continuously from 11:05:42 (a reset for C-1b). Google documents a 90 minute delay for CrowdStrike signals. Re-check after 12:40.
+| 12:11 | `device.vendors["key-<id-without-C>"]` (Google spec) | Blocked |
+| 12:14 to 12:39 | OR of 3 keys, then 6 terms with `is_compliant_device` (text verified) | Blocked, no log row |
+| 12:39 | `device.vendors["fleet-<id-without-C>"]` managed or compliant (PR fleetdm/fleet#46454) | **12:44:34 Access Denied**, state MANAGED for 99 minutes |
+
+- Delay ruled out (99 minutes). Third-party integrations offer only BeyondCorp Alliance partners, nothing to enable for a custom state.
 
 ## Result: FAIL

@@ -1,4 +1,6 @@
 Date,Actor,Event,Application,Device ID,IP address,Access level applied,Access level satisfied,Access level unsatisfied,Device state,Blocked API access,Device risks,Protected API access,Network info,By an agent,Agent info
+2026-10-09T14:44:34+02:00,<managed test user>,Access Denied,DRIVE (OAuth client id = 640853332981.apps.googleusercontent.com),<device-id>,<masked>,Fleet managed iOS,,Fleet managed iOS,Normal,DRIVE,,,<masked>,false,
+2026-10-09T14:09:06+02:00,<managed test user>,Access Denied,DRIVE (OAuth client id = 640853332981.apps.googleusercontent.com),<device-id>,<masked>,Fleet managed iOS,,Fleet managed iOS,Normal,DRIVE,,,<masked>,false,
 2026-10-09T13:44:21+02:00,<managed test user>,Access Denied,DRIVE (OAuth client id = 640853332981.apps.googleusercontent.com),<device-id>,<masked>,Fleet managed iOS,,Fleet managed iOS,Normal,DRIVE,,,<masked>,false,
 2026-10-09T13:00:51+02:00,<managed test user>,Access evaluated,DRIVE (OAuth client id = 640853332981.apps.googleusercontent.com),<device-id>,<masked>,Fleet managed iOS,Fleet managed iOS,,No Device Signals,,,DRIVE,<masked>,false,
 2026-10-09T12:45:23+02:00,<managed test user>,Access Denied,DRIVE (OAuth client id = 640853332981.apps.googleusercontent.com),<device-id>,<masked>,Fleet managed iOS,,Fleet managed iOS,Normal,DRIVE,,,<masked>,false,
