@@ -2,17 +2,18 @@
 # Script template used in this guide: https://fleetdm.com/guides/google-conditional-access-integration
 # Tells Google which iPhones and iPads are managed by Fleet, by setting a client state under your
 # partner ID that Context-Aware Access checks. Google doesn't record serial numbers for iPhones and
-# iPads, so the script matches them to Fleet hosts by end user email and device type. It stores the
-# Fleet host ID and the serial number (as an asset tag) on the client state, so admins can see which
-# Fleet host Google trusts (Admin console > the device > Third-party services).
-# Set DRY_RUN=true to print changes without making them. Needs curl and jq.
+# iPads, so the script matches them to Fleet hosts by the end user's email and device type. It also
+# stores the Fleet host ID and serial number on the client state (Google Admin console > the device >
+# Third-party services). Set DRY_RUN=true to print changes without making them. Needs curl and jq.
 set -euo pipefail
 
 FLEET_URL="${FLEET_URL:-https://fleet.example.com}"
 FLEET_API_TOKEN="${FLEET_API_TOKEN:?Set FLEET_API_TOKEN}"
-GOOGLE_ACCESS_TOKEN="${GOOGLE_ACCESS_TOKEN:?Set GOOGLE_ACCESS_TOKEN}"
-GOOGLE_CUSTOMER_ID="${GOOGLE_CUSTOMER_ID:-<customer-ID>}" # as shown in Admin console > Account settings, starts with C
-PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google wants the customer ID WITHOUT the leading C here
+# The service account's JSON key, and the admin account it acts as (domain-wide delegation). Or set GOOGLE_ACCESS_TOKEN instead.
+GOOGLE_CREDENTIALS="${GOOGLE_CREDENTIALS:-}"
+GOOGLE_ADMIN_EMAIL="${GOOGLE_ADMIN_EMAIL:-admin@example.com}"
+GOOGLE_CUSTOMER_ID="${GOOGLE_CUSTOMER_ID:-<customer-ID>}" # Google Admin console > Account settings > Customer ID (starts with C)
+PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google's partner ID uses the customer ID without the leading C
 # Which Fleet emails count, comma-separated. Default: the IdP email from enrollment (end user authentication, or an IdP
 # username set by an admin). Add "custom" to also use emails set through the API or the UI.
 EMAIL_SOURCES="${EMAIL_SOURCES:-mdm_idp_accounts}"
@@ -24,6 +25,23 @@ DRY_RUN="${DRY_RUN:-false}"
 fleet() {
   curl -fsS -H "Authorization: Bearer $FLEET_API_TOKEN" "$FLEET_URL/api/v1/fleet/$1"
 }
+
+b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+
+# Get a Google access token as the admin account: a JWT signed with the service account's key. Needs openssl.
+if [ -z "${GOOGLE_ACCESS_TOKEN:-}" ]; then
+  [ -n "$GOOGLE_CREDENTIALS" ] || { echo "Set GOOGLE_CREDENTIALS (the service account's JSON key) or GOOGLE_ACCESS_TOKEN." >&2; exit 1; }
+  now=$(date +%s)
+  jwt="$(printf '{"alg":"RS256","typ":"JWT"}' | b64url).$(jq -nc --arg iss "$(jq -r .client_email <<<"$GOOGLE_CREDENTIALS")" \
+    --arg sub "$GOOGLE_ADMIN_EMAIL" --argjson now "$now" '{iss: $iss, sub: $sub, iat: $now, exp: ($now + 600),
+    scope: "https://www.googleapis.com/auth/cloud-identity.devices", aud: "https://oauth2.googleapis.com/token"}' | b64url)"
+  jwt="$jwt.$(printf '%s' "$jwt" | openssl dgst -sha256 -sign <(jq -r .private_key <<<"$GOOGLE_CREDENTIALS") | b64url)"
+  token=$(curl -sS https://oauth2.googleapis.com/token --data-urlencode "assertion=$jwt" \
+    --data-urlencode grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer)
+  GOOGLE_ACCESS_TOKEN=$(jq -r '.access_token // empty' <<<"$token")
+  # unauthorized_client usually means the domain-wide delegation is missing or not active yet (it can take a few minutes).
+  [ -n "$GOOGLE_ACCESS_TOKEN" ] || { echo "Google didn't issue a token: $(jq -r '"\(.error): \(.error_description)"' <<<"$token")" >&2; exit 1; }
+fi
 
 google() { # method path [body]
   curl -fsS -X "$1" -H "Authorization: Bearer $GOOGLE_ACCESS_TOKEN" -H "Content-Type: application/json" \
@@ -95,7 +113,7 @@ while read -r user; do
     echo "Review: $key has $fleet_count Fleet hosts and $google_count Google devices. Not marking $name as managed." >&2
   fi
 
-  # Use my_customer: with domain-wide delegation, customers/<ID> returns 400 (tested). Google's own sample sends no customer.
+  # Use customers/my_customer: with domain-wide delegation, customers/<customer-ID> returns HTTP 400.
   state="$name/clientStates/$PARTNER_ID?customer=customers/my_customer"
   current=$(google GET "$state" 2>/dev/null | jq -c '{managed: (.managed // ""), assetTags: (.assetTags // [])}' ||
     jq -nc '{managed: "", assetTags: []}')
@@ -113,7 +131,8 @@ while read -r user; do
   echo "$name ($key): ${was:-none} -> $now$([ "$was" = "$now" ] && echo " (serial number updated)" || true)"
   changes=$((changes + 1))
   if [ "$DRY_RUN" = true ]; then continue; fi
-  google PATCH "$state&updateMask=managed,complianceState,customId,assetTags" "$(jq -c --arg id "$host_id" \
+  # Send the whole state without updateMask: with one, Google adds to assetTags instead of replacing them.
+  google PATCH "$state" "$(jq -c --arg id "$host_id" \
     '{managed, complianceState: (if .managed == "MANAGED" then "COMPLIANT" else "NON_COMPLIANT" end), customId: $id, assetTags}' <<<"$want")" >/dev/null
 done < <(jq -c '.[]' <<<"$users")
 

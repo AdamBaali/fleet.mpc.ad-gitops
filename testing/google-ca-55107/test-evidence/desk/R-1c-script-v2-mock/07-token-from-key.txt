@@ -1,17 +1,16 @@
-# 03-byod-allowed: ENROLLMENT_STATUSES=On (automatic),On (manual),On (personal) DRY_RUN=true
+# 07-token-from-key: GOOGLE_ACCESS_TOKEN= GOOGLE_CREDENTIALS=<throwaway test key> GOOGLE_ADMIN_EMAIL=admin@lab.test DRY_RUN=true
 No email: Fleet host 7 has MDM on but no email from mdm_idp_accounts, so it can't be matched to a Google user.
 No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts, so it can't be matched to a Google user.
 devices/A1/deviceUsers/u1 (usera@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
 devices/A2/deviceUsers/u2 (usera@lab.test/ipad): none -> MANAGED
-devices/D1/deviceUsers/u5 (userd@lab.test/iphone): none -> MANAGED
 Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E1/deviceUsers/u6 as managed.
 Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E2/deviceUsers/u7 as managed.
 devices/G1/deviceUsers/u8 (userg@lab.test/iphone): none -> MANAGED
 devices/R1/deviceUsers/u9 (userr@lab.test/iphone): MANAGED -> UNMANAGED
 devices/H1/deviceUsers/u12 (userh@lab.test/iphone): MANAGED -> UNMANAGED
-Fleet: 8 managed iPhones and iPads, 6 with an email from mdm_idp_accounts. Google: 11 iPhone and iPad users. Changes: 6 (dry run).
+Fleet: 7 managed iPhones and iPads, 5 with an email from mdm_idp_accounts. Google: 11 iPhone and iPad users. Changes: 5 (dry run).
 [exit 0]
 # Google token requests:
-0
+1
 # Google writes:
 (none)

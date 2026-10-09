@@ -1,0 +1,7 @@
+# 08-token-refused: GOOGLE_ACCESS_TOKEN= GOOGLE_CREDENTIALS=<throwaway test key> GOOGLE_ADMIN_EMAIL=admin@lab.test MOCK_TOKEN_ERROR=1
+Google didn't issue a token: unauthorized_client: Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested.
+[exit 1]
+# Google token requests:
+1
+# Google writes:
+(none)

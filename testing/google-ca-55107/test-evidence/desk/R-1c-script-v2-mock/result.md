@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-09
 - **Objective:** Check the script after the live-test changes, with no real data
-- **Expected:** IdP emails only, company-owned statuses only, serial written as asset tag, managed hosts without an email flagged, guard stops a run with no usable email
+- **Expected:** script gets its own Google token, IdP emails only, company-owned statuses only, serial written as asset tag, managed hosts without an email flagged, guard stops a run with no usable email
 
 ## Steps and evidence
 Same method as R-1: a fake `curl` on `PATH` (`mock/bin/curl`) serves made-up Fleet and Google JSON (`lab.test` emails) and logs
@@ -23,6 +23,9 @@ Run: `bash run.sh <script>`.
 | Two iPhones for one user | "Review", no write | `02` |
 | No iPhone or iPad with MDM on | Guard: exit 1, no writes | `05` |
 | iPhones with MDM on, none with an IdP email | "No email" lines, then guard: exit 1, no writes | `06` |
+| Google token from the service account key (no `GOOGLE_ACCESS_TOKEN`; throwaway key made for the run) | One token request, then the normal run | `07` |
+| Google refuses the token | `Google didn't issue a token: unauthorized_client: …`, exit 1, no writes | `08` |
+| Writes | Whole state, no `updateMask` (with one, Google appends to `assetTags`; see E-2b) | `02` |
 | Summary line on every run | `Fleet: 7 managed iPhones and iPads, 5 with an email from mdm_idp_accounts. Google: 11 ... Changes: 5.` | `02` |
 
 ## Result: PASS

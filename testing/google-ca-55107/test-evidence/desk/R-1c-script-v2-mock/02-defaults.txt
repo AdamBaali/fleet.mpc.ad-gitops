@@ -10,6 +10,8 @@ devices/R1/deviceUsers/u9 (userr@lab.test/iphone): MANAGED -> UNMANAGED
 devices/H1/deviceUsers/u12 (userh@lab.test/iphone): MANAGED -> UNMANAGED
 Fleet: 7 managed iPhones and iPads, 5 with an email from mdm_idp_accounts. Google: 11 iPhone and iPad users. Changes: 5.
 [exit 0]
+# Google token requests:
+0
 # Google writes:
 PATCH devices/A1/deviceUsers/u1/clientStates/0mock-fleet {"managed":"MANAGED","complianceState":"COMPLIANT","customId":"1","assetTags":["SER001"]}
 PATCH devices/A2/deviceUsers/u2/clientStates/0mock-fleet {"managed":"MANAGED","complianceState":"COMPLIANT","customId":"2","assetTags":["SER002"]}

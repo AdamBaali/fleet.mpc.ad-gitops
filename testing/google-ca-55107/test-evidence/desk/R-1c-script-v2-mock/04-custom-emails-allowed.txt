@@ -9,5 +9,7 @@ devices/R1/deviceUsers/u9 (userr@lab.test/iphone): MANAGED -> UNMANAGED
 devices/H1/deviceUsers/u12 (userh@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
 Fleet: 7 managed iPhones and iPads, 6 with an email from mdm_idp_accounts,custom. Google: 11 iPhone and iPad users. Changes: 5 (dry run).
 [exit 0]
+# Google token requests:
+0
 # Google writes:
 (none)
