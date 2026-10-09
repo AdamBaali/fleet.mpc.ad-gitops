@@ -4,7 +4,7 @@
 # partner ID that Context-Aware Access checks. Google doesn't record serial numbers for iPhones and
 # iPads, so the script matches them to Fleet hosts by the end user's email and device type. It also
 # stores the Fleet host ID and serial number on the client state (Google Admin console > the device >
-# Third-party services). Set DRY_RUN=true to print changes without making them. Needs curl and jq.
+# Third-party services). Set DRY_RUN=true to print changes without making them. Needs curl, jq, and openssl.
 set -euo pipefail
 
 FLEET_URL="${FLEET_URL:-https://fleet.example.com}"
@@ -17,8 +17,8 @@ PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google's partner ID uses the custom
 # Which Fleet emails count, comma-separated. Default: the IdP email from enrollment (end user authentication, or an IdP
 # username set by an admin). Add "custom" to also use emails set through the API or the UI.
 EMAIL_SOURCES="${EMAIL_SOURCES:-mdm_idp_accounts}"
-# Which MDM statuses count as managed, comma-separated. Default: company-owned (automatic is Apple Business, manual is a
-# profile). Add "On (personal)" to also let personally owned (BYOD) iPhones and iPads in.
+# Which MDM statuses count as managed, comma-separated. Default: Apple Business (automatic) and profile (manual) enrollments.
+# Add "On (personal)" to also let personally owned (BYOD) iPhones and iPads in.
 ENROLLMENT_STATUSES="${ENROLLMENT_STATUSES:-On (automatic),On (manual)}"
 DRY_RUN="${DRY_RUN:-false}"
 

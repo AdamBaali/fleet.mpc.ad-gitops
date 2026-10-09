@@ -57,6 +57,17 @@ marked is blocked on the same phone (C-2). Access follows Fleet's IdP email both
 - R4 16:28Z: IdP username back: Action `UNMANAGED -> MANAGED`; within seconds the page says "Please sign in again"; closing it and
   reopening Drive gets in (no password).
 
+## Update (2026-10-09 evening): the guide branch
+- **Asset tags:** with `updateMask`, `clientStates.patch` appends to `assetTags` (4 copies of the serial after 4 writes) and ignores
+  `[]`. Without `updateMask`, the body replaces the state (`[]` clears, one serial stays one). The script now writes the whole state.
+- **Token:** the script gets its own Google token from the service account key (`GOOGLE_CREDENTIALS`, `GOOGLE_ADMIN_EMAIL`), so the
+  workflow needs no auth step and a local dry run needs only the key. Live dry run OK; a wrong admin email prints Google's
+  `invalid_grant: Invalid email or User ID`; mock covers `unauthorized_client`.
+- **Schedule:** GitHub's docs say schedules can be delayed or dropped under load, and "High load times include the start of every
+  hour". The workflow now runs at `2-59/5`. In this repo GitHub still started scheduled runs hours late: the Duo sync with the same
+  cron ran 6 times in about 32 hours, and the nightly 06:00 GitOps apply started around 12:50.
+- **Branch:** `adam/google-conditional-access-guide-tested` on fleetdm/fleet#55107 (one commit). Diff in `proposed/`.
+
 ## Log
 | Time | What | Result | Evidence |
 |---|---|---|---|
@@ -112,6 +123,9 @@ marked is blocked on the same phone (C-2). Access follows Fleet's IdP email both
 | 16:23 | E-2b R2: IdP username removed (only phone) | Run fails, guard, no change | `iphone/E-2b-*` |
 | 16:24 | E-2b R3: IdP username changed; Action writes UNMANAGED | **Blocked within seconds** | `iphone/E-2b-*` |
 | 16:28 | E-2b R4: IdP username back; Action writes MANAGED | "Please sign in again", reopen, **opens** | `iphone/E-2b-*` |
+| 16:40 | `assetTags` semantics: with `updateMask` Google appends and ignores `[]`; without it the body replaces | Script fixed | `iphone/E-2b-*` |
+| 16:45 | Script gets its own Google token; live dry run; wrong admin email gives Google's error | PASS | `desk/R-1c-*` |
+| 16:50 | Workflow cron `2-59/5` (GitHub docs: avoid the top of the hour) | Done | — |
 
 ## What we know works, and what doesn't
 - **Works:** Fleet API (List hosts with `device_mapping`), matching by email and device type, writing the client state (after the fixes),

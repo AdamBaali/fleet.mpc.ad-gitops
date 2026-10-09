@@ -9,9 +9,9 @@ fleetdm/fleet#54888. Evidence: `test-evidence/<group>/<ID>-<slug>/`.
 | R-1b | PASS | Proposed script (partner ID without C, empty-list guard): lint clean, exits 1 with no changes when Fleet returns 0 hosts |
 | R-2 | PASS | Fleet 4.92 docs and code: `device_mapping=true` on List hosts, statuses "On (manual)" and "On (automatic)" |
 | R-3 | PASS | Live: partner ID must be **without the leading C**, and `customer=` must be `customers/my_customer` (E-14) |
-| R-4 | NOT-RUN | `device.vendors` Preview status not found on Google's CAA pages. Vendor key format differs between pages (`<id>-suffix` vs `key-<id>`): test live |
+| R-4 | INFO | Settled live: the partner ID has no leading C (C-1b); no named `device.vendors` key works on iOS (C-1c); the keyless `exists()` does (C-1e) |
 | R-5 | PASS | Read in full with R-1. Paging, exit codes, idempotency OK |
-| R-6 | NOT-RUN | Wording pass after the live test |
+| R-6 | PASS | Guide edits checked against Fleet's `handbook/company/writing.md` and guide formatting rules, and the PingFederate and Duo guides |
 | G-1 | PASS | Org, OU, primary domain verified, iOS mobile management Basic |
 | G-1b | PASS | Business Plus has no Context-Aware Access; Enterprise Standard has it ("ON for everyone") |
 | G-1c | PASS | Test users created and moved to the test OU |
@@ -30,29 +30,6 @@ fleetdm/fleet#54888. Evidence: `test-evidence/<group>/<ID>-<slug>/`.
 | E-2 | INFO | First attempt on the custom-email path (T0, T1); superseded by E-2b |
 | E-2b | PASS | IdP path, script defaults, GitHub Action: open; guard stops a no-email run; blocked within seconds; back in after "Please sign in again" |
 | G-2b | PASS | Sync token limited to List hosts (`PATCH /users/api_only/:id`) |
-| C-3, C-4, E-1, E-3 to E-10, E-12, G-12 | NOT-RUN | |
+| C-3, C-4, E-3, E-7, E-12, G-12 | NOT-RUN | Safari, iPad, unenroll, a user outside the OU, wipe and re-enroll, the schedule over hours |
 
-## Findings so far (desk)
-1. **Old iPhone left in Google blocks the new one.** One Fleet host plus two Google iPhones for the same user is
-   ambiguous, so neither is marked managed. Common when people upgrade phones. Guide: tell admins to delete the old
-   device in Google Admin (Troubleshooting). Evidence: `R-1-script-mock/03-old-iphone-in-google.txt`.
-2. **Customer ID format.** Google: partner ID is `{customer}-suffix`, using the ID after the leading "C". Guide says
-   copy "Customer ID" from Account settings. Confirm in the live org what that shows.
-3. **No way to get a token for DRY_RUN.** The guide doesn't say how. Lab helper: `google-token.sh`.
-4. **Any email source counts**, including an admin-set custom email. Worth one line.
-5. **A failed Google write stops the run** (exit 22), earlier writes kept. The Action shows red, the next run carries on.
-
-## Live findings (2026-10-09)
-See [TESTING-LOG.md](TESTING-LOG.md) for the full timeline.
-6. **Script bug: partner ID.** Must be the customer ID without the leading C.
-7. **Script bug: customer parameter.** `customers/<customer-ID>` returns 400 for the delegated caller; use `customers/my_customer`.
-8. **Workflow bug.** `google-github-actions/auth@v2` with `access_token_subject` returns HTTP 400 `invalid_request`; signing the JWT in the job works.
-9. **No named key reads the Fleet state** (superseded by 12, the keyless condition works), while the state is MANAGED and shown in the console. Blocker for the guide; question open with Google.
-10. **Assignment scope.** Assigning at the top-level OU includes Admin Console and the admin: lockout risk. The guide should say to pick the test OU and not Admin Console.
-11. **Retries replay the old block.** After the sync, the Drive app kept showing the earlier denial; Google only re-evaluated on a fresh sign-in or a condition change.
-12. **Working condition** (C-1e): `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`. Trusts any third-party state that says managed.
-13. **Removing the last managed iPhone from Fleet doesn't unmanage it:** the empty-Fleet guard stops the script (GUIDE-FINDINGS 26).
-14. **Emails in the Actions log** on every change (GUIDE-FINDINGS 25); **personal iPhone can match** by email (27).
-15. **Match on the IdP email only** (GUIDE-FINDINGS 31): the script now ignores custom emails unless `EMAIL_SOURCES` includes `custom`.
-16. **Sync token limited to List hosts** (G-2b): `PATCH /api/v1/fleet/users/api_only/:id` with `api_endpoints`; the generic `/users/:id` returns 422.
-17. **Google reacts in seconds** (E-2b): an UNMANAGED write blocks the open app live; a MANAGED write shows "Please sign in again", and reopening the app gets in.
+Findings, in guide order and with what the branch fixes: [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md). Timeline: [TESTING-LOG.md](TESTING-LOG.md).

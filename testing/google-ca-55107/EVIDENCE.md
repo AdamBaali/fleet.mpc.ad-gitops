@@ -62,9 +62,9 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **Result: PASS** · [full notes](test-evidence/desk/R-1c-script-v2-mock/result.md)
 
 - **Objective:** Check the script after the live-test changes, with no real data
-- **Expected:** IdP emails only, company-owned statuses only, serial written as asset tag, managed hosts without an email flagged, guard stops a run with no usable email
+- **Expected:** script gets its own Google token, IdP emails only, company-owned statuses only, serial written as asset tag, managed hosts without an email flagged, guard stops a run with no usable email
 
-**Output:** [01-lint.txt](test-evidence/desk/R-1c-script-v2-mock/01-lint.txt) · [02-defaults.txt](test-evidence/desk/R-1c-script-v2-mock/02-defaults.txt) · [03-byod-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/03-byod-allowed.txt) · [04-custom-emails-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/04-custom-emails-allowed.txt) · [05-guard-no-iphones.txt](test-evidence/desk/R-1c-script-v2-mock/05-guard-no-iphones.txt) · [06-guard-no-idp-emails.txt](test-evidence/desk/R-1c-script-v2-mock/06-guard-no-idp-emails.txt) · [run.sh](test-evidence/desk/R-1c-script-v2-mock/run.sh) · [script-under-test.sh](test-evidence/desk/R-1c-script-v2-mock/script-under-test.sh)
+**Output:** [01-lint.txt](test-evidence/desk/R-1c-script-v2-mock/01-lint.txt) · [02-defaults.txt](test-evidence/desk/R-1c-script-v2-mock/02-defaults.txt) · [03-byod-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/03-byod-allowed.txt) · [04-custom-emails-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/04-custom-emails-allowed.txt) · [05-guard-no-iphones.txt](test-evidence/desk/R-1c-script-v2-mock/05-guard-no-iphones.txt) · [06-guard-no-idp-emails.txt](test-evidence/desk/R-1c-script-v2-mock/06-guard-no-idp-emails.txt) · [07-token-from-key.txt](test-evidence/desk/R-1c-script-v2-mock/07-token-from-key.txt) · [08-token-refused.txt](test-evidence/desk/R-1c-script-v2-mock/08-token-refused.txt) · [run.sh](test-evidence/desk/R-1c-script-v2-mock/run.sh) · [script-under-test.sh](test-evidence/desk/R-1c-script-v2-mock/script-under-test.sh)
 
 ---
 

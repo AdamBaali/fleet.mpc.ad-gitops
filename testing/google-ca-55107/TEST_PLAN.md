@@ -1,5 +1,7 @@
 # Test plan: Google conditional access for iPhones (fleetdm/fleet#55107)
 
+**Status (2026-10-09):** run. Results in [RESULTS.md](RESULTS.md), findings in [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md). This is the plan as written before the live test.
+
 Guide under test (draft, PR fleetdm/fleet#55107): `articles/google-conditional-access-integration.md`,
 `docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh`, the Google line in `articles/conditional-access.md`.
 Method: `../_framework/README.md`. One folder per test in `test-evidence/<group>/<ID>-<slug>/`, raw output plus
@@ -14,12 +16,12 @@ Google. A script runs every 5 minutes, matches Google iOS devices to Fleet hosts
 ## What we need (blockers first)
 | Need | Status |
 | --- | --- |
-| A real iPhone (an iPad too if possible). The iOS Simulator can't enroll in MDM or install Google apps with a managed sign-in | Ask Adam which device |
-| Google Workspace Enterprise Standard/Plus/Education, or Cloud Identity Premium, with a super admin (test org, not production) | Ask Adam if he has one |
-| A test OU, and 2 test users in it (one managed iPhone, one unmanaged) with Google accounts Adam controls | To create |
-| Fleet side: `fleet.mpc.ad` has Apple MDM and ABM on. New fleet "iOS Google Lab" in the GitOps repo, iPhone enrolled, end user email in Fleet | Fleet ready, fleet to create |
-| End user email in Fleet: end user authentication (IdP) or a custom mapping. The lab Fleet has no IdP configured | Decide the method (see G-5) |
-| API-only Fleet user (Observer, only List hosts), Google Cloud project, Cloud Identity API, service account, domain-wide delegation | To create |
+| A real iPhone (an iPad too if possible). The iOS Simulator can't enroll in MDM or install Google apps with a managed sign-in | Done: iPhone 15 Pro Max. No iPad |
+| Google Workspace Enterprise Standard/Plus/Education, or Cloud Identity Premium, with a super admin (test org, not production) | Done: Enterprise Standard trial |
+| A test OU, and 2 test users in it (one managed iPhone, one unmanaged) with Google accounts the tester controls | Done |
+| Fleet side: `fleet.mpc.ad` has Apple MDM and ABM on. New fleet "iOS Google Lab" in the GitOps repo, iPhone enrolled, end user email in Fleet | Done |
+| End user email in Fleet: end user authentication (IdP) or a custom mapping. The lab Fleet has no IdP configured | Custom mapping, then an IdP username set by API (NOTES.md) |
+| API-only Fleet user (Observer, only List hosts), Google Cloud project, Cloud Identity API, service account, domain-wide delegation | Done |
 
 ## Desk review (before touching Google)
 | ID | Check | Expected |
