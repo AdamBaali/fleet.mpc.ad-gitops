@@ -56,12 +56,15 @@ jobs:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
         run: |
           sync=fleets/ios-google-lab/google-sync/sync-fleet-hosts-to-google.sh
-          if [ "${{ github.event_name }}" != schedule ]; then bash "$sync"; exit; fi
+          # Public repository: the script prints "<Google device> (<email>/iphone): A -> B" on each change. Hide the email domain
+          # and the Google device and user IDs in the log. The exit code is the script's, not sed's.
+          mask() { sed -E 's/@[A-Za-z0-9.-]+\.[A-Za-z]+/@…/g; s#devices/[A-Za-z0-9_-]+#devices/…#g; s#deviceUsers/[A-Za-z0-9_-]+#deviceUsers/…#g'; }
+          if [ "${{ github.event_name }}" != schedule ]; then bash "$sync" 2>&1 | mask; exit "${PIPESTATUS[0]}"; fi
           # The token lasts an hour, so one token covers the whole loop. A failed sync doesn't stop the loop; the job fails at the end.
           rc=0
           for i in 1 2 3 4 5 6; do
             echo "== sync $i at $(date -u +%H:%M:%SZ)"
-            bash "$sync" || rc=1
+            bash "$sync" 2>&1 | mask; [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
             [ "$i" -lt 6 ] && sleep 290
           done
           exit $rc
