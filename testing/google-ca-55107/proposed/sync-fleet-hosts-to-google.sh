@@ -76,7 +76,8 @@ jq -c '.[]' <<<"$users" | while read -r user; do
     echo "Review: $key has $fleet_count Fleet hosts and $google_count Google devices. Not marking $name as managed." >&2
   fi
 
-  current=$(google GET "$name/clientStates/$PARTNER_ID?customer=customers/$GOOGLE_CUSTOMER_ID" 2>/dev/null | jq -r '.managed // empty' || true)
+  # Use my_customer: with domain-wide delegation, customers/<ID> returns 400 (tested). Google's own sample sends no customer.
+  current=$(google GET "$name/clientStates/$PARTNER_ID?customer=customers/my_customer" 2>/dev/null | jq -r '.managed // empty' || true)
   if [ -n "$host_id" ]; then want=MANAGED compliance=COMPLIANT; else want=UNMANAGED compliance=NON_COMPLIANT; fi
   # Context-Aware Access already blocks devices that Fleet never marked as managed.
   if [ -z "$current" ] && [ "$want" = UNMANAGED ]; then continue; fi
@@ -84,6 +85,6 @@ jq -c '.[]' <<<"$users" | while read -r user; do
 
   echo "$name ($key): ${current:-none} -> $want"
   if [ "$DRY_RUN" = true ]; then continue; fi
-  google PATCH "$name/clientStates/$PARTNER_ID?customer=customers/$GOOGLE_CUSTOMER_ID&updateMask=managed,complianceState,customId" \
+  google PATCH "$name/clientStates/$PARTNER_ID?customer=customers/my_customer&updateMask=managed,complianceState,customId" \
     "$(jq -n --arg m "$want" --arg c "$compliance" --arg id "$host_id" '{managed: $m, complianceState: $c, customId: $id}')" >/dev/null
 done

@@ -1,5 +1,5 @@
---- proposed/original-pr55107.sh	2026-10-09 02:31:31
-+++ proposed/sync-fleet-hosts-to-google.sh	2026-10-09 02:31:31
+--- a/docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh
++++ b/docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh
 @@ -6,11 +6,11 @@
  # DRY_RUN=true to print changes without making them. Needs curl and jq.
  set -euo pipefail
@@ -28,3 +28,21 @@
  devices=$(google_list "devices?customer=customers/my_customer&view=USER_ASSIGNED_DEVICES" devices | jq -s '
    map(select(.deviceType == "IOS") | {key: .name, value: (if ((.model // "") | test("^ipad"; "i")) then "ipad" else "iphone" end)})
    | from_entries')
+@@ -70,7 +76,8 @@
+     echo "Review: $key has $fleet_count Fleet hosts and $google_count Google devices. Not marking $name as managed." >&2
+   fi
+ 
+-  current=$(google GET "$name/clientStates/$PARTNER_ID?customer=customers/$GOOGLE_CUSTOMER_ID" 2>/dev/null | jq -r '.managed // empty' || true)
++  # Use my_customer: with domain-wide delegation, customers/<ID> returns 400 (tested). Google's own sample sends no customer.
++  current=$(google GET "$name/clientStates/$PARTNER_ID?customer=customers/my_customer" 2>/dev/null | jq -r '.managed // empty' || true)
+   if [ -n "$host_id" ]; then want=MANAGED compliance=COMPLIANT; else want=UNMANAGED compliance=NON_COMPLIANT; fi
+   # Context-Aware Access already blocks devices that Fleet never marked as managed.
+   if [ -z "$current" ] && [ "$want" = UNMANAGED ]; then continue; fi
+@@ -78,6 +85,6 @@
+ 
+   echo "$name ($key): ${current:-none} -> $want"
+   if [ "$DRY_RUN" = true ]; then continue; fi
+-  google PATCH "$name/clientStates/$PARTNER_ID?customer=customers/$GOOGLE_CUSTOMER_ID&updateMask=managed,complianceState,customId" \
++  google PATCH "$name/clientStates/$PARTNER_ID?customer=customers/my_customer&updateMask=managed,complianceState,customId" \
+     "$(jq -n --arg m "$want" --arg c "$compliance" --arg id "$host_id" '{managed: $m, complianceState: $c, customId: $id}')" >/dev/null
+ done
