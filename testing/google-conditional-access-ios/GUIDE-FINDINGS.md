@@ -1,14 +1,11 @@
-# Guide findings: Conditional access: Google (draft PR fleetdm/fleet#55107)
+# Guide findings (customer-antonella Google guide)
 
-What the lab showed so far, with evidence in `test-evidence/`. Test IDs are from `TEST_PLAN.md`. Status: setup and access level done, device tests not run yet (needs an iPhone).
-
+## Added 2026-10-09 (evening)
 | # | Step | Finding | Proposed edit |
 | --- | --- | --- | --- |
-| 1 | Prerequisites | Context-Aware Access needs Enterprise Standard or Plus, Education Standard or Plus, Frontline Standard or Plus, Enterprise Essentials Plus, or Cloud Identity Premium. A Business Plus org (the default trial) doesn't have the page. Verified in the Admin console (G-1). | Add: "If you don't see **Context-Aware Access** under **Security**, your edition doesn't include it." |
-| 2 | Prerequisites | Right after upgrading Business Plus to Enterprise Standard, the Security menu list was unchanged for about an hour, but the page itself (`Security > Context-Aware Access`) loaded and was "ON for everyone" (G-8). | Tell admins to wait, or give the page URL path |
-| 3 | Prerequisites | Gmail needs the primary domain's MX records. A test org that can't change MX can't use Gmail, only Drive and the Google app. | Say Drive works for the test |
-| 4 | Step 4 | A newly assigned access level starts in monitor mode and blocks nothing (Google's Deploy Context-Aware Access page). | Add: select **Active** |
-| 5 | Step 4 | The condition `device.vendors["<customer-ID>-fleet"].is_managed_device == true` is accepted by Google's Advanced mode editor (G-8). Whether the vendor key resolves is tested with a real device. | Keep, confirm in C-1 |
-| 6 | Step 1 to 3 | Not tested yet | |
-
-Not yet tested: the sync script against Google, the GitHub Actions workflow, the iPhone sign-in and block (C-1 to C-4).
+| 7 | Step 3 and 4 | Google's reference for `clientStates` and its access level spec say the customer ID in the partner segment is "the string after the letter C (not including C)". The guide, the script (`PARTNER_ID="$GOOGLE_CUSTOMER_ID-fleet"`) and the CEL condition use it with the C. Not yet confirmed by a live call (E-14). | Use the ID without the leading C in the script and the condition. `proposed/guide-script-edits.diff` does it in the script |
+| 8 | Step 3 script | If Fleet returns no hosts (wrong token scope, outage), the script marks every matched Google device UNMANAGED, blocking everyone. Duo's script refuses an empty list. | Add the guard in `proposed/guide-script-edits.diff` (tested on a mock Fleet: exit 1, nothing changed) |
+| 9 | Step 3 workflow | Reuses the secret name `FLEET_API_TOKEN`, which GitOps repos already use for GitOps. | Use `GOOGLE_SYNC_FLEET_API_TOKEN` |
+| 10 | Step 3 | `fleetctl user create --api-only` can't limit endpoints (prints "head to the Fleet UI"). | Say to set List hosts only in the UI |
+| 11 | Step 2 | Missing delegation shows as `unauthorized_client` and can take a few minutes. | Name the error |
+| 12 | Prereqs | First Google Cloud sign-in asks for a country and the Terms of Service. Client ID for delegation is the service account's Unique ID. | Add both notes |
