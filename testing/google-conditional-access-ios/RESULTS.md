@@ -96,3 +96,11 @@ An earlier admin token pasted in chat belonged to a global admin, not the API-on
 The script from PR #55107, with the Fleet URL and customer ID filled in (`lab-run/`, gitignored), run with `DRY_RUN=true`, a delegated Google token
 and the new Fleet token: exit code 0, no output. Expected, because Google has 0 iOS devices (`devices.list` = 0), so there is nothing to mark.
 Fleet side (`GET /hosts` with `device_mapping=true`) returned fine. Re-run after an iPhone signs in to a Google app (G-6).
+
+## G-1c Test users created (2026-10-09, late): PASS
+`managed-test@mpc.ad` and `unmanaged-test@mpc.ad` created through the Admin console (Add new users), auto-generated passwords (not read, not stored by Claude).
+They were created in the top-level OU **MPC**, not in **Fleet iOS test**. They still need moving to the test OU.
+Admin console finding: the "Continue" button stayed disabled until each email field showed "Available". Filling a field through a form tool did not
+trigger the check for the first row, retyping it did.
+Open before the iPhone test: (1) move both users to **Fleet iOS test**, (2) verify the access level is assigned to that OU only (lockout risk on the admin at MPC),
+(3) users set their own password at first sign-in.
