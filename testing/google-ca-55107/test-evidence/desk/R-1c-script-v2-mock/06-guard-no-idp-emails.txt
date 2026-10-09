@@ -1,5 +1,5 @@
 # 06-guard-no-idp-emails: MOCK_HOSTS=mock/fleet-hosts-no-idp-emails.json
-No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
+No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts, so it can't be matched to a Google user.
 Fleet returned no managed iPhones or iPads with an email from mdm_idp_accounts. Not changing anything. Set ALLOW_EMPTY=true to override.
 [exit 1]
 # Google writes:

@@ -1,6 +1,6 @@
 # 02-defaults: defaults
-No email: Fleet host 7 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
-No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
+No email: Fleet host 7 has MDM on but no email from mdm_idp_accounts, so it can't be matched to a Google user.
+No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts, so it can't be matched to a Google user.
 devices/A1/deviceUsers/u1 (usera@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
 devices/A2/deviceUsers/u2 (usera@lab.test/ipad): none -> MANAGED
 Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E1/deviceUsers/u6 as managed.

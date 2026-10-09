@@ -50,10 +50,10 @@
 +  | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$managed")
 +serials=$(jq 'map({key: (.id | tostring), value: (.hardware_serial // "")}) | from_entries' <<<"$managed")
  
-+# Flag managed iPhones and iPads that have no usable email: Google keeps blocking their users.
++# Flag managed iPhones and iPads that have no usable email: the script can't match them to a Google user.
 +jq -r --argjson keys "$fleet_keys" --arg sources "$EMAIL_SOURCES" '([$keys[][]] | unique) as $matched
 +  | .[] | select(.id as $id | $matched | index($id) | not)
-+  | "No email: Fleet host \(.id) has MDM on but no email from \($sources). Its user stays blocked."' <<<"$managed" >&2
++  | "No email: Fleet host \(.id) has MDM on but no email from \($sources), so it can'"'"'t be matched to a Google user."' <<<"$managed" >&2
 +
 +# Refuse to run when no managed iPhone or iPad has a usable email: an outage, a wrong token scope or missing emails would
 +# otherwise mark every Google device unmanaged at once. The run fails, so it shows in the scheduler (for example GitHub Actions).
