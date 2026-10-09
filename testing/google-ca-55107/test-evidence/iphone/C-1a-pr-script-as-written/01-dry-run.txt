@@ -1,0 +1,3 @@
+# 2026-10-09T08:59:51Z PR #55107 script as written, DRY_RUN
+devices/<device>/deviceUsers/<device-user> (<managed test user>/iphone): none -> MANAGED
+[exit 0]

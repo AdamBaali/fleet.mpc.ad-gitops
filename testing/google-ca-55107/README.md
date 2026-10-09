@@ -9,7 +9,8 @@ Google Context-Aware Access blocks sign-in from iPhones and iPads that aren't ma
 | File or folder | What it is |
 | --- | --- |
 | [EVIDENCE.md](EVIDENCE.md) | Generated page: every test, result, pictures, links to outputs |
-| [RESULTS.md](RESULTS.md) | One line per test, plus the desk findings |
+| [TESTING-LOG.md](TESTING-LOG.md) | Everything tried on the live test, in order, with results |
+| [RESULTS.md](RESULTS.md) | One line per test, plus the findings |
 | [TEST_PLAN.md](TEST_PLAN.md) | The tests and how they pass |
 | [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md) | What the tests showed about the guide, with proposed edits |
 | [REPORTING.md](REPORTING.md) | How Fleet, the sync script, Google and GitHub Actions report to each other |
@@ -17,8 +18,8 @@ Google Context-Aware Access blocks sign-in from iPhones and iPads that aren't ma
 | [NOTES.md](NOTES.md) | What was not done and how the lab differs from production |
 | `proposed/` | The corrected sync script and the diff against the draft |
 | `scripts/` | Lab helpers (`google-token.sh`, `clientstate_test.py`) |
-| `test-evidence/` | `desk/`, `admin-console/`, `cloud/`, `fleet/`: raw output and window screenshots |
+| `test-evidence/` | `desk/`, `admin-console/`, `cloud/`, `fleet/`, `iphone/`, `github/`: raw output and window screenshots |
 
 Fleet side: `../../fleets/ios-google-lab.yml` ("iOS Google Lab") and the manual workflow `../../.github/workflows/google-sync.yml`.
-Status (2026-10-09): Google test org, OU, users, access level, Cloud project, service account, delegation and the Fleet API user are done and evidenced.
-The iPhone tests are next.
+Status (2026-10-09 afternoon): live iPhone test run. The sync works after two script fixes and one workflow fix, but the access level is
+never satisfied by the Fleet client state. Full timeline: [TESTING-LOG.md](TESTING-LOG.md). One delay re-check pending, question open with Google.

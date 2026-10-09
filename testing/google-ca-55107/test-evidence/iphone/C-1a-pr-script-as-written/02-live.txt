@@ -1,0 +1,10 @@
+# 2026-10-09T09:00:02Z PR #55107 script as written, LIVE
+devices/<device>/deviceUsers/<device-user> (<managed test user>/iphone): none -> MANAGED
+curl: (56) The requested URL returned error: 400
+[exit 56]
+
+# read back, partner ID as the guide writes it (with C)
+{"name":null,"managed":null,"complianceState":null,"customId":null,"ownerType":null,"healthScore":null,"createTime":null,"lastUpdateTime":null,"error":"Request contains an invalid argument."}
+# list all client states on the device user
+[]
+null

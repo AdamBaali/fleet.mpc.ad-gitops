@@ -1,0 +1,31 @@
+{
+  "conclusion": "success",
+  "headSha": "04848a90c9c1853a0565c5557fc3aa197595875b",
+  "createdAt": "2026-10-09T11:22:52Z",
+  "steps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@v6",
+      "conclusion": "success"
+    },
+    {
+      "name": "Get a Google access token (domain-wide delegation)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Sync",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@v6",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ]
+}

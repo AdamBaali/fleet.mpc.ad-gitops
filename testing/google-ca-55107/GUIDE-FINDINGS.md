@@ -1,5 +1,16 @@
 # Guide findings (customer Google guide)
 
+## Added 2026-10-09 (live iPhone test, see TESTING-LOG.md)
+| # | Step | Finding | Proposed edit |
+| --- | --- | --- | --- |
+| 16 | Step 3 script | Partner ID with the leading C and `customer=customers/<customer-ID>` make `clientStates.patch` return HTTP 400. Only `<id-without-C>-fleet` with `customers/my_customer` works | `PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet"` and `customer=customers/my_customer` (done in `../../fleets/ios-google-lab/google-sync/`) |
+| 17 | Step 3.4 workflow | `google-github-actions/auth@v2` with `access_token_subject` fails: HTTP 400 `invalid_request`. The action's README says a key needs `roles/iam.serviceAccountTokenCreator` on the service account (not tested) | Sign the JWT in the job (done in `../../.github/workflows/google-sync.yml`), or document the IAM role |
+| 18 | Step 4 | **The access level is never satisfied by the Fleet state**: `device.vendors["fleet"]` and `device.vendors["<id-without-C>-fleet"]` both deny while Google shows the state as Managed/Compliant. A non-vendor condition passes on the same phone | Blocker. Don't publish until Google confirms the key or support for customer-written states on iOS |
+| 19 | Step 4 | Assigning at the top-level OU applies to Admin Console and the admin | Say: select the test OU, Drive and Gmail only, Active, apply to desktop and mobile apps |
+| 20 | Step 5 | After a sync, the app keeps showing the old block until a fresh sign-in | Say how the user gets in after enrolling (sign out and in, or wait) once C-1 passes |
+| 21 | Step 4 | The condition is in the Admin console under Advanced; Google says edits take effect immediately. Reopen the level after saving: in testing the box was once seen empty | Add "reopen to check it saved" |
+| 22 | Prereqs | Gmail needs MX records; a lab domain without mail can test with Drive | Note for testers |
+
 ## Added 2026-10-09 (evening)
 | # | Step | Finding | Proposed edit |
 | --- | --- | --- | --- |

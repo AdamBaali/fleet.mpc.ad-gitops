@@ -1,0 +1,17 @@
+# 2026-10-09T11:05:06Z reset to UNMANAGED by hand
+{"done":true}
+{"managed":"UNMANAGED","complianceState":"NON_COMPLIANT","customId":null,"lastUpdateTime":"2026-10-09T11:05:18.439Z"}
+
+# fixed script, DRY_RUN
+devices/<device>/deviceUsers/<device-user> (<managed test user>/iphone): UNMANAGED -> MANAGED
+[exit 0]
+
+# fixed script, LIVE
+devices/<device>/deviceUsers/<device-user> (<managed test user>/iphone): UNMANAGED -> MANAGED
+[exit 0]
+
+# read back
+{"managed":"MANAGED","complianceState":"COMPLIANT","customId":"14","lastUpdateTime":"2026-10-09T11:05:42.540Z"}
+
+# second run (idempotent, expect no output)
+[exit 0]

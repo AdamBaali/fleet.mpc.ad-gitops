@@ -1,0 +1,4 @@
+PATCH partner=<customer-ID>-fleet customer=customers/<customer-ID> -> HTTP 400 {"done":null,"error":"Request contains an invalid argument.","details":[]}
+PATCH partner=<customer-ID>-fleet customer=customers/my_customer -> HTTP 403 {"done":null,"error":"The caller does not have permission","details":[]}
+PATCH partner=<id-no-C>-fleet customer=customers/<customer-ID> -> HTTP 400 {"done":null,"error":"Request contains an invalid argument.","details":[]}
+PATCH partner=<id-no-C>-fleet customer=customers/my_customer -> HTTP 200 {"done":true,"error":null,"details":[]}

@@ -1,0 +1,11 @@
+{
+  "id": 14,
+  "platform": "ios",
+  "fleet_name": "iOS Google Lab",
+  "mdm_enrollment_status": "On (manual)",
+  "mdm_server": "https://fleet.mpc.ad/mdm/apple/mdm",
+  "hardware_model": "iPhone16,2",
+  "os_version": "",
+  "last_enrolled_at": "2026-10-09T08:55:03Z",
+  "device_mapping": null
+}

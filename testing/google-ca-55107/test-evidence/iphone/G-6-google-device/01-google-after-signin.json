@@ -1,0 +1,2 @@
+{"devices":[{"name":"devices/<device>","deviceType":"IOS","model":"iPhone 15 Pro Max","osVersion":"iOS 26.6.1","ownerType":"BYOD","managementState":null,"createTime":"2026-10-09T08:58:23.625Z"}],"deviceUsers":[]}
+{"devices":[],"deviceUsers":[{"name":"devices/<device>/deviceUsers/<device-user>","userEmail":"<managed test user>","managementState":"APPROVED","compromisedState":null,"createTime":"2026-10-09T08:58:23.625Z"}]}
