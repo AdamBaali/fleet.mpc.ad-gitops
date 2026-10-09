@@ -16,12 +16,12 @@ Lab: Fleet 4.92.3 (`fleet.mpc.ad`, fleet **iOS Google Lab**), Google Workspace *
 | Access level + test OU + iPhone | Works | Drive opens with a non-Fleet diagnostic condition |
 | **Access level reading the Fleet state** | **Works with a keyless condition** | Every named key fails, but `device.vendors.exists(k, device.vendors[k].is_managed_device == true)` lets the managed iPhone in |
 | User without a Fleet state (C-2) | **Works** | Second account on the same iPhone: "Your organisation isn't allowing access" |
-| Fleet stops counting the iPhone (E-2) | In progress | The Action wrote UNMANAGED; sign-in checks pending |
+| Fleet stops counting the iPhone (E-2b) | **Works** | IdP email removed or changed: the Action writes UNMANAGED and Drive is blocked within seconds; back: "Please sign in again", reopen, opens |
 
 Bottom line: the sync works after two script fixes and one workflow fix, and Google stores the state ("fleet (custom)", Managed,
 Compliant). No named `device.vendors["<key>"]` works on the iPhone (every documented and community form fails), but the keyless
 `device.vendors.exists(k, device.vendors[k].is_managed_device == true)` does: the managed iPhone gets into Drive, and a user Fleet never
-marked is blocked on the same phone (C-2). E-2 in progress.
+marked is blocked on the same phone (C-2). Access follows Fleet's IdP email both ways through the GitHub Action, in seconds (E-2b).
 
 ## Update (2026-10-09 afternoon): it works without a key name
 - `size(device.vendors) > 0`: **Drive opened.** The access level does see vendor data on the iPhone.
@@ -48,6 +48,14 @@ marked is blocked on the same phone (C-2). E-2 in progress.
 - 16:06Z the lab iPhone's IdP username set by API (`PUT /hosts/14/device_mapping`, `source: idp`); the API reports it as
   `mdm_idp_accounts`, so the lab now runs on the customer's path (IdP email) and no longer needs `custom`.
 - 16:08Z sync token limited to List hosts (G-2b).
+
+## Update (2026-10-09 evening): E-2b passes on the IdP path
+- R1 16:19Z: Action `UNMANAGED -> MANAGED` via the IdP email; console shows Managed, ID 14 and the serial as asset tag; Drive opens.
+- R2 16:23Z: IdP username removed (the only phone): the run fails with "No email: Fleet host 14 …" and the guard; nothing changes.
+- R3 16:24Z: IdP username changed: Action `MANAGED -> UNMANAGED`; the open Drive app shows "Your organisation isn't allowing
+  access" within seconds, without a sign-in.
+- R4 16:28Z: IdP username back: Action `UNMANAGED -> MANAGED`; within seconds the page says "Please sign in again"; closing it and
+  reopening Drive gets in (no password).
 
 ## Log
 | Time | What | Result | Evidence |
@@ -97,7 +105,13 @@ marked is blocked on the same phone (C-2). E-2 in progress.
 | 15:32 | Scheduled run due: never started (GitHub best effort) | Note | — |
 | 15:39 | C-2: unmanaged user added on the same iPhone | **Blocked** | `iphone/C-2-*` |
 | 15:41 | Manual real sync with both users on the phone | No writes (correct) | `iphone/C-2-*` |
-| 15:42 | E-2: Fleet email changed to a dummy; Action writes `MANAGED -> UNMANAGED`; console shows Unmanaged | PASS so far | `iphone/E-2-*` |
+| 15:42 | E-2: Fleet email changed to a dummy; Action writes `MANAGED -> UNMANAGED`; console shows Unmanaged | Superseded by E-2b | `iphone/E-2-*` |
+| 16:06 | IdP username set by API (reported as `mdm_idp_accounts`); script defaults: IdP email only, company-owned only | Dry run `UNMANAGED -> MANAGED` | `iphone/E-2b-*` |
+| 16:08 | Sync token limited to List hosts | PASS | `fleet/G-2b-*` |
+| 16:19 | E-2b R1: Action writes MANAGED with the serial as asset tag | **Drive opens** | `iphone/E-2b-*` |
+| 16:23 | E-2b R2: IdP username removed (only phone) | Run fails, guard, no change | `iphone/E-2b-*` |
+| 16:24 | E-2b R3: IdP username changed; Action writes UNMANAGED | **Blocked within seconds** | `iphone/E-2b-*` |
+| 16:28 | E-2b R4: IdP username back; Action writes MANAGED | "Please sign in again", reopen, **opens** | `iphone/E-2b-*` |
 
 ## What we know works, and what doesn't
 - **Works:** Fleet API (List hosts with `device_mapping`), matching by email and device type, writing the client state (after the fixes),

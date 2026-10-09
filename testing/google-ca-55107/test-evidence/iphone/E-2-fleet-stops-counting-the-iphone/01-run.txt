@@ -17,4 +17,4 @@ run 37953743223 success 15:42:35Z -> 15:42:51Z
 devices/…/deviceUsers/… (managed-test@…/iphone): MANAGED -> UNMANAGED
 15:42:48Z GET   managed-test: managed=UNMANAGED compliance=NON_COMPLIANT customId=(empty) updated=2026-10-09T15:42:48.712Z
 
-== T2 onwards: pending (sign out and in as managed-test: expect blocked; restore the email; sync; sign in: expect Drive opens)
+== T2 onwards: not run on this path; see E-2b (IdP path), which passed.

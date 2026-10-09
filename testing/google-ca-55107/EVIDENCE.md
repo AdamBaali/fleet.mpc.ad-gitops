@@ -6,10 +6,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 15 |
-| PARTIAL | 2 |
+| PASS | 16 |
+| PARTIAL | 1 |
 | FAIL | 2 |
-| info | 1 |
+| info | 2 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
@@ -29,7 +29,8 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | iPhone live test | C-1c: does the access level read the Fleet client state? | FAIL | [open](#c-1c-does-the-access-level-read-the-fleet-client-state) |
 | iPhone live test | C-1e: keyless exists() condition lets the Fleet-managed iPhone in | PASS | [open](#c-1e-keyless-exists-condition-lets-the-fleet-managed-iphone-in) |
 | iPhone live test | C-2: a user Fleet never marked is blocked on the same iPhone | PASS | [open](#c-2-a-user-fleet-never-marked-is-blocked-on-the-same-iphone) |
-| iPhone live test | E-2: when Fleet stops counting the iPhone, the sync blocks it; when Fleet counts it again, it opens | PARTIAL | [open](#e-2-when-fleet-stops-counting-the-iphone-the-sync-blocks-it-when-fleet-counts-it-again-it-opens) |
+| iPhone live test | E-2: when Fleet stops counting the iPhone, the sync blocks it; when Fleet counts it again, it opens | info | [open](#e-2-when-fleet-stops-counting-the-iphone-the-sync-blocks-it-when-fleet-counts-it-again-it-opens) |
+| iPhone live test | E-2b: Fleet's IdP email decides access, end to end (managed, guard, blocked, back) | PASS | [open](#e-2b-fleets-idp-email-decides-access-end-to-end-managed-guard-blocked-back) |
 | iPhone live test | G-5: iPhone enrolled in Fleet, end user email set | PASS | [open](#g-5-iphone-enrolled-in-fleet-end-user-email-set) |
 | iPhone live test | G-6: iPhone appears in Google, blocked before the first sync | PASS | [open](#g-6-iphone-appears-in-google-blocked-before-the-first-sync) |
 | GitHub Actions | G-7: the sync as a GitHub Action | PARTIAL | [open](#g-7-the-sync-as-a-github-action) |
@@ -375,7 +376,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### E-2: when Fleet stops counting the iPhone, the sync blocks it; when Fleet counts it again, it opens
 
-**Result: PARTIAL** · [full notes](test-evidence/iphone/E-2-fleet-stops-counting-the-iphone/result.md)
+**Result: info** · [full notes](test-evidence/iphone/E-2-fleet-stops-counting-the-iphone/result.md)
 
 - **Objective:** Prove the condition from C-1e follows Fleet's state end to end (Fleet -> GitHub Action -> Google -> sign-in)
 - **Expected:** T1 UNMANAGED, T2 blocked, T4 MANAGED, T5 Drive opens
@@ -385,6 +386,42 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **console fleet custom unmanaged**
 
 ![console fleet custom unmanaged](test-evidence/iphone/E-2-fleet-stops-counting-the-iphone/02-console-fleet-custom-unmanaged.png)
+
+
+---
+
+### E-2b: Fleet's IdP email decides access, end to end (managed, guard, blocked, back)
+
+**Result: PASS** · [full notes](test-evidence/iphone/E-2b-idp-path-run-through/result.md)
+
+- **Objective:** Run the whole loop the way the customer will: the phone's email comes from the IdP (`mdm_idp_accounts`), the script
+- **Expected:** R1 opens, R2 the guard stops the run, R3 blocked, R4 opens
+
+**Output:** [07-run.txt](test-evidence/iphone/E-2b-idp-path-run-through/07-run.txt)
+
+**r1 drive opens**
+
+![r1 drive opens](test-evidence/iphone/E-2b-idp-path-run-through/01-r1-drive-opens.png)
+
+**console managed serial asset tag masked**
+
+![console managed serial asset tag masked](test-evidence/iphone/E-2b-idp-path-run-through/02-console-managed-serial-asset-tag-masked.png)
+
+**r3 drive open before sync**
+
+![r3 drive open before sync](test-evidence/iphone/E-2b-idp-path-run-through/03-r3-drive-open-before-sync.png)
+
+**r3 blocked live**
+
+![r3 blocked live](test-evidence/iphone/E-2b-idp-path-run-through/04-r3-blocked-live.png)
+
+**r4 please sign in again**
+
+![r4 please sign in again](test-evidence/iphone/E-2b-idp-path-run-through/05-r4-please-sign-in-again.png)
+
+**r4 drive opens after reopen**
+
+![r4 drive opens after reopen](test-evidence/iphone/E-2b-idp-path-run-through/06-r4-drive-opens-after-reopen.png)
 
 
 ---

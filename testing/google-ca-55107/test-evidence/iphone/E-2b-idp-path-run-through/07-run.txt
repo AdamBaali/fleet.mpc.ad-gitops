@@ -1,0 +1,45 @@
+# E-2b: the run-through on the IdP path. Times UTC, 2026-10-09. Email domains and Google IDs masked.
+# Lab helper output (tools/fleet-email.sh, tools/state.sh) and the GitHub Action's Sync step (manual runs, dry_run=false, commit fb3c175).
+== R0 setup
+16:06:42Z PUT /hosts/14/device_mapping source=idp email=managed-test@…
+16:06:42Z host 14 device_mapping: custom=fleet-e2-dummy@…, mdm_idp_accounts=managed-test@…
+== sync token's view (List hosts, device_mapping=true)
+{"id":14,"status":"On (manual)","device_mapping":[{"source":"custom","email":"fleet-e2-dummy@…"},{"source":"mdm_idp_accounts","email":"managed-test@…"}]}
+== R0 local dry run with the script's defaults (IdP email only, company-owned only)
+devices/…/deviceUsers/… (managed-test@…/iphone): UNMANAGED -> MANAGED
+Fleet: 1 managed iPhones and iPads, 1 with an email from mdm_idp_accounts. Google: 2 iPhone and iPad users. Changes: 1 (dry run).
+== R1 sync through the workflow (pushed fb3c175: defaults, IdP only)
+16:18:53Z GET   managed-test: HTTP 200 managed=UNMANAGED compliance=NON_COMPLIANT customId=- updated=2026-10-09T15:42:48.712Z
+16:18:54Z host 14 device_mapping: custom=fleet-e2-dummy@…, mdm_idp_accounts=managed-test@…
+16:18:55Z gh workflow run google-sync.yml -f dry_run=false
+run 37958238367 success 2026-10-09T16:19:08Z -> 2026-10-09T16:19:26Z fb3c175
+devices/…/deviceUsers/… (managed-test@…/iphone): UNMANAGED -> MANAGED
+Fleet: 1 managed iPhones and iPads, 1 with an email from mdm_idp_accounts. Google: 2 iPhone and iPad users. Changes: 1.
+16:19:22Z GET   managed-test: HTTP 200 managed=MANAGED compliance=COMPLIANT customId=14 updated=2026-10-09T16:19:22.976Z
+R1 asset tags: 1 tag(s); equals Fleet host 14 serial: True
+== R2 IdP username removed: the only phone has no usable email (guard, live)
+16:23:37Z DELETE /hosts/14/device_mapping/idp
+16:23:37Z host 14 device_mapping: custom=fleet-e2-dummy@…
+run 37958816632 failure 2026-10-09T16:23:52Z -> 2026-10-09T16:24:11Z
+No email: Fleet host 14 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
+(wording changed afterwards to "so it can't be matched to a Google user": with the guard, the user is NOT blocked)
+Fleet returned no managed iPhones or iPads with an email from mdm_idp_accounts. Not changing anything. Set ALLOW_EMPTY=true to override.
+##[error]Process completed with exit code 1.
+16:24:07Z GET   managed-test: HTTP 200 managed=MANAGED compliance=COMPLIANT customId=14 updated=2026-10-09T16:19:22.976Z
+== R3 IdP username changed to a dummy: Fleet no longer matches the phone to managed-test
+16:24:09Z PUT /hosts/14/device_mapping source=idp email=fleet-e2-dummy@…
+16:24:09Z host 14 device_mapping: custom=fleet-e2-dummy@…, mdm_idp_accounts=fleet-e2-dummy@…
+run 37958879156 success 2026-10-09T16:24:23Z -> 2026-10-09T16:24:39Z
+devices/…/deviceUsers/… (managed-test@…/iphone): MANAGED -> UNMANAGED
+Fleet: 1 managed iPhones and iPads, 1 with an email from mdm_idp_accounts. Google: 2 iPhone and iPad users. Changes: 1.
+16:24:35Z GET   managed-test: HTTP 200 managed=UNMANAGED compliance=NON_COMPLIANT customId=- updated=2026-10-09T16:24:36.721Z
+R3 phone: Drive home as managed-test to 16:24:22Z, transition 16:24:31Z, "Your organisation isn't allowing access" (avatar M) from 16:24:36Z (write 16:24:36.7Z). BLOCKED.
+== R4 IdP username back to managed-test
+16:27:39Z PUT /hosts/14/device_mapping source=idp email=managed-test@…
+16:27:39Z host 14 device_mapping: custom=fleet-e2-dummy@…, mdm_idp_accounts=managed-test@…
+run 37959301486 success 2026-10-09T16:27:54Z -> 2026-10-09T16:28:10Z
+devices/…/deviceUsers/… (managed-test@…/iphone): UNMANAGED -> MANAGED
+Fleet: 1 managed iPhones and iPads, 1 with an email from mdm_idp_accounts. Google: 2 iPhone and iPad users. Changes: 1.
+16:28:05Z GET   managed-test: HTTP 200 managed=MANAGED compliance=COMPLIANT customId=14 updated=2026-10-09T16:28:06.991Z
+R4 phone: within seconds the block page changed to "Please sign in again. Close this message, then sign in to Google Drive or another
+Workspace app to finalise security checks." 16:28:25Z page closed, Drive reopened: Drive home as managed-test at 16:28:39Z. OPENS.

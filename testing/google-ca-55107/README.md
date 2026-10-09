@@ -21,6 +21,6 @@ Google Context-Aware Access blocks sign-in from iPhones and iPads that aren't ma
 | `test-evidence/` | `desk/`, `admin-console/`, `cloud/`, `fleet/`, `iphone/`, `github/`: raw output and window screenshots |
 
 Fleet side: `../../fleets/ios-google-lab.yml` ("iOS Google Lab") and the workflow `../../.github/workflows/google-sync.yml` (one sync every 5 minutes).
-Status (2026-10-09 evening): the guide's flow works with fixes. The sync works after two script fixes and one workflow fix. No named
-`device.vendors` key works, but the keyless `exists()` condition lets the Fleet-managed iPhone in (C-1e) and blocks a user Fleet never
-marked (C-2). E-2 (Fleet stops counting the phone) in progress. Full timeline: [TESTING-LOG.md](TESTING-LOG.md). Key question open with Google.
+Status (2026-10-09 evening): **works with fixes.** No named `device.vendors` key works, but the keyless `exists()` condition lets the
+Fleet-managed iPhone in (C-1e), blocks a user Fleet never marked (C-2), and follows Fleet's IdP email both ways through the GitHub
+Action within seconds (E-2b). Full timeline: [TESTING-LOG.md](TESTING-LOG.md). Open with Google: the key name for a narrower condition.

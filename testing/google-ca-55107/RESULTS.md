@@ -27,7 +27,9 @@ fleetdm/fleet#54888. Evidence: `test-evidence/<group>/<ID>-<slug>/`.
 | C-1d | INFO | Context-Aware Access log: 3 denials, 1 allow (diagnostic) |
 | C-1e | PASS | Keyless `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`: managed user opens Drive (13:51, B-0 15:31) |
 | C-2 | PASS | Unmanaged user on the same iPhone: "Your organisation isn't allowing access"; no client state for that user |
-| E-2 | PARTIAL | Fleet stops matching the phone: the Action writes UNMANAGED, console shows Unmanaged. Sign-in checks pending |
+| E-2 | INFO | First attempt on the custom-email path (T0, T1); superseded by E-2b |
+| E-2b | PASS | IdP path, script defaults, GitHub Action: open; guard stops a no-email run; blocked within seconds; back in after "Please sign in again" |
+| G-2b | PASS | Sync token limited to List hosts (`PATCH /users/api_only/:id`) |
 | C-3, C-4, E-1, E-3 to E-10, E-12, G-12 | NOT-RUN | |
 
 ## Findings so far (desk)
@@ -53,3 +55,4 @@ See [TESTING-LOG.md](TESTING-LOG.md) for the full timeline.
 14. **Emails in the Actions log** on every change (GUIDE-FINDINGS 25); **personal iPhone can match** by email (27).
 15. **Match on the IdP email only** (GUIDE-FINDINGS 31): the script now ignores custom emails unless `EMAIL_SOURCES` includes `custom`.
 16. **Sync token limited to List hosts** (G-2b): `PATCH /api/v1/fleet/users/api_only/:id` with `api_endpoints`; the generic `/users/:id` returns 422.
+17. **Google reacts in seconds** (E-2b): an UNMANAGED write blocks the open app live; a MANAGED write shows "Please sign in again", and reopening the app gets in.

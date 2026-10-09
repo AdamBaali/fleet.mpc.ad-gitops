@@ -12,9 +12,8 @@
   UNMANAGED / NON_COMPLIANT at 15:42:48Z.
 - `02` Admin console > device > Third-party services: fleet (custom), **Unmanaged, Non-compliant**, last updated 17:42 local (15:42Z),
   Asset tags "-".
-- T2 (sign out and in: expect blocked), T3 (restore the email), T4 (sync: expect MANAGED and the serial as asset tag),
-  T5 (sign in: expect Drive opens): pending.
+- T2 to T5 were not run on this path: the script moved to IdP emails only, so the full loop was rerun on the IdP path as **E-2b**.
 
-## Result: PARTIAL
+## Result: INFO
 
-In progress: T0 and T1 done, T2 to T5 pending.
+First attempt (custom email path), T0 and T1 only. Superseded by E-2b, which passed.
