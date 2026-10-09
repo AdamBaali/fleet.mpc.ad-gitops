@@ -14,12 +14,21 @@ Lab: Fleet 4.92.3 (`fleet.mpc.ad`, fleet **iOS Google Lab**), Google Workspace *
 | GitHub Action as written | **Fails** | `google-github-actions/auth` DWD token: HTTP 400 |
 | GitHub Action fixed | Works | JWT signed in the job |
 | Access level + test OU + iPhone | Works | Drive opens with a non-Fleet diagnostic condition |
-| **Access level reading the Fleet state** | **Fails** | Denied with all 5 key forms and both fields, also after 99 minutes |
+| **Access level reading the Fleet state** | **Works with a keyless condition** | Every named key fails, but `device.vendors.exists(k, device.vendors[k].is_managed_device == true)` lets the managed iPhone in |
 
 Bottom line: the sync works after two script fixes and one workflow fix, and Google stores the state ("fleet (custom)", Managed,
-Compliant). But Context-Aware Access never uses it for this iOS sign-in: every key form we found (5) and both fields fail, also after
-99 minutes, while a condition on Google's own device data passes on the same phone. Community PR fleetdm/fleet#46454 reports the same
-mechanism working on macOS with Endpoint Verification, so the gap is likely iOS with basic mobile management. Open with Google.
+Compliant). No named `device.vendors["<key>"]` works on the iPhone (every documented and community form fails), but the keyless
+`device.vendors.exists(k, device.vendors[k].is_managed_device == true)` does: the managed iPhone gets into Drive. C-2 and E-2 pending.
+
+## Update (2026-10-09 afternoon): it works without a key name
+- `size(device.vendors) > 0`: **Drive opened.** The access level does see vendor data on the iPhone.
+- `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`: **Drive opened after sign-out and sign-in.** Fleet's
+  `MANAGED` is read as `is_managed_device`. Only the key name was wrong.
+- Still unknown: the key. Google rejects `contains` and list literals inside `exists()`, so it can't be searched for. The
+  customer ID alone (`C<id>`, `<id>`, guarded with `in`) was also blocked.
+- Caveat: the keyless condition trusts any third-party state that says managed (fine when Fleet is the only one).
+- Still to test: C-2 (unmanaged user blocked) and E-2 (state set to UNMANAGED blocks the managed user).
+- The sync runs on a schedule now: `.github/workflows/google-sync.yml`, every 5 minutes inside 30-minute runs.
 
 ## Log
 | Time | What | Result | Evidence |
