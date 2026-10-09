@@ -83,3 +83,16 @@ a token acting as the admin. Read-only calls with it: `devices.list` (USER_ASSIG
 Zero is expected: no iPhone has signed in to a Google app yet (G-6). The delegation was not instant on the first attempt: `unauthorized_client`
 until it was saved (guide finding: name that error and say it can take a few minutes).
 Still needed for G-4 DRY_RUN: `FLEET_API_TOKEN` (API-only Fleet user), and an iPhone signed in to a Google app so a device exists.
+
+## G-2 Fleet API-only user (2026-10-09): PASS with a caveat
+Created with `fleetctl user create --name "gcp-sync (google guide test)" --api-only --global-role observer`. Token captured straight into `.env`
+(never printed). Checked: `GET /me` shows `api_only: true`, role observer; `GET /hosts` returns 200.
+Caveat (guide finding): `fleetctl user create` can't limit the user to **List hosts only** (the command prints "To further customize endpoints this
+API-only user has access to, head to the Fleet UI"). So `GET /me` also returns 200 for it. The guide's Step 1 ("Specific API endpoints")
+must be done in the UI, or the guide should say what fleetctl gives you instead.
+An earlier admin token pasted in chat belonged to a global admin, not the API-only user, and is treated as exposed: rotate it.
+
+## G-4 Sync script DRY_RUN (2026-10-09): PASS (nothing to do yet)
+The script from PR #55107, with the Fleet URL and customer ID filled in (`lab-run/`, gitignored), run with `DRY_RUN=true`, a delegated Google token
+and the new Fleet token: exit code 0, no output. Expected, because Google has 0 iOS devices (`devices.list` = 0), so there is nothing to mark.
+Fleet side (`GET /hosts` with `device_mapping=true`) returned fine. Re-run after an iPhone signs in to a Google app (G-6).
