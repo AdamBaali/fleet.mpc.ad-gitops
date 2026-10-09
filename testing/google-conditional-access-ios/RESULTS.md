@@ -66,3 +66,13 @@ in chat. It must be done by Adam in the console.
 - Test users: form filled in Admin console, waiting for Adam to click Continue and create.
 - Fleet enroll secret for the iOS fleet: script ready (`tools/setup-ios-secret.sh`), the classifier blocks secret writes, Adam runs it.
 - Chrome typing notes: typing failed in the Admin console (other extension) but worked in the Cloud console; `form_input` works in the Admin console.
+
+## G-3 Service account key and delegation test (2026-10-09)
+- Adam created the JSON key. It is stored in `secrets/google-sa.json` (gitignored, mode 600). Structure checked: service_account, private key present, client ID matches.
+- `tools/google-token.sh` (new) signs a JWT with the key and asks Google for a token acting as the admin, scope `cloud-identity.devices`. Writes the token to a file, prints no secrets.
+- First run "OK" was a false pass: `.env` had empty values, so no admin was impersonated. Fixed: the helper now refuses an empty admin email.
+- Real run: **FAILED: unauthorized_client** ("Client is unauthorized to retrieve access tokens using this method, or client not authorized for any of the scopes requested").
+  Meaning: the domain-wide delegation entry is missing or not yet active for this client ID and scope. Next: Adam adds it in
+  Admin console > Security > Access and data control > API controls > Domain-wide delegation, then re-run.
+- Guide finding: the guide's Step 2 should name this exact error as the symptom of missing delegation, and say the grant can take a few minutes.
+- `FLEET_API_TOKEN` is still empty (API-only Fleet user not created yet), so the script's DRY_RUN (G-4) can't run.
