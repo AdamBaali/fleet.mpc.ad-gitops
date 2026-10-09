@@ -16,6 +16,9 @@ PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google wants the customer ID WITHOU
 # Which Fleet emails count, comma-separated. Default: the IdP email from enrollment (end user authentication, or an IdP
 # username set by an admin). Add "custom" to also use emails set through the API or the UI.
 EMAIL_SOURCES="${EMAIL_SOURCES:-mdm_idp_accounts}"
+# Which MDM statuses count as managed, comma-separated. Default: company-owned (automatic is Apple Business, manual is a
+# profile). Add "On (personal)" to also let personally owned (BYOD) iPhones and iPads in.
+ENROLLMENT_STATUSES="${ENROLLMENT_STATUSES:-On (automatic),On (manual)}"
 DRY_RUN="${DRY_RUN:-false}"
 
 fleet() {
@@ -46,8 +49,9 @@ while :; do
   page=$((page + 1))
 done
 
-# iPhones and iPads with MDM on in Fleet.
-managed=$(jq '[.[] | select((.platform == "ios" or .platform == "ipados") and ((.mdm.enrollment_status // "") | startswith("On")))]' <<<"$hosts")
+# iPhones and iPads with MDM on in Fleet (ENROLLMENT_STATUSES only).
+managed=$(jq --arg statuses "$ENROLLMENT_STATUSES" '($statuses | split(",")) as $ok
+  | [.[] | select((.platform == "ios" or .platform == "ipados") and ((.mdm.enrollment_status // "") as $s | $ok | index($s)))]' <<<"$hosts")
 # Their Fleet host IDs, keyed by "<end user email>/<iphone|ipad>" (emails from EMAIL_SOURCES only), and each one's serial number.
 fleet_keys=$(jq --arg sources "$EMAIL_SOURCES" '
   ($sources | split(",")) as $ok
@@ -56,7 +60,13 @@ fleet_keys=$(jq --arg sources "$EMAIL_SOURCES" '
   | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$managed")
 serials=$(jq 'map({key: (.id | tostring), value: (.hardware_serial // "")}) | from_entries' <<<"$managed")
 
-# Refuse to run when Fleet returns no managed iPhones or iPads. Otherwise a wrong token scope or an outage would mark every Google device unmanaged.
+# Flag managed iPhones and iPads that have no usable email: Google keeps blocking their users.
+jq -r --argjson keys "$fleet_keys" --arg sources "$EMAIL_SOURCES" '([$keys[][]] | unique) as $matched
+  | .[] | select(.id as $id | $matched | index($id) | not)
+  | "No email: Fleet host \(.id) has MDM on but no email from \($sources). Its user stays blocked."' <<<"$managed" >&2
+
+# Refuse to run when no managed iPhone or iPad has a usable email: an outage, a wrong token scope or missing emails would
+# otherwise mark every Google device unmanaged at once. The run fails, so it shows in the scheduler (for example GitHub Actions).
 if [ "$(jq 'length' <<<"$fleet_keys")" -eq 0 ] && [ "${ALLOW_EMPTY:-false}" != true ]; then
   echo "Fleet returned no managed iPhones or iPads with an email from $EMAIL_SOURCES. Not changing anything. Set ALLOW_EMPTY=true to override." >&2
   exit 1

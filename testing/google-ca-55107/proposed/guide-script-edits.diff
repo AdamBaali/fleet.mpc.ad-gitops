@@ -1,6 +1,6 @@
 --- a/docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh
 +++ b/docs/solutions/api-scripts/sync-fleet-hosts-to-google.sh
-@@ -2,15 +2,20 @@
+@@ -2,15 +2,23 @@
  # Script template used in this guide: https://fleetdm.com/guides/google-conditional-access-integration
  # Tells Google which iPhones and iPads are managed by Fleet, by setting a client state under your
  # partner ID that Context-Aware Access checks. Google doesn't record serial numbers for iPhones and
@@ -23,10 +23,13 @@
 +# Which Fleet emails count, comma-separated. Default: the IdP email from enrollment (end user authentication, or an IdP
 +# username set by an admin). Add "custom" to also use emails set through the API or the UI.
 +EMAIL_SOURCES="${EMAIL_SOURCES:-mdm_idp_accounts}"
++# Which MDM statuses count as managed, comma-separated. Default: company-owned (automatic is Apple Business, manual is a
++# profile). Add "On (personal)" to also let personally owned (BYOD) iPhones and iPads in.
++ENROLLMENT_STATUSES="${ENROLLMENT_STATUSES:-On (automatic),On (manual)}"
  DRY_RUN="${DRY_RUN:-false}"
  
  fleet() {
-@@ -41,13 +46,22 @@
+@@ -41,13 +49,29 @@
    page=$((page + 1))
  done
  
@@ -36,8 +39,9 @@
 -   | (if .platform == "ipados" then "ipad" else "iphone" end) as $kind | .id as $id
 -   | (.device_mapping // [])[] | {key: ((.email | ascii_downcase) + "/" + $kind), id: $id}]
 -  | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$hosts")
-+# iPhones and iPads with MDM on in Fleet.
-+managed=$(jq '[.[] | select((.platform == "ios" or .platform == "ipados") and ((.mdm.enrollment_status // "") | startswith("On")))]' <<<"$hosts")
++# iPhones and iPads with MDM on in Fleet (ENROLLMENT_STATUSES only).
++managed=$(jq --arg statuses "$ENROLLMENT_STATUSES" '($statuses | split(",")) as $ok
++  | [.[] | select((.platform == "ios" or .platform == "ipados") and ((.mdm.enrollment_status // "") as $s | $ok | index($s)))]' <<<"$hosts")
 +# Their Fleet host IDs, keyed by "<end user email>/<iphone|ipad>" (emails from EMAIL_SOURCES only), and each one's serial number.
 +fleet_keys=$(jq --arg sources "$EMAIL_SOURCES" '
 +  ($sources | split(",")) as $ok
@@ -46,7 +50,13 @@
 +  | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$managed")
 +serials=$(jq 'map({key: (.id | tostring), value: (.hardware_serial // "")}) | from_entries' <<<"$managed")
  
-+# Refuse to run when Fleet returns no managed iPhones or iPads. Otherwise a wrong token scope or an outage would mark every Google device unmanaged.
++# Flag managed iPhones and iPads that have no usable email: Google keeps blocking their users.
++jq -r --argjson keys "$fleet_keys" --arg sources "$EMAIL_SOURCES" '([$keys[][]] | unique) as $matched
++  | .[] | select(.id as $id | $matched | index($id) | not)
++  | "No email: Fleet host \(.id) has MDM on but no email from \($sources). Its user stays blocked."' <<<"$managed" >&2
++
++# Refuse to run when no managed iPhone or iPad has a usable email: an outage, a wrong token scope or missing emails would
++# otherwise mark every Google device unmanaged at once. The run fails, so it shows in the scheduler (for example GitHub Actions).
 +if [ "$(jq 'length' <<<"$fleet_keys")" -eq 0 ] && [ "${ALLOW_EMPTY:-false}" != true ]; then
 +  echo "Fleet returned no managed iPhones or iPads with an email from $EMAIL_SOURCES. Not changing anything. Set ALLOW_EMPTY=true to override." >&2
 +  exit 1
@@ -55,7 +65,7 @@
  devices=$(google_list "devices?customer=customers/my_customer&view=USER_ASSIGNED_DEVICES" devices | jq -s '
    map(select(.deviceType == "IOS") | {key: .name, value: (if ((.model // "") | test("^ipad"; "i")) then "ipad" else "iphone" end)})
    | from_entries')
-@@ -56,7 +70,8 @@
+@@ -56,7 +80,8 @@
      | {name, key: (((.userEmail // "") | ascii_downcase) + "/" + $devices[$d])})')
  google_counts=$(jq 'group_by(.key) | map({key: .[0].key, value: length}) | from_entries' <<<"$users")
  
@@ -65,7 +75,7 @@
    name=$(jq -r .name <<<"$user")
    key=$(jq -r .key <<<"$user")
    fleet_count=$(jq --arg k "$key" '.[$k] // [] | length' <<<"$fleet_keys")
-@@ -70,14 +85,26 @@
+@@ -70,14 +95,26 @@
      echo "Review: $key has $fleet_count Fleet hosts and $google_count Google devices. Not marking $name as managed." >&2
    fi
  

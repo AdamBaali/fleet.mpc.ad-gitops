@@ -1,0 +1,52 @@
+{
+ "deviceUsers": [
+  {
+   "name": "devices/A1/deviceUsers/u1",
+   "userEmail": "usera@lab.test"
+  },
+  {
+   "name": "devices/A2/deviceUsers/u2",
+   "userEmail": "usera@lab.test"
+  },
+  {
+   "name": "devices/B1/deviceUsers/u3",
+   "userEmail": "userb@lab.test"
+  },
+  {
+   "name": "devices/C1/deviceUsers/u4",
+   "userEmail": "userc@lab.test"
+  },
+  {
+   "name": "devices/D1/deviceUsers/u5",
+   "userEmail": "userd@lab.test"
+  },
+  {
+   "name": "devices/E1/deviceUsers/u6",
+   "userEmail": "usere@lab.test"
+  },
+  {
+   "name": "devices/E2/deviceUsers/u7",
+   "userEmail": "usere@lab.test"
+  },
+  {
+   "name": "devices/G1/deviceUsers/u8",
+   "userEmail": "userg@lab.test"
+  },
+  {
+   "name": "devices/R1/deviceUsers/u9",
+   "userEmail": "userr@lab.test"
+  },
+  {
+   "name": "devices/W1/deviceUsers/u10",
+   "userEmail": "usera@lab.test"
+  },
+  {
+   "name": "devices/N1/deviceUsers/u11",
+   "userEmail": "userb@lab.test"
+  },
+  {
+   "name": "devices/H1/deviceUsers/u12",
+   "userEmail": "userh@lab.test"
+  }
+ ]
+}

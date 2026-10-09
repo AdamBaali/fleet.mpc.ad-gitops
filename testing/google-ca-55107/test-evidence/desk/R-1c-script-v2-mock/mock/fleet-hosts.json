@@ -1,0 +1,143 @@
+{
+ "hosts": [
+  {
+   "id": 1,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "UserA@Lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER001"
+  },
+  {
+   "id": 2,
+   "platform": "ipados",
+   "mdm": {
+    "enrollment_status": "On (automatic)"
+   },
+   "device_mapping": [
+    {
+     "email": "usera@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER002"
+  },
+  {
+   "id": 3,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "Off"
+   },
+   "device_mapping": [
+    {
+     "email": "userc@lab.test",
+     "source": "custom"
+    }
+   ],
+   "hardware_serial": "SER003"
+  },
+  {
+   "id": 4,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (personal)"
+   },
+   "device_mapping": [
+    {
+     "email": "userd@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER004"
+  },
+  {
+   "id": 5,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "usere@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER005"
+  },
+  {
+   "id": 6,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "usere@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER006"
+  },
+  {
+   "id": 7,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": null,
+   "hardware_serial": "SER007"
+  },
+  {
+   "id": 8,
+   "platform": "darwin",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "usera@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER008"
+  },
+  {
+   "id": 9,
+   "platform": "ios",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "userg@lab.test",
+     "source": "mdm_idp_accounts"
+    },
+    {
+     "email": "userg@lab.test",
+     "source": "custom"
+    }
+   ],
+   "hardware_serial": "SER009"
+  },
+  {
+   "id": 10,
+   "platform": "ios",
+   "hardware_serial": "SER010",
+   "mdm": {
+    "enrollment_status": "On (automatic)"
+   },
+   "device_mapping": [
+    {
+     "email": "userh@lab.test",
+     "source": "custom"
+    }
+   ]
+  }
+ ]
+}

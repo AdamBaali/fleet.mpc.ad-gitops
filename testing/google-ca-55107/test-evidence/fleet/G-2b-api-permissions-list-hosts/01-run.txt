@@ -1,0 +1,17 @@
+# G-2: limit the sync's API-only user to List hosts (2026-10-09T16:08:06Z)
+== before (user 7)
+{"id":7,"api_only":true,"global_role":"observer","fleets":[],"api_endpoints":null}
+== PATCH /api/v1/fleet/users/7 api_endpoints=[GET /api/v1/fleet/hosts]
+== sync token after
+GET /hosts?per_page=1&device_mapping=true HTTP 200
+GET /hosts/14                            HTTP 200
+GET /config                              HTTP 200
+GET /me                                  HTTP 200
+(PATCH /users/7 is refused for api_endpoints: 422 'This endpoint does not accept API endpoint values'. The API-only route is /users/api_only/:id.)
+== PATCH /api/v1/fleet/users/api_only/7 api_endpoints=[GET /api/v1/fleet/hosts]
+{"id":7,"api_only":true,"global_role":"observer","api_endpoints":[{"method":"GET","path":"/api/v1/fleet/hosts"}]}
+== sync token after
+GET /hosts?per_page=1&device_mapping=true HTTP 200
+GET /hosts/14                            HTTP 403
+GET /config                              HTTP 403
+GET /me                                  HTTP 403

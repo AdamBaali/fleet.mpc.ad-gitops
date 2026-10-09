@@ -1,0 +1,5 @@
+# 05-guard-no-iphones: MOCK_HOSTS=mock/fleet-hosts-no-iphones.json
+Fleet returned no managed iPhones or iPads with an email from mdm_idp_accounts. Not changing anything. Set ALLOW_EMPTY=true to override.
+[exit 1]
+# Google writes:
+(none)

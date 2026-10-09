@@ -5,6 +5,7 @@ fleetdm/fleet#54888. Evidence: `test-evidence/<group>/<ID>-<slug>/`.
 | ID | Result | One line |
 |---|---|---|
 | R-1 | PASS | `bash -n` and `shellcheck` clean. Mock run: 12 of 14 cases as expected, 2 findings (old iPhone in Google blocks the new one; failed write stops the run) |
+| R-1c | PASS | Current script on the mock: IdP emails only, company-owned only, serial as asset tag, "No email" flags, guard exits 1 with no writes |
 | R-1b | PASS | Proposed script (partner ID without C, empty-list guard): lint clean, exits 1 with no changes when Fleet returns 0 hosts |
 | R-2 | PASS | Fleet 4.92 docs and code: `device_mapping=true` on List hosts, statuses "On (manual)" and "On (automatic)" |
 | R-3 | PASS | Live: partner ID must be **without the leading C**, and `customer=` must be `customers/my_customer` (E-14) |
@@ -51,3 +52,4 @@ See [TESTING-LOG.md](TESTING-LOG.md) for the full timeline.
 13. **Removing the last managed iPhone from Fleet doesn't unmanage it:** the empty-Fleet guard stops the script (GUIDE-FINDINGS 26).
 14. **Emails in the Actions log** on every change (GUIDE-FINDINGS 25); **personal iPhone can match** by email (27).
 15. **Match on the IdP email only** (GUIDE-FINDINGS 31): the script now ignores custom emails unless `EMAIL_SOURCES` includes `custom`.
+16. **Sync token limited to List hosts** (G-2b): `PATCH /api/v1/fleet/users/api_only/:id` with `api_endpoints`; the generic `/users/:id` returns 422.

@@ -6,7 +6,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 13 |
+| PASS | 15 |
 | PARTIAL | 2 |
 | FAIL | 2 |
 | info | 1 |
@@ -15,7 +15,9 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 |---|---|---|---|
 | Desk review | R-1: Script lint and mock run | PASS | [open](#r-1-script-lint-and-mock-run) |
 | Desk review | R-1b: proposed script, partner ID and empty-list guard | PASS | [open](#r-1b-proposed-script-partner-id-and-empty-list-guard) |
+| Desk review | R-1c: current script (IdP email only, company-owned only, asset tags) against the mock | PASS | [open](#r-1c-current-script-idp-email-only-company-owned-only-asset-tags-against-the-mock) |
 | Fleet | G-2/G-4: API-only Fleet user and sync script dry run | PASS | [open](#g-2g-4-api-only-fleet-user-and-sync-script-dry-run) |
+| Fleet | G-2b: the sync's API-only user limited to List hosts | PASS | [open](#g-2b-the-syncs-api-only-user-limited-to-list-hosts) |
 | Google Cloud | G-2/G-3: Cloud project, service account, delegation | PASS | [open](#g-2g-3-cloud-project-service-account-delegation) |
 | Google Admin console | C-1d: Context-Aware Access log events for the managed test user | info | [open](#c-1d-context-aware-access-log-events-for-the-managed-test-user) |
 | Google Admin console | G-1: Google test org, OU, domain, mobile management | PASS | [open](#g-1-google-test-org-ou-domain-mobile-management) |
@@ -54,6 +56,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
+### R-1c: current script (IdP email only, company-owned only, asset tags) against the mock
+
+**Result: PASS** · [full notes](test-evidence/desk/R-1c-script-v2-mock/result.md)
+
+- **Objective:** Check the script after the live-test changes, with no real data
+- **Expected:** IdP emails only, company-owned statuses only, serial written as asset tag, managed hosts without an email flagged, guard stops a run with no usable email
+
+**Output:** [01-lint.txt](test-evidence/desk/R-1c-script-v2-mock/01-lint.txt) · [02-defaults.txt](test-evidence/desk/R-1c-script-v2-mock/02-defaults.txt) · [03-byod-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/03-byod-allowed.txt) · [04-custom-emails-allowed.txt](test-evidence/desk/R-1c-script-v2-mock/04-custom-emails-allowed.txt) · [05-guard-no-iphones.txt](test-evidence/desk/R-1c-script-v2-mock/05-guard-no-iphones.txt) · [06-guard-no-idp-emails.txt](test-evidence/desk/R-1c-script-v2-mock/06-guard-no-idp-emails.txt) · [run.sh](test-evidence/desk/R-1c-script-v2-mock/run.sh) · [script-under-test.sh](test-evidence/desk/R-1c-script-v2-mock/script-under-test.sh)
+
+---
+
 ## Fleet
 
 ### G-2/G-4: API-only Fleet user and sync script dry run
@@ -64,6 +77,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** Observer API-only user; dry run exits 0
 
 **Output:** [01-fleet-user-role.txt](test-evidence/fleet/G-2-G-4-api-only-user-and-dry-run/01-fleet-user-role.txt) · [02-dry-run.txt](test-evidence/fleet/G-2-G-4-api-only-user-and-dry-run/02-dry-run.txt)
+
+---
+
+### G-2b: the sync's API-only user limited to List hosts
+
+**Result: PASS** · [full notes](test-evidence/fleet/G-2b-api-permissions-list-hosts/result.md)
+
+- **Objective:** Give the sync token only what the script uses (`GET /api/v1/fleet/hosts` with `device_mapping=true`)
+- **Expected:** List hosts works, everything else is refused, the sync still runs
+
+**Output:** [01-run.txt](test-evidence/fleet/G-2b-api-permissions-list-hosts/01-run.txt)
 
 ---
 

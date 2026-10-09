@@ -1,0 +1,18 @@
+{
+ "hosts": [
+  {
+   "id": 8,
+   "platform": "darwin",
+   "mdm": {
+    "enrollment_status": "On (manual)"
+   },
+   "device_mapping": [
+    {
+     "email": "usera@lab.test",
+     "source": "mdm_idp_accounts"
+    }
+   ],
+   "hardware_serial": "SER008"
+  }
+ ]
+}

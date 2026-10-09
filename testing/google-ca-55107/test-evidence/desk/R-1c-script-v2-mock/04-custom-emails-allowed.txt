@@ -1,0 +1,13 @@
+# 04-custom-emails-allowed: EMAIL_SOURCES=mdm_idp_accounts,custom DRY_RUN=true
+No email: Fleet host 7 has MDM on but no email from mdm_idp_accounts,custom. Its user stays blocked.
+devices/A1/deviceUsers/u1 (usera@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
+devices/A2/deviceUsers/u2 (usera@lab.test/ipad): none -> MANAGED
+Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E1/deviceUsers/u6 as managed.
+Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E2/deviceUsers/u7 as managed.
+devices/G1/deviceUsers/u8 (userg@lab.test/iphone): none -> MANAGED
+devices/R1/deviceUsers/u9 (userr@lab.test/iphone): MANAGED -> UNMANAGED
+devices/H1/deviceUsers/u12 (userh@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
+Fleet: 7 managed iPhones and iPads, 6 with an email from mdm_idp_accounts,custom. Google: 11 iPhone and iPad users. Changes: 5 (dry run).
+[exit 0]
+# Google writes:
+(none)

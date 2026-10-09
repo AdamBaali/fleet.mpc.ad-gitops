@@ -1,0 +1,6 @@
+{"devices":[
+ {"name":"devices/A1","deviceType":"IOS","model":"iPhone17,1"},
+ {"name":"devices/A2","deviceType":"IOS","model":"iPad16,1"},
+ {"name":"devices/B1","deviceType":"IOS","model":"iPhone15,2"},
+ {"name":"devices/C1","deviceType":"IOS","model":"iPhone14,2"}
+],"nextPageToken":"P2"}

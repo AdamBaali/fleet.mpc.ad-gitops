@@ -1,0 +1,18 @@
+# 02-defaults: defaults
+No email: Fleet host 7 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
+No email: Fleet host 10 has MDM on but no email from mdm_idp_accounts. Its user stays blocked.
+devices/A1/deviceUsers/u1 (usera@lab.test/iphone): MANAGED -> MANAGED (serial number updated)
+devices/A2/deviceUsers/u2 (usera@lab.test/ipad): none -> MANAGED
+Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E1/deviceUsers/u6 as managed.
+Review: usere@lab.test/iphone has 2 Fleet hosts and 2 Google devices. Not marking devices/E2/deviceUsers/u7 as managed.
+devices/G1/deviceUsers/u8 (userg@lab.test/iphone): none -> MANAGED
+devices/R1/deviceUsers/u9 (userr@lab.test/iphone): MANAGED -> UNMANAGED
+devices/H1/deviceUsers/u12 (userh@lab.test/iphone): MANAGED -> UNMANAGED
+Fleet: 7 managed iPhones and iPads, 5 with an email from mdm_idp_accounts. Google: 11 iPhone and iPad users. Changes: 5.
+[exit 0]
+# Google writes:
+PATCH devices/A1/deviceUsers/u1/clientStates/0mock-fleet {"managed":"MANAGED","complianceState":"COMPLIANT","customId":"1","assetTags":["SER001"]}
+PATCH devices/A2/deviceUsers/u2/clientStates/0mock-fleet {"managed":"MANAGED","complianceState":"COMPLIANT","customId":"2","assetTags":["SER002"]}
+PATCH devices/G1/deviceUsers/u8/clientStates/0mock-fleet {"managed":"MANAGED","complianceState":"COMPLIANT","customId":"9","assetTags":["SER009"]}
+PATCH devices/R1/deviceUsers/u9/clientStates/0mock-fleet {"managed":"UNMANAGED","complianceState":"NON_COMPLIANT","customId":"","assetTags":[]}
+PATCH devices/H1/deviceUsers/u12/clientStates/0mock-fleet {"managed":"UNMANAGED","complianceState":"NON_COMPLIANT","customId":"","assetTags":[]}

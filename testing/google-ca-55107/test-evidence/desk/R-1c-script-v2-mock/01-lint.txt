@@ -1,0 +1,4 @@
+# shellcheck
+clean
+# bash -n
+clean

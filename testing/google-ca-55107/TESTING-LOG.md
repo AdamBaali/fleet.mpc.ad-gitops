@@ -43,7 +43,11 @@ marked is blocked on the same phone (C-2). E-2 in progress.
   prints end user emails in a public Actions log. Both in GUIDE-FINDINGS.md (26, 25).
 - Workflow now: **one sync every 5 minutes** (a run takes about 15 seconds), log masked. Script: writes Fleet's serial number as the
   client state's asset tag (shown in the console) and prints a one-line summary on every run. It matches on the IdP email from
-  enrollment only (`EMAIL_SOURCES`, default `mdm_idp_accounts`); the lab adds `custom` because the test iPhone's email is a custom mapping.
+  enrollment only (`EMAIL_SOURCES`, default `mdm_idp_accounts`) and counts company-owned enrollments only (`ENROLLMENT_STATUSES`,
+  default `On (automatic),On (manual)`). Managed phones without a usable email are flagged "No email". Checked on the mock (R-1c).
+- 16:06Z the lab iPhone's IdP username set by API (`PUT /hosts/14/device_mapping`, `source: idp`); the API reports it as
+  `mdm_idp_accounts`, so the lab now runs on the customer's path (IdP email) and no longer needs `custom`.
+- 16:08Z sync token limited to List hosts (G-2b).
 
 ## Log
 | Time | What | Result | Evidence |

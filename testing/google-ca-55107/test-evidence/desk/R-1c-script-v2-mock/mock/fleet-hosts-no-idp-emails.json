@@ -1,0 +1,18 @@
+{
+ "hosts": [
+  {
+   "id": 10,
+   "platform": "ios",
+   "hardware_serial": "SER010",
+   "mdm": {
+    "enrollment_status": "On (automatic)"
+   },
+   "device_mapping": [
+    {
+     "email": "userh@lab.test",
+     "source": "custom"
+    }
+   ]
+  }
+ ]
+}
