@@ -28,13 +28,25 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+      # The guide's google-github-actions/auth step with access_token_subject failed here with
+      # "failed to generate Google Cloud Domain Wide Delegation OAuth 2.0 Access Token: HTTP 400 invalid_request" (run 37921809581).
+      # Sign the delegation JWT with the key instead (same as tools/google-token.sh in the lab). Needs only openssl and jq.
       - id: google
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/cloud-identity.devices
-          access_token_subject: ${{ secrets.GOOGLE_ADMIN_EMAIL }}
+        name: Get a Google access token (domain-wide delegation)
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GOOGLE_ADMIN_EMAIL: ${{ secrets.GOOGLE_ADMIN_EMAIL }}
+        run: |
+          b64() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+          now=$(date +%s)
+          header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64)
+          claims=$(jq -nc --arg iss "$(jq -r .client_email <<<"$GOOGLE_CREDENTIALS")" --arg sub "$GOOGLE_ADMIN_EMAIL" --argjson now "$now" \
+            '{iss: $iss, sub: $sub, scope: "https://www.googleapis.com/auth/cloud-identity.devices", aud: "https://oauth2.googleapis.com/token", iat: $now, exp: ($now + 3600)}' | b64)
+          sig=$(printf '%s.%s' "$header" "$claims" | openssl dgst -sha256 -sign <(jq -r .private_key <<<"$GOOGLE_CREDENTIALS") | b64)
+          token=$(curl -fsS https://oauth2.googleapis.com/token --data-urlencode grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
+            --data-urlencode "assertion=$header.$claims.$sig" | jq -er .access_token)
+          echo "::add-mask::$token"
+          echo "access_token=$token" >> "$GITHUB_OUTPUT"
       - name: Sync
         env:
           FLEET_URL: ${{ secrets.FLEET_URL }}
