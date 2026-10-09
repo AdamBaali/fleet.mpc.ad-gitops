@@ -15,10 +15,13 @@ Lab: Fleet 4.92.3 (`fleet.mpc.ad`, fleet **iOS Google Lab**), Google Workspace *
 | GitHub Action fixed | Works | JWT signed in the job |
 | Access level + test OU + iPhone | Works | Drive opens with a non-Fleet diagnostic condition |
 | **Access level reading the Fleet state** | **Works with a keyless condition** | Every named key fails, but `device.vendors.exists(k, device.vendors[k].is_managed_device == true)` lets the managed iPhone in |
+| User without a Fleet state (C-2) | **Works** | Second account on the same iPhone: "Your organisation isn't allowing access" |
+| Fleet stops counting the iPhone (E-2) | In progress | The Action wrote UNMANAGED; sign-in checks pending |
 
 Bottom line: the sync works after two script fixes and one workflow fix, and Google stores the state ("fleet (custom)", Managed,
 Compliant). No named `device.vendors["<key>"]` works on the iPhone (every documented and community form fails), but the keyless
-`device.vendors.exists(k, device.vendors[k].is_managed_device == true)` does: the managed iPhone gets into Drive. C-2 and E-2 pending.
+`device.vendors.exists(k, device.vendors[k].is_managed_device == true)` does: the managed iPhone gets into Drive, and a user Fleet never
+marked is blocked on the same phone (C-2). E-2 in progress.
 
 ## Update (2026-10-09 afternoon): it works without a key name
 - `size(device.vendors) > 0`: **Drive opened.** The access level does see vendor data on the iPhone.
@@ -28,7 +31,18 @@ Compliant). No named `device.vendors["<key>"]` works on the iPhone (every docume
   customer ID alone (`C<id>`, `<id>`, guarded with `in`) was also blocked.
 - Caveat: the keyless condition trusts any third-party state that says managed (fine when Fleet is the only one).
 - Still to test: C-2 (unmanaged user blocked) and E-2 (state set to UNMANAGED blocks the managed user).
-- The sync runs on a schedule now: `.github/workflows/google-sync.yml`, every 5 minutes inside 30-minute runs.
+- The sync runs on a schedule now: `.github/workflows/google-sync.yml`, every 5 minutes inside 30-minute runs (changed in the evening, below).
+
+## Update (2026-10-09 evening): C-2 passes, E-2 under way
+- **B-0** 15:31Z: with the keyless condition and the state MANAGED, the managed user signs in again and Drive opens.
+- **C-2 passes** 15:39Z: the unmanaged user, added as a second account on the same iPhone, gets "Your organisation isn't allowing
+  access". Google made a second device record for the phone; that user has no client states, so the condition is false.
+- **E-2** 15:42Z: Fleet stops matching the phone (custom email changed to a dummy); the Action writes `MANAGED -> UNMANAGED` and the
+  console shows Unmanaged. Sign-in checks and the way back are pending.
+- Found while preparing E-2: removing the only managed iPhone from Fleet would leave it MANAGED (empty-Fleet guard), and the script
+  prints end user emails in a public Actions log. Both in GUIDE-FINDINGS.md (26, 25).
+- Workflow now: **one sync every 5 minutes** (a run takes about 15 seconds), log masked. Script: writes Fleet's serial number as the
+  client state's asset tag (shown in the console) and prints a one-line summary on every run.
 
 ## Log
 | Time | What | Result | Evidence |
@@ -68,11 +82,22 @@ Compliant). No named `device.vendors["<key>"]` works on the iPhone (every docume
 | 12:30 | Community PR fleetdm/fleet#46454 says CEL reads suffix-first `device.vendors["fleet-<id-without-C>"]` (verified on macOS with Endpoint Verification). A write to that partner name gets 403 | Lead | — |
 | 12:39 | Condition `device.vendors["fleet-<id-without-C>"].is_managed_device \|\| .is_compliant_device` | — | — |
 | 12:44 | Sign-in logged: **Access Denied**. State MANAGED/COMPLIANT for 99 minutes | **FAIL** (not a delay) | `admin-console/C-1d-*` |
+| 13:45 | Condition `size(device.vendors) > 0` | **Drive opened** | — |
+| 13:47 | Condition `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`; 13:51 sign-out and sign-in | **Drive opened** | `iphone/C-1e-*` |
+| 13:53, 14:54 | `contains` and list literals inside `exists()` rejected by the console ("not allowed in comprehensions") | Can't narrow the key | — |
+| 14:59 | Customer ID alone as the key (`C<id>`, `<id>`, guarded with `in`) | Blocked | — |
+| 15:11 | Workflow on a schedule (30-minute runs, a sync every 5 minutes) | Done | — |
+| 15:29 | Condition re-checked: the keyless `exists()` is saved | — | `iphone/C-1e-*/01` |
+| 15:31 | B-0: managed user removed and signed in again, state MANAGED | **Drive opens** | `iphone/C-1e-*/02` |
+| 15:32 | Scheduled run due: never started (GitHub best effort) | Note | — |
+| 15:39 | C-2: unmanaged user added on the same iPhone | **Blocked** | `iphone/C-2-*` |
+| 15:41 | Manual real sync with both users on the phone | No writes (correct) | `iphone/C-2-*` |
+| 15:42 | E-2: Fleet email changed to a dummy; Action writes `MANAGED -> UNMANAGED`; console shows Unmanaged | PASS so far | `iphone/E-2-*` |
 
 ## What we know works, and what doesn't
 - **Works:** Fleet API (List hosts with `device_mapping`), matching by email and device type, writing the client state (after the fixes),
   GitHub Actions (after the fix), Context-Aware Access on the test OU, and the iPhone passing a condition on data Google collects itself.
-- **Doesn't:** an access level condition on `device.vendors[...]` that reads the customer-written client state. Google shows the state in
+- **Doesn't:** a condition on a named key, `device.vendors["<key>"]`, reading the customer-written client state (the keyless `exists()` works). Google shows the state in
   the console but the condition stays unsatisfied for both documented key forms.
 - **Docs:** every `device.vendors` example in Google's docs uses a BeyondCorp Alliance partner name (Lookout, CrowdStrike, Tanium, PANW,
   Check Point). The only line about customer-written states is in the clientStates reference: the suffix "is used in setting up Custom Access
@@ -87,6 +112,7 @@ Compliant). No named `device.vendors["<key>"]` works on the iPhone (every docume
 - End user email set as a custom mapping, not end user authentication.
 - The tester's own phone, enrolled as Company-owned (manual), not BYOD.
 - Drive instead of Gmail (Gmail needs MX records on the lab domain).
+- E-2 makes Fleet stop counting the phone by changing its custom email, not by deleting it (finding 26).
 - Script and workflow fixed to get past the two failures above (diffs in `../../fleets/ios-google-lab/google-sync/` and `../../.github/workflows/google-sync.yml`).
 
 ## Key forms tried (all with the state MANAGED/COMPLIANT)

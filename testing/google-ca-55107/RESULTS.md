@@ -22,9 +22,12 @@ fleetdm/fleet#54888. Evidence: `test-evidence/<group>/<ID>-<slug>/`.
 | G-8 | PASS | Access level created; assignment found at the top-level OU (lockout risk) and moved to the test OU only (Drive, Gmail) |
 | C-1a | FAIL | PR script as written: HTTP 400 on the first write (two bugs) |
 | C-1b | PASS | Fixed script writes MANAGED/COMPLIANT; console shows "fleet (custom)"; second run no-op (E-11) |
-| C-1c | FAIL | Access level never satisfied by the Fleet state (`fleet` and `<id-without-C>-fleet` keys); a non-Fleet diagnostic condition lets Drive open. Delay re-check pending |
+| C-1c | FAIL | No named key works (`fleet`, `<id-without-C>-fleet`, `key-<id>`, `fleet-<id>`, `C<id>`, `<id>`); a non-Fleet diagnostic condition lets Drive open. Not a delay (99 min) |
 | C-1d | INFO | Context-Aware Access log: 3 denials, 1 allow (diagnostic) |
-| C-2 to C-4, E-1 to E-10, E-12, G-12 | NOT-RUN | Blocked on C-1c |
+| C-1e | PASS | Keyless `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`: managed user opens Drive (13:51, B-0 15:31) |
+| C-2 | PASS | Unmanaged user on the same iPhone: "Your organisation isn't allowing access"; no client state for that user |
+| E-2 | PARTIAL | Fleet stops matching the phone: the Action writes UNMANAGED, console shows Unmanaged. Sign-in checks pending |
+| C-3, C-4, E-1, E-3 to E-10, E-12, G-12 | NOT-RUN | |
 
 ## Findings so far (desk)
 1. **Old iPhone left in Google blocks the new one.** One Fleet host plus two Google iPhones for the same user is
@@ -41,6 +44,9 @@ See [TESTING-LOG.md](TESTING-LOG.md) for the full timeline.
 6. **Script bug: partner ID.** Must be the customer ID without the leading C.
 7. **Script bug: customer parameter.** `customers/<customer-ID>` returns 400 for the delegated caller; use `customers/my_customer`.
 8. **Workflow bug.** `google-github-actions/auth@v2` with `access_token_subject` returns HTTP 400 `invalid_request`; signing the JWT in the job works.
-9. **The access level doesn't read the Fleet state** with either documented key, while the state is MANAGED and shown in the console. Blocker for the guide; question open with Google.
+9. **No named key reads the Fleet state** (superseded by 12, the keyless condition works), while the state is MANAGED and shown in the console. Blocker for the guide; question open with Google.
 10. **Assignment scope.** Assigning at the top-level OU includes Admin Console and the admin: lockout risk. The guide should say to pick the test OU and not Admin Console.
 11. **Retries replay the old block.** After the sync, the Drive app kept showing the earlier denial; Google only re-evaluated on a fresh sign-in or a condition change.
+12. **Working condition** (C-1e): `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`. Trusts any third-party state that says managed.
+13. **Removing the last managed iPhone from Fleet doesn't unmanage it:** the empty-Fleet guard stops the script (GUIDE-FINDINGS 26).
+14. **Emails in the Actions log** on every change (GUIDE-FINDINGS 25); **personal iPhone can match** by email (27).

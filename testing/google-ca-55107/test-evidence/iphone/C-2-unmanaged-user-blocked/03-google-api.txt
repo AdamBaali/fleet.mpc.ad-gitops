@@ -1,0 +1,8 @@
+# Cloud Identity API read, 2026-10-09T15:50:31Z (IDs and email domains masked)
+# devices.list (view=USER_ASSIGNED_DEVICES), iOS only
+device-1: model=iPhone 15 Pro Max osVersion=iOS 26.6.1 ownerType=BYOD createTime=2026-10-09T08:58:23.625Z
+device-2: model=iPhone 15 Pro Max osVersion=iOS 18.7 ownerType=BYOD createTime=2026-10-09T15:39:30.042Z
+same Google deviceId (console 'Device ID') on all records: True
+# deviceUsers.list and the Fleet client state (partner <id-without-C>-fleet) of each
+unmanaged-test@… on device-2: managementState=APPROVED firstSync=2026-10-09T15:39:30.042Z | Fleet state GET HTTP 200: managed=None | client states on this user: 0
+managed-test@… on device-1: managementState=APPROVED firstSync=2026-10-09T08:58:23.625Z | Fleet state GET HTTP 200: managed=UNMANAGED | client states on this user: 1

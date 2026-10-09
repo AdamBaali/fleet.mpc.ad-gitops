@@ -1,13 +1,13 @@
 name: 'Sync Fleet iPhones to Google (Context-Aware Access test)'
 
-# Lab for the "Conditional access: Google" guide. GitHub runs schedules best effort (the Duo lab saw 2 runs in 11 hours with
-# a 5-minute cron), so, like duo-sync-loop.yml, GitHub starts a run every 30 minutes and each run syncs every 5 minutes for about
-# 28 minutes. Bills about 28 minutes per run: free in a public repository. Manual runs sync once (dry run by default).
+# Lab for the "Conditional access: Google" guide (fleetdm/fleet#55107): sync Fleet's managed iPhones and iPads to Google client
+# states every 5 minutes. A run takes about 15 seconds. 5 minutes is GitHub's shortest schedule and it's best effort: runs can
+# start late or be skipped. Manual runs are a dry run by default.
 # Secrets (separate from the GitOps workflow's FLEET_API_TOKEN): GOOGLE_SYNC_FLEET_API_TOKEN (API-only Observer user),
 # GOOGLE_CREDENTIALS (service account JSON key), GOOGLE_ADMIN_EMAIL (admin the service account acts as), GOOGLE_CUSTOMER_ID (starts with C), FLEET_URL.
 on:
   schedule:
-    - cron: "2,32 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -25,7 +25,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
       # The guide's google-github-actions/auth step with access_token_subject failed here with
@@ -41,7 +41,7 @@ jobs:
           now=$(date +%s)
           header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64)
           claims=$(jq -nc --arg iss "$(jq -r .client_email <<<"$GOOGLE_CREDENTIALS")" --arg sub "$GOOGLE_ADMIN_EMAIL" --argjson now "$now" \
-            '{iss: $iss, sub: $sub, scope: "https://www.googleapis.com/auth/cloud-identity.devices", aud: "https://oauth2.googleapis.com/token", iat: $now, exp: ($now + 3600)}' | b64)
+            '{iss: $iss, sub: $sub, scope: "https://www.googleapis.com/auth/cloud-identity.devices", aud: "https://oauth2.googleapis.com/token", iat: $now, exp: ($now + 600)}' | b64)
           sig=$(printf '%s.%s' "$header" "$claims" | openssl dgst -sha256 -sign <(jq -r .private_key <<<"$GOOGLE_CREDENTIALS") | b64)
           token=$(curl -fsS https://oauth2.googleapis.com/token --data-urlencode grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
             --data-urlencode "assertion=$header.$claims.$sig" | jq -er .access_token)
@@ -54,17 +54,8 @@ jobs:
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
           GOOGLE_CUSTOMER_ID: ${{ secrets.GOOGLE_CUSTOMER_ID }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        # Public repository: hide email domains and Google device and user IDs in the log. The exit code is the script's.
         run: |
-          sync=fleets/ios-google-lab/google-sync/sync-fleet-hosts-to-google.sh
-          # Public repository: the script prints "<Google device> (<email>/iphone): A -> B" on each change. Hide the email domain
-          # and the Google device and user IDs in the log. The exit code is the script's, not sed's.
-          mask() { sed -E 's/@[A-Za-z0-9.-]+\.[A-Za-z]+/@…/g; s#devices/[A-Za-z0-9_-]+#devices/…#g; s#deviceUsers/[A-Za-z0-9_-]+#deviceUsers/…#g'; }
-          if [ "${{ github.event_name }}" != schedule ]; then bash "$sync" 2>&1 | mask; exit "${PIPESTATUS[0]}"; fi
-          # The token lasts an hour, so one token covers the whole loop. A failed sync doesn't stop the loop; the job fails at the end.
-          rc=0
-          for i in 1 2 3 4 5 6; do
-            echo "== sync $i at $(date -u +%H:%M:%SZ)"
-            bash "$sync" 2>&1 | mask; [ "${PIPESTATUS[0]}" -eq 0 ] || rc=1
-            [ "$i" -lt 6 ] && sleep 290
-          done
-          exit $rc
+          bash fleets/ios-google-lab/google-sync/sync-fleet-hosts-to-google.sh 2>&1 |
+            sed -E 's/@[A-Za-z0-9.-]+\.[A-Za-z]+/@…/g; s#(devices|deviceUsers)/[A-Za-z0-9_%-]+#\1/…#g'
+          exit "${PIPESTATUS[0]}"

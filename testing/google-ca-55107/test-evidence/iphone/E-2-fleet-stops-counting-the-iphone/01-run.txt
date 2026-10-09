@@ -1,0 +1,20 @@
+# E-2: Fleet stops counting the iPhone, the sync (GitHub Action) writes UNMANAGED. Times UTC, 2026-10-09. Email domains and IDs masked.
+
+== before
+15:40:44Z GET   managed-test: managed=MANAGED compliance=COMPLIANT customId=14 updated=2026-10-09T11:05:42.540Z
+15:40:45Z Fleet host 14 device_mapping: custom=managed-test@…
+(15:40:46Z first attempt at T0 failed in the lab helper: `fleetctl api` needs its -F flags before the URL. Nothing changed in Fleet.
+ Run 37953548150 at 15:41Z therefore synced with Fleet unchanged: no output, no writes.)
+
+== T0: Fleet stops matching the iPhone to managed-test
+15:42:19Z PUT /hosts/14/device_mapping {"email": "fleet-e2-dummy@example.com", "source": "custom"}
+15:42:19Z Fleet host 14 device_mapping: custom=fleet-e2-dummy@…
+          (Fleet still has one managed iPhone with an email, so the script's empty-Fleet guard passes.)
+
+== T1: sync through the workflow (manual run, dry_run=false, commit 8c76c59)
+15:42:20Z gh workflow run google-sync.yml -f dry_run=false
+run 37953743223 success 15:42:35Z -> 15:42:51Z
+devices/…/deviceUsers/… (managed-test@…/iphone): MANAGED -> UNMANAGED
+15:42:48Z GET   managed-test: managed=UNMANAGED compliance=NON_COMPLIANT customId=(empty) updated=2026-10-09T15:42:48.712Z
+
+== T2 onwards: pending (sign out and in as managed-test: expect blocked; restore the email; sync; sign in: expect Drive opens)

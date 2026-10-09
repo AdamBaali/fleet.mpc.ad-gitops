@@ -28,7 +28,14 @@ The tester enrolls the iPhone and signs in; the commands capture the evidence. T
 - `unmanaged-test@mpc.ad` on the same phone (no Fleet email for it): Expected: **blocked** (C-2). Capture the exact message.
 
 ## 5. Edge tests, quickest first
-E-2 (remove host from Fleet, run sync, blocked), E-3 (unenroll MDM), E-13 (empty Fleet list guard, already proven on a mock), E-11 (run twice, no duplicate writes), then G-12 (turn on the schedule for a few hours).
+E-2 (make Fleet stop counting the phone, run the sync, blocked; then back, opens), E-3 (unenroll MDM), E-13 (empty Fleet list guard, already proven on a mock), E-11 (run twice, no duplicate writes), then G-12 (turn on the schedule for a few hours).
+
+### E-2 in practice
+Deleting or unenrolling the only managed iPhone doesn't work: the empty-Fleet guard stops the script. Change the host's custom email instead:
+1. `PUT /api/v1/fleet/hosts/<id>/device_mapping` with `{"email": "fleet-e2-dummy@example.com", "source": "custom"}` (`fleetctl api -X PUT -F email=... -F source=custom /hosts/<id>/device_mapping`, flags before the URL).
+2. Sync: wait for the 5-minute schedule or run `google-sync.yml` by hand with `dry_run=false`. Expect `(managed user/iphone): MANAGED -> UNMANAGED`.
+3. Sign out and in on the phone: blocked.
+4. Put the real email back, sync (expect `UNMANAGED -> MANAGED` and the serial as asset tag), sign in: Drive opens.
 
 ## 6. Finish
 Build `EVIDENCE.md`, write `GUIDE-FINDINGS.md` edits as a diff (`proposed/guide-script-edits.diff` is the start), draft the issue update. Never post.
