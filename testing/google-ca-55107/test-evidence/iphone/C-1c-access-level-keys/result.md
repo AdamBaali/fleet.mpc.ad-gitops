@@ -24,4 +24,10 @@
 
 - Delay ruled out (99 minutes). Third-party integrations offer only BeyondCorp Alliance partners, nothing to enable for a custom state.
 
+Screenshots:
+- `01` Drive open with the diagnostic condition; `02` blocked again with `device.vendors["fleet"]`; `03` blocked (placeholder test).
+- `04` condition with the no-C key; `05` OR of 3 keys (text verified); `06` 6 terms (3 keys x managed/compliant), saved.
+- `07` assignment at the top-level OU: 0 everywhere (after the fix); `08` test OU: Drive and Docs, Gmail "1 active applied", Admin Console 0.
+- `09` Third-party integrations at the test OU: "Enable BeyondCorp Alliance partner services: None"; `10` Manage partner connections: Lookout, Checkpoint, Omnissa, Jamf, CrowdStrike, Ivanti, Intune, Citrix. No custom option.
+
 ## Result: FAIL

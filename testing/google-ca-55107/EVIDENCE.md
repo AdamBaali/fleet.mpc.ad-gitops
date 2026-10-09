@@ -113,6 +113,19 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-caa-log-export.csv](test-evidence/admin-console/C-1d-context-aware-access-log/01-caa-log-export.csv)
 
+**investigation tool results**
+
+![investigation tool results](test-evidence/admin-console/C-1d-context-aware-access-log/02-investigation-tool-results.png)
+
+**investigation tool filter**
+
+![investigation tool filter](test-evidence/admin-console/C-1d-context-aware-access-log/03-investigation-tool-filter.png)
+
+**console state during denials**
+
+![console state during denials](test-evidence/admin-console/C-1d-context-aware-access-log/04-console-state-during-denials.png)
+
+
 ---
 
 ### G-1: Google test org, OU, domain, mobile management
@@ -230,6 +243,19 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-run.txt](test-evidence/iphone/C-1b-fixed-script/01-run.txt)
 
+**console device list**
+
+![console device list](test-evidence/iphone/C-1b-fixed-script/02-console-device-list.png)
+
+**console device details**
+
+![console device details](test-evidence/iphone/C-1b-fixed-script/03-console-device-details.png)
+
+**console fleet custom managed compliant**
+
+![console fleet custom managed compliant](test-evidence/iphone/C-1b-fixed-script/04-console-fleet-custom-managed-compliant.png)
+
+
 ---
 
 ### C-1c: does the access level read the Fleet client state?
@@ -250,6 +276,34 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **blocked placeholder key**
 
 ![blocked placeholder key](test-evidence/iphone/C-1c-access-level-keys/03-blocked-placeholder-key.png)
+
+**condition no c key**
+
+![condition no c key](test-evidence/iphone/C-1c-access-level-keys/04-condition-no-c-key.png)
+
+**condition or 3 keys**
+
+![condition or 3 keys](test-evidence/iphone/C-1c-access-level-keys/05-condition-or-3-keys.png)
+
+**condition 6 terms**
+
+![condition 6 terms](test-evidence/iphone/C-1c-access-level-keys/06-condition-6-terms.png)
+
+**assignment top ou none**
+
+![assignment top ou none](test-evidence/iphone/C-1c-access-level-keys/07-assignment-top-ou-none.png)
+
+**assignment test ou drive gmail**
+
+![assignment test ou drive gmail](test-evidence/iphone/C-1c-access-level-keys/08-assignment-test-ou-drive-gmail.png)
+
+**third party integrations test ou**
+
+![third party integrations test ou](test-evidence/iphone/C-1c-access-level-keys/09-third-party-integrations-test-ou.png)
+
+**partner list no custom option**
+
+![partner list no custom option](test-evidence/iphone/C-1c-access-level-keys/10-partner-list-no-custom-option.png)
 
 
 ---
@@ -304,5 +358,14 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** Job succeeds, state written or unchanged
 
 **Output:** [02-run-37923361720-success.json](test-evidence/github/G-7-sync-action/02-run-37923361720-success.json)
+
+**run failed auth action**
+
+![run failed auth action](test-evidence/github/G-7-sync-action/01-run-failed-auth-action.png)
+
+**run success jwt step**
+
+![run success jwt step](test-evidence/github/G-7-sync-action/03-run-success-jwt-step.png)
+
 
 ---
