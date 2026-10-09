@@ -57,3 +57,12 @@ line in `.github/workflows/workflow.yml`. The repo secret doesn't exist yet: `to
 ## Open: access level assignment (G-8)
 Still not assigned. The permission classifier blocked selecting the OU in the assignment tree twice, even after Adam said go ahead
 in chat. It must be done by Adam in the console.
+
+## G-2/G-3 Google Cloud project and service account (2026-10-09, Claude in Chrome)
+- Cloud project **fleet-ios-google-lab** created (no organisation parent), **Cloud Identity API enabled** (status Enabled). PASS.
+- Service account **fleet-google-sync** created (Enabled). Its client ID (the "Unique ID") is used for domain-wide delegation. PASS.
+- NOT done by Claude: the JSON key (blocked by the permission classifier: secret write) and the domain-wide delegation grant (permission grant).
+  Adam does both. Key goes to `secrets/google-sa.json` (gitignored).
+- Test users: form filled in Admin console, waiting for Adam to click Continue and create.
+- Fleet enroll secret for the iOS fleet: script ready (`tools/setup-ios-secret.sh`), the classifier blocks secret writes, Adam runs it.
+- Chrome typing notes: typing failed in the Admin console (other extension) but worked in the Cloud console; `form_input` works in the Admin console.
