@@ -13,6 +13,9 @@ FLEET_API_TOKEN="${FLEET_API_TOKEN:?Set FLEET_API_TOKEN}"
 GOOGLE_ACCESS_TOKEN="${GOOGLE_ACCESS_TOKEN:?Set GOOGLE_ACCESS_TOKEN}"
 GOOGLE_CUSTOMER_ID="${GOOGLE_CUSTOMER_ID:-<customer-ID>}" # as shown in Admin console > Account settings, starts with C
 PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google wants the customer ID WITHOUT the leading C here
+# Which Fleet emails count, comma-separated. Default: the IdP email from enrollment (end user authentication, or an IdP
+# username set by an admin). Add "custom" to also use emails set through the API or the UI.
+EMAIL_SOURCES="${EMAIL_SOURCES:-mdm_idp_accounts}"
 DRY_RUN="${DRY_RUN:-false}"
 
 fleet() {
@@ -45,16 +48,17 @@ done
 
 # iPhones and iPads with MDM on in Fleet.
 managed=$(jq '[.[] | select((.platform == "ios" or .platform == "ipados") and ((.mdm.enrollment_status // "") | startswith("On")))]' <<<"$hosts")
-# Their Fleet host IDs, keyed by "<end user email>/<iphone|ipad>", and each one's serial number.
-fleet_keys=$(jq '
-  [.[] | (if .platform == "ipados" then "ipad" else "iphone" end) as $kind | .id as $id
-   | (.device_mapping // [])[] | {key: ((.email | ascii_downcase) + "/" + $kind), id: $id}]
+# Their Fleet host IDs, keyed by "<end user email>/<iphone|ipad>" (emails from EMAIL_SOURCES only), and each one's serial number.
+fleet_keys=$(jq --arg sources "$EMAIL_SOURCES" '
+  ($sources | split(",")) as $ok
+  | [.[] | (if .platform == "ipados" then "ipad" else "iphone" end) as $kind | .id as $id
+   | (.device_mapping // [])[] | select(.source as $s | $ok | index($s)) | {key: ((.email | ascii_downcase) + "/" + $kind), id: $id}]
   | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$managed")
 serials=$(jq 'map({key: (.id | tostring), value: (.hardware_serial // "")}) | from_entries' <<<"$managed")
 
 # Refuse to run when Fleet returns no managed iPhones or iPads. Otherwise a wrong token scope or an outage would mark every Google device unmanaged.
 if [ "$(jq 'length' <<<"$fleet_keys")" -eq 0 ] && [ "${ALLOW_EMPTY:-false}" != true ]; then
-  echo "Fleet returned no managed iPhones or iPads. Not changing anything. Set ALLOW_EMPTY=true to override." >&2
+  echo "Fleet returned no managed iPhones or iPads with an email from $EMAIL_SOURCES. Not changing anything. Set ALLOW_EMPTY=true to override." >&2
   exit 1
 fi
 
@@ -103,4 +107,4 @@ while read -r user; do
     '{managed, complianceState: (if .managed == "MANAGED" then "COMPLIANT" else "NON_COMPLIANT" end), customId: $id, assetTags}' <<<"$want")" >/dev/null
 done < <(jq -c '.[]' <<<"$users")
 
-echo "Fleet: $(jq length <<<"$managed") managed iPhones and iPads. Google: $(jq length <<<"$users") iPhone and iPad users. Changes: $changes$([ "$DRY_RUN" = true ] && echo " (dry run)" || true)."
+echo "Fleet: $(jq length <<<"$managed") managed iPhones and iPads, $(jq '[.[][]] | unique | length' <<<"$fleet_keys") with an email from $EMAIL_SOURCES. Google: $(jq length <<<"$users") iPhone and iPad users. Changes: $changes$([ "$DRY_RUN" = true ] && echo " (dry run)" || true)."

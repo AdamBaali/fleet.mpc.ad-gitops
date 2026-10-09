@@ -25,7 +25,7 @@
 | # | Finding | Proposed edit |
 | --- | --- | --- |
 | 13 | An old iPhone left in Google blocks the new one: one Fleet host plus two Google iPhones for the same user is ambiguous, so neither is marked managed. Common after a phone upgrade. | Troubleshooting: delete the old device in Google Admin |
-| 14 | Any email source counts, including an admin-set custom email. | One line in the prerequisites |
+| 14 | Any email source counts, including an admin-set custom email. | Superseded by 31: use the IdP email only by default |
 | 15 | A failed Google write stops the run (exit 22). Earlier writes are kept. The Action shows red, the next run carries on. | Say so |
 
 ## Added 2026-10-09 (C-2 and E-2)
@@ -39,3 +39,4 @@
 | 28 | Troubleshooting | A second Google account on the same iPhone creates a second device record (same "Device ID" in the console). Each account has its own client state; the script handles them per account | One line in Troubleshooting so admins aren't surprised by two entries |
 | 29 | Step 3 script | The client state has `assetTags`, and the console shows them under Third-party services. Writing Fleet's serial number there shows which Fleet host Google trusts (Google has no serial for these iPhones) | Optional: the lab script writes the serial (`../../fleets/ios-google-lab/google-sync/`) |
 | 30 | Step 3 workflow | GitHub runs schedules best effort: a scheduled run in the lab never started. The script now prints a one-line summary on every run, so missing or failing runs are easy to spot | Say schedules can be late or skipped; check the Actions history |
+| 31 | Prereqs and Step 3 script | The script used every email Fleet has for the host. For iPhones and iPads Fleet reports two sources: `mdm_idp_accounts` (the IdP account from end user authentication at enrollment, or an IdP username an admin set) and `custom` (set through the API or UI). Matching on the IdP email only means the Google account must be the one the user enrolled with | Prerequisite: turn on end user authentication for the iPhone fleet (`setup_experience.enable_end_user_authentication`, applies to iOS/iPadOS). Script: `EMAIL_SOURCES` (default `mdm_idp_accounts`; the lab adds `custom` because it has no IdP) |

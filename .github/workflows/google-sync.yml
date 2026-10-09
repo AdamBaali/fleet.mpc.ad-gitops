@@ -53,6 +53,7 @@ jobs:
           FLEET_API_TOKEN: ${{ secrets.GOOGLE_SYNC_FLEET_API_TOKEN }}
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
           GOOGLE_CUSTOMER_ID: ${{ secrets.GOOGLE_CUSTOMER_ID }}
+          EMAIL_SOURCES: mdm_idp_accounts,custom # the lab iPhone's email is a custom mapping (no IdP at enrollment)
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
         # Public repository: hide email domains and Google device and user IDs in the log. The exit code is the script's.
         run: |

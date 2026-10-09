@@ -50,3 +50,4 @@ See [TESTING-LOG.md](TESTING-LOG.md) for the full timeline.
 12. **Working condition** (C-1e): `device.vendors.exists(k, device.vendors[k].is_managed_device == true)`. Trusts any third-party state that says managed.
 13. **Removing the last managed iPhone from Fleet doesn't unmanage it:** the empty-Fleet guard stops the script (GUIDE-FINDINGS 26).
 14. **Emails in the Actions log** on every change (GUIDE-FINDINGS 25); **personal iPhone can match** by email (27).
+15. **Match on the IdP email only** (GUIDE-FINDINGS 31): the script now ignores custom emails unless `EMAIL_SOURCES` includes `custom`.

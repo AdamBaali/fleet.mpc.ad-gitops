@@ -42,7 +42,8 @@ marked is blocked on the same phone (C-2). E-2 in progress.
 - Found while preparing E-2: removing the only managed iPhone from Fleet would leave it MANAGED (empty-Fleet guard), and the script
   prints end user emails in a public Actions log. Both in GUIDE-FINDINGS.md (26, 25).
 - Workflow now: **one sync every 5 minutes** (a run takes about 15 seconds), log masked. Script: writes Fleet's serial number as the
-  client state's asset tag (shown in the console) and prints a one-line summary on every run.
+  client state's asset tag (shown in the console) and prints a one-line summary on every run. It matches on the IdP email from
+  enrollment only (`EMAIL_SOURCES`, default `mdm_idp_accounts`); the lab adds `custom` because the test iPhone's email is a custom mapping.
 
 ## Log
 | Time | What | Result | Evidence |
