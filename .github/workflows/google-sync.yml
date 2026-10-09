@@ -1,13 +1,13 @@
 name: 'Sync Fleet iPhones to Google (Context-Aware Access test)'
 
-# Lab for the "Conditional access: Google" guide. Starts as manual only (workflow_dispatch).
-# To test the guide's schedule (test G-12), uncomment the schedule below. GitHub runs schedules best effort; the Duo lab saw
-# 2 runs in 11 hours, and a private repo on the free plan has 2,000 minutes a month.
+# Lab for the "Conditional access: Google" guide. GitHub runs schedules best effort (the Duo lab saw 2 runs in 11 hours with
+# a 5-minute cron), so, like duo-sync-loop.yml, GitHub starts a run every 30 minutes and each run syncs every 5 minutes for about
+# 28 minutes. Bills about 28 minutes per run: free in a public repository. Manual runs sync once (dry run by default).
 # Secrets (separate from the GitOps workflow's FLEET_API_TOKEN): GOOGLE_SYNC_FLEET_API_TOKEN (API-only Observer user),
 # GOOGLE_CREDENTIALS (service account JSON key), GOOGLE_ADMIN_EMAIL (admin the service account acts as), GOOGLE_CUSTOMER_ID (starts with C), FLEET_URL.
 on:
-  # schedule:
-  #   - cron: "2-59/5 * * * *"
+  schedule:
+    - cron: "2,32 * * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -25,7 +25,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v6
       # The guide's google-github-actions/auth step with access_token_subject failed here with
@@ -54,4 +54,14 @@ jobs:
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
           GOOGLE_CUSTOMER_ID: ${{ secrets.GOOGLE_CUSTOMER_ID }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
-        run: bash fleets/ios-google-lab/google-sync/sync-fleet-hosts-to-google.sh
+        run: |
+          sync=fleets/ios-google-lab/google-sync/sync-fleet-hosts-to-google.sh
+          if [ "${{ github.event_name }}" != schedule ]; then bash "$sync"; exit; fi
+          # The token lasts an hour, so one token covers the whole loop. A failed sync doesn't stop the loop; the job fails at the end.
+          rc=0
+          for i in 1 2 3 4 5 6; do
+            echo "== sync $i at $(date -u +%H:%M:%SZ)"
+            bash "$sync" || rc=1
+            [ "$i" -lt 6 ] && sleep 290
+          done
+          exit $rc

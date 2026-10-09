@@ -10,6 +10,7 @@ on:
       - 'fleets/*/**'
       - '**.md'
       - '.github/workflows/duo-sync*.yml'
+      - '.github/workflows/google-sync*.yml'
   pull_request:
   workflow_dispatch: # allows manual triggering
   schedule:
