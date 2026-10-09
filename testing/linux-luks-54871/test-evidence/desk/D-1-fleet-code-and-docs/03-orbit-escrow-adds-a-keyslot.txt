@@ -1,0 +1,21 @@
+$ grep -n "AddKey\|passphraseIsValid\|getNextAvailableKeySlot\|generateRandomPassphrase\|removeKeySlot\|zenity\|kdialog" orbit/pkg/luks/luks_linux.go | head -20
+21:	"github.com/fleetdm/fleet/v4/orbit/pkg/kdialog"
+23:	"github.com/fleetdm/fleet/v4/orbit/pkg/zenity"
+73:	AddKey(ctx context.Context, devname string, key, newKey *encryption.Key) error
+85:// (zenity, then kdialog). If neither is installed the notifier stays nil and
+92:	case isInstalled("zenity"):
+93:		lr.notifier = zenity.New()
+94:	case isInstalled("kdialog"):
+95:		lr.notifier = kdialog.New()
+177:			if err := removeKeySlot(ctx, devicePath, *keyslot); err != nil {
+188:			if err := removeKeySlot(ctx, devicePath, *keyslot); err != nil {
+227:	escrowPassphrase, err := generateRandomPassphrase()
+233:	keySlot, err := getNextAvailableKeySlot(ctx, devicePath)
+266:		valid, err := lr.passphraseIsValid(ctx, device, devicePath, passphrase, encryption.AnyKeyslot)
+299:	if err := device.AddKey(ctx, devicePath, userKey, escrowKey); err != nil {
+304:	valid, err := lr.passphraseIsValid(ctx, device, devicePath, escrowPassphrase, int(keySlot)) // #nosec G115
+316:func (lr *LuksRunner) passphraseIsValid(ctx context.Context, device luksDevice, devicePath string, passphrase []byte, keyslot int) (bool, error) {
+329:func getNextAvailableKeySlot(ctx context.Context, devicePath string) (uint, error) {
+364:// generateRandomPassphrase generates a random passphrase with 32 characters
+367:func generateRandomPassphrase() ([]byte, error) {
+491:func removeKeySlot(ctx context.Context, devicePath string, keySlot uint) error {

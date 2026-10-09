@@ -1,0 +1,22 @@
+$ gh issue view 55069 --repo fleetdm/fleet --json title,state,body
+Support disk encryption key escrow on Omarchy
+OPEN
+## Screenshots and/or screen recording
+
+Fleet escrows LUKS disk encryption keys on Ubuntu, Kubuntu, Zorin OS and Fedora. Omarchy (Arch-based, Hyprland desktop) encrypts the root disk with LUKS2 by default during installation, so it is a natural candidate, but the escrow flow does not work on it end to end today. This was discovered while investigating #49059: Omarchy had been added to the server-side eligibility check as part of platform recognition, and the 4.91.0 release notes stated that key escrow was available on it, but no user could complete the flow. That change was reverted as part of #49059; this request tracks adding real support.
+
+**Ideal workflow**
+
+1. An admin turns on "Escrow recovery key with Fleet" for Linux in Controls > OS settings > Disk encryption.
+2. Omarchy hosts in that fleet are counted under Linux in the disk encryption table and appear in the OS settings host filters.
+3. The end user opens My device, sees the "Create key" banner, selects it, and gets the passphrase prompt on their Hyprland desktop.
+4. After entering the passphrase, the host shows Verified, the key is viewable by admins, and Fleet keeps verifying that the escrowed key slot still exists.
+5. The docs list Omarchy as supported and the end-user guide has an Omarchy section.
+
+**What was found during an Omarchy VM test (2026-10-07)**
+
+- fleetd launches dialogs and Fleet Desktop as the logged-in user without setting the Wayland runtime directory. Hyprland's session socket is `wayland-1`, so zenity falls back to a guessed X11 display that doesn't exist and fails with "Failed to open display". Setting `XDG_RUNTIME_DIR` for Wayland sessions fixed the prompt; Fleet already forwards that variable when opening the browser.
+- Omarchy does not ship zenity or kdialog. The escrow error should tell the user what to install and to retry, or fleetd should have a fallback that works on Hyprland.
+- The server's key verification query locates the root device through lsblk's single `mountpoint` value. Omarchy's installer uses btrfs with several subvolumes mounted from the same LUKS device, so that value may not be `/`, the query finds no device, and the host logs "the cryptsetup_luks_salt table requires the following columns in the where clause: device". The query needs to read lsblk's `mountpoints` list instead.
+- Omarchy 3 and earlier reported `platform=arch`; Omarchy 4+ reports `platform=omarchy`. Support should target Omarchy 4+.
+- QA should include the zenity window getting focus un

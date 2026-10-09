@@ -1,6 +1,6 @@
 # Test plan: fleetdm/fleet#54871 (Linux and LUKS)
 
-Method: `_framework/README.md` (copied from the #54654 lab). One folder per test in `test-evidence/<group>/<ID>-<slug>/`,
+Method: `testing/_framework/README.md` . One folder per test in `test-evidence/<group>/<ID>-<slug>/`,
 raw output plus window-only pictures, secrets masked, a verdict per test, failures recorded before fixing.
 
 Guides under test: `articles/linux-disk-encryption-end-user.md` and `articles/enforce-disk-encryption.md`

@@ -1,0 +1,13 @@
+$ grep -n -i "Ubuntu\|Fedora\|Kubuntu" articles/enforce-disk-encryption.md articles/linux-disk-encryption-end-user.md | head
+articles/enforce-disk-encryption.md:5:In Fleet, you can enforce disk encryption for your macOS and Windows hosts, and escrow disk encryption keys for macOS, Windows, and Linux (Ubuntu, Kubuntu, and Fe
+articles/enforce-disk-encryption.md:65:Fleet supports Linux Unified Key Setup version 2 (LUKS2) for escrowing disk encryption keys on Ubuntu Linux, Kubuntu Linux, and Fedora Linux hosts.
+articles/enforce-disk-encryption.md:67:1. Share [this step-by-step guide](https://fleetdm.com/learn-more-about/encrypt-linux-device) with end users setting up a work computer running Ubuntu Linux, Kub
+articles/linux-disk-encryption-end-user.md:16:  #### Ubuntu Linux
+articles/linux-disk-encryption-end-user.md:18:  - When installing Ubuntu, choose the option to "Use LVM with encryption."
+articles/linux-disk-encryption-end-user.md:21:  ![Linux MDM Ubuntu setup "How do you want to install Ubuntu?" screen](../website/assets/images/articles/ubuntu-1-1200x675@2x.png)
+articles/linux-disk-encryption-end-user.md:23:  ![Linux MDM Ubuntu setup: Advanced features > Use LVM and encryption](../website/assets/images/articles/ubuntu-2-1200x675@2x.png)
+articles/linux-disk-encryption-end-user.md:25:  #### Fedora Linux
+articles/linux-disk-encryption-end-user.md:27:  - During Fedora installation, under **Installation destination** > **Encryption** select the "Encrypt my data" checkbox.
+articles/linux-disk-encryption-end-user.md:30:  ![Linux MDM Fedora setup "Installation summary" screen](../website/assets/images/articles/fedora-1-1200x675@2x.png)
+articles/linux-disk-encryption-end-user.md:31:  ![Linux MDM Fedora setup: Installation destination > Encryption > Encrypt my data ](../website/assets/images/articles/fedora-2-1200x675@2x.png)
+articles/linux-disk-encryption-end-user.md:39:  - **Ubuntu Linux**: Look for the root (`/`) partition, and confirm it is marked as encrypted.

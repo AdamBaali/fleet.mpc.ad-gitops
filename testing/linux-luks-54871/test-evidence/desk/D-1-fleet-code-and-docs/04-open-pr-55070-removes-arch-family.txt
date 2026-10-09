@@ -1,0 +1,10 @@
+$ gh pr view 55070 --repo fleetdm/fleet --json title,state,body
+Define Linux disk encryption escrow eligibility once
+OPEN
+Closes #49059
+
+This is more of a refactoring. The server's IsLUKSSupported check, the disk encryption summary SQL, the OS settings host filters, and the frontend banner and OS settings table each kept their own list of eligible Linux distributions. The server list had grown to include Arch Linux, Arch Linux ARM, Manjaro, Manjaro ARM, CachyOS and Omarchy through platform-recognition changes, so those hosts got an escrow status and could be told to escrow, while the summary, filters and UI ignored them. No user could complete escrow on them.
+
+Drive every layer from fleet.LUKSSupportedPlatforms (Ubuntu, Zorin, plus Fedora matched on OS version) and a matching frontend list. Drop the Arch family and Omarchy from eligibility. Key retrieval and the LUKS verify query now gate on the host being Linux so keys already escrowed on those hosts stay readable and verified.
+
+The summary counts are unchanged; the table already matched the supported set. Datastore, service, unit and frontend test
