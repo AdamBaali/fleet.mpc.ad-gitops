@@ -104,3 +104,9 @@ Admin console finding: the "Continue" button stayed disabled until each email fi
 trigger the check for the first row, retyping it did.
 Open before the iPhone test: (1) move both users to **Fleet iOS test**, (2) verify the access level is assigned to that OU only (lockout risk on the admin at MPC),
 (3) users set their own password at first sign-in.
+
+## G-1d Test users moved to the test OU (2026-10-09): PASS
+Both test users moved from MPC to **Fleet iOS test** (Admin console: "2 users have been moved to Fleet iOS test"). Google warns the move can take up to 24 hours.
+Lockout check (read-only, partial): the Access levels list shows one level, **Fleet managed iOS** (no assignment details on that page). The admin session kept working
+in the Admin console after the assignments were made (Continuous evaluation), which suggests the admin isn't blocked, but the OU-level assignment view couldn't be read
+(the classifier blocks selecting an OU on the assign page). Still to confirm by Adam: Drive, Gmail and Admin Console are assigned to **Fleet iOS test** only, not MPC.
