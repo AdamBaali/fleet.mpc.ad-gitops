@@ -1,0 +1,3 @@
+# 2026-10-09T00:36:17Z
+$ tools/google-token.sh   (key stored by the admin; delegation entry added by the admin)
+OK: token saved to secrets/google-access-token, valid 3599 seconds

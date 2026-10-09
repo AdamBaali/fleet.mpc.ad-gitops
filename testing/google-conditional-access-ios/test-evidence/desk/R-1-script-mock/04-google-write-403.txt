@@ -1,4 +1,0 @@
-# Case: every Google PATCH returns 403
-devices/A2/deviceUsers/u2 (usera@lab.test/ipad): none -> MANAGED
-403
-exit=22

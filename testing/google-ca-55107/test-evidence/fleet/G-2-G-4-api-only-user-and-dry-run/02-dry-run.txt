@@ -1,0 +1,3 @@
+# 2026-10-09T00:36:20Z
+$ DRY_RUN=true bash sync-fleet-hosts-to-google.sh   (guide script, Fleet URL and customer ID filled in)
+[exit 0]

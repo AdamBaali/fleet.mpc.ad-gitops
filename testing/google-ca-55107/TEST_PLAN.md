@@ -83,3 +83,6 @@ Google. A script runs every 5 minutes, matches Google iOS devices to Fleet hosts
 - The guide was followed start to finish with a real iPhone, deviations logged.
 - Guide edits drafted in Fleet's style, as a local diff against a clone of the PR branch. Not pushed.
 - `EVIDENCE.md` generated, update for the issue drafted, never posted. Teardown list in `HANDOFF.md`.
+
+## Evidence capture (iPhone)
+Every test that involves the phone has a screen recording (AirPlay or QuickTime), window-only PNGs, the Google Admin console view, the Fleet host page and the raw script output, saved as `test-evidence/<group>/<ID>-<slug>/` with a `result.md`. Emails and account names are masked.

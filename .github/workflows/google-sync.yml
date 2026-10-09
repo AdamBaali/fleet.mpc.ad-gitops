@@ -1,6 +1,6 @@
 name: 'Sync Fleet iPhones to Google (Context-Aware Access test)'
 
-# Lab for the "Conditional access: Google" guide (customer-antonella request). Starts as manual only (workflow_dispatch).
+# Lab for the "Conditional access: Google" guide. Starts as manual only (workflow_dispatch).
 # To test the guide's schedule (test G-12), uncomment the schedule below. GitHub runs schedules best effort; the Duo lab saw
 # 2 runs in 11 hours, and a private repo on the free plan has 2,000 minutes a month.
 # Secrets (separate from the GitOps workflow's FLEET_API_TOKEN): GOOGLE_SYNC_FLEET_API_TOKEN (API-only Observer user),

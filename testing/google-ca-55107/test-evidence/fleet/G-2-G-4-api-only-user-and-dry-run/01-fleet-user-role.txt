@@ -1,0 +1,4 @@
+# 2026-10-09T00:36:19Z
+GET /me -> HTTP 200
+api_only: True | global_role: observer
+GET /hosts?per_page=1 -> HTTP 200

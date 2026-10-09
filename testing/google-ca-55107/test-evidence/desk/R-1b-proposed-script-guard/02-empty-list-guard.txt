@@ -1,0 +1,4 @@
+# 2026-10-09T00:36:23Z  mock Fleet returning {"hosts":[]}
+$ DRY_RUN=true bash script-under-test.sh
+Fleet returned no managed iPhones or iPads. Not changing anything. Set ALLOW_EMPTY=true to override.
+[exit 1]

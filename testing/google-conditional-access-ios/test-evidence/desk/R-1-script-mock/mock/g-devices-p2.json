@@ -1,9 +1,0 @@
-{"devices":[
- {"name":"devices/D1","deviceType":"IOS","model":"iPhone16,1"},
- {"name":"devices/E1","deviceType":"IOS","model":"iPhone16,1"},
- {"name":"devices/E2","deviceType":"IOS","model":"iPhone16,2"},
- {"name":"devices/G1","deviceType":"IOS","model":"iPhone16,2"},
- {"name":"devices/R1","deviceType":"IOS","model":"iPhone16,2"},
- {"name":"devices/W1","deviceType":"WINDOWS","model":"x"},
- {"name":"devices/N1","deviceType":"IOS"}
-]}

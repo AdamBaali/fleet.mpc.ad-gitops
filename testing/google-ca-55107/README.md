@@ -1,10 +1,24 @@
-# Google conditional access for iPhones (fleetdm/fleet#55107)
+# Google conditional access for iPhones: test results (fleetdm/fleet#55107)
 
-Tests the draft guide "Conditional access: Google" and its sync script. Google Context-Aware Access blocks sign-in
-from iPhones and iPads that aren't managed by Fleet. Built-in support is tracked in fleetdm/fleet#54888.
+Tests the draft guide "Conditional access: Google" ([PR #55107](https://github.com/fleetdm/fleet/pull/55107)) and its sync script.
+Google Context-Aware Access blocks sign-in from iPhones and iPads that aren't managed by Fleet. Built-in support is tracked in
+[fleetdm/fleet#54888](https://github.com/fleetdm/fleet/issues/54888). Same method as `../conditional-access-54654` and `../_framework`.
 
-- **Plan:** `TEST_PLAN.md`. **Results:** `RESULTS.md`. **Evidence:** `test-evidence/`.
-- **Fleet:** `../../fleets/ios-google-lab.yml` ("iOS Google Lab").
-- **Google side:** a test Google org and a test organizational unit (OU) only.
-- `google-token.sh`: gets a Google access token for the service account, acting as an admin, for local `DRY_RUN`
-  runs. The guide doesn't say how. Reads `GOOGLE_SA_KEY_FILE` and `GOOGLE_ADMIN_EMAIL` from `.env`.
+**Start here:** [EVIDENCE.md](EVIDENCE.md), every test with its result, photos and links to the raw output.
+
+| File or folder | What it is |
+| --- | --- |
+| [EVIDENCE.md](EVIDENCE.md) | Generated page: every test, result, pictures, links to outputs |
+| [RESULTS.md](RESULTS.md) | One line per test, plus the desk findings |
+| [TEST_PLAN.md](TEST_PLAN.md) | The tests and how they pass |
+| [GUIDE-FINDINGS.md](GUIDE-FINDINGS.md) | What the tests showed about the guide, with proposed edits |
+| [REPORTING.md](REPORTING.md) | How Fleet, the sync script, Google and GitHub Actions report to each other |
+| [RUNBOOK.md](RUNBOOK.md) | The iPhone test, in order |
+| [NOTES.md](NOTES.md) | What was not done and how the lab differs from production |
+| `proposed/` | The corrected sync script and the diff against the draft |
+| `scripts/` | Lab helpers (`google-token.sh`, `clientstate_test.py`) |
+| `test-evidence/` | `desk/`, `admin-console/`, `cloud/`, `fleet/`: raw output and window screenshots |
+
+Fleet side: `../../fleets/ios-google-lab.yml` ("iOS Google Lab") and the manual workflow `../../.github/workflows/google-sync.yml`.
+Status (2026-10-09): Google test org, OU, users, access level, Cloud project, service account, delegation and the Fleet API user are done and evidenced.
+The iPhone tests are next.

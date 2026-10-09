@@ -1,0 +1,30 @@
+--- proposed/original-pr55107.sh	2026-10-09 02:31:31
++++ proposed/sync-fleet-hosts-to-google.sh	2026-10-09 02:31:31
+@@ -6,11 +6,11 @@
+ # DRY_RUN=true to print changes without making them. Needs curl and jq.
+ set -euo pipefail
+ 
+-FLEET_URL="https://fleet.example.com"
++FLEET_URL="${FLEET_URL:-https://fleet.example.com}"
+ FLEET_API_TOKEN="${FLEET_API_TOKEN:?Set FLEET_API_TOKEN}"
+ GOOGLE_ACCESS_TOKEN="${GOOGLE_ACCESS_TOKEN:?Set GOOGLE_ACCESS_TOKEN}"
+-GOOGLE_CUSTOMER_ID="<customer-ID>"
+-PARTNER_ID="$GOOGLE_CUSTOMER_ID-fleet"
++GOOGLE_CUSTOMER_ID="${GOOGLE_CUSTOMER_ID:-<customer-ID>}" # as shown in Admin console > Account settings, starts with C
++PARTNER_ID="${GOOGLE_CUSTOMER_ID#C}-fleet" # Google wants the customer ID WITHOUT the leading C here
+ DRY_RUN="${DRY_RUN:-false}"
+ 
+ fleet() {
+@@ -48,6 +48,12 @@
+    | (.device_mapping // [])[] | {key: ((.email | ascii_downcase) + "/" + $kind), id: $id}]
+   | unique | group_by(.key) | map({key: .[0].key, value: map(.id)}) | from_entries' <<<"$hosts")
+ 
++# Refuse to run when Fleet returns no managed iPhones or iPads. Otherwise a wrong token scope or an outage would mark every Google device unmanaged.
++if [ "$(jq 'length' <<<"$fleet_keys")" -eq 0 ] && [ "${ALLOW_EMPTY:-false}" != true ]; then
++  echo "Fleet returned no managed iPhones or iPads. Not changing anything. Set ALLOW_EMPTY=true to override." >&2
++  exit 1
++fi
++
+ devices=$(google_list "devices?customer=customers/my_customer&view=USER_ASSIGNED_DEVICES" devices | jq -s '
+   map(select(.deviceType == "IOS") | {key: .name, value: (if ((.model // "") | test("^ipad"; "i")) then "ipad" else "iphone" end)})
+   | from_entries')
