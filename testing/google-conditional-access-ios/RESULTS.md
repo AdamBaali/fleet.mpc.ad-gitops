@@ -76,3 +76,10 @@ in chat. It must be done by Adam in the console.
   Admin console > Security > Access and data control > API controls > Domain-wide delegation, then re-run.
 - Guide finding: the guide's Step 2 should name this exact error as the symptom of missing delegation, and say the grant can take a few minutes.
 - `FLEET_API_TOKEN` is still empty (API-only Fleet user not created yet), so the script's DRY_RUN (G-4) can't run.
+
+## G-3 Delegation active (2026-10-09): PASS
+Adam added the domain-wide delegation entry (client ID of the service account, scope `cloud-identity.devices`). `tools/google-token.sh` now returns OK:
+a token acting as the admin. Read-only calls with it: `devices.list` (USER_ASSIGNED_DEVICES) OK, 0 devices; `deviceUsers.list` OK, 0 device users.
+Zero is expected: no iPhone has signed in to a Google app yet (G-6). The delegation was not instant on the first attempt: `unauthorized_client`
+until it was saved (guide finding: name that error and say it can take a few minutes).
+Still needed for G-4 DRY_RUN: `FLEET_API_TOKEN` (API-only Fleet user), and an iPhone signed in to a Google app so a device exists.
