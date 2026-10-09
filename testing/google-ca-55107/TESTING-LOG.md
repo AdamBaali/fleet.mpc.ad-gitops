@@ -66,7 +66,7 @@ marked is blocked on the same phone (C-2). Access follows Fleet's IdP email both
 - **Schedule:** GitHub's docs say schedules can be delayed or dropped under load, and "High load times include the start of every
   hour". The workflow now runs at `2-59/5`. In this repo GitHub still started scheduled runs hours late: the Duo sync with the same
   cron ran 6 times in about 32 hours, and the nightly 06:00 GitOps apply started around 12:50.
-- **Branch:** `adam/google-conditional-access-guide-tested` on fleetdm/fleet#55107 (one commit). Diff in `proposed/`.
+- **Guide:** one commit, `b1de784`, pushed onto fleetdm/fleet#55107. Diff in `proposed/`.
 
 ## Log
 | Time | What | Result | Evidence |

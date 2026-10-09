@@ -1,7 +1,7 @@
 # Guide findings: Conditional access: Google (fleetdm/fleet#55107)
 
-What the tests showed about the guide and its script, in guide order. **Fixed** means the change is on the branch
-`adam/google-conditional-access-guide-tested` (fleetdm/fleet#55107 plus one commit, diff in [`proposed/`](proposed)).
+What the tests showed about the guide and its script, in guide order. **Fixed** means the change is in commit `b1de784` on
+[fleetdm/fleet#55107](https://github.com/fleetdm/fleet/pull/55107) (diff in [`proposed/`](proposed)).
 Numbers are the IDs used in the testing log and test results.
 
 ## Prerequisites
