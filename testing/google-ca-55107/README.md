@@ -59,7 +59,7 @@ device.vendors.exists(k, device.vendors[k].is_managed_device == true)
 | [TEST_PLAN.md](TEST_PLAN.md) | The tests and how they pass |
 | [RUNBOOK.md](RUNBOOK.md) | How to run the loop again (managed, guard, blocked, back) |
 | [NOTES.md](NOTES.md) | How the lab differs from production |
-| [`proposed/`](proposed) | The branch diff against #55107, and the guide and script as proposed |
+| [`proposed/`](proposed) | The branch diff against #55107, the guide and script as proposed, and screenshots for the guide |
 | [`scripts/`](scripts) | Lab helpers used in the tests |
 | `test-evidence/` | `desk/`, `fleet/`, `cloud/`, `admin-console/`, `iphone/`, `github/`: raw output and window screenshots |
 
