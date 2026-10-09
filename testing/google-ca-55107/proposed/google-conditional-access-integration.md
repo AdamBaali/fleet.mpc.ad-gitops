@@ -15,7 +15,7 @@ How it works:
 - Google Workspace Enterprise Standard, Enterprise Plus, or Enterprise for Education, or Cloud Identity Premium
 - A Google super admin account
 - Google's basic mobile management for iOS turned on (the default)
-- iPhones and iPads enrolled to Fleet with MDM turned on and [end user authentication](https://fleetdm.com/guides/setup-experience#end-user-authentication) turned on, so Fleet has each end user's identity provider (IdP) email
+- iPhones and iPads enrolled to Fleet with MDM and [end user authentication](https://fleetdm.com/guides/setup-experience#end-user-authentication) turned on, so Fleet has each end user's identity provider (IdP) email
 - A computer or continuous integration (CI) job that can reach Fleet and Google, with `curl`, `jq`, and `openssl`
 
 ## Step 1: Create a Fleet API user
@@ -62,7 +62,7 @@ To check a sync, head to **Devices > Mobile & endpoints > Devices** in the Googl
 
 By default, the script skips personally owned (BYOD) hosts, with the MDM status **On (personal)**, and only uses IdP emails. To change this, edit `ENROLLMENT_STATUSES` and `EMAIL_SOURCES` at the top of the script.
 
-When a host is removed from Fleet, the next sync marks its device as unmanaged. If no host in Fleet has an email, the script stops without changing anything and the run fails, so an outage or a wrong API token can't block everyone.
+When a host is removed from Fleet, the next sync marks its device as unmanaged. If no host in Fleet has an email, the script stops without changing anything, and the run fails. This way, an outage or a wrong API token can't block everyone.
 
 ## Step 4: Turn on the access level
 
