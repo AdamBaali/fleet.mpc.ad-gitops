@@ -1,0 +1,10 @@
+Status FriendlyName                InstanceId                                                           
+------ ------------                ----------                                                           
+OK     QEMU QEMU CD-ROM USB Device USBSTOR\CDROM&VEN_QEMU&PROD_QEMU_CD-ROM&REV_2.5+\1-0000:00:03.0-4.1&0
+OK     QEMU QEMU CD-ROM USB Device USBSTOR\CDROM&VEN_QEMU&PROD_QEMU_CD-ROM&REV_2.5+\1-0000:00:03.0-4.2&0
+after:
+Status FriendlyName               
+------ ------------               
+Error  QEMU QEMU CD-ROM USB Device
+Error  QEMU QEMU CD-ROM USB Device
+[exit ]

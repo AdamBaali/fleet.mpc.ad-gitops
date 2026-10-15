@@ -66,3 +66,25 @@ T2, `manage-bde -w C:` and the "Wiping of free space on volume C: completed" eve
 T3, the data drive stays unencrypted ("Data27903 (F:) BitLocker off"): ![F: off](test-evidence/27903/23-T3-control-panel.png)
 
 (`27903/20-T3-screen-1.png` is a second copy of the T2 screen, not a T3 screenshot.)
+
+## Close-out run (2026-10-15, 20:28–21:00): the customer's setup, end to end
+Host 16, fleet 7, fleetd 1.61.0 **without Fleet Desktop**, signed in as standard user `labuser`. Fleet state is from the API
+(`test-evidence/close-out/*.txt`); Fleet UI screenshots still to take (needs Adam's Fleet sign-in).
+
+| ID | What | Result | Evidence |
+|---|---|---|---|
+| C-1 | Fleet's own "Require BitLocker PIN" (no custom profile) | Fleet "action_required"; PIN policy fails. User gets no prompt; "Change how drive is unlocked at startup" asks for **admin username and password** | `close-out/04-C1-fleet-payload.txt`, `14-…png`, `15-C1-labuser-uac.png` |
+| C-2a | + custom profile PIN Required, others Disallowed | Profile Verified, registry Required; TPM-only stays; same admin prompt for the user | `close-out/17-C2-after-profile.txt`, `19-C2-labuser-uac-required.png` |
+| C-2b | + **Fleet script** adds TPM+PIN (random PIN, SYSTEM via fleetd) | Exit 0; protectors RecoveryPassword + TpmPin (TPM-only replaced). User now sees **"Change PIN" without an admin shield** | `close-out/20-C2-fleet-script-pin.txt`, `22-C2-labuser-after-pin.png` |
+| C-3 | Fleet after refetch | Disk encryption **verified**; policy 588 "BitLocker startup PIN set (C:)" **fail → pass** | `close-out/21-C3-fleet-after-pin.txt` |
+
+Lab note: BitLocker refused the TPM protector ("detected bootable media") until the two virtual CD drives were **disabled** inside
+Windows; ejecting the media wasn't enough (`close-out/03-disable-cdrom.txt`).
+
+Standard user, Fleet's own PIN setting, no Fleet Desktop: ![C-1 Manage BitLocker](test-evidence/close-out/14-C1-labuser-manage-bitlocker-front.png)
+
+"Change how drive is unlocked at startup" needs admin credentials: ![C-1 UAC](test-evidence/close-out/15-C1-labuser-uac.png)
+
+Same with the PIN-Required profile: ![C-2 UAC](test-evidence/close-out/19-C2-labuser-uac-required.png)
+
+After the Fleet script added the PIN: "Change PIN" (no shield): ![C-2 after PIN](test-evidence/close-out/22-C2-labuser-after-pin.png)

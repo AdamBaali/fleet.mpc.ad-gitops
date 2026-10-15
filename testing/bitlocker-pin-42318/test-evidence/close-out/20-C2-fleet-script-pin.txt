@@ -1,0 +1,14 @@
+
+
+Exit code: 0 (Script ran successfully.)
+
+Output:
+
+-------------------------------------------------------------------------------------
+
+before: RecoveryPassword,Tpm
+Add-BitLockerKeyProtector -TpmAndPinProtector: OK
+after: RecoveryPassword,TpmPin
+
+
+-------------------------------------------------------------------------------------

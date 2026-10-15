@@ -1,0 +1,15 @@
+msiexec exit: 0
+
+ Status Name         
+ ------ ----         
+Running Fleet osquery
+
+
+user: BITLOCKER-LAB\labuser
+Administrators: BITLOCKER-LAB\Administrator, BITLOCKER-LAB\lab
+
+    Conversion Status:    Fully Decrypted
+    Protection Status:    Protection Off
+
+
+[exit 0]

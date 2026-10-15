@@ -311,3 +311,39 @@ Plan: `notes/27903-research.md`. Profiles E (`SystemDrivesEncryptionType` = 1) a
   ran. Mac: 61 GB free.
 - 17:50 Adam: evidence had no visible screenshots. EVIDENCE.md now embeds 16 key VM screenshots (paths checked). Gap recorded: no Fleet UI screenshots (Fleet status came from the API) and the VM/host were deleted before that was noticed. 27903/20-T3-screen-1.png is a duplicate of the T2 screen.
 - 17:55 Adam: late, save everything; new session later. HANDOFF.md next step 0 = re-capture Fleet UI screenshots.
+
+## Close-out run (2026-10-15 evening, Adam at home)
+Goal: re-run what the customer needs, with VM **and Fleet UI** screenshots (`test-evidence/close-out/`). Tests: C-1 Fleet's own
+"Require BitLocker PIN" (standard user, no Fleet Desktop; admin view), C-2 PIN-Required custom profile + admin sets the PIN, C-3
+policy 588 fails then passes. Shared Mac with the #54871 LUKS session: no UTM quits after 20:28; status in
+`fleet.mpc.ad-gitops/testing/bitlocker-pin-42318/STATUS.md`.
+- 20:28 VM rebuilt (vm/build-vm.sh; this quit/restarted UTM, before Adam mentioned the LUKS session). Fleet 7 set by API: disk
+  encryption on, require_bitlocker_pin on, no profiles. Policy 588 "BitLocker startup PIN set (C:)" created on fleet 7.
+- 20:48 VM signed in as `labuser` (standard; Administrators = Administrator, lab). Both CD images ejected from inside Windows
+  (Shell "Eject"; no UTM restart), still ejected after a guest reboot. fleetd (no Fleet Desktop) installed, msiexec 0
+  (`test-evidence/close-out/02-install.txt`).
+- 20:49 Adam away: no UAC approvals or PIN typing by Adam. Plan change: the PIN goes on by a **Fleet script** (SYSTEM via fleetd)
+  that generates a random 6-digit PIN inside the guest and never prints it (tests the script route from the issue). Nobody knows
+  that PIN; the VM can't boot past BitLocker in UTM anyway, so it's never needed.
+- 20:49:56 **FAIL (lab setup):** Fleet "failed": `protecting with TPM: protectKeyWithTPM(C:): BitLocker Drive Encryption detected
+  bootable media (CD or DVD)`, although both CD images were ejected inside Windows (Win32_CDROMDrive MediaLoaded False, also after a
+  reboot). A guest-side eject doesn't satisfy BitLocker's check. Policy 588 already reports "fail" (no PIN), as expected.
+- 20:50 Fix try (no UTM restart): disabled both QEMU CD-ROM USB devices inside Windows (Disable-PnpDevice; `test-evidence/close-out/03-disable-cdrom.txt`). Waiting for fleetd's retry.
+- 20:51:33 **Fix worked:** with the CD drives disabled in Windows, fleetd's retry started encryption (protectors RecoveryPassword + Tpm); Fleet "enforcing". (No UTM restart needed.)
+- 20:52:11 C: Used Space Only Encrypted, Protection On (RecoveryPassword + Tpm). Refetch requested.
+- 20:54 **C-1 policy:** Fleet's SystemDrivesRequireStartupAuthentication landed (200): FVE UseTPM/UseTPMPIN/UseTPMKey/UseTPMKeyPIN 2, MinimumPIN 6, UseEnhancedPin 1, DisallowStandardUserPINReset 0 (`test-evidence/close-out/04-C1-fleet-payload.txt`). Fleet: action_required, policy 588 fail.
+- 20:55 **C-1 (Fleet's own "Require BitLocker PIN", no custom profile, standard user `labuser`, no Fleet Desktop):** no prompt
+  or notification on the device. Manage BitLocker shows "Change how drive is unlocked at startup" (admin shield)
+  (`close-out/14-...png`); clicking it opens UAC "BitLocker Drive Encryption Wizard ... To continue, enter an admin username and
+  password." (`close-out/15-C1-labuser-uac.png`). Cancelled with "No". **The customer's setup: the user can't set a PIN.**
+- 20:56:30 **C-2 profile:** profile C (PIN Required, others Disallowed) Verified; FVE UseTPMPIN 1, UseTPM/UseTPMKey/UseTPMKeyPIN 0,
+  MinimumPIN 6, UseEnhancedPin 1 (`close-out/17-C2-after-profile.txt`); TPM-only protector kept; standard user still gets the
+  admin-credentials UAC (`close-out/19-C2-labuser-uac-required.png`). Fleet still action_required, policy 588 fail.
+- 20:57:40 **C-2 script:** `tests/add-pin-random.ps1` run as a **Fleet script** (`fleetctl run-script`, SYSTEM via fleetd): exit 0,
+  "before: RecoveryPassword,Tpm / Add-BitLockerKeyProtector -TpmAndPinProtector: OK / after: RecoveryPassword,TpmPin" (Windows
+  replaced the TPM-only protector itself) (`close-out/20-C2-fleet-script-pin.txt`). Random PIN generated in the guest, never shown.
+- 20:59:05 **C-3:** after a refetch Fleet: disk encryption **verified**, policy 588 **pass** (was fail) (`close-out/21-...txt`).
+  Device (labuser): "For your security, some settings are managed by your system administrator.", **"Change PIN" without the
+  admin shield** (DisallowStandardUserPINReset 0) (`close-out/22-C2-labuser-after-pin.png`). Implies: IT sets an initial PIN by
+  script, users change it without admin rights (not tested: a standard user actually changing it).
+- Not rebooted (UTM can't boot past BitLocker). VM and host 16 kept for the Fleet UI screenshots (need Adam's Fleet sign-in).
