@@ -1,0 +1,14 @@
+time: 2026-10-15T22:22:38
+10:22:18 PM 790 A PIN change attempt failed. Error message: Please enter the correct current PIN.
+10:22:11 PM 790 A PIN change attempt failed. Error message: Please enter the correct current PIN.
+10:22:03 PM 790 A PIN change attempt failed. Error message: Please enter the correct current PIN.
+10:21:37 PM 790 A PIN change attempt failed. Error message: Please enter the correct current PIN.
+
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 32
+	-Lockout Interval: 7200s
+	-Lockout Recovery: 86400s
+
+
+[exit 0]

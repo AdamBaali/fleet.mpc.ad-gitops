@@ -351,3 +351,23 @@ policy 588 fails then passes. Shared Mac with the #54871 LUKS session: no UTM qu
   encryption with "Require BitLocker PIN" on; profile C listed; host 16 Controls: profile C and Disk encryption Verified; host 16
   Policies: "BitLocker startup PIN set (C:)" Pass; activity "Adam Baali ran a script on this host". Fleet 7 OS settings summary
   says "Verified 3 hosts" with one host in the fleet (likely counts deleted hosts; not investigated).
+- 22:00 Adam: OK to push. GitOps pushed ff885df..3beac7e (testing/ only, incl. 4 LUKS status commits); no apply run. Adam posts the drafts tomorrow.
+
+## Standard-user PIN change and lockout (2026-10-15, 22:12–22:25)
+Host 16, labuser signed in, PIN set earlier by the Fleet script (random, unknown). No PIN or secret typed: "000000"/"111111" are
+deliberately wrong test values.
+- 22:15 **D-1 PASS (partial):** labuser → Manage BitLocker → "Change PIN" opens "Change startup PIN" (Old/New/Confirm, 6–20 chars)
+  with **no UAC**. "Reset a forgotten PIN" (shield) raises UAC asking for admin credentials (clicked No). Submitting a wrong old PIN:
+  no UAC, "Please enter the correct current PIN.", event 790 "A PIN change attempt failed". TPM lockout counter stayed 0/31.
+  A full successful change was not done: needs a known starting PIN (Adam). `close-out/24`, `26`, `27`, `31`, `28`, `32`.
+- 22:18 **L-1:** profile H (`profiles/H - 42318 TPM lockout ADMX.xml`: ADMX_TPM UseLegacyDAP_Name enabled, StandardUser
+  Individual/Total thresholds 3) uploaded to fleet 7 → **Verified** in 40 s. Registry `HKLM\Software\Policies\Microsoft\Tpm`:
+  UseLegacyDictionaryAttackParameters=1, thresholds 3/3. TPM before maintenance: Max Auth Fail 31, interval 600 s. Ran
+  `\Microsoft\Windows\TPM\Tpm-Maintenance` (0x0): **Max Auth Fail 32, interval 7200 s**, recovery 86400 s. So the legacy setting
+  gives 32 failures and 2-hour heal, not a 3-attempt lockout. Irreversible without a TPM clear (lab VM only). `close-out/33`, `34`, `47`,
+  `fleet-ui/36-host16-controls-profile-H.jpg`.
+- 22:21 **L-2:** wrong old PINs as labuser: 4 rejected (events 790 at 22:21:37, 22:22:03, 22:22:11, 22:22:18; one more at 22:16:31
+  before profile H), the next one refused with **"BitLocker has disabled PIN changes after too many failed requests. Click the link
+  to reset the PIN as an administrator."** TPM lockout counter still 0. The threshold 3 from the profile didn't stop it at 3
+  (probably read at TBS start/restart; not verified, the VM can't reboot). `close-out/41`–`45`, `46`.
+- First click attempts missed (helper `clickd` scaling is for another window size; used guest `click`); `35`–`40` are those misses.

@@ -1,0 +1,51 @@
+time: 2026-10-15T22:19:36
+== HKLM\Software\Policies\Microsoft\Tpm
+
+
+UseLegacyDictionaryAttackParameters                 : 1
+StandardUserAuthorizationFailureIndividualThreshold : 3
+StandardUserAuthorizationFailureTotalThreshold      : 3
+StandardUserAuthorizationFailureDuration            : 
+
+
+
+
+== PolicyManager current ADMX_TPM
+
+
+UseLegacyDAP_Name_ADMXInstanceData                                        : Software\Microsoft\PolicyManager\providers\
+                                                                            5FC32833-C2E2-4640-B264-A4504C2B1BA4\defaul
+                                                                            t\Device\ADMX_TPM
+UseLegacyDAP_Name_ProviderSet                                             : 1
+UseLegacyDAP_Name_WinningProvider                                         : 5FC32833-C2E2-4640-B264-A4504C2B1BA4
+StandardUserAuthorizationFailureIndividualThreshold_Name_ADMXInstanceData : Software\Microsoft\PolicyManager\providers\
+                                                                            5FC32833-C2E2-4640-B264-A4504C2B1BA4\defaul
+                                                                            t\Device\ADMX_TPM
+StandardUserAuthorizationFailureIndividualThreshold_Name_ProviderSet      : 1
+StandardUserAuthorizationFailureIndividualThreshold_Name_WinningProvider  : 5FC32833-C2E2-4640-B264-A4504C2B1BA4
+StandardUserAuthorizationFailureTotalThreshold_Name_ADMXInstanceData      : Software\Microsoft\PolicyManager\providers\
+                                                                            5FC32833-C2E2-4640-B264-A4504C2B1BA4\defaul
+                                                                            t\Device\ADMX_TPM
+StandardUserAuthorizationFailureTotalThreshold_Name_ProviderSet           : 1
+StandardUserAuthorizationFailureTotalThreshold_Name_WinningProvider       : 5FC32833-C2E2-4640-B264-A4504C2B1BA4
+
+
+
+
+== TPM before maintenance task
+
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 31
+	-Lockout Interval: 600s
+	-Lockout Recovery: 86400s
+== Tpm-Maintenance: state Ready, last run 10/15/2026 22:19:39, result 0x0
+== TPM after maintenance task
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 32
+	-Lockout Interval: 7200s
+	-Lockout Recovery: 86400s
+
+
+[exit 0]

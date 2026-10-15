@@ -1,0 +1,20 @@
+time: 2026-10-15T22:15:45
+
+-Bitlocker PCR7 Binding State: Binding Not Possible
+-Lockout Information: 
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 31
+	-Lockout Interval: 600s
+	-Lockout Recovery: 86400s
+Get-Tpm : An internal error has occurred within the Trusted Platform Module support program. (Exception from HRESULT: 0x80284001)
+At C:\Windows\Temp\vmrun-1792095339420.ps1:5 char:1
++ Get-Tpm | Select-Object LockedOut,LockoutCount,LockoutMax,LockoutHeal ...
++ ~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Get-Tpm], TpmWmiException
+    + FullyQualifiedErrorId : Microsoft.Tpm.Commands.TpmWmiException,Microsoft.Tpm.Commands.GetTpmCommand
+ 
+RecoveryPassword,TpmPin
+
+
+[exit 0]

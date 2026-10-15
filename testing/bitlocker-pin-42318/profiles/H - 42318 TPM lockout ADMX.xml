@@ -1,0 +1,36 @@
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/Policy/Config/ADMX_TPM/UseLegacyDAP_Name</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/>]]></Data>
+  </Item>
+</Replace>
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/Policy/Config/ADMX_TPM/StandardUserAuthorizationFailureIndividualThreshold_Name</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/><data id="DXT_StandardUserAuthorizationFailureIndividualThreshold_Name" value="3"/>]]></Data>
+  </Item>
+</Replace>
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/Policy/Config/ADMX_TPM/StandardUserAuthorizationFailureTotalThreshold_Name</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/><data id="DXT_StandardUserAuthorizationFailureTotalThreshold_Name" value="3"/>]]></Data>
+  </Item>
+</Replace>

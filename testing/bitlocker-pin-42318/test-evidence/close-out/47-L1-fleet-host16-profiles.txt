@@ -1,0 +1,3 @@
+H - 42318 TPM lockout ADMX | verified | 
+C - BitLocker PIN required, others disallowed | verified | 
+disk: {'status': 'verified', 'detail': ''}

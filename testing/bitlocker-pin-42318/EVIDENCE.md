@@ -18,7 +18,7 @@ Code/doc research: `notes/research-2026-10-15.md`.
 | N-2 | Custom profile C (PIN Required, others Disallowed) + Fleet encryption on, **standard user, no Fleet Desktop** | Profile Verified; Fleet didn't override it (also after a refetch). **No prompt; TPM-only protector kept; Manage BitLocker asks for admin credentials.** Fleet: "action_required / create_pin" | `test-evidence/N2/04-after-profile-C.txt`, `05-labuser-manage-bitlocker.png`, `06-labuser-click-change.png` |
 | N-2b | Same, an **admin** adds the PIN | PASS: "Enter a PIN" works with Required; protectors RecoveryPassword + TpmPin; "Change PIN" shown; **Fleet: Verified** | `test-evidence/N2/08-admin-pin-1.png`, `11-after-admin-pin.txt`, `12-after-pin-now.png`; `RESULTS.md` 14:53 |
 | N-1 | "Only USB is offered" + `SystemDrivesEnablePrebootInputProtectorsOnSlates` | NOT-RUN: needs a device like the customer's | `profiles/D - ...xml` ready |
-| N-3 | Lockout after 3 failed PIN attempts | NOT-RUN. Researched: Windows locks TPM 2.0 after 32 failures (Microsoft TPM fundamentals); only a legacy Group Policy changes it | `ISSUE_UPDATE.md` |
+| N-3 | Lockout after 3 failed PIN attempts | Tested 22:18 (L-1/L-2 below): Fleet profile delivers the TPM lockout policy, result 32 failures / 2 h heal, not 3 | `close-out/34-L1-after-profile-H.txt` |
 
 Screenshots never show a PIN (dots only) or a recovery key; My device screenshots have the address bar (device token) masked.
 
@@ -107,3 +107,20 @@ Host 16 → Details: disk encryption On, MDM On (manual), agent 1.61.0; activity
 
 Note: the fleet 7 summary shows "Verified 3 hosts" while the fleet has one host (16); the count likely includes hosts deleted
 earlier today. Not investigated.
+
+## Standard user changing the PIN, and lockout (22:12–22:25)
+| ID | What | Result | Evidence |
+|---|---|---|---|
+| D-1 | labuser opens "Change PIN" | Dialog opens **without UAC** (old/new PIN). "Reset a forgotten PIN" needs admin. Wrong old PIN rejected, no UAC; TPM counter unchanged. Full change not done (needs a known PIN) | `close-out/26`, `27`, `31`, `32` |
+| L-1 | Profile H: ADMX_TPM legacy DA + standard-user thresholds 3 | Fleet **Verified**; registry set; after Tpm-Maintenance: **Max Auth Fail 32, heal 7200 s** (was 31, 600 s). No "3" | `close-out/34-L1-after-profile-H.txt`, `47`, `fleet-ui/36` |
+| L-2 | Repeated wrong old PINs as labuser | After 4 rejected (5 incl. one earlier), Windows **disables PIN changes** until an admin resets; TPM counter still 0 | `close-out/41`–`46` |
+
+"Change PIN" as a standard user opens without an admin prompt: ![Change startup PIN](test-evidence/close-out/26-D1-labuser-change-pin-click2.png)
+
+"Reset a forgotten PIN" asks for admin credentials: ![UAC on reset](test-evidence/close-out/27-D1-labuser-reset-forgotten.png)
+
+Wrong old PIN: ![Wrong PIN](test-evidence/close-out/31-D1-wrong-old-pin-result.png)
+
+After repeated wrong PINs: ![PIN changes disabled](test-evidence/close-out/45-L2b-wrong-5.png)
+
+Fleet host 16 Controls: profile H Verified: ![Profile H](test-evidence/close-out/fleet-ui/36-host16-controls-profile-H.jpg)

@@ -1,0 +1,25 @@
+time: 2026-10-15T22:16:55
+
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 31
+	-Lockout Interval: 600s
+	-Lockout Recovery: 86400s
+RecoveryPassword,TpmPin
+
+TimeCreated             Id LevelDisplayName Msg                                                                                                                                                        
+-----------             -- ---------------- ---                                                                                                                                                        
+10/15/2026 10:16:31 PM 790 Error            A PIN change attempt failed.                                                                                                                               
+                                            Error message: Please enter the correct current PIN.                                                                                                       
+10/15/2026 8:57:34 PM  811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 8:57:34 PM  811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 8:57:34 PM  900 Information      BitLocker successfully committed metadata changes for volume C:.                                                                                           
+10/15/2026 8:57:34 PM  776 Information      A BitLocker key protector was removed.                                                                                                                     
+                                            Protector GUID: {1547ff46-3b03-4183-b412-3df2153faab0}                                                                                                     
+                                            Identification GUID: {61591d17-b3a4-49d5-918f-ec857f9246ab}                                                                                                
+
+
+
+
+
+[exit 0]
