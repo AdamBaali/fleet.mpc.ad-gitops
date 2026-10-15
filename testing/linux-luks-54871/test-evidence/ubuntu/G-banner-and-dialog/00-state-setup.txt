@@ -1,0 +1,5 @@
+temp slot added
+slots:   
+Fleet slot 1 removed
+  0: luks2 
+[exit 0]

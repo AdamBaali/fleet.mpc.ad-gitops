@@ -1,0 +1,8 @@
+# 2026-10-15T22:27:49Z  guest up after the watcher typed the escrow key: yes
+2026-10-15 22:27:00
+root: /dev/mapper/ubuntu--vg-ubuntu--lv
+marker sha (M-3, was e65ed01544c8eb74): e65ed01544c8eb74
+UUID:          	22e0008a-5be6-4222-80cb-67ff6adb81b0
+  1: luks2
+user passphrase still rejected: yes
+[exit 0]

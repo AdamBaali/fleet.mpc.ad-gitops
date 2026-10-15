@@ -6,16 +6,26 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 15 |
+| PASS | 18 |
+| PARTIAL | 2 |
 | FAIL | 1 |
-| BLOCKED | 1 |
+| BLOCKED | 2 |
+| NOT RUN | 1 |
+| info | 1 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
+| Desk review | A-Arch-VM-escrow: Arch Linux VM: orbit and escrow | BLOCKED | [open](#a-arch-vm-escrow-arch-linux-vm-orbit-and-escrow) |
 | Desk review | D-1: what Fleet claims (docs and code) | PASS | [open](#d-1-what-fleet-claims-docs-and-code) |
+| Desk review | F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2 | NOT RUN | [open](#f-fedora-vm-repeat-fedora-vm-repeat-q1-and-q2) |
+| Desk review | G-end-user-guide-banner-flow: Fleet Desktop banner and Create key click | PARTIAL | [open](#g-end-user-guide-banner-flow-fleet-desktop-banner-and-create-key-click) |
+| Ubuntu VM | 00: environment | info | [open](#00-environment) |
 | Ubuntu VM | K-1 and K-2: remove the end user's keyslot (no reboot) | PASS | [open](#k-1-and-k-2-remove-the-end-users-keyslot-no-reboot) |
 | Ubuntu VM | K-11: a header backup brings a removed key back | PASS | [open](#k-11-a-header-backup-brings-a-removed-key-back) |
 | Ubuntu VM | K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected | PASS | [open](#k-1--k-3-remove-the-end-users-key-then-reboot-the-old-passphrase-is-rejected) |
+| Ubuntu VM | K-4: reboot with only the escrowed key | PASS | [open](#k-4-reboot-with-only-the-escrowed-key) |
+| Ubuntu VM | K-5: does every reboot ask for the key again? | PASS | [open](#k-5-does-every-reboot-ask-for-the-key-again) |
+| Ubuntu VM | K-6: is there any other unlock path? | PARTIAL | [open](#k-6-is-there-any-other-unlock-path) |
 | Ubuntu VM | K-7: what Fleet shows after the user slot is removed | PASS | [open](#k-7-what-fleet-shows-after-the-user-slot-is-removed) |
 | Ubuntu VM | K-9: negative control, remove the ESCROW slot instead | PASS | [open](#k-9-negative-control-remove-the-escrow-slot-instead) |
 | Ubuntu VM | M-1 to M-3: key slot changes don't change the volume key or the data | PASS | [open](#m-1-to-m-3-key-slot-changes-dont-change-the-volume-key-or-the-data) |
@@ -29,8 +39,16 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Ubuntu VM | S-6: luksDump after the escrow | PASS | [open](#s-6-luksdump-after-the-escrow) |
 | Ubuntu VM | S-7: the escrowed key opens only its own slot | PASS | [open](#s-7-the-escrowed-key-opens-only-its-own-slot) |
 | Ubuntu VM | S-8: first boot after install | BLOCKED | [open](#s-8-first-boot-after-install) |
+| Ubuntu VM | S-9: Fleet after the reboots | PASS | [open](#s-9-fleet-after-the-reboots) |
 
 ## Desk review
+
+### A-Arch-VM-escrow: Arch Linux VM: orbit and escrow
+
+**Result: BLOCKED** · [full notes](test-evidence/desk/A-Arch-VM-escrow/result.md)
+
+
+---
 
 ### D-1: what Fleet claims (docs and code)
 
@@ -43,7 +61,31 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
+### F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2
+
+**Result: NOT RUN** · [full notes](test-evidence/desk/F-Fedora-VM-repeat/result.md)
+
+
+---
+
+### G-end-user-guide-banner-flow: Fleet Desktop banner and Create key click
+
+**Result: PARTIAL** · [full notes](test-evidence/desk/G-end-user-guide-banner-flow/result.md)
+
+
+---
+
 ## Ubuntu VM
+
+### 00: environment
+
+**Result: info** · [full notes](test-evidence/ubuntu/00-environment/result.md)
+
+- **Objective:** Record exactly what was tested so a reader can recreate the lab.
+
+**Output:** [01-versions.txt](test-evidence/ubuntu/00-environment/01-versions.txt)
+
+---
 
 ### K-1 and K-2: remove the end user's keyslot (no reboot)
 
@@ -80,6 +122,39 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![unlock prompt after old passphrase typed](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/02-unlock-prompt-after-old-passphrase-typed.png)
 
+
+---
+
+### K-4: reboot with only the escrowed key
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-4-reboot-with-escrow-key/result.md)
+
+- **Objective:** Q1: with the user's slot removed, does the escrowed key boot the machine?
+- **Expected:** Yes. IT can unlock it.
+
+**Output:** [00-boot.txt](test-evidence/ubuntu/K-4-reboot-with-escrow-key/00-boot.txt) · [02-after-unlock.txt](test-evidence/ubuntu/K-4-reboot-with-escrow-key/02-after-unlock.txt)
+
+---
+
+### K-5: does every reboot ask for the key again?
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-5-every-boot-asks-again/result.md)
+
+- **Objective:** Q1 claim: 'removing the end user's LUKS key means they have to reach out to IT every time they reboot'.
+- **Expected:** Yes: nothing remembers the key, so each boot stops at the unlock prompt.
+
+**Output:** [00-boot.txt](test-evidence/ubuntu/K-5-every-boot-asks-again/00-boot.txt) · [02-after-unlock.txt](test-evidence/ubuntu/K-5-every-boot-asks-again/02-after-unlock.txt)
+
+---
+
+### K-6: is there any other unlock path?
+
+**Result: PARTIAL** · [full notes](test-evidence/ubuntu/K-6-no-other-unlock-path/result.md)
+
+- **Objective:** Q1 customer idea: remove the user's key so they need IT. Check nothing else unlocks the disk (TPM token, keyfile, crypttab keyscript).
+- **Expected:** None on a standard install.
+
+**Output:** [01-unlock-paths.txt](test-evidence/ubuntu/K-6-no-other-unlock-path/01-unlock-paths.txt)
 
 ---
 
@@ -367,5 +442,16 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![ramfb boot](test-evidence/ubuntu/S-8-first-boot/07-ramfb-boot.png)
 
+
+---
+
+### S-9: Fleet after the reboots
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-9-fleet-after-reboots/result.md)
+
+- **Objective:** Fleet still reports the host and key sensibly after a user slot removal and two reboots.
+- **Expected:** verified, key available.
+
+**Output:** [01-fleet.txt](test-evidence/ubuntu/S-9-fleet-after-reboots/01-fleet.txt)
 
 ---

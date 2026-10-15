@@ -1,0 +1,3 @@
+# 2026-10-15T22:29:22Z
+{'verified': 1, 'verifying': 0, 'action_required': 0, 'enforcing': 0, 'failed': 0, 'removing_enforcement': 0}
+os_settings.disk_encryption {'status': 'verified', 'detail': ''} | key available True
