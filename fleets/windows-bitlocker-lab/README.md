@@ -10,4 +10,4 @@ Fleet used to test whether a custom BitLocker profile lets Windows users add a s
   set on 2026-10-15. It isn't a GitOps setting.
 - **Enroll secret:** `FLEET_WINDOWS_BITLOCKER_LAB_ENROLL_SECRET` (repository secret, passed in `workflow.yml`).
 - **Host:** a Windows 11 Pro 26H2 arm64 VM with TPM 2.0 in UTM on Adam's Mac.
-- **Tests, results and the profiles under test:** in the local lab folder `fleet-42318-lab` (not in this repo yet).
+- **Tests, results, evidence and the profiles under test:** `testing/bitlocker-pin-42318/` (start at `EVIDENCE.md`).
