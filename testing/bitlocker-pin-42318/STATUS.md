@@ -24,3 +24,6 @@ GitOps: my folder committed locally, not pushed (Adam pushes).
 - UTM boots an ISO with no UI step if you clone it (`cp -c`) into the VM bundle's `Data/` and set `ImageName` on the CD drive in
   `config.plist` — but that edit needs UTM quit, so don't use it while another VM runs. Ejecting media from inside the guest works without a restart.
 - BitLocker won't add a TPM protector while a bootable ISO is attached.
+
+## Push note
+2026-10-15 22:00: Adam asked me to push. I pushed main to origin (9 commits, all under testing/, incl. the LUKS status commits ce74847, 85e5a28, b1185cc, 9877d69). No Fleet apply was triggered.
