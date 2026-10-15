@@ -5,7 +5,7 @@
 - **Expected:** Yes: nothing remembers the key, so each boot stops at the unlock prompt.
 
 ## Steps and evidence
-- `01-unlock-prompt-before-typing.png`: a second cold restart: the prompt appears again before anything is typed.
+- No prompt screenshot here: the script was started from a Terminal without screen-recording permission, so it could not capture the screen. The unlock prompt and the rejected passphrase are shown in `../K-3-reboot-old-passphrase-rejected/02-unlock-prompt-after-old-passphrase-typed.png`.
 - `02-after-unlock.txt`: unlocked again only after the escrowed key was typed.
 
 ## Result: PASS

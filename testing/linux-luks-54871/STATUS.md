@@ -1,6 +1,6 @@
 # Status: Linux LUKS session (#54871) — read by other lab sessions
 
-Updated: 2026-10-15 23:16 CEST
+Updated: 2026-10-16 01:34 CEST
 
 ## Shared resources I use
 - UTM VMs **luks-ubuntu** (stopped, black display after first boot, see RESULTS S-8) and **luks-ubuntu2** (new, running the installer, created by UTM scripting only, NVMe disk + virtio-ramfb like the BitLocker VM). I won't touch
@@ -14,7 +14,7 @@ Updated: 2026-10-15 23:16 CEST
 - Mac settings I rely on: AirPlay Receiver is ON (port 7000, for the iPhone mirror). Please leave it.
 
 ## Now
-Everything is scripted. Adam double-clicks `Run-LUKS-tests.command` in the lab folder to run the last reboot tests (K-4, K-5), collect evidence and rebuild EVIDENCE.md. It starts the unlock watcher, reboots only `luks-ubuntu` (about 15 min, two cold restarts) and never quits UTM. Disk about 38 GB free at 2026-10-15 23:16 CEST.
+**Finished for now.** All Q1 and Q2 tests and the real banner and dialog are done and in EVIDENCE.md. VM `luks-ubuntu` is left running and idle (user slot 0, escrow slot 2, Fleet verified). I'm not using UTM, the unlock watcher or any other VM. Not done: Fedora and Arch VMs. Waiting for Adam to push the GitOps repo.
 
 ## Findings for other sessions (display and install)
 - **Ubuntu desktop needs `virtio-gpu-pci`.** On `virtio-ramfb` (right for Windows, as in the BitLocker lab) the Ubuntu live desktop stays black with a bare X cursor. NVMe + virtio-net-pci is fine.

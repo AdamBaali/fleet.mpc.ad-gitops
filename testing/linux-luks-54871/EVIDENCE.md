@@ -6,8 +6,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 18 |
-| PARTIAL | 2 |
+| PASS | 22 |
 | FAIL | 1 |
 | BLOCKED | 2 |
 | NOT RUN | 1 |
@@ -18,19 +17,21 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Desk review | A-Arch-VM-escrow: Arch Linux VM: orbit and escrow | BLOCKED | [open](#a-arch-vm-escrow-arch-linux-vm-orbit-and-escrow) |
 | Desk review | D-1: what Fleet claims (docs and code) | PASS | [open](#d-1-what-fleet-claims-docs-and-code) |
 | Desk review | F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2 | NOT RUN | [open](#f-fedora-vm-repeat-fedora-vm-repeat-q1-and-q2) |
-| Desk review | G-end-user-guide-banner-flow: Fleet Desktop banner and Create key click | PARTIAL | [open](#g-end-user-guide-banner-flow-fleet-desktop-banner-and-create-key-click) |
 | Ubuntu VM | 00: environment | info | [open](#00-environment) |
+| Ubuntu VM | G: the real Fleet Desktop banner and the real passphrase dialog | PASS | [open](#g-the-real-fleet-desktop-banner-and-the-real-passphrase-dialog) |
 | Ubuntu VM | K-1 and K-2: remove the end user's keyslot (no reboot) | PASS | [open](#k-1-and-k-2-remove-the-end-users-keyslot-no-reboot) |
 | Ubuntu VM | K-11: a header backup brings a removed key back | PASS | [open](#k-11-a-header-backup-brings-a-removed-key-back) |
+| Ubuntu VM | K-12: recovering access after every known key was lost | PASS | [open](#k-12-recovering-access-after-every-known-key-was-lost) |
 | Ubuntu VM | K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected | PASS | [open](#k-1--k-3-remove-the-end-users-key-then-reboot-the-old-passphrase-is-rejected) |
 | Ubuntu VM | K-4: reboot with only the escrowed key | PASS | [open](#k-4-reboot-with-only-the-escrowed-key) |
 | Ubuntu VM | K-5: does every reboot ask for the key again? | PASS | [open](#k-5-does-every-reboot-ask-for-the-key-again) |
-| Ubuntu VM | K-6: is there any other unlock path? | PARTIAL | [open](#k-6-is-there-any-other-unlock-path) |
+| Ubuntu VM | K-6: is there any other unlock path? | PASS | [open](#k-6-is-there-any-other-unlock-path) |
 | Ubuntu VM | K-7: what Fleet shows after the user slot is removed | PASS | [open](#k-7-what-fleet-shows-after-the-user-slot-is-removed) |
 | Ubuntu VM | K-9: negative control, remove the ESCROW slot instead | PASS | [open](#k-9-negative-control-remove-the-escrow-slot-instead) |
 | Ubuntu VM | M-1 to M-3: key slot changes don't change the volume key or the data | PASS | [open](#m-1-to-m-3-key-slot-changes-dont-change-the-volume-key-or-the-data) |
 | Ubuntu VM | M-5: control, what DOES change the volume key | PASS | [open](#m-5-control-what-does-change-the-volume-key) |
 | Ubuntu VM | S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption" | PASS | [open](#s-1-ubuntu-24045-desktop-installer-use-lvm-and-encryption) |
+| Ubuntu VM | S-10: final state of the lab VM after all tests | PASS | [open](#s-10-final-state-of-the-lab-vm-after-all-tests) |
 | Ubuntu VM | S-1c: second Ubuntu desktop install attempt (VM `luks-ubuntu2`, since deleted) | FAIL | [open](#s-1c-second-ubuntu-desktop-install-attempt-vm-luks-ubuntu2-since-deleted) |
 | Ubuntu VM | S-1d: Ubuntu 24.04.5 server ISO, unattended autoinstall (LVM on LUKS), VM `luks-ubuntu` | PASS | [open](#s-1d-ubuntu-24045-server-iso-unattended-autoinstall-lvm-on-luks-vm-luks-ubuntu) |
 | Ubuntu VM | S-3: baseline luksDump (before Fleet escrow) | PASS | [open](#s-3-baseline-luksdump-before-fleet-escrow) |
@@ -68,13 +69,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
-### G-end-user-guide-banner-flow: Fleet Desktop banner and Create key click
-
-**Result: PARTIAL** · [full notes](test-evidence/desk/G-end-user-guide-banner-flow/result.md)
-
-
----
-
 ## Ubuntu VM
 
 ### 00: environment
@@ -84,6 +78,30 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Record exactly what was tested so a reader can recreate the lab.
 
 **Output:** [01-versions.txt](test-evidence/ubuntu/00-environment/01-versions.txt)
+
+---
+
+### G: the real Fleet Desktop banner and the real passphrase dialog
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/G-banner-and-dialog/result.md)
+
+- **Objective:** Capture what an end user actually sees: the "Create key" banner on My device, and the passphrase dialog orbit opens.
+- **Expected:** Banner when Fleet needs a key; a passphrase prompt dialog after Create key.
+
+**Output:** [00-state-setup.txt](test-evidence/ubuntu/G-banner-and-dialog/00-state-setup.txt) · [01-fleet-status.txt](test-evidence/ubuntu/G-banner-and-dialog/01-fleet-status.txt)
+
+**real passphrase dialog empty**
+
+![real passphrase dialog empty](test-evidence/ubuntu/G-banner-and-dialog/02-real-passphrase-dialog-empty.png)
+
+**real dialog after timeout message**
+
+![real dialog after timeout message](test-evidence/ubuntu/G-banner-and-dialog/03-real-dialog-after-timeout-message.png)
+
+**my device page banner**
+
+![my device page banner](test-evidence/ubuntu/G-banner-and-dialog/04-my-device-page-banner.png)
+
 
 ---
 
@@ -106,6 +124,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** `luksHeaderRestore` from an earlier backup restores the removed slot.
 
 **Output:** [01-restore.txt](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/01-restore.txt)
+
+---
+
+### K-12: recovering access after every known key was lost
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-12-recover-key-from-running-system/result.md)
+
+- **Objective:** A test script deleted the only key file while the disk had one slot. Can access be recovered without any passphrase?
+- **Expected:** Not from the running system's memory (root can't read the volume key); yes from an earlier header backup.
+
+**Output:** [01-recovery.txt](test-evidence/ubuntu/K-12-recover-key-from-running-system/01-recovery.txt)
 
 ---
 
@@ -149,7 +178,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### K-6: is there any other unlock path?
 
-**Result: PARTIAL** · [full notes](test-evidence/ubuntu/K-6-no-other-unlock-path/result.md)
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-6-no-other-unlock-path/result.md)
 
 - **Objective:** Q1 customer idea: remove the user's key so they need IT. Check nothing else unlocks the disk (TPM token, keyfile, crypttab keyscript).
 - **Expected:** None on a standard install.
@@ -213,42 +242,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![grub try or install](test-evidence/ubuntu/S-1-installer/01-grub-try-or-install.png)
 
-**welcome language**
-
-![welcome language](test-evidence/ubuntu/S-1-installer/02-welcome-language.png)
-
-**accessibility**
-
-![accessibility](test-evidence/ubuntu/S-1-installer/03-accessibility.png)
-
-**accessibility next**
-
-![accessibility next](test-evidence/ubuntu/S-1-installer/04-accessibility-next.png)
-
-**after keyboard**
-
-![after keyboard](test-evidence/ubuntu/S-1-installer/05-after-keyboard.png)
-
-**installer update offered**
-
-![installer update offered](test-evidence/ubuntu/S-1-installer/06-installer-update-offered.png)
-
-**try or install**
-
-![try or install](test-evidence/ubuntu/S-1-installer/07-try-or-install.png)
-
-**install ubuntu next**
-
-![install ubuntu next](test-evidence/ubuntu/S-1-installer/08-install-ubuntu-next.png)
-
-**page after install ubuntu**
-
-![page after install ubuntu](test-evidence/ubuntu/S-1-installer/09-page-after-install-ubuntu.png)
-
-**apps default next**
-
-![apps default next](test-evidence/ubuntu/S-1-installer/10-apps-default-next.png)
-
 **disk setup how do you want to install**
 
 ![disk setup how do you want to install](test-evidence/ubuntu/S-1-installer/12-disk-setup-how-do-you-want-to-install.png)
@@ -269,30 +262,29 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![create passphrase page](test-evidence/ubuntu/S-1-installer/16-create-passphrase-page.png)
 
-**create your account page**
-
-![create your account page](test-evidence/ubuntu/S-1-installer/17-create-your-account-page.png)
-
 **ready to install review luks lvm**
 
 ![ready to install review luks lvm](test-evidence/ubuntu/S-1-installer/18-ready-to-install-review-luks-lvm.png)
-
-**installing copying files**
-
-![installing copying files](test-evidence/ubuntu/S-1-installer/19-installing-copying-files.png)
 
 **installation complete**
 
 ![installation complete](test-evidence/ubuntu/S-1-installer/20-installation-complete.png)
 
-**restart now prompt**
-
-![restart now prompt](test-evidence/ubuntu/S-1-installer/21-restart-now-prompt.png)
-
 **remove installation medium**
 
 ![remove installation medium](test-evidence/ubuntu/S-1-installer/22-remove-installation-medium.png)
 
+
+---
+
+### S-10: final state of the lab VM after all tests
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-10-final-state-after-cleanup/result.md)
+
+- **Objective:** Leave the VM in a known, healthy state and show Fleet agrees.
+- **Expected:** User passphrase on one slot, Fleet's escrow key on another, nothing else, Fleet Verified.
+
+**Output:** [01-slots.txt](test-evidence/ubuntu/S-10-final-state-after-cleanup/01-slots.txt)
 
 ---
 
@@ -302,42 +294,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 - **Objective:** Get the desktop installer working on a new VM and follow the end user guide.
 - **Expected:** An encrypted LVM install.
-
-**welcome language**
-
-![welcome language](test-evidence/ubuntu/S-1c-install-virtio-gpu/02-welcome-language.png)
-
-**accessibility**
-
-![accessibility](test-evidence/ubuntu/S-1c-install-virtio-gpu/03-accessibility.png)
-
-**keyboard**
-
-![keyboard](test-evidence/ubuntu/S-1c-install-virtio-gpu/04-keyboard.png)
-
-**installer update offered**
-
-![installer update offered](test-evidence/ubuntu/S-1c-install-virtio-gpu/05-installer-update-offered.png)
-
-**try or install**
-
-![try or install](test-evidence/ubuntu/S-1c-install-virtio-gpu/06-try-or-install.png)
-
-**disk setup page**
-
-![disk setup page](test-evidence/ubuntu/S-1c-install-virtio-gpu/12-disk-setup-page.png)
-
-**advanced features**
-
-![advanced features](test-evidence/ubuntu/S-1c-install-virtio-gpu/13-advanced-features.png)
-
-**select lvm and encryption**
-
-![select lvm and encryption](test-evidence/ubuntu/S-1c-install-virtio-gpu/14-select-lvm-and-encryption.png)
-
-**advanced ok**
-
-![advanced ok](test-evidence/ubuntu/S-1c-install-virtio-gpu/15-advanced-ok.png)
 
 **create passphrase page**
 
@@ -364,10 +320,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 - **Objective:** A working encrypted Ubuntu VM with no one at the keyboard.
 - **Expected:** Installs unattended, powers off, boots from the encrypted disk.
-
-**confirmed yes**
-
-![confirmed yes](test-evidence/ubuntu/S-1d-server-autoinstall/confirmed-yes.png)
 
 **first boot after unlock**
 

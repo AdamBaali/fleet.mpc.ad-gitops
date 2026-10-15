@@ -1,6 +1,6 @@
 # Check of the ask against the evidence (fleetdm/fleet#54871)
 
-Generated 2026-10-16 00:48 from the result files. Nothing here is posted anywhere.
+Generated 2026-10-16 01:34 from the result files. Nothing here is posted anywhere.
 
 ## What was asked
 Issue #54871 ("CSA task: Help clarify and document Linux/LUKS behavior"), from the discussion in #35241. Three things to document and verify:
@@ -15,8 +15,8 @@ For each: what Fleet does (docs and code), what a real Linux VM does, what a cus
 | What does Fleet do? | Escrow only **adds** a keyslot with a random passphrase. Nothing in Fleet removes or edits the end user's slot. Fleet verifies the escrow slot only, so it doesn't notice the user slot is gone. | [D-1-fleet-code-and-docs](test-evidence/desk/D-1-fleet-code-and-docs/): PASS, [K-7-fleet-after-user-slot-removed](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/): PASS |
 | After removal, can the user unlock? | **No.** The old passphrase is rejected at the boot prompt ("No key available with this passphrase") and the disk asks again. | [K-3-reboot-old-passphrase-rejected](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/): PASS, [K-1-remove-user-keyslot](test-evidence/ubuntu/K-1-remove-user-keyslot/): PASS |
 | Can IT unlock? | **Yes**, with the escrowed key (Show disk encryption key): it opens slot 1 and boots the machine. | [K-4-reboot-with-escrow-key](test-evidence/ubuntu/K-4-reboot-with-escrow-key/): PASS, [S-7-escrowed-key-unlocks-slot1](test-evidence/ubuntu/S-7-escrowed-key-unlocks-slot1/): PASS |
-| Every reboot? | **Yes** on a standard install: each boot stops at the unlock prompt (no TPM token, no keyfile). Nothing remembers the key. | [K-5-every-boot-asks-again](test-evidence/ubuntu/K-5-every-boot-asks-again/): PASS, [K-6-no-other-unlock-path](test-evidence/ubuntu/K-6-no-other-unlock-path/): PARTIAL |
-| Caveats for customers | Header backups bring the removed key back. Removing the escrow slot makes Fleet show action required. A TPM-backed layout would not be locked out. | [K-11-header-restore-brings-back-removed-slot](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/): PASS, [K-9-escrow-slot-removed-fleet-reaction](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/): PASS, [K-6-no-other-unlock-path](test-evidence/ubuntu/K-6-no-other-unlock-path/): PARTIAL |
+| Every reboot? | **Yes** on a standard install: each boot stops at the unlock prompt (no TPM token, no keyfile). Nothing remembers the key. | [K-5-every-boot-asks-again](test-evidence/ubuntu/K-5-every-boot-asks-again/): PASS, [K-6-no-other-unlock-path](test-evidence/ubuntu/K-6-no-other-unlock-path/): PASS |
+| Caveats for customers | Header backups bring the removed key back. Removing the escrow slot makes Fleet show action required. A TPM-backed layout would not be locked out. | [K-11-header-restore-brings-back-removed-slot](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/): PASS, [K-9-escrow-slot-removed-fleet-reaction](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/): PASS, [K-6-no-other-unlock-path](test-evidence/ubuntu/K-6-no-other-unlock-path/): PASS |
 Status: **PASS / PASS / PASS**. The claim is true as stated for a passphrase-only disk.
 
 ## 2. LUKS doesn't invalidate any encryption key

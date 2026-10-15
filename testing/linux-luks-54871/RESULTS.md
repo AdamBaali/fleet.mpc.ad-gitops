@@ -59,3 +59,11 @@ Black screen "Display output is not active" on every start. See HANDOFF.md.
 - **S-1c FAIL:** desktop autoinstall crashed after 28 min. Ubuntu desktop live needs `virtio-gpu-pci` (black on `virtio-ramfb`).
 - **S-3 PASS:** baseline `luksDump`: LUKS2, one keyslot (0, argon2id), no tokens. Next: Fleet escrow (S-4 to S-6), then Q2 (M-*), then Q1 (K-*).
 - Finding: with the installer ISO still attached the VM boots the installer; pick "Boot from next volume" in GRUB (UTM scripting can't eject).
+
+## 2026-10-16 final results
+- **Q1:** removing the end user's slot (with the escrow key) locks the user out: the old passphrase is rejected at boot (K-3). The escrow key boots the host (K-4). Every cold restart waits at the unlock prompt (K-5): no TPM token, key file or crypttab keyscript on this install (K-6). Fleet does not notice the removal (K-7). A saved LUKS header restores the removed key (K-11, K-12). Removing Fleet's own slot makes Fleet show action required (K-9).
+- **Q2:** escrow, add, change, kill and remove keyslot never changed the UUID, the master key digest or the data (S-6, M-2); only `reencrypt` or `luksFormat` did (M-5).
+- **Q3:** not supported (D-1). No live Arch VM.
+- **The real dialog and banner** were captured (G). Findings: the dialog needs an unlocked, visible desktop; after a timed-out request a new one returns 409 for minutes; orbit's key add took about 4 minutes the first time and over 15 minutes while the host was busy (argon2).
+- **Not done:** Fedora VM, Arch VM, TPM-backed layouts.
+- **Lab mistakes recorded:** a watcher typed a key into GRUB's command line (part of a lab-only key appeared on a screen; that slot was removed); a restore script deleted the only key file (recovered from a header backup, K-12).

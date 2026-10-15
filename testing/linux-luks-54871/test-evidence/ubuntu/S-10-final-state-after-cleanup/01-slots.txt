@@ -1,0 +1,8 @@
+# 2026-10-15T23:33:29Z guest
+slot 0: escrow key opens=no, user passphrase opens=YES
+slot 1: escrow key opens=no, user passphrase opens=no
+  slot 1 opened with neither key: removed
+slot 2: escrow key opens=YES, user passphrase opens=no
+UUID:          	22e0008a-5be6-4222-80cb-67ff6adb81b0   0: luks2   2: luks2 	Digest:     76 c7 86 fe f3 c7 17 2b 2b ce 77 65 e5 42 db 33  
+
+[exit 0]
