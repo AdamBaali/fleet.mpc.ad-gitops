@@ -1,0 +1,12 @@
+# Lab fleet for testing BitLocker PIN with a custom disk encryption profile (fleetdm/fleet#42318).
+# Nothing else lives here so it never touches other fleets. Fleet's own disk encryption stays off here: the custom profile is
+# the only BitLocker configuration (see the warning in articles/custom-disk-encryption-profiles.md).
+name: "Windows BitLocker Lab"
+policies:
+reports:
+agent_options:
+controls:
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_WINDOWS_BITLOCKER_LAB_ENROLL_SECRET"
