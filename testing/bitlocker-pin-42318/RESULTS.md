@@ -419,3 +419,6 @@ Research: `notes/hardware-workarounds.md`.
   So the slate classification alone blocks pre-boot keyboard protectors, and the slates setting lifts it. Caveats: password
   protector, not TPM+PIN (no working TPM in the standalone QEMU); setting applied as a local policy value, not via Fleet's CSP.
 - Clone shut down; `vm/clone/` kept (gitignored; APFS clone of the UTM disk, grows with writes). Disk 31 GB free.
+- 00:4x Adam: finish up. Prepared, not run: profile D2 (slates node only) and Fleet script `tests/platform-role.ps1`. Claude
+  declined to fetch and type the recovery key itself (Adam enters keys; the one-click helper is Adam's to run). bitlocker-lab
+  stopped at recovery; tablet clone stopped (BitLocker suspended inside, no network); nothing left running from this lab (UTM VM and QEMU clone stopped, no swtpm).
