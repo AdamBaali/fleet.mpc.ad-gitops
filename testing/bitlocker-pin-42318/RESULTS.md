@@ -347,3 +347,7 @@ policy 588 fails then passes. Shared Mac with the #54871 LUKS session: no UTM qu
   admin shield** (DisallowStandardUserPINReset 0) (`close-out/22-C2-labuser-after-pin.png`). Implies: IT sets an initial PIN by
   script, users change it without admin rights (not tested: a standard user actually changing it).
 - Not rebooted (UTM can't boot past BitLocker). VM and host 16 kept for the Fleet UI screenshots (need Adam's Fleet sign-in).
+- 21:3x **Fleet UI screenshots** (Chrome, Adam signed in; `close-out/fleet-ui/`, public IP masked): fleet 7 Windows disk
+  encryption with "Require BitLocker PIN" on; profile C listed; host 16 Controls: profile C and Disk encryption Verified; host 16
+  Policies: "BitLocker startup PIN set (C:)" Pass; activity "Adam Baali ran a script on this host". Fleet 7 OS settings summary
+  says "Verified 3 hosts" with one host in the fleet (likely counts deleted hosts; not investigated).

@@ -23,8 +23,7 @@ Code/doc research: `notes/research-2026-10-15.md`.
 Screenshots never show a PIN (dots only) or a recovery key; My device screenshots have the address bar (device token) masked.
 
 ## Screenshots (window-only, from the VM; no PIN or recovery key visible)
-Gaps: there are **no Fleet UI screenshots** (Fleet's status, "Action required" -> "Verified" and profile "Verified", was read from
-the API; see `RESULTS.md`), and the VM and host were deleted before that was noticed. The pre-boot screen can't be captured in UTM.
+Fleet UI screenshots exist for the close-out run's final state (below). Earlier runs' Fleet states are API output only. The pre-boot screen can't be captured in UTM.
 
 ### Setup
 First build's blue screen (S-1, failed build): ![UNMOUNTABLE_BOOT_VOLUME](test-evidence/S-setup/13-setup.png)
@@ -68,8 +67,8 @@ T3, the data drive stays unencrypted ("Data27903 (F:) BitLocker off"): ![F: off]
 (`27903/20-T3-screen-1.png` is a second copy of the T2 screen, not a T3 screenshot.)
 
 ## Close-out run (2026-10-15, 20:28–21:00): the customer's setup, end to end
-Host 16, fleet 7, fleetd 1.61.0 **without Fleet Desktop**, signed in as standard user `labuser`. Fleet state is from the API
-(`test-evidence/close-out/*.txt`); Fleet UI screenshots still to take (needs Adam's Fleet sign-in).
+Host 16, fleet 7, fleetd 1.61.0 **without Fleet Desktop**, signed in as standard user `labuser`. Fleet state over time is from the
+API (`test-evidence/close-out/*.txt`); the final state is also in Fleet UI screenshots below (taken 21:3x in Chrome; public IP masked).
 
 | ID | What | Result | Evidence |
 |---|---|---|---|
@@ -88,3 +87,23 @@ Standard user, Fleet's own PIN setting, no Fleet Desktop: ![C-1 Manage BitLocker
 Same with the PIN-Required profile: ![C-2 UAC](test-evidence/close-out/19-C2-labuser-uac-required.png)
 
 After the Fleet script added the PIN: "Change PIN" (no shield): ![C-2 after PIN](test-evidence/close-out/22-C2-labuser-after-pin.png)
+
+### Fleet UI (close-out run, final state)
+Fleet 7 → Controls → OS settings → Disk encryption → Windows: "Enable disk encryption" and "Require BitLocker PIN" on:
+![Fleet 7 Windows disk encryption](test-evidence/close-out/fleet-ui/35-fleet7-windows-disk-encryption.png)
+
+Fleet 7 → Configuration profiles: "C - BitLocker PIN required, others disallowed" (Windows):
+![Fleet 7 profile](test-evidence/close-out/fleet-ui/34-fleet7-profile.png)
+
+Host 16 → Controls: the profile and Disk encryption both **Verified**:
+![Host 16 controls](test-evidence/close-out/fleet-ui/32-host16-controls-verified.png)
+
+Host 16 → Policies: "BitLocker startup PIN set (C:)" **Pass**:
+![Host 16 policy pass](test-evidence/close-out/fleet-ui/33-host16-policy-pass.png)
+
+Host 16 → Details: disk encryption On, MDM On (manual), agent 1.61.0; activity "ran a script on this host" (the PIN script):
+![Host 16 details](test-evidence/close-out/fleet-ui/30-host16-details.png)
+![Host 16 activity](test-evidence/close-out/fleet-ui/31-host16-activity.png)
+
+Note: the fleet 7 summary shows "Verified 3 hosts" while the fleet has one host (16); the count likely includes hosts deleted
+earlier today. Not investigated.
