@@ -305,3 +305,7 @@ Plan: `notes/27903-research.md`. Profiles E (`SystemDrivesEncryptionType` = 1) a
   host **fails** the policy, as it should (`test-evidence/policy/`). The passing case (TPM+PIN present) wasn't re-run live; Fleet's
   own PIN check uses the same table and showed Verified at 14:53 when the TpmPin protector existed.
 - (Customer-requirements review: internal notes, not published here.)
+- 17:44 **Clean-up (Adam approved):** VM `bitlocker-lab` stopped and its bundle deleted (31 GB; UTM's three leftover list entries
+  disappeared on restart; other labs' VMs untouched). Fleet host 15 deleted from fleet 7 (fleet 7 now has no hosts; its escrowed
+  recovery key went with it). GitOps repo pushed (114cbec..2ee4f88): `testing/bitlocker-pin-42318/` + README pointers; no apply
+  ran. Mac: 61 GB free.
