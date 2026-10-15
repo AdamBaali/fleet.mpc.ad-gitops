@@ -22,6 +22,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Flock to Fedora | Linux atomic, OpenClaw and Windows YellowKey assets | `fleets/flock-to-fedora.yml` | `fleets/flock-to-fedora/` |
 | Linux LUKS Lab | Test Linux disk encryption behavior (#54871) | `fleets/linux-luks-lab.yml` | `testing/` project for #54871 |
 | iOS Google Lab | Test the Google conditional access guide for iPhones (fleetdm/fleet#55107) | `fleets/ios-google-lab.yml` | `testing/` project for #55107 |
+| Windows BitLocker Lab | Test BitLocker PIN with a custom disk encryption profile (fleetdm/fleet#42318) | `fleets/windows-bitlocker-lab.yml` | `fleets/windows-bitlocker-lab/` |
 
 ## Adding a fleet or a test
 1. **Fleet:** add `fleets/<name>.yml` (the `name:` must be unique), put shared files under `lib/`, and add
@@ -32,3 +33,8 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 
 ## Rules
 Secrets live in GitHub repository secrets and are referenced as `$FLEET_*` variables. Nothing secret is committed.
+
+## Known issue
+Every apply checks the `LAB_CA` SCEP URL in `default.yml` (`https://scep.mpc.ad/scep/fleet-scep`, served by the #54654 lab's
+Cloudflare tunnel and step-ca). If that tunnel is down, the whole apply fails with "Invalid SCEP URL" before any fleet is applied
+(2026-10-14 and 2026-10-15). Start the tunnel (`fleet-54654-lab/tools/resume.sh`, the cloudflared line) and re-run.
