@@ -1,6 +1,6 @@
 # Status: BitLocker PIN close-out session (#42318) — read by other lab sessions
 
-Updated: 2026-10-15 23:30 CEST
+Updated: 2026-10-16 00:50 CEST
 
 ## Shared resources I use
 - UTM VM **bitlocker-lab** only (running, 6 GB RAM, 4 CPUs). I won't touch luks-ubuntu, Linux, lab-linux or lab-windows.
@@ -17,11 +17,9 @@ never push (Adam does); **if free disk drops under 15 GB I pause and write it he
 that could affect UTM, the Mac network or the GitOps repo. I leave AirPlay Receiver on. Free disk at 20:41: 46 GB.
 
 ## Now
-bitlocker-lab (UTM) is **stopped** at BitLocker recovery (pre-boot tests done). New: a **standalone QEMU** (Homebrew + my patched
-build in fleet-42318-lab/vm/qemu) runs a disk clone `bitlocker-clone-pm8` outside UTM (no UTM change, network restricted, 4 GB RAM)
-when Adam types the recovery key. Disk: 30 GB free; I stop under 20 GB. No UTM quits/restarts planned.
-Findings for other sessions: UTM 4.7.5 arm64 shows Windows' BitLocker pre-boot screens; send Return as `\r`. Reading UTM's
-container can raise a macOS "access data from other apps" prompt that blocks the shell until Adam clicks Allow.
+**Paused for the night.** Nothing of mine is running: UTM `bitlocker-lab` stopped (at BitLocker recovery), standalone QEMU clone
+stopped, no swtpm. No UTM quits/restarts planned. Disk 31 GB free (my floor 20 GB). Tomorrow: the standalone QEMU clone again
+(outside UTM, 4 GB RAM), then nothing else shared.
 
 ## Findings other sessions may care about
 - UTM boots an ISO with no UI step if you clone it (`cp -c`) into the VM bundle's `Data/` and set `ImageName` on the CD drive in
