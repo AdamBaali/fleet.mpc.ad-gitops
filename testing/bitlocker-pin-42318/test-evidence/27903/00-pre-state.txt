@@ -1,0 +1,84 @@
+=== time
+2026-10-15T15:13:55.6003393+02:00
+=== manage-bde -status C:
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 62.89 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        Numerical Password
+        TPM And PIN
+
+=== protector types (no keys)
+
+KeyProtectorType
+----------------
+RecoveryPassword
+          TpmPin
+
+
+=== FVE policy
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    UseAdvancedStartup    REG_DWORD    0x1
+    EnableBDEWithNoTPM    REG_DWORD    0x0
+    UseTPMKey    REG_DWORD    0x0
+    UseTPMPIN    REG_DWORD    0x1
+    UseTPMKeyPIN    REG_DWORD    0x0
+    UseTPM    REG_DWORD    0x0
+    MinimumPIN    REG_DWORD    0x6
+    UseEnhancedPin    REG_DWORD    0x1
+    DisallowStandardUserPINReset    REG_DWORD    0x0
+
+=== partitions
+
+DiskNumber PartitionNumber DriveLetter Type     SizeGB OffsetGB
+---------- --------------- ----------- ----     ------ --------
+         0               1            System     0.25        0
+         0               2            Reserved   0.02     0.25
+         0               3           C Basic     62.89     0.27
+         0               4            Recovery   0.83    63.17
+
+
+=== volumes
+
+DriveLetter FileSystemLabel FileSystem SizeGB FreeGB
+----------- --------------- ---------- ------ ------
+                            NTFS         0.83   0.11
+D                                           0      0
+E                                           0      0
+            SYSTEM          FAT32        0.25   0.22
+C           Windows         NTFS        62.89   36.1
+
+
+=== C: shrink limit
+MinGB 26.84 MaxGB 62.89
+=== pagefile/hiber
+
+Name            AllocatedBaseSize
+----            -----------------
+C:\pagefile.sys              1664
+
+
+
+    Hibernate
+=== disks
+
+
+
+Number FriendlyName   BusType SizeGB PartitionStyle
+------ ------------   ------- ------ --------------
+     0 QEMU NVMe Ctrl NVMe        64 GPT           
+
+
+[exit 0]

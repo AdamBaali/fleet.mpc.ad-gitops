@@ -1,0 +1,3 @@
+refetch_requested False detail_updated 2026-10-15T14:42:20Z
+disk_encryption {"status": "verified", "detail": ""} disk_encryption_enabled True
+profile E - 27903 OS drive full encryption verified install 

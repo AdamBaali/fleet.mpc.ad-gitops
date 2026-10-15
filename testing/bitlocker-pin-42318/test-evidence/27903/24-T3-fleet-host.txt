@@ -1,0 +1,7 @@
+disk_encryption {"status": "verified", "detail": ""}
+profile F - 27903 require device encryption silent verified 
+profile E - 27903 OS drive full encryption verified 
+profile G - 27903 allow standard user encryption verified 
+fleetd log lines since 16:40 matching encrypt/bitlocker/ERR:
+(end)
+[exit ]

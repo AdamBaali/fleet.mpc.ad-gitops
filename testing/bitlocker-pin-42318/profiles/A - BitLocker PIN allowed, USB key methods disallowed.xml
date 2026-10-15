@@ -1,0 +1,48 @@
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/BitLocker/SystemDrivesRequireStartupAuthentication</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/><data id="ConfigureNonTPMStartupKeyUsage_Name" value="false"/><data id="ConfigureTPMStartupKeyUsageDropDown_Name" value="0"/><data id="ConfigurePINUsageDropDown_Name" value="2"/><data id="ConfigureTPMPINKeyUsageDropDown_Name" value="0"/><data id="ConfigureTPMUsageDropDown_Name" value="2"/>]]></Data>
+  </Item>
+</Replace>
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/BitLocker/SystemDrivesMinimumPINLength</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/><data id="MinPINLength" value="6"/>]]></Data>
+  </Item>
+</Replace>
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/BitLocker/SystemDrivesEnhancedPIN</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/>]]></Data>
+  </Item>
+</Replace>
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/BitLocker/SystemDrivesDisallowStandardUsersCanChangePIN</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<disabled/>]]></Data>
+  </Item>
+</Replace>

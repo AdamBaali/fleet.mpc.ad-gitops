@@ -1,0 +1,24 @@
+2026-10-15T16:44:13.9610909+02:00
+DriveLetter FileSystemLabel FileSystem SizeGB
+----------- --------------- ---------- ------
+          F Data27903       NTFS            2
+PartitionNumber DriveLetter Type     SizeGB OffsetGB
+--------------- ----------- ----     ------ --------
+              1            System     0.25        0
+              2            Reserved   0.02     0.25
+              3           C Basic        36     0.27
+              5           F Basic         2    36.27
+              4            Recovery   0.83    63.17
+Volume F: [Data27903]
+[Data Volume]
+    Size:                 2.00 GB
+    BitLocker Version:    None
+    Conversion Status:    Fully Decrypted
+    Percentage Encrypted: 0.0%
+    Encryption Method:    None
+    Protection Status:    Protection Off
+    Lock Status:          Unlocked
+    Identification Field: None
+    Automatic Unlock:     Disabled
+    Key Protectors:       None Found
+[exit 0]

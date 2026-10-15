@@ -1,0 +1,6 @@
+2026-10-15T17:22:19.7006294+02:00
+Name          DisplayName    Status
+----          -----------    ------
+Fleet osquery Fleet osquery Running
+restarted: Fleet osquery Running
+[exit ]

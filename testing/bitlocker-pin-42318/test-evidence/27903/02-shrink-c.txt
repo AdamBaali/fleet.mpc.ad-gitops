@@ -1,0 +1,37 @@
+tools/win-run.sh: line 20: warning: command substitution: ignored null byte in input
+start 2026-10-15T16:30:10.2076311+02:00
+end 2026-10-15T16:30:23.7910420+02:00
+
+PartitionNumber DriveLetter Type     SizeGB OffsetGB
+--------------- ----------- ----     ------ --------
+              1            System     0.25        0
+              2            Reserved   0.02     0.25
+              3           C Basic        36     0.27
+              4            Recovery   0.83    63.17
+
+
+
+DriveLetter SizeGB FreeGB
+----------- ------ ------
+          C     36    9.2
+
+
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 36.00 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        Numerical Password
+        TPM And PIN
+
+[exit 0]

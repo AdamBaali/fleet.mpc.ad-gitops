@@ -1,0 +1,79 @@
+2026-10-15T16:47:38.6873862+02:00
+=== volumes (no keys)
+MountPoint      VolumeType   VolumeStatus EncryptionPercentage ProtectionStatus Protectors          
+----------      ----------   ------------ -------------------- ---------------- ----------          
+C:         OperatingSystem FullyEncrypted                  100               On RecoveryPassword+Tpm
+F:                    Data FullyDecrypted                    0              Off                     
+=== manage-bde conversion status
+C:     Conversion Status:    Used Space Only Encrypted ;    Percentage Encrypted: 100.0%
+F:     Conversion Status:    Fully Decrypted ;    Percentage Encrypted: 0.0%
+=== FVE policy
+=== PolicyManager current BitLocker
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_LastWrite    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_LastWrite    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesDisallowStandardUsersCanChangePIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesEncryptionType_ProviderSet    REG_DWORD    0x1
+    SystemDrivesEncryptionType_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesEncryptionType_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+    RequireDeviceEncryption    REG_DWORD    0x1
+    RequireDeviceEncryption_ProviderSet    REG_DWORD    0x1
+    RequireDeviceEncryption_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    AllowWarningForOtherDiskEncryption    REG_DWORD    0x0
+    AllowWarningForOtherDiskEncryption_ProviderSet    REG_DWORD    0x1
+    AllowWarningForOtherDiskEncryption_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+=== MDM diagnostics (Admin) mentioning BitLocker or errors, last 15 min
+16:33:58 819 Information MDM PolicyManager: Delete policy, Policy: (SystemDrivesRequireStartupAuthentication), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Scope: (0x1).
+16:33:58 819 Information MDM PolicyManager: Delete policy, Policy: (SystemDrivesMinimumPINLength), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Scope: (0x1).
+16:33:58 819 Information MDM PolicyManager: Delete policy, Policy: (SystemDrivesEnhancedPIN), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Scope: (0x1).
+16:33:58 819 Information MDM PolicyManager: Delete policy, Policy: (SystemDrivesDisallowStandardUsersCanChangePIN), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Scope: (0x1).
+16:36:28 814 Information MDM PolicyManager: Set policy string, Policy: (SystemDrivesEncryptionType), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), String: (<enabled/><data id="OSEncryptionTypeDropDown_Name" value="1"/>), Enrollment Type: (0x0), Scope: (0x0).
+16:36:28 814 Information MDM PolicyManager: Set policy string, Policy: (SystemDrivesEncryptionType), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), String: (<enabled/><data id="OSEncryptionTypeDropDown_Name" value="1"/>), Enrollment Type: (0x0), Scope: (0x0).
+16:47:05 813 Information MDM PolicyManager: Set policy int, Policy: (RequireDeviceEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x1), Enrollment Type: (0x0), Scope: (0x0).
+16:47:06 2910 Warning BitLocker CSP: Fixed Drive not protected.
+16:47:06 813 Information MDM PolicyManager: Set policy int, Policy: (RequireDeviceEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x1), Enrollment Type: (0x0), Scope: (0x0).
+16:47:06 813 Information MDM PolicyManager: Set policy int, Policy: (AllowWarningForOtherDiskEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x0), Enrollment Type: (0x0), Scope: (0x0).
+16:47:06 813 Information MDM PolicyManager: Set policy int, Policy: (AllowWarningForOtherDiskEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x0), Enrollment Type: (0x0), Scope: (0x0).
+21:25:41 844 Error MDM PolicyManager: During Inbox found bad enrollment (82965F5A-6C65-4B7A-8075-488FCCE07D4E) during merge. Requesting merge (1e05dd5d-a022-46c5-963c-b20de341170f). Deleting policies for the enrollment. Enrollment state is (Your file waiting to be printed was deleted.).
+=== BitLocker Management events, last 15 min (no 811)
+16:34:40 770 Warning BitLocker decryption was started for volume C:.
+16:38:58 796 Information BitLocker Drive Encryption is using software-based encryption to protect volume C:.
+16:38:59 775 Information A BitLocker key protector was created. Protector GUID: {2a5bd7ba-3071-4fb1-8b2c-a78e4fadbb5e} Identification GUID: {2e8f30a8-6875-4b49-ad37-6154c33d271a}
+16:38:59 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:38:59 892 Information BitLocker successfully sealed a key to the TPM. PCRs measured include [0,2,4,11]. The source for these PCRs was: Default for PCs with UEFI firmware.
+16:38:59 840 Information A trusted WIM file has been added for volume C:. The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973
+16:38:59 775 Information A BitLocker key protector was created. Protector GUID: {3da1c384-bf73-4735-8538-785265c8b556} Identification GUID: {2e8f30a8-6875-4b49-ad37-6154c33d271a}
+16:38:59 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 776 Information A BitLocker key protector was removed. Protector GUID: {2a5bd7ba-3071-4fb1-8b2c-a78e4fadbb5e} Identification GUID: {2e8f30a8-6875-4b49-ad37-6154c33d271a}
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 776 Information A BitLocker key protector was removed. Protector GUID: {3da1c384-bf73-4735-8538-785265c8b556} Identification GUID: {2e8f30a8-6875-4b49-ad37-6154c33d271a}
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 778 Warning The BitLocker volume C: was reverted to an unprotected state.
+16:39:30 796 Information BitLocker Drive Encryption is using software-based encryption to protect volume C:.
+16:39:30 775 Information A BitLocker key protector was created. Protector GUID: {b6082d9e-e77a-49de-8860-8b91746c29d7} Identification GUID: {35ddce06-7020-4320-aedf-0eefe64ecc3e}
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 892 Information BitLocker successfully sealed a key to the TPM. PCRs measured include [0,2,4,11]. The source for these PCRs was: Default for PCs with UEFI firmware.
+16:39:30 840 Information A trusted WIM file has been added for volume C:. The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973
+16:39:30 775 Information A BitLocker key protector was created. Protector GUID: {00a84d47-4eea-4fa6-8ff4-89c35ebf0abc} Identification GUID: {35ddce06-7020-4320-aedf-0eefe64ecc3e}
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 780 Information The identification field was changed. Identification GUID: {35ddce06-7020-4320-aedf-0eefe64ecc3e}
+16:39:30 900 Information BitLocker successfully committed metadata changes for volume C:.
+16:39:30 768 Information BitLocker encryption was started for volume C: using XTS-AES 256 algorithm.
+16:45:26 796 Information BitLocker Drive Encryption is using software-based encryption to protect volume F:.
+16:45:26 775 Information A BitLocker key protector was created. Protector GUID: {57d0f5d0-7803-4e20-abc9-d02a7623c491} Identification GUID: {33c94414-b290-4511-92c7-4de76514e7a2}
+16:45:26 900 Information BitLocker successfully committed metadata changes for volume F:.
+16:45:27 900 Information BitLocker successfully committed metadata changes for volume F:.
+16:45:27 780 Information The identification field was changed. Identification GUID: {33c94414-b290-4511-92c7-4de76514e7a2}
+16:45:27 900 Information BitLocker successfully committed metadata changes for volume F:.
+16:45:27 768 Information BitLocker encryption was started for volume F: using XTS-AES 256 algorithm.
+16:46:26 770 Warning BitLocker decryption was started for volume F:.
+=== BitLocker-API (BDE) events
+LogName                                                      RecordCount
+-------                                                      -----------
+Microsoft-Windows-BitLocker/BitLocker Operational                       
+Microsoft-Windows-BitLocker/BitLocker Management             269        
+Microsoft-Windows-BitLocker-DrivePreparationTool/Operational 0          
+Microsoft-Windows-BitLocker-DrivePreparationTool/Admin       0          
+[exit 0]

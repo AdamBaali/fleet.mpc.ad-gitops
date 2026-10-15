@@ -1,0 +1,13 @@
+2026-10-15T16:38:58+02:00 INF OSEncryptionType registry policy requires full disk encryption, using full encryption mode
+2026-10-15T16:38:58+02:00 INF deleted orphaned OSEncryptionType registry policy value
+2026-10-15T16:38:59+02:00 ERR failed to encrypt the volume error="starting encryption: encrypt(C:): the encryption flags conflict with the current Group Policy settings (check HKLM\\SOFTWARE\\Policies\\Microsoft\\FVE)"
+=== status
+
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Protection Status:    Protection On
+=== FVE
+
+
+
+[exit 0]

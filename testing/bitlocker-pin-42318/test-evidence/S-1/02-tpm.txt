@@ -1,0 +1,77 @@
+=== Get-Tpm (retry)
+Get-Tpm error: An internal error has occurred within the Trusted Platform Module support program. (Exception from HRESULT: 0x80284001)
+=== Win32_Tpm
+
+
+IsEnabled_InitialValue   : True
+IsActivated_InitialValue : True
+IsOwned_InitialValue     : True
+ManufacturerIdTxt        : IBM
+ManufacturerVersion      : 8217.4131.22.13878
+SpecVersion              : 2.0, 0, 1.64
+
+
+
+=== tpmtool
+
+-TPM Present: True
+-TPM Version: 2.0
+-TPM Manufacturer ID: IBM
+-TPM Manufacturer Full Name: IBM
+-TPM Manufacturer Version: 8217.4131.22.13878
+-PPI Version: 
+-Is Initialized: True
+-Ready For Storage: True
+-Ready For Attestation: False
+-Information Flags Description:
+	INFORMATION_EK_CERTIFICATE
+-Is Capable For Attestation: False
+-Clear Needed To Recover: False
+-Clear Possible: True
+-TPM Has Vulnerable Firmware: False
+-Bitlocker PCR7 Binding State: Binding Not Possible
+-Maintenance Task Complete: True
+-TPM Spec Version: 1.64
+-TPM Errata Date: Tuesday, March 16, 2021
+-PC Client Version: 0.164
+-Lockout Information: 
+	-Is Locked Out: False
+	-Lockout Counter: 0
+	-Max Auth Fail: 31
+	-Lockout Interval: 600s
+	-Lockout Recovery: 86400s
+=== TPM events
+
+TimeCreated           Id LevelDisplayName Message                                                                                                                                                                                                         
+-----------           -- ---------------- -------                                                                                                                                                                                                         
+10/15/2026 1:25:41 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:25:41 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:25:41 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:25:40 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:25:40 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:25:40 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:24:57 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:24:57 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:24:54 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+10/15/2026 1:24:54 PM 15 Error            The device driver for the Trusted Platform Module (TPM) encountered a non-recoverable error in the TPM hardware, which prevents TPM services (such as data encryption) from being used. For further help,       
+                                          please contact the computer manufacturer.                                                                                                                                                                       
+
+
+=== BitLocker readiness
+Get-CimInstance : Invalid query 
+At C:\Windows\Temp\vmrun-179206350731602.ps1:8 char:29
++ ... eadiness"; (Get-CimInstance -Namespace root\cimv2\Security\MicrosoftV ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Get-CimInstance], CimException
+    + FullyQualifiedErrorId : HRESULT 0x80041017,Microsoft.Management.Infrastructure.CimCmdlets.GetCimInstanceCommand
+ 
+[exit 0]

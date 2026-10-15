@@ -1,0 +1,77 @@
+=== time
+2026-10-15T16:37:25.9698457+02:00
+=== manage-bde -status
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Disk volumes that can be protected with
+BitLocker Drive Encryption:
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 36.00 GB
+    BitLocker Version:    None
+    Conversion Status:    Fully Decrypted
+    Percentage Encrypted: 0.0%
+    Encryption Method:    None
+    Protection Status:    Protection Off
+    Lock Status:          Unlocked
+    Identification Field: None
+    Key Protectors:       None Found
+
+=== volumes (no keys)
+
+MountPoint      VolumeType   VolumeStatus EncryptionPercentage EncryptionMethod ProtectionStatus Protectors
+----------      ----------   ------------ -------------------- ---------------- ---------------- ----------
+C:         OperatingSystem FullyDecrypted                    0             None              Off           
+
+
+=== FVE policy (HKLM\SOFTWARE\Policies\Microsoft\FVE)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    OSEncryptionType    REG_DWORD    0x1
+
+=== MDM PolicyManager BitLocker
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_LastWrite    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_LastWrite    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesDisallowStandardUsersCanChangePIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesEncryptionType_ProviderSet    REG_DWORD    0x1
+    SystemDrivesEncryptionType_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesEncryptionType_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+
+=== fleetd log: encryption mode and BitLocker lines
+C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+=== BitLocker-API events, last 15
+
+TimeCreated            Id LevelDisplayName Message                                                                                               
+-----------            -- ---------------- -------                                                                                               
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:35:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:34:40 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:34:40 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:34:40 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:34:40 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 4:34:40 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+
+
+=== volumes
+
+DriveLetter FileSystemLabel FileSystem SizeGB FreeGB
+----------- --------------- ---------- ------ ------
+          D                                 0      0
+          E                                 0      0
+          C Windows         NTFS           36  10.36
+
+
+[exit 0]

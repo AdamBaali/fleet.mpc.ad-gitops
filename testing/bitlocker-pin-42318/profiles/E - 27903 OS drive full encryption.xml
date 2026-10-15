@@ -1,0 +1,12 @@
+<Replace>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/BitLocker/SystemDrivesEncryptionType</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+    <Data><![CDATA[<enabled/><data id="OSEncryptionTypeDropDown_Name" value="1"/>]]></Data>
+  </Item>
+</Replace>

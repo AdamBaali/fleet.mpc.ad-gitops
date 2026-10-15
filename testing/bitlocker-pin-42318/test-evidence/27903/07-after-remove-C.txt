@@ -1,0 +1,84 @@
+=== time
+2026-10-15T16:34:21.1831279+02:00
+=== manage-bde -status
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Disk volumes that can be protected with
+BitLocker Drive Encryption:
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 36.00 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        Numerical Password
+        TPM And PIN
+
+=== volumes (no keys)
+
+MountPoint      VolumeType   VolumeStatus EncryptionPercentage EncryptionMethod ProtectionStatus Protectors             
+----------      ----------   ------------ -------------------- ---------------- ---------------- ----------             
+C:         OperatingSystem FullyEncrypted                  100        XtsAes256               On RecoveryPassword+TpmPin
+
+
+=== FVE policy (HKLM\SOFTWARE\Policies\Microsoft\FVE)
+reg : ERROR: The system was unable to find the specified registry key or value.
+At C:\Windows\Temp\vmrun-179207485412809.ps1:8 char:58
++ ... \Microsoft\FVE)"; reg query HKLM\SOFTWARE\Policies\Microsoft\FVE 2>&1
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: The syst...y key or value.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+=== MDM PolicyManager BitLocker
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_LastWrite    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_LastWrite    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesDisallowStandardUsersCanChangePIN_LastWrite    REG_DWORD    0x1
+
+=== fleetd log: encryption mode and BitLocker lines
+C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+=== BitLocker-API events, last 15
+
+TimeCreated            Id LevelDisplayName Message                                                                                                                                                    
+-----------            -- ---------------- -------                                                                                                                                                    
+10/15/2026 4:31:19 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:31:19 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:58 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:58 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:57 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:57 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:57 PM 786 Information      BitLocker free space wiping was started for volume C:.                                                                                                     
+10/15/2026 4:30:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 4:30:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:34 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:34 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:34 PM 900 Information      BitLocker successfully committed metadata changes for volume C:.                                                                                           
+10/15/2026 2:51:34 PM 776 Information      A BitLocker key protector was removed.                                                                                                                     
+                                           Protector GUID: {e48d752a-14cb-40b5-8077-abedbeaaca86}                                                                                                     
+                                           Identification GUID: {86266273-eddb-4345-aee9-624b8720cfcc}                                                                                                
+10/15/2026 2:51:34 PM 775 Information      A BitLocker key protector was created.                                                                                                                     
+                                           Protector GUID: {60344e9e-dfd5-4b61-8822-3e04377fdc23}                                                                                                     
+                                           Identification GUID: {86266273-eddb-4345-aee9-624b8720cfcc}                                                                                                
+10/15/2026 2:51:34 PM 840 Information      A trusted WIM file has been added for volume C:.                                                                                                           
+                                           The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973                                                    
+
+
+=== volumes
+
+DriveLetter FileSystemLabel FileSystem SizeGB FreeGB
+----------- --------------- ---------- ------ ------
+          D                                 0      0
+          E                                 0      0
+          C Windows         NTFS           36  10.36
+
+
+[exit 0]

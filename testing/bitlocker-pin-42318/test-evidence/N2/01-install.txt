@@ -1,0 +1,11 @@
+signed-in: BITLOCKER-LAB\labuser
+labuser groups: BITLOCKER-LAB\Administrator, BITLOCKER-LAB\lab
+msi sha256 F725C14F5CEA2A61
+msiexec exit: 0
+
+ Status Name         
+ ------ ----         
+Running Fleet osquery
+
+
+[exit ]

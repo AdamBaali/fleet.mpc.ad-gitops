@@ -1,0 +1,100 @@
+=== time
+2026-10-15T17:17:15.0768430+02:00
+=== manage-bde -status
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Disk volumes that can be protected with
+BitLocker Drive Encryption:
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 36.00 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Fully Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        TPM
+
+Volume F: [Data27903]
+[Data Volume]
+
+    Size:                 2.00 GB
+    BitLocker Version:    None
+    Conversion Status:    Fully Decrypted
+    Percentage Encrypted: 0.0%
+    Encryption Method:    None
+    Protection Status:    Protection Off
+    Lock Status:          Unlocked
+    Identification Field: None
+    Automatic Unlock:     Disabled
+    Key Protectors:       None Found
+
+=== volumes (no keys)
+
+MountPoint      VolumeType   VolumeStatus EncryptionPercentage EncryptionMethod ProtectionStatus Protectors
+----------      ----------   ------------ -------------------- ---------------- ---------------- ----------
+C:         OperatingSystem FullyEncrypted                  100        XtsAes256               On Tpm       
+F:                    Data FullyDecrypted                    0             None              Off           
+
+
+=== FVE policy (HKLM\SOFTWARE\Policies\Microsoft\FVE)
+
+=== MDM PolicyManager BitLocker
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_LastWrite    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_LastWrite    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesDisallowStandardUsersCanChangePIN_LastWrite    REG_DWORD    0x1
+    SystemDrivesEncryptionType_ProviderSet    REG_DWORD    0x1
+    SystemDrivesEncryptionType_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesEncryptionType_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+    RequireDeviceEncryption    REG_DWORD    0x0
+    AllowWarningForOtherDiskEncryption    REG_DWORD    0x1
+    AllowStandardUserEncryption    REG_DWORD    0x0
+    AllowStandardUserEncryption_LastWrite    REG_DWORD    0x1
+    AllowWarningForOtherDiskEncryption_LastWrite    REG_DWORD    0x1
+
+=== fleetd log: encryption mode and BitLocker lines
+C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+2026-10-15T16:38:58+02:00 INF OSEncryptionType registry policy requires full disk encryption, using full encryption mode
+2026-10-15T16:38:58+02:00 INF deleted orphaned OSEncryptionType registry policy value
+2026-10-15T16:38:59+02:00 ERR failed to encrypt the volume error="starting encryption: encrypt(C:): the encryption flags conflict with the current Group Policy settings (check HKLM\\SOFTWARE\\Policies\\Microsoft\\FVE)"
+=== BitLocker-API events, last 15
+
+TimeCreated            Id LevelDisplayName Message                                                                                               
+-----------            -- ---------------- -------                                                                                               
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:05:24 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+10/15/2026 5:04:17 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.
+
+
+=== volumes
+
+DriveLetter FileSystemLabel FileSystem SizeGB FreeGB
+----------- --------------- ---------- ------ ------
+          D                                 0      0
+          E                                 0      0
+          C Windows         NTFS           36  10.35
+          F Data27903       NTFS            2   1.98
+
+
+[exit 0]
+detail_updated 2026-10-15T15:06:47Z disk_encryption {"status": "verified", "detail": ""} disk_encryption_enabled True

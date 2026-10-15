@@ -1,0 +1,31 @@
+2026-10-15T16:45:25.7312890+02:00
+PrepareVolume(<default>, software) rc: 0x00000000
+ProtectKeyWithNumericalPassword rc: 0x00000000
+Encrypt(XTS-AES 256, flags 0x2 = fleetd EncryptDemandWipe) rc: 0x80070057
+    Conversion Status:    Fully Decrypted ;     Percentage Encrypted: 0.0%
+Encrypt(XTS-AES 256, flags 0 = full mode per Microsoft) rc: 0x00000000
+Volume F: [Data27903]
+[Data Volume]
+    Size:                 2.00 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Fully Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Automatic Unlock:     Disabled
+    Key Protectors:
+        Numerical Password
+=== System BitLocker-Driver events for F: since start
+16:45:27 24664 BitLocker finalization sweep started for volume F:.
+16:45:27 24665 BitLocker finalization sweep paused for volume F:.
+16:45:27 24666 BitLocker finalization sweep resumed for volume F:.
+16:45:27 24665 BitLocker finalization sweep paused for volume F:.
+16:45:27 24660 BitLocker encryption on write started for volume F:.
+16:45:27 24666 BitLocker finalization sweep resumed for volume F:.
+16:45:27 24664 BitLocker finalization sweep started for volume F:.
+16:45:27 24665 BitLocker finalization sweep paused for volume F:.
+16:45:29 24665 BitLocker finalization sweep paused for volume F:.
+16:45:29 24667 BitLocker finalization sweep completed for volume F:.
+[exit 0]

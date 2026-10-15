@@ -1,0 +1,89 @@
+=== time
+2026-10-15T14:52:02.4198317+02:00
+=== FVE policy (HKLM\SOFTWARE\Policies\Microsoft\FVE)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    UseAdvancedStartup    REG_DWORD    0x1
+    EnableBDEWithNoTPM    REG_DWORD    0x0
+    UseTPMKey    REG_DWORD    0x0
+    UseTPMPIN    REG_DWORD    0x1
+    UseTPMKeyPIN    REG_DWORD    0x0
+    UseTPM    REG_DWORD    0x0
+    MinimumPIN    REG_DWORD    0x6
+    UseEnhancedPin    REG_DWORD    0x1
+    DisallowStandardUserPINReset    REG_DWORD    0x0
+
+=== MDM PolicyManager BitLocker
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_ProviderSet    REG_DWORD    0x1
+    SystemDrivesRequireStartupAuthentication_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesMinimumPINLength_ProviderSet    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesEnhancedPIN_ProviderSet    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesDisallowStandardUsersCanChangePIN_ProviderSet    REG_DWORD    0x2
+    SystemDrivesDisallowStandardUsersCanChangePIN_WinningProvider    REG_SZ    B50966B4-C639-4A74-9487-5408D369675F
+    SystemDrivesRequireStartupAuthentication_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+    SystemDrivesMinimumPINLength_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+    SystemDrivesEnhancedPIN_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+    SystemDrivesDisallowStandardUsersCanChangePIN_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\B50966B4-C639-4A74-9487-5408D369675F\default\Device\BitLocker
+
+=== manage-bde -status C:
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 62.89 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        Numerical Password
+        TPM And PIN
+
+=== protector types (no keys)
+
+KeyProtectorType KeyProtectorId                        
+---------------- --------------                        
+RecoveryPassword {F2244F6F-1B26-4591-A056-9F5C350E2B6B}
+          TpmPin {60344E9E-DFD5-4B61-8822-3E04377FDC23}
+
+
+=== BitLocker-API events, last 15
+
+TimeCreated            Id LevelDisplayName Message                                                                                                                                                    
+-----------            -- ---------------- -------                                                                                                                                                    
+10/15/2026 2:51:34 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:34 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:34 PM 900 Information      BitLocker successfully committed metadata changes for volume C:.                                                                                           
+10/15/2026 2:51:34 PM 776 Information      A BitLocker key protector was removed.                                                                                                                     
+                                           Protector GUID: {e48d752a-14cb-40b5-8077-abedbeaaca86}                                                                                                     
+                                           Identification GUID: {86266273-eddb-4345-aee9-624b8720cfcc}                                                                                                
+10/15/2026 2:51:34 PM 775 Information      A BitLocker key protector was created.                                                                                                                     
+                                           Protector GUID: {60344e9e-dfd5-4b61-8822-3e04377fdc23}                                                                                                     
+                                           Identification GUID: {86266273-eddb-4345-aee9-624b8720cfcc}                                                                                                
+10/15/2026 2:51:34 PM 840 Information      A trusted WIM file has been added for volume C:.                                                                                                           
+                                           The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973                                                    
+10/15/2026 2:51:33 PM 892 Information      BitLocker successfully sealed a key to the TPM.                                                                                                            
+                                                                                                                                                                                                      
+                                           PCRs measured include [0,2,4,11].                                                                                                                          
+                                                                                                                                                                                                      
+                                           The source for these PCRs was: Default for PCs with UEFI firmware.                                                                                         
+10/15/2026 2:51:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:51:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+10/15/2026 2:39:23 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.                                                     
+
+
+[exit 0]

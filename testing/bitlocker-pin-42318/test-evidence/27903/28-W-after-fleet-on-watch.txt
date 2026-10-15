@@ -1,0 +1,30 @@
+Volume C: [Windows]
+[OS Volume]
+    Size:                 36.00 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Fully Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+17:06:11
+{}
+17:06:51  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:07:29  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:08:07  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:08:45  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:09:23  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:09:59  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:10:38  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:11:20  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:12:02  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:12:40  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:13:18  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:13:54  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:14:37  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:15:12  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:15:49  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:16:24  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}
+17:17:00  Conversion Status: Fully Encrypted | prot: Tpm | log: [exit 0]  | fleet: {'status': 'verified', 'detail': ''}

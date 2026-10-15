@@ -1,0 +1,10 @@
+msiexec exit: 0
+
+ Status Name          DisplayName  
+ ------ ----          -----------  
+Running Fleet osquery Fleet osquery
+
+
+MSI (s) (48:04) [13:27:54:423]: Product: Fleet osquery -- Installation completed successfully.
+MSI (s) (48:04) [13:27:54:424]: Windows Installer installed the product. Product Name: Fleet osquery. Product Version: 1.61.0. Product Language: 1033. Manufacturer: Fleet Device Management (fleetdm.com). Installation success or error status: 0.
+[exit ]

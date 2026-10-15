@@ -1,0 +1,29 @@
+=== BitLocker Management (no 811)
+16:38:58 796 BitLocker Drive Encryption is using software-based encryption to protect volume C:.
+16:38:59 900 BitLocker successfully committed metadata changes for volume C:.
+16:38:59 892 BitLocker successfully sealed a key to the TPM. PCRs measured include [0,2,4,11]. The source for these PCRs was: Default for PCs with UEFI firmware.
+16:38:59 840 A trusted WIM file has been added for volume C:. The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973
+16:38:59 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 778 The BitLocker volume C: was reverted to an unprotected state.
+16:39:30 796 BitLocker Drive Encryption is using software-based encryption to protect volume C:.
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 892 BitLocker successfully sealed a key to the TPM. PCRs measured include [0,2,4,11]. The source for these PCRs was: Default for PCs with UEFI firmware.
+16:39:30 840 A trusted WIM file has been added for volume C:. The SHA-256 hash of the WIM file is: 0xD2A3BC06E062174DFB5B8E373803DBE336E1BB9F79EBA69E38E0BD22C5245973
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 780 The identification field was changed. Identification GUID: {35ddce06-7020-4320-aedf-0eefe64ecc3e}
+16:39:30 900 BitLocker successfully committed metadata changes for volume C:.
+16:39:30 768 BitLocker encryption was started for volume C: using XTS-AES 256 algorithm.
+=== key protector add/remove count
+id 775: 4
+id 776: 2
+=== System BitLocker-Driver
+16:39:30 24660 BitLocker encryption on write started for volume C:.
+16:39:31 24664 BitLocker finalization sweep started for volume C:.
+16:39:31 24665 BitLocker finalization sweep paused for volume C:.
+16:39:31 24666 BitLocker finalization sweep resumed for volume C:.
+16:40:25 24665 BitLocker finalization sweep paused for volume C:.
+16:40:25 24667 BitLocker finalization sweep completed for volume C:.
+[exit ]

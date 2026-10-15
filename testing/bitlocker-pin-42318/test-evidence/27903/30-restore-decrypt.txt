@@ -1,0 +1,7 @@
+start 2026-10-15T17:18:16.7870308+02:00
+
+    SystemDrivesEncryptionType_ProviderSet    REG_DWORD    0x1
+Decryption is now in progress.
+
+
+[exit 0]

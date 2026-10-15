@@ -1,0 +1,80 @@
+=== time
+2026-10-15T13:47:47.3623900+02:00
+=== FVE policy (HKLM\SOFTWARE\Policies\Microsoft\FVE)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    UseAdvancedStartup    REG_DWORD    0x1
+    EnableBDEWithNoTPM    REG_DWORD    0x0
+    UseTPMKey    REG_DWORD    0x2
+    UseTPMPIN    REG_DWORD    0x2
+    UseTPMKeyPIN    REG_DWORD    0x2
+    UseTPM    REG_DWORD    0x2
+    MinimumPIN    REG_DWORD    0x6
+    UseEnhancedPin    REG_DWORD    0x1
+    DisallowStandardUserPINReset    REG_DWORD    0x0
+
+=== MDM PolicyManager BitLocker
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesRequireStartupAuthentication_ProviderSet    REG_DWORD    0x1
+    SystemDrivesRequireStartupAuthentication_WinningProvider    REG_SZ    51DF321C-27A6-48F6-9ADF-777E22F8B15B
+    SystemDrivesRequireStartupAuthentication_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\51DF321C-27A6-48F6-9ADF-777E22F8B15B\default\Device\BitLocker
+    SystemDrivesMinimumPINLength_ProviderSet    REG_DWORD    0x1
+    SystemDrivesMinimumPINLength_WinningProvider    REG_SZ    51DF321C-27A6-48F6-9ADF-777E22F8B15B
+    SystemDrivesMinimumPINLength_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\51DF321C-27A6-48F6-9ADF-777E22F8B15B\default\Device\BitLocker
+    SystemDrivesEnhancedPIN_ProviderSet    REG_DWORD    0x1
+    SystemDrivesEnhancedPIN_WinningProvider    REG_SZ    51DF321C-27A6-48F6-9ADF-777E22F8B15B
+    SystemDrivesEnhancedPIN_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\51DF321C-27A6-48F6-9ADF-777E22F8B15B\default\Device\BitLocker
+    SystemDrivesDisallowStandardUsersCanChangePIN_ProviderSet    REG_DWORD    0x2
+    SystemDrivesDisallowStandardUsersCanChangePIN_WinningProvider    REG_SZ    51DF321C-27A6-48F6-9ADF-777E22F8B15B
+    SystemDrivesDisallowStandardUsersCanChangePIN_ADMXInstanceData    REG_SZ    Software\Microsoft\PolicyManager\providers\51DF321C-27A6-48F6-9ADF-777E22F8B15B\default\Device\BitLocker
+
+=== manage-bde -status C:
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 62.89 GB
+    BitLocker Version:    2.0
+    Conversion Status:    Used Space Only Encrypted
+    Percentage Encrypted: 100.0%
+    Encryption Method:    XTS-AES 256
+    Protection Status:    Protection On
+    Lock Status:          Unlocked
+    Identification Field: Unknown
+    Key Protectors:
+        Numerical Password
+        TPM
+
+=== protector types (no keys)
+
+KeyProtectorType KeyProtectorId                        
+---------------- --------------                        
+RecoveryPassword {2DC3C1FE-46F4-4995-8139-944AAB31A1B1}
+             Tpm {D8F8722E-89FD-4B63-BD40-31CA17E434B5}
+
+
+=== BitLocker-API events, last 15
+
+TimeCreated            Id LevelDisplayName Message                                                                                                            
+-----------            -- ---------------- -------                                                                                                            
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:46:04 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:45:47 PM 869 Information      An operating system volume BitLocker recovery key password for the currently signed in user has not been backed up.
+10/15/2026 1:44:39 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:39 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+10/15/2026 1:44:33 PM 811 Information      BitLocker cannot use Secure Boot for integrity because the required UEFI variable 'PK' is not present.             
+
+
+[exit 0]

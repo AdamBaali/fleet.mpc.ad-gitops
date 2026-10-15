@@ -1,0 +1,117 @@
+=== time
+2026-10-15T13:24:42.5021772+02:00
+=== edition
+
+
+ProductName    : Windows 10 Pro
+EditionID      : Professional
+DisplayVersion : 26H2
+CurrentBuild   : 26300
+UBR            : 9457
+
+
+
+=== Get-Tpm
+Get-Tpm : An internal error has occurred within the Trusted Platform Module support program. (Exception from HRESULT: 0x80284001)
+At C:\Windows\Temp\vmrun-179206344618433.ps1:6 char:16
++ "=== Get-Tpm"; Get-Tpm | Format-List TpmPresent,TpmReady,TpmEnabled,T ...
++                ~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Get-Tpm], TpmWmiException
+    + FullyQualifiedErrorId : Microsoft.Tpm.Commands.TpmWmiException,Microsoft.Tpm.Commands.GetTpmCommand
+ 
+=== Win32_Tpm
+
+
+SpecVersion                 : 2.0, 0, 1.64
+PhysicalPresenceVersionInfo : Not Supported
+
+
+
+=== Secure Boot
+False
+=== powercfg /a (Modern Standby shows as S0 Low Power Idle)
+The following sleep states are not available on this system:
+    Standby (S1)
+
+    Standby (S2)
+
+    Standby (S3)
+
+    Hibernate
+	Hibernation has not been enabled.
+
+    Standby (S0 Low Power Idle)
+	The system firmware does not support this standby state.
+
+    Hybrid Sleep
+	Standby (S3) is not available.
+	Hibernation is not available.
+
+    Fast Startup
+	Hibernation is not available.
+
+=== form factor
+
+
+Manufacturer   : QEMU
+Model          : QEMU Virtual Machine
+PCSystemType   : 1
+PCSystemTypeEx : 1
+
+
+
+
+
+ChassisTypes : {1}
+
+
+
+=== keyboards
+
+Status FriendlyName        InstanceId                             
+------ ------------        ----------                             
+OK     HID Keyboard Device HID\VID_0627&PID_0001\6&2B5E5510&0&0000
+
+
+=== WinRE
+Windows Recovery Environment (Windows RE) and system reset configuration
+Information:
+
+    Windows RE status:         Enabled
+    Windows RE location:       \\?\GLOBALROOT\device\harddisk0\partition4\Recovery\WindowsRE
+    Boot Configuration Data (BCD) identifier: 01a0b5b8-c8cd-11f1-8e46-acdeb4807af9
+    Recovery image location:   
+    Recovery image index:      0
+    Custom image location:     
+    Custom image index:        0
+    Windows RE Version:        10.0.26100.9444
+
+REAGENTC.EXE: Operation Successful.
+    
+=== manage-bde -status C:
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+Volume C: [Windows]
+[OS Volume]
+
+    Size:                 62.89 GB
+    BitLocker Version:    None
+    Conversion Status:    Fully Decrypted
+    Percentage Encrypted: 0.0%
+    Encryption Method:    None
+    Protection Status:    Protection Off
+    Lock Status:          Unlocked
+    Identification Field: None
+    Key Protectors:       None Found
+
+=== protector types (no keys)
+=== FVE policy
+reg : ERROR: The system was unable to find the specified registry key or value.
+At C:\Windows\Temp\vmrun-179206344618433.ps1:16 char:19
++ "=== FVE policy"; reg query HKLM\SOFTWARE\Policies\Microsoft\FVE
++                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: The syst...y key or value.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[exit 1]

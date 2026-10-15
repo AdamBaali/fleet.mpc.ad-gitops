@@ -1,0 +1,6 @@
+Warning: Version mismatch.
+Client Version:   4.92.1
+Server Version:  4.93.0
+{
+  "profile_uuid": "w9f79fdcd-1e9c-471c-a3ce-390bdcb3b6dc"
+}

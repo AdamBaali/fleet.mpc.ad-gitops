@@ -1,0 +1,6 @@
+16:30:57 [Microsoft-Windows-BitLocker/BitLocker Management] 786 BitLocker free space wiping was started for volume C:.
+=== System log BitLocker providers
+16:31:19 Microsoft-Windows-BitLocker-Driver 24651 Wiping of free space on volume C: completed.
+16:30:57 Microsoft-Windows-BitLocker-Driver 24583 Conversion worker thread for volume C: was started.
+16:30:57 Microsoft-Windows-BitLocker-Driver 24649 Wiping of free space on volume C: started.
+[exit ]

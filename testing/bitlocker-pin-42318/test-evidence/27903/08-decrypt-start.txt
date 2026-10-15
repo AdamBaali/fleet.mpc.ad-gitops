@@ -1,0 +1,3 @@
+start 2026-10-15T16:34:39.9198086+02:00
+Decryption is now in progress.
+[exit 0]

@@ -1,0 +1,10 @@
+2026-10-15T16:50:41.8600290+02:00
+MDM policy Refresh (auto): last 10/15/2026 4:48:34 PM result 0x80070032
+MDM policy Refresh (manual): last 10/15/2026 4:50:44 PM result 0x00000000
+F:     Conversion Status:    Fully Decrypted
+C:     Conversion Status:    Used Space Only Encrypted
+=== MDM Admin events since 16:49 (BitLocker or warnings/errors)
+16:49:36 813 Information MDM PolicyManager: Set policy int, Policy: (AllowStandardUserEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x1), Enrollment Type: (0x0), Scope: (0x0).
+16:49:36 813 Information MDM PolicyManager: Set policy int, Policy: (AllowStandardUserEncryption), Area: (BitLocker), EnrollmentID requesting merge: (B50966B4-C639-4A74-9487-5408D369675F), Current User: (Device), Int: (0x1), Enrollment Type: (0x0), Scope: (0x0).
+=== BitLocker Management since 16:49 (no 811)
+[exit 0]
