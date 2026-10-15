@@ -4,8 +4,9 @@
   apply. See `TEST_PLAN.md` "Follow-ups (F)".
 - **Next host: a physical Modern Standby laptop** (ideally Lenovo, like customer-deebradel). Check `powercfg /a` ("Standby (S0
   Low Power Idle)") first, then: Fleet's payload (baseline) -> Manage BitLocker; then profile D (adds
-  `SystemDrivesEnablePrebootInputProtectorsOnSlates`), then A. Pre-boot PIN and pre-boot lockout on the real keyboard.
-- VM `bitlocker-lab` (host 16) is running with TPM+PIN (random PIN): **don't reboot it**. Its TPM keeps the legacy lockout values
+  `SystemDrivesEnablePrebootInputProtectorsOnSlates`), then A. Pre-boot PIN on a real keyboard (the VM now shows it; see below).
+- VM `bitlocker-lab` (host 16) is at the **BitLocker recovery screen** (23:2x, after the pre-boot lockout test; PIN random/unknown).
+  To use it again Adam types the recovery key from Fleet (host 16 > Actions > Show disk encryption key). Its TPM keeps the legacy lockout values
   until cleared. labuser's in-Windows PIN changes are disabled after the L-2 test (expect it to clear after ~8 h).
 - Fleet 7 has profiles C and H beyond its YAML; a GitOps apply removes them.
 - When fleetd 1.62 ships: test the 4.93 My device PIN form (needs Fleet's disk encryption on + Fleet Desktop).
@@ -21,9 +22,10 @@
 - First VM build's blue screen (0xED) cause is unconfirmed. It froze on the same firmware frame as the encrypted 2nd build, so
   the likelier story is Windows auto-encrypting it with the TPM and the boot manager then failing in UTM.
 - Lockout (L-1/L-2): the standard-user thresholds of 3 didn't stop PIN changes at 3; it stopped after 4–5 (matches Windows'
-  default of 4). Unverified whether the value needs a TBS restart or reboot. The pre-boot lockout wasn't tested (UTM).
+  default of 4). Unverified whether the value needs a TBS restart or reboot. Pre-boot lockout tested 23:2x: 6th wrong PIN in one boot -> recovery screen (TPM limit 32 not reached).
 - D-1: a successful standard-user PIN change wasn't completed (no known PIN); only the dialog, rejection and lockout were seen.
-- UTM limitation found: Windows on arm64 in UTM 4.7.5 can't boot with a TPM And PIN protector (boot manager never draws).
+- Corrected 23:15: UTM 4.7.5 arm64 DOES show the pre-boot PIN screen. The earlier hang (13:57–14:10) is unexplained: since then
+  Windows installed updates and `displaybootmenu` was turned on; the ISOs are still attached as USB drives.
   TPM-only reboot was never observed either.
 
 # Reference

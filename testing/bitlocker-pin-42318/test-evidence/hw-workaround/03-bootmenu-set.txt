@@ -1,0 +1,10 @@
+The operation completed successfully.
+The operation completed successfully.
+
+timeout                 15
+displaybootmenu         Yes
+BitLocker: Off
+reboot scheduled 2026-10-15T22:54:17
+
+
+[exit 0]

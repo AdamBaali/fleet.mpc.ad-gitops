@@ -15,7 +15,8 @@ Desktop + a fleetd script path; N-3 the 3-attempt lockout setting.
 ## Status (2026-10-15 14:10)
 S-1 PASS (2nd build), S-1b recorded (not Modern Standby), S-2 PASS, S-3 PASS, S-4 PASS after detaching the ISOs.
 B-1 PASS, **B-2 bug NOT reproduced** (PIN option shown and PIN added with Fleet's payload), B-3 no stall, B-4 old instructions.
-Pre-boot PIN (T step 5): **FAIL/BLOCKED in UTM**: the VM never gets past Windows Boot Manager with a TPM And PIN protector.
+Pre-boot PIN (T step 5): failed earlier in the day (VM hung at Windows Boot Manager); **works since 23:15** (PIN screen, wrong-PIN
+message, recovery after the 6th wrong PIN). See RESULTS "Getting around the hardware".
 T-A to T-D NOT-RUN: uninformative on this host (baseline already works) and the VM no longer boots. Next host: a physical
 Modern Standby laptop. Details in RESULTS.md.
 

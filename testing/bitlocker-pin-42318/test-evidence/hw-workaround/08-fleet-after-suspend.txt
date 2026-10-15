@@ -1,0 +1,6 @@
+disk_encryption_enabled: True
+os_settings disk: {'status': 'verified', 'detail': ''}
+seen: 2026-10-15T21:07:44Z
+guest time: 2026-10-15T23:09:03 lastboot: 10/15/2026 22:59:56
+C: protection=Off volume=FullyEncrypted protectors=RecoveryPassword,TpmPin
+[exit ]

@@ -371,3 +371,37 @@ deliberately wrong test values.
   to reset the PIN as an administrator."** TPM lockout counter still 0. The threshold 3 from the profile didn't stop it at 3
   (probably read at TBS start/restart; not verified, the VM can't reboot). `close-out/41`–`45`, `46`.
 - First click attempts missed (helper `clickd` scaling is for another window size; used guest `click`); `35`–`40` are those misses.
+
+## Getting around the hardware (2026-10-15, 22:51–)
+Adam's go-ahead 22:5x: suspend BitLocker on bitlocker-lab, reboot diagnosis, then patched QEMU on a disk clone; stop under 20 GB free.
+Research: `notes/hardware-workarounds.md`.
+- 22:43 VM signals: platform role Desktop, chassis 1, no Modern Standby, HID keyboard (`hw-workaround/01-platform-signals.txt`).
+- 22:51 `Suspend-BitLocker -RebootCount 0`: protection Off, protectors still RecoveryPassword + TpmPin (`02-suspend.txt`).
+- 22:54 `bcdedit /set {bootmgr} displaybootmenu yes`, timeout 15, restart. Windows installed pending updates on the way down,
+  then "Display output is not active", firmware logo, and **Windows Boot Manager's menu drew in the UTM window** (text mode,
+  countdown running), then Windows booted to the desktop by 23:00 (`10`–`13`). So bootmgr can draw on virtio-ramfb in UTM; the
+  earlier hang with a TPM protector is not a dead display. Fleet still shows disk encryption Verified (`14-fleet-after-suspend.txt`).
+- 23:0x Homebrew: qemu 11.1.2, swtpm, meson, ninja, pkgconf. Built `vm/qemu/build/qemu-system-aarch64` from the 11.1.2 tarball
+  (sha256 matches Homebrew's) with one patch in `hw/acpi/aml-build.c`: FADT Preferred_PM_Profile = `$QEMU_FADT_PM_PROFILE`
+  (default 0). Run scripts: `vm/run-qemu-clone.sh <profile>`, `vm/qmp.py` (screendump/send-key).
+- **Blocked 23:0x:** reading the UTM bundle (`~/Library/Containers/com.utmapp.UTM/...`) raises a macOS prompt "claude would like
+  to access data from other apps". Claude can't grant it; waiting for Adam to click Allow.
+- 23:12 Adam clicked Allow. Bundle: qcow2 (34 GB apparent), `tpmdata`, `efi_vars.fd`; ISOs still attached as USB drives.
+- 23:14 Before shutdown Windows reported BitLocker **On** again (suspended at 22:51, still Off at 23:09). Cause in Fleet's code:
+  the server tells fleetd to re-enable protection on an encrypted volume whose protection is off (`orbit/pkg/update/notifications.go`,
+  `EnableBitLockerProtection`; `bitlocker_management_windows.go` `enableKeyProtectors`). So a suspend doesn't last on a host with
+  Fleet's disk encryption on. Shut down 23:14:34; `cp -c` clone to `vm/clone/` (+ UTM tpmdata/efi_vars copies). Clone has protection On.
+- 23:15 **Pre-boot PIN works in UTM.** Started bitlocker-lab: Windows Boot Manager menu, then BitLocker "Enter the PIN to unlock this
+  drive" (`hw-workaround/21`). Left alone, the VM powered off after ~60 s at the PIN screen. Second start: typed "000000" (not the
+  PIN) three times with `\n`: digits accepted, Return not (`22`–`24`); `\r` submits: "Incorrect PIN; please enter the PIN again"
+  (`25`). Submitted again: still incorrect after the 5th (`26`); **the 6th wrong PIN switched to "BitLocker recovery: Enter the
+  recovery key for this drive"** (`27`, key ID only). TPM limit (32) not reached, so this is BitLocker's own per-boot limit.
+  The earlier "never draws" result (13:57) is contradicted; unexplained (since then: Windows updates, `displaybootmenu` on).
+- VM now waits at the recovery screen. Next: Adam types the recovery key (Fleet: host 16 > Actions > Show disk encryption key).
+- 23:2x Standalone patched QEMU on the clone: HVF rejected `tpm-tis-device` ("HV_BAD_ARGUMENT") until `ppi=off` (the PPI region
+  isn't 16 KB aligned); `highmem=on` dropped; swtpm started before QEMU. Network `restrict=on` (no Fleet contact), guest agent socket.
+- 23:25 **Tablet patch confirmed at pre-boot.** Same clone, same screen, only the FADT profile differs: profile 8 ->
+  "Press Esc **or the Windows key** for recovery" (`tablet/01-clone-boot-25s.png`); profile 0 -> "Press Esc for BitLocker recovery"
+  (`tablet/02-clone-pm0-boot-25s.png`), same as UTM. So Windows now classifies the VM as a slate. Next (needs Windows running, so
+  the recovery key once): platform role in Windows, "Change how drive is unlocked" / add a PIN on the slate (expect "only USB" or
+  0x803100B5), then `OSEnablePrebootInputProtectorsOnSlates` (profile D's setting) applied locally, and retry.

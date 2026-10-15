@@ -1,0 +1,55 @@
+time: 2026-10-15T22:42:57
+PowerDeterminePlatformRoleEx: 1 (Desktop)
+Chassis types: 1
+PCSystemType: 1
+PCSystemTypeEx: 1
+Manufacturer/Model: QEMU / QEMU Virtual Machine
+== powercfg /a
+The following sleep states are not available on this system:
+    Standby (S1)
+
+    Standby (S2)
+
+    Standby (S3)
+
+    Hibernate
+	Hibernation has not been enabled.
+
+    Standby (S0 Low Power Idle)
+	The system firmware does not support this standby state.
+
+    Hybrid Sleep
+	Standby (S3) is not available.
+	Hibernation is not available.
+
+    Fast Startup
+	Hibernation is not available.
+
+== HSTI / Device encryption support
+
+
+AlgorithmProvider           : cnghwassist
+SlicedEncryptionInPlace     : 1
+SlicedEncryptionMinSize     : 524288
+SlicedEncryptionRequestsMax : 1
+PreventDeviceEncryption     : 1
+
+
+
+
+
+
+BootStatus : 0
+
+
+
+
+== Keyboards (PnP)
+
+Status FriendlyName        InstanceId                             
+------ ------------        ----------                             
+OK     HID Keyboard Device HID\VID_0627&PID_0001\6&2B5E5510&0&0000
+
+
+
+[exit 0]

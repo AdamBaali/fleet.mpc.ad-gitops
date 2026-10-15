@@ -14,7 +14,7 @@ Code/doc research: `notes/research-2026-10-15.md`.
 | B-2 | Manage BitLocker with Fleet's payload (admin) | Bug NOT reproduced: "Change how drive is unlocked at startup" -> "Enter a PIN (recommended)"; PIN added on the encrypted drive | `test-evidence/B/03-B2-manage-bitlocker.png`, `04-B2-after-click-change.png`, `test-evidence/P/01-after-pin.txt` |
 | B-3 | Refetch with PIN required | PASS: no stall | `RESULTS.md` 13:47 |
 | B-4 | My device "Create PIN" (fleetd 1.61.0) | Old Manage BitLocker instructions, not the 4.93 form | `test-evidence/B/07-B4-my-device-3.png`, `08-B4-create-pin-click.png` (URL masked) |
-| P | Pre-boot PIN prompt | BLOCKED: UTM never shows Windows Boot Manager's BitLocker screen; needs real hardware | `test-evidence/P/` |
+| P | Pre-boot PIN prompt | Earlier BLOCKED (hung); **PASS at 23:15**: PIN screen shown, wrong PIN rejected, 6th wrong PIN -> recovery | `test-evidence/P/`, `hw-workaround/21`–`27` |
 | N-2 | Custom profile C (PIN Required, others Disallowed) + Fleet encryption on, **standard user, no Fleet Desktop** | Profile Verified; Fleet didn't override it (also after a refetch). **No prompt; TPM-only protector kept; Manage BitLocker asks for admin credentials.** Fleet: "action_required / create_pin" | `test-evidence/N2/04-after-profile-C.txt`, `05-labuser-manage-bitlocker.png`, `06-labuser-click-change.png` |
 | N-2b | Same, an **admin** adds the PIN | PASS: "Enter a PIN" works with Required; protectors RecoveryPassword + TpmPin; "Change PIN" shown; **Fleet: Verified** | `test-evidence/N2/08-admin-pin-1.png`, `11-after-admin-pin.txt`, `12-after-pin-now.png`; `RESULTS.md` 14:53 |
 | N-1 | "Only USB is offered" + `SystemDrivesEnablePrebootInputProtectorsOnSlates` | NOT-RUN: needs a device like the customer's | `profiles/D - ...xml` ready |
@@ -42,7 +42,7 @@ Banner "Create a BitLocker PIN": ![My device banner](test-evidence/B/07-B4-my-de
 
 "Create PIN" opens the old Manage BitLocker instructions: ![Create PIN instructions](test-evidence/B/08-B4-create-pin-click.png)
 
-### P: pre-boot PIN in UTM (blocked)
+### P: pre-boot PIN in UTM (earlier attempt, hung; see "Getting around the hardware" for the working run)
 After reboot, the screen stays on the firmware frame: ![Firmware frame](test-evidence/P/03-now.png)
 
 With `virtio-gpu-pci`, Windows Boot Manager starts and draws nothing: ![Boot manager](test-evidence/P/virtio-gpu/05.png)
@@ -124,3 +124,20 @@ Wrong old PIN: ![Wrong PIN](test-evidence/close-out/31-D1-wrong-old-pin-result.p
 After repeated wrong PINs: ![PIN changes disabled](test-evidence/close-out/45-L2b-wrong-5.png)
 
 Fleet host 16 Controls: profile H Verified: ![Profile H](test-evidence/close-out/fleet-ui/36-host16-controls-profile-H.jpg)
+
+## Getting around the hardware (22:51–23:2x)
+| ID | What | Result | Evidence |
+|---|---|---|---|
+| H-1 | VM platform signals | Desktop role, chassis 1, no Modern Standby: why "only USB" doesn't reproduce here | `hw-workaround/01-platform-signals.txt` |
+| H-2 | Suspend BitLocker, reboot with boot menu on | Boots; **Windows Boot Manager draws** in UTM | `hw-workaround/02`, `03`, `06-reboot-boot-manager-menu.png` |
+| H-3 | Fleet vs suspended BitLocker | Within ~20 min protection was back **On**: fleetd re-enables protection on encrypted, unprotected volumes (Fleet 4.93 `EnableBitLockerProtection`) | `RESULTS.md` 23:14 |
+| H-4 | Pre-boot PIN screen (TPM+PIN, random PIN) | **Shown**: "Enter the PIN to unlock this drive"; typing works; Return must be sent as CR | `hw-workaround/21`–`25` |
+| H-5 | Pre-boot wrong PINs | "Incorrect PIN; please enter the PIN again" x5; **the 6th wrong PIN -> BitLocker recovery** (recovery key needed) | `hw-workaround/25`–`27` |
+
+Pre-boot PIN screen in UTM: ![PIN screen](test-evidence/hw-workaround/21-preboot-pin-screen.png)
+
+Wrong PIN: ![Incorrect PIN](test-evidence/hw-workaround/25-preboot-wrong-pin-1.png)
+
+After the 6th wrong PIN: recovery (only the key ID is shown): ![Recovery](test-evidence/hw-workaround/27-preboot-wrong-pin-6-recovery.png)
+
+Windows Boot Manager drawn in UTM: ![Boot manager](test-evidence/hw-workaround/06-reboot-boot-manager-menu.png)

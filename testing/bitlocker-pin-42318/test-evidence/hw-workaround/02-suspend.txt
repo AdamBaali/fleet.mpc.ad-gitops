@@ -1,0 +1,10 @@
+time: 2026-10-15T22:51:51
+before: protection=On protectors=RecoveryPassword,TpmPin
+after Suspend-BitLocker -RebootCount 0: protection=Off protectors=RecoveryPassword,TpmPin
+== bcdedit {bootmgr}
+
+default                 {current}
+timeout                 30
+
+
+[exit 0]
