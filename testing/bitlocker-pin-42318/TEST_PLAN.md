@@ -58,3 +58,13 @@ For each: remove the previous profile first, wait for the new one to show **Veri
 
 ## Done when
 A profile passes steps 1 to 6, or 15:00 arrives. Either way: `RESULTS.md`, then `ISSUE_UPDATE.md` drafted for Adam to post.
+
+## Follow-ups (F), not run yet (added 2026-10-15 22:40)
+Same VM and host 16; nothing here needs a reboot. Evidence goes in `test-evidence/follow-up/` with VM and Fleet UI screenshots.
+| ID | What | How | Needs | Pass when |
+|---|---|---|---|---|
+| F-1 | Standard user completes a PIN change | As `lab`: "Reset a forgotten PIN" -> Adam types a known PIN. As `labuser`: "Change PIN", Adam types old + new. Then `tests/check.ps1`, Fleet refetch | Adam at the keyboard; L-2 block expired (~8 h after 22:22) | Change succeeds with no UAC; protector still TpmPin; Fleet disk encryption still Verified, policy 588 passes |
+| F-2 | Fleet script sets a PIN IT knows | Variant of `tests/add-pin-random.ps1` reading `$FLEET_SECRET_BITLOCKER_PIN` (Fleet custom variable); run on host 16 | Adam's OK (Fleet secrets are instance-wide), Adam enters the value | Script exit 0, PIN never in output or activity; Fleet Verified; F-1 works with that PIN |
+| F-3 | Fleet flags users locked out of PIN changes | Policy/query on `windows_eventlog` for channel `Microsoft-Windows-BitLocker/BitLocker Management`, event 790 (check the table exists in fleetd 1.61.0 first) | Nothing | Host 16 shows the 22:2x failures; policy fails on host 16 |
+| F-4 | Why the standard-user threshold 3 didn't apply | `Restart-Service tbs`, wait for the L-2 block to expire, retry wrong old PINs as labuser | Nothing (low value) | Block after 3 (then the doc can say "after a restart") or still 4–5 (then the setting doesn't affect this dialog) |
+

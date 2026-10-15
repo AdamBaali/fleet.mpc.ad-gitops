@@ -1,12 +1,15 @@
-# Open items
+# Open items (2026-10-15, 22:40)
+- **Follow-ups on this VM (optional):** F-1 full standard-user PIN change (Adam types PINs); F-2 Fleet script with a PIN IT knows
+  (Fleet secret variable, global: Adam's OK); F-3 Fleet policy for users locked out of PIN changes; F-4 why the threshold 3 didn't
+  apply. See `TEST_PLAN.md` "Follow-ups (F)".
 - **Next host: a physical Modern Standby laptop** (ideally Lenovo, like customer-deebradel). Check `powercfg /a` ("Standby (S0
   Low Power Idle)") first, then: Fleet's payload (baseline) -> Manage BitLocker; then profile D (adds
-  `SystemDrivesEnablePrebootInputProtectorsOnSlates`), then A. Pre-boot PIN on the real keyboard.
-- VM `bitlocker-lab` no longer boots (C: has TPM And PIN; Windows Boot Manager never shows the PIN screen in UTM). To reuse it:
-  boot the Windows ISO into recovery and unlock C: with the recovery key from Fleet (Adam types), or rebuild (`vm/build-vm.sh`).
+  `SystemDrivesEnablePrebootInputProtectorsOnSlates`), then A. Pre-boot PIN and pre-boot lockout on the real keyboard.
+- VM `bitlocker-lab` (host 16) is running with TPM+PIN (random PIN): **don't reboot it**. Its TPM keeps the legacy lockout values
+  until cleared. labuser's in-Windows PIN changes are disabled after the L-2 test (expect it to clear after ~8 h).
+- Fleet 7 has profiles C and H beyond its YAML; a GitOps apply removes them.
 - When fleetd 1.62 ships: test the 4.93 My device PIN form (needs Fleet's disk encryption on + Fleet Desktop).
-- Fleet 7's YAML holds the baseline (disk encryption + PIN required). Host 15 is enrolled there and now offline.
-- GitOps applies need the #54654 SCEP tunnel up (pid 92013 started 13:12).
+- GitOps applies need the #54654 SCEP tunnel up, and currently also the empty iOS enroll secret set (LUKS session note).
 - Started outside this lab today: #54654 `cloudflared` tunnel and that lab's Docker `pingfederate`/`step-ca`. Stop only if Adam says so.
 
 # Not tested / caveats
@@ -17,6 +20,9 @@
 - VM vs. the customer: arm64, QEMU firmware, not a physical laptop (S-1b records how Windows classifies it).
 - First VM build's blue screen (0xED) cause is unconfirmed. It froze on the same firmware frame as the encrypted 2nd build, so
   the likelier story is Windows auto-encrypting it with the TPM and the boot manager then failing in UTM.
+- Lockout (L-1/L-2): the standard-user thresholds of 3 didn't stop PIN changes at 3; it stopped after 4–5 (matches Windows'
+  default of 4). Unverified whether the value needs a TBS restart or reboot. The pre-boot lockout wasn't tested (UTM).
+- D-1: a successful standard-user PIN change wasn't completed (no known PIN); only the dialog, rejection and lockout were seen.
 - UTM limitation found: Windows on arm64 in UTM 4.7.5 can't boot with a TPM And PIN protector (boot manager never draws).
   TPM-only reboot was never observed either.
 
