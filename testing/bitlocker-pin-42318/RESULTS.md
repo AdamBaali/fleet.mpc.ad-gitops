@@ -309,3 +309,5 @@ Plan: `notes/27903-research.md`. Profiles E (`SystemDrivesEncryptionType` = 1) a
   disappeared on restart; other labs' VMs untouched). Fleet host 15 deleted from fleet 7 (fleet 7 now has no hosts; its escrowed
   recovery key went with it). GitOps repo pushed (114cbec..2ee4f88): `testing/bitlocker-pin-42318/` + README pointers; no apply
   ran. Mac: 61 GB free.
+- 17:50 Adam: evidence had no visible screenshots. EVIDENCE.md now embeds 16 key VM screenshots (paths checked). Gap recorded: no Fleet UI screenshots (Fleet status came from the API) and the VM/host were deleted before that was noticed. 27903/20-T3-screen-1.png is a duplicate of the T2 screen.
+- 17:55 Adam: late, save everything; new session later. HANDOFF.md next step 0 = re-capture Fleet UI screenshots.
