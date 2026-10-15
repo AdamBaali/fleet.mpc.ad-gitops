@@ -1,0 +1,12 @@
+
+Volume C: [Windows]
+Key Protectors of Type TPM And PIN
+
+    TPM And PIN:
+      ID: {D9C9B1A0-EDF3-4EE3-B8EE-7E942182B4BB}
+      PCR Validation Profile:
+        0, 2, 4, 11
+
+ERROR: An error occurred while deleting the key protector.
+Group Policy settings require the use of a PIN at startup. Please choose this BitLocker startup option.
+after: RecoveryPassword,TpmPin  protection=On

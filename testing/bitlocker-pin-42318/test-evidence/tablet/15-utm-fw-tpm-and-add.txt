@@ -1,0 +1,8 @@
+time: 2026-10-15T22:30:11
+PlatformRole: 8
+protectors: RecoveryPassword protection=Off
+== add TPM-only
+
+ERROR: This computer either does not have a TPM, or one which is capable of
+being used with BitLocker.
+protectors: RecoveryPassword

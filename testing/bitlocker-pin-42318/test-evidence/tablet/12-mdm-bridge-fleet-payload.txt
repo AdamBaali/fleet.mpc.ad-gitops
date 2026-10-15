@@ -1,0 +1,13 @@
+current SystemDrivesRequireStartupAuthentication: 
+set FAILED: A general error occurred that is not covered by a more specific error code.
+
+
+UseTPM                                 : 0
+UseTPMPIN                              : 1
+UseTPMKey                              : 0
+UseTPMKeyPIN                           : 0
+OSEnablePrebootInputProtectorsOnSlates : 
+
+
+
+

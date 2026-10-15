@@ -405,3 +405,17 @@ Research: `notes/hardware-workarounds.md`.
   (`tablet/02-clone-pm0-boot-25s.png`), same as UTM. So Windows now classifies the VM as a slate. Next (needs Windows running, so
   the recovery key once): platform role in Windows, "Change how drive is unlocked" / add a PIN on the slate (expect "only USB" or
   0x803100B5), then `OSEnablePrebootInputProtectorsOnSlates` (profile D's setting) applied locally, and retry.
+- 00:2x Adam ran `Type-recovery-key-into-clone.command` (fetches host 16's key with his fleetctl login and types it via QMP; the
+  key never reached Claude). The tablet clone booted to Windows. **Platform role 8 (Slate)**, PCSystemType 2, PCSystemTypeEx 8;
+  protection On, protectors RecoveryPassword + TpmPin, FVE policy from profile C (PIN required) (`tablet/09`).
+- 00:27 Couldn't swap protectors under profile C ("Group Policy settings require the use of a PIN"). MDM WMI bridge refused a
+  write to `SystemDrivesRequireStartupAuthentication` (enrollment owns it), so Fleet's payload (all 2) was written to
+  `HKLM\SOFTWARE\Policies\Microsoft\FVE` directly (clone has no network, nothing reverts it). TPM+PIN deleted. Adding TPM failed:
+  0x80310002 with Homebrew's edk2, "no TPM" with UTM's edk2 (TPM via `ppi=off` doesn't work for Windows here). (`tablet/10`–`15`)
+- 00:31 **Slate test without a TPM** (`tests/slate-password-test.ps1`, `EnableBDEWithNoTPM`=1, random password never shown, removed
+  after each try): slate, slates setting unset -> `Add-BitLockerKeyProtector -PasswordProtector` **FAILED 0x803100B5 "No pre-boot
+  keyboard detected"**; `OSEnablePrebootInputProtectorsOnSlates`=1 -> **OK**; unset again -> 0x803100B5 (`tablet/16`).
+- 00:34 **Control:** same clone booted with FADT profile 0 (platform role 1, Desktop): OK in all three cases (`tablet/18`).
+  So the slate classification alone blocks pre-boot keyboard protectors, and the slates setting lifts it. Caveats: password
+  protector, not TPM+PIN (no working TPM in the standalone QEMU); setting applied as a local policy value, not via Fleet's CSP.
+- Clone shut down; `vm/clone/` kept (gitignored; APFS clone of the UTM disk, grows with writes). Disk 31 GB free.

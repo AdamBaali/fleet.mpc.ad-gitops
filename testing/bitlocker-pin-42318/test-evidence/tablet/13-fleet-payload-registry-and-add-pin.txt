@@ -1,0 +1,11 @@
+FVE now (Fleet payload, local registry): UseAdvancedStartup                     : 1 | EnableBDEWithNoTPM                     : 0 | UseTPM                                 : 2 | UseTPMPIN                              : 2 | UseTPMKey                              : 2 | UseTPMKeyPIN                           : 2 | OSEnablePrebootInputProtectorsOnSlates :
+== delete TPM+PIN
+
+Key protector with ID "{D9C9B1A0-EDF3-4EE3-B8EE-7E942182B4BB}" deleted.
+protectors: RecoveryPassword
+== add TPM-only (as Fleet does after encrypting)
+
+ERROR: An error occurred (code 0x80310002):
+The BIOS did not correctly communicate with the Trusted Platform Module (TPM). Contact the computer manufacturer for BIOS upgrade instructions.
+protectors: RecoveryPassword
+suspended: protection=Off

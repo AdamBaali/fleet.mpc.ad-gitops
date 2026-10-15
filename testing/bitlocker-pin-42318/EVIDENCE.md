@@ -17,7 +17,7 @@ Code/doc research: `notes/research-2026-10-15.md`.
 | P | Pre-boot PIN prompt | Earlier BLOCKED (hung); **PASS at 23:15**: PIN screen shown, wrong PIN rejected, 6th wrong PIN -> recovery | `test-evidence/P/`, `hw-workaround/21`–`27` |
 | N-2 | Custom profile C (PIN Required, others Disallowed) + Fleet encryption on, **standard user, no Fleet Desktop** | Profile Verified; Fleet didn't override it (also after a refetch). **No prompt; TPM-only protector kept; Manage BitLocker asks for admin credentials.** Fleet: "action_required / create_pin" | `test-evidence/N2/04-after-profile-C.txt`, `05-labuser-manage-bitlocker.png`, `06-labuser-click-change.png` |
 | N-2b | Same, an **admin** adds the PIN | PASS: "Enter a PIN" works with Required; protectors RecoveryPassword + TpmPin; "Change PIN" shown; **Fleet: Verified** | `test-evidence/N2/08-admin-pin-1.png`, `11-after-admin-pin.txt`, `12-after-pin-now.png`; `RESULTS.md` 14:53 |
-| N-1 | "Only USB is offered" + `SystemDrivesEnablePrebootInputProtectorsOnSlates` | NOT-RUN: needs a device like the customer's | `profiles/D - ...xml` ready |
+| N-1 | "Only USB is offered" + slates setting | **Reproduced in a tablet-classified VM** (see "Tablet (slate) VM"): 0x803100B5 without the setting, OK with it; desktop control OK | `tablet/16`, `18` |
 | N-3 | Lockout after 3 failed PIN attempts | Tested 22:18 (L-1/L-2 below): Fleet profile delivers the TPM lockout policy, result 32 failures / 2 h heal, not 3 | `close-out/34-L1-after-profile-H.txt` |
 
 Screenshots never show a PIN (dots only) or a recovery key; My device screenshots have the address bar (device token) masked.
@@ -141,3 +141,21 @@ Wrong PIN: ![Incorrect PIN](test-evidence/hw-workaround/25-preboot-wrong-pin-1.p
 After the 6th wrong PIN: recovery (only the key ID is shown): ![Recovery](test-evidence/hw-workaround/27-preboot-wrong-pin-6-recovery.png)
 
 Windows Boot Manager drawn in UTM: ![Boot manager](test-evidence/hw-workaround/06-reboot-boot-manager-menu.png)
+
+## Tablet (slate) VM: the customer's "only USB" (2026-10-16, 00:2x–00:35)
+A disk clone of bitlocker-lab in a patched QEMU 11.1.2 (FADT Preferred_PM_Profile from `QEMU_FADT_PM_PROFILE`), outside UTM,
+network restricted. Windows reads the ACPI profile as its platform role.
+| ID | What | Result | Evidence |
+|---|---|---|---|
+| SL-1 | Pre-boot screen, profile 8 vs 0 | Profile 8: "Press Esc **or the Windows key** for recovery"; profile 0: "Press Esc for BitLocker recovery" | `tablet/01`, `02` |
+| SL-2 | Windows platform role | Profile 8: **8 (Slate)**, PCSystemTypeEx 8. Profile 0: 1 (Desktop) | `tablet/09`, `18` |
+| SL-3 | Pre-boot keyboard protector on the slate | **0x803100B5 "No pre-boot keyboard detected"** | `tablet/16` |
+| SL-4 | Same with `OSEnablePrebootInputProtectorsOnSlates` = 1 | **OK** | `tablet/16` |
+| SL-5 | Control: same disk as Desktop, setting unset | OK | `tablet/18` |
+
+Caveats: tested with a startup password (no working TPM in the standalone QEMU), not TPM+PIN; the slates value was set as a local
+policy value, not delivered by Fleet. Both use the same pre-boot-keyboard rule in Windows.
+
+Slate pre-boot screen ("or the Windows key"): ![Slate](test-evidence/tablet/01-clone-boot-25s.png)
+
+Same disk as Desktop: ![Desktop](test-evidence/tablet/02-clone-pm0-boot-25s.png)

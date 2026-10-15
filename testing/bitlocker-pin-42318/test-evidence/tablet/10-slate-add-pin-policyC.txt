@@ -1,0 +1,11 @@
+time: 2026-10-15T22:27:26
+removed TpmPin
+before add: RecoveryPassword,TpmPin
+Add -TpmAndPinProtector FAILED: 0x80310031 This key protector cannot be added. Only one key protector of this type is allowed for this drive. (Exception from HRESULT: 0x80310031)
+after: RecoveryPassword,TpmPin
+== manage-bde -protectors -add C: -TPMAndPIN (expect a prompt; stdin closed)
+BitLocker Drive Encryption: Configuration Tool version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. All rights reserved.
+
+ERROR: An error occurred (code 0x80070006):
+The handle is invalid.
