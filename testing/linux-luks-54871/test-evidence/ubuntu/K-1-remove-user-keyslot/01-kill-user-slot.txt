@@ -1,0 +1,8 @@
+# 2026-10-15T20:59:08Z  guest
+$ cryptsetup luksHeaderBackup  (kept in the guest for K-11, not copied out)
+16777216 /root/header-before-k1.img
+[exit 0]
+
+$ cryptsetup luksKillSlot /dev/nvme0n1p3 0 --key-file <escrow key>
+slot 0 removed
+[exit 0]

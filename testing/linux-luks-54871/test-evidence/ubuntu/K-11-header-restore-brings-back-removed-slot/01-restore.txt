@@ -1,0 +1,9 @@
+# 2026-10-15T21:02:39Z  guest
+$ cryptsetup luksHeaderRestore /dev/nvme0n1p3 --header-backup-file /root/header-before-k1.img   (backup taken before slot 0 was removed)
+restored
+user passphrase opens again: YES
+[exit 0]
+UUID:          	22e0008a-5be6-4222-80cb-67ff6adb81b0
+  0: luks2
+  1: luks2
+	Digest:      76c786fef3c7172b... (shortened, 16 bytes)

@@ -1,0 +1,6 @@
+# 2026-10-15T20:57:35Z
+slot 0 with the escrow key: rejected
+slot 0 with the user passphrase: OPENS
+slot 1 with the escrow key: OPENS
+slot 1 with the user passphrase: rejected
+[exit 0]

@@ -6,17 +6,28 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 4 |
+| PASS | 15 |
 | FAIL | 1 |
 | BLOCKED | 1 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
 | Desk review | D-1: what Fleet claims (docs and code) | PASS | [open](#d-1-what-fleet-claims-docs-and-code) |
+| Ubuntu VM | K-1 and K-2: remove the end user's keyslot (no reboot) | PASS | [open](#k-1-and-k-2-remove-the-end-users-keyslot-no-reboot) |
+| Ubuntu VM | K-11: a header backup brings a removed key back | PASS | [open](#k-11-a-header-backup-brings-a-removed-key-back) |
+| Ubuntu VM | K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected | PASS | [open](#k-1--k-3-remove-the-end-users-key-then-reboot-the-old-passphrase-is-rejected) |
+| Ubuntu VM | K-7: what Fleet shows after the user slot is removed | PASS | [open](#k-7-what-fleet-shows-after-the-user-slot-is-removed) |
+| Ubuntu VM | K-9: negative control, remove the ESCROW slot instead | PASS | [open](#k-9-negative-control-remove-the-escrow-slot-instead) |
+| Ubuntu VM | M-1 to M-3: key slot changes don't change the volume key or the data | PASS | [open](#m-1-to-m-3-key-slot-changes-dont-change-the-volume-key-or-the-data) |
+| Ubuntu VM | M-5: control, what DOES change the volume key | PASS | [open](#m-5-control-what-does-change-the-volume-key) |
 | Ubuntu VM | S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption" | PASS | [open](#s-1-ubuntu-24045-desktop-installer-use-lvm-and-encryption) |
 | Ubuntu VM | S-1c: second Ubuntu desktop install attempt (VM `luks-ubuntu2`, since deleted) | FAIL | [open](#s-1c-second-ubuntu-desktop-install-attempt-vm-luks-ubuntu2-since-deleted) |
 | Ubuntu VM | S-1d: Ubuntu 24.04.5 server ISO, unattended autoinstall (LVM on LUKS), VM `luks-ubuntu` | PASS | [open](#s-1d-ubuntu-24045-server-iso-unattended-autoinstall-lvm-on-luks-vm-luks-ubuntu) |
 | Ubuntu VM | S-3: baseline luksDump (before Fleet escrow) | PASS | [open](#s-3-baseline-luksdump-before-fleet-escrow) |
+| Ubuntu VM | S-4: trigger Fleet's Linux escrow (the "Create key" action) | PASS | [open](#s-4-trigger-fleets-linux-escrow-the-create-key-action) |
+| Ubuntu VM | S-5: Fleet's view after the escrow | PASS | [open](#s-5-fleets-view-after-the-escrow) |
+| Ubuntu VM | S-6: luksDump after the escrow | PASS | [open](#s-6-luksdump-after-the-escrow) |
+| Ubuntu VM | S-7: the escrowed key opens only its own slot | PASS | [open](#s-7-the-escrowed-key-opens-only-its-own-slot) |
 | Ubuntu VM | S-8: first boot after install | BLOCKED | [open](#s-8-first-boot-after-install) |
 
 ## Desk review
@@ -33,6 +44,88 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 ---
 
 ## Ubuntu VM
+
+### K-1 and K-2: remove the end user's keyslot (no reboot)
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-1-remove-user-keyslot/result.md)
+
+- **Objective:** Remove slot 0 with the escrowed key and see what changes in the header and for each key.
+- **Expected:** One slot left (the escrow one). UUID and digest unchanged. The running system is unaffected.
+
+**Output:** [01-kill-user-slot.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/01-kill-user-slot.txt) · [02-luksdump-after.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/02-luksdump-after.txt) · [03-who-can-unlock-now.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/03-who-can-unlock-now.txt)
+
+---
+
+### K-11: a header backup brings a removed key back
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/result.md)
+
+- **Objective:** How permanent is removing a keyslot?
+- **Expected:** `luksHeaderRestore` from an earlier backup restores the removed slot.
+
+**Output:** [01-restore.txt](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/01-restore.txt)
+
+---
+
+### K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/result.md)
+
+- **Objective:** Q1: after IT removes the end user's LUKS key, what happens at boot?
+- **Expected:** The user's passphrase no longer unlocks the disk. Only the escrowed key does.
+
+**Output:** [01-remove-user-slot-again.txt](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/01-remove-user-slot-again.txt) · [03-guest-reachable.txt](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/03-guest-reachable.txt)
+
+**unlock prompt after old passphrase typed**
+
+![unlock prompt after old passphrase typed](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/02-unlock-prompt-after-old-passphrase-typed.png)
+
+
+---
+
+### K-7: what Fleet shows after the user slot is removed
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/result.md)
+
+- **Objective:** Does Fleet notice that the end user's key is gone?
+- **Expected:** No: Fleet verifies the escrow slot's salt, not the user's slot.
+
+**Output:** [01-fleet-status.txt](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/01-fleet-status.txt)
+
+---
+
+### K-9: negative control, remove the ESCROW slot instead
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/result.md)
+
+- **Objective:** Does Fleet notice when its own key slot is removed? (Customer report: fleetdm/fleet#52236, closed as fixed.)
+- **Expected:** Fleet detects it, shows action required, and offers re-escrow.
+
+**Output:** [01-remove-escrow-slot.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/01-remove-escrow-slot.txt) · [02-fleet-status-polling.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/02-fleet-status-polling.txt) · [03-re-escrow.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/03-re-escrow.txt)
+
+---
+
+### M-1 to M-3: key slot changes don't change the volume key or the data
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/result.md)
+
+- **Objective:** Q2: does adding, changing or removing a keyslot invalidate or change any encryption key?
+- **Expected:** Slots change. UUID and master key digest are identical every time. The data is untouched.
+
+**Output:** [01-q2-run.txt](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/01-q2-run.txt)
+
+---
+
+### M-5: control, what DOES change the volume key
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/M-5-control-reencrypt-changes-the-key/result.md)
+
+- **Objective:** Show the test can detect a key change, so "unchanged" above means something.
+- **Expected:** `luksAddKey` and `luksKillSlot` keep the digest. `reencrypt` and `luksFormat` change it.
+
+**Output:** [01-control.txt](test-evidence/ubuntu/M-5-control-reencrypt-changes-the-key/01-control.txt)
+
+---
 
 ### S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption"
 
@@ -135,10 +228,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Get the desktop installer working on a new VM and follow the end user guide.
 - **Expected:** An encrypted LVM install.
 
-**live session**
-
-![live session](test-evidence/ubuntu/S-1c-install-virtio-gpu/01-live-session.png)
-
 **welcome language**
 
 ![welcome language](test-evidence/ubuntu/S-1c-install-virtio-gpu/02-welcome-language.png)
@@ -158,26 +247,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **try or install**
 
 ![try or install](test-evidence/ubuntu/S-1c-install-virtio-gpu/06-try-or-install.png)
-
-**after install ubuntu**
-
-![after install ubuntu](test-evidence/ubuntu/S-1c-install-virtio-gpu/07-after-install-ubuntu.png)
-
-**apps**
-
-![apps](test-evidence/ubuntu/S-1c-install-virtio-gpu/08-apps.png)
-
-**interactive next**
-
-![interactive next](test-evidence/ubuntu/S-1c-install-virtio-gpu/09-interactive-next.png)
-
-**apps next**
-
-![apps next](test-evidence/ubuntu/S-1c-install-virtio-gpu/10-apps-next.png)
-
-**optimise next**
-
-![optimise next](test-evidence/ubuntu/S-1c-install-virtio-gpu/11-optimise-next.png)
 
 **disk setup page**
 
@@ -199,37 +268,9 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![create passphrase page](test-evidence/ubuntu/S-1c-install-virtio-gpu/16-create-passphrase-page.png)
 
-**back 1**
-
-![back 1](test-evidence/ubuntu/S-1c-install-virtio-gpu/17-back-1.png)
-
-**back 2**
-
-![back 2](test-evidence/ubuntu/S-1c-install-virtio-gpu/18-back-2.png)
-
-**back 3**
-
-![back 3](test-evidence/ubuntu/S-1c-install-virtio-gpu/19-back-3.png)
-
-**choose automated**
-
-![choose automated](test-evidence/ubuntu/S-1c-install-virtio-gpu/20-choose-automated.png)
-
-**back 4**
-
-![back 4](test-evidence/ubuntu/S-1c-install-virtio-gpu/21-back-4.png)
-
 **choose automated installation**
 
 ![choose automated installation](test-evidence/ubuntu/S-1c-install-virtio-gpu/22-choose-automated-installation.png)
-
-**url field focused**
-
-![url field focused](test-evidence/ubuntu/S-1c-install-virtio-gpu/23-url-field-focused.png)
-
-**url typed**
-
-![url typed](test-evidence/ubuntu/S-1c-install-virtio-gpu/24-url-typed.png)
 
 **validate**
 
@@ -238,62 +279,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **installing copying files**
 
 ![installing copying files](test-evidence/ubuntu/S-1c-install-virtio-gpu/30-installing-copying-files.png)
-
-**progress 01**
-
-![progress 01](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-01.png)
-
-**progress 02**
-
-![progress 02](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-02.png)
-
-**progress 03**
-
-![progress 03](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-03.png)
-
-**progress 04**
-
-![progress 04](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-04.png)
-
-**progress 05**
-
-![progress 05](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-05.png)
-
-**progress 06**
-
-![progress 06](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-06.png)
-
-**progress 07**
-
-![progress 07](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-07.png)
-
-**progress 08**
-
-![progress 08](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-08.png)
-
-**progress 09**
-
-![progress 09](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-09.png)
-
-**progress 10**
-
-![progress 10](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-10.png)
-
-**progress 11**
-
-![progress 11](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-11.png)
-
-**progress 12**
-
-![progress 12](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-12.png)
-
-**progress 13**
-
-![progress 13](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-13.png)
-
-**progress 14**
-
-![progress 14](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-14.png)
 
 
 ---
@@ -313,10 +298,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![first boot after unlock](test-evidence/ubuntu/S-1d-server-autoinstall/first-boot-after-unlock.png)
 
-**install 10**
-
-![install 10](test-evidence/ubuntu/S-1d-server-autoinstall/install-10.png)
-
 
 ---
 
@@ -331,6 +312,50 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
+### S-4: trigger Fleet's Linux escrow (the "Create key" action)
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-4-escrow-trigger/result.md)
+
+- **Objective:** Run the end user escrow flow without a person at the keyboard.
+- **Expected:** Orbit asks for the passphrase, adds a keyslot, escrows the new key.
+
+**Output:** [01-trigger.txt](test-evidence/ubuntu/S-4-escrow-trigger/01-trigger.txt) · [02-keyslot-count-polling.txt](test-evidence/ubuntu/S-4-escrow-trigger/02-keyslot-count-polling.txt) · [03-orbit-log-dialogs.txt](test-evidence/ubuntu/S-4-escrow-trigger/03-orbit-log-dialogs.txt)
+
+---
+
+### S-5: Fleet's view after the escrow
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-5-fleet-status-after-escrow/result.md)
+
+- **Objective:** Does Fleet show the host as Verified and hold the key?
+- **Expected:** Verified, key available, key stored.
+
+**Output:** [01-fleet-api-after-escrow.txt](test-evidence/ubuntu/S-5-fleet-status-after-escrow/01-fleet-api-after-escrow.txt)
+
+---
+
+### S-6: luksDump after the escrow
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-6-luksdump-after-escrow/result.md)
+
+- **Objective:** What does Fleet's escrow change in the LUKS header?
+- **Expected:** One new keyslot. UUID and master key digest unchanged.
+
+**Output:** [01-luksdump-after-escrow.txt](test-evidence/ubuntu/S-6-luksdump-after-escrow/01-luksdump-after-escrow.txt)
+
+---
+
+### S-7: the escrowed key opens only its own slot
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-7-escrowed-key-unlocks-slot1/result.md)
+
+- **Objective:** Confirm the key Fleet stores is a separate slot from the end user's.
+- **Expected:** Escrow key opens slot 1, not slot 0. User passphrase opens slot 0, not slot 1.
+
+**Output:** [01-which-slot-opens-with-which-key.txt](test-evidence/ubuntu/S-7-escrowed-key-unlocks-slot1/01-which-slot-opens-with-which-key.txt)
+
+---
+
 ### S-8: first boot after install
 
 **Result: BLOCKED** · [full notes](test-evidence/ubuntu/S-8-first-boot/result.md)
@@ -338,45 +363,9 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Boot the installed encrypted Ubuntu, reach the disk unlock prompt, and the desktop.
 - **Expected:** An unlock prompt, then the login or desktop.
 
-**first boot prompt**
-
-![first boot prompt](test-evidence/ubuntu/S-8-first-boot/01-first-boot-prompt.png)
-
-**still booting**
-
-![still booting](test-evidence/ubuntu/S-8-first-boot/02-still-booting.png)
-
-**after enter**
-
-![after enter](test-evidence/ubuntu/S-8-first-boot/03-after-enter.png)
-
-**restart attempt**
-
-![restart attempt](test-evidence/ubuntu/S-8-first-boot/04-restart-attempt.png)
-
-**activated**
-
-![activated](test-evidence/ubuntu/S-8-first-boot/05-activated.png)
-
-**rebuilt vm boot**
-
-![rebuilt vm boot](test-evidence/ubuntu/S-8-first-boot/06-rebuilt-vm-boot.png)
-
 **ramfb boot**
 
 ![ramfb boot](test-evidence/ubuntu/S-8-first-boot/07-ramfb-boot.png)
-
-**retry 1**
-
-![retry 1](test-evidence/ubuntu/S-8-first-boot/08-retry-1.png)
-
-**retry 2**
-
-![retry 2](test-evidence/ubuntu/S-8-first-boot/09-retry-2.png)
-
-**retry 3**
-
-![retry 3](test-evidence/ubuntu/S-8-first-boot/10-retry-3.png)
 
 
 ---

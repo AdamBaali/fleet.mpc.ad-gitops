@@ -1,0 +1,10 @@
+# 2026-10-15T21:05:03Z  re-escrow after action_required
+before: {'status': 'action_required', 'detail': ''} key_available False
+trigger_escrow: HTTP 204
+[exit 0]
+keyslots: 2 at 23:08:36
+slot 0: present
+slot 1: present
+new escrow key opens: YES
+[exit 0]
+23:09:03 fleet: verified

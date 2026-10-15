@@ -1,0 +1,6 @@
+# 2026-10-15T20:57:33Z  orbit log lines (no secrets), guest
+Oct 15 20:52:11 luks-ubuntu orbit[2533]: 2026-10-15T20:52:11Z INF running command through a shell wrapper program=zenity
+Oct 15 20:52:11 luks-ubuntu sudo[5698]:     root : PWD=/home/lab ; USER=lab ; COMMAND=/bin/bash --login -c 'env WAYLAND_DISPLAY\\=wayland-0 DISPLAY\\=\\:0 DBUS=<hidden> LD_LIBRARY_PATH\\=\\.\\: sh -s zenity --entry --title\\=Enter
+Oct 15 20:56:36 luks-ubuntu orbit[2533]: 2026-10-15T20:56:36Z INF running command through a shell wrapper program=zenity
+Oct 15 20:56:36 luks-ubuntu sudo[10795]:     root : PWD=/home/lab ; USER=lab ; COMMAND=/bin/bash --login -c 'env WAYLAND_DISPLAY\\=wayland-0 DISPLAY\\=\\:0 DBUS=<hidden> LD_LIBRARY_PATH\\=\\.\\: sh -s zenity --info --title\\=Disk\
+[exit 0]

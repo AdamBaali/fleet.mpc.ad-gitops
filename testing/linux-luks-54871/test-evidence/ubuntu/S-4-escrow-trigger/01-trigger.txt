@@ -1,0 +1,4 @@
+# 2026-10-15T20:51:55Z
+$ POST /api/latest/fleet/device/<token>/mdm/linux/trigger_escrow   (token read from /opt/orbit/identifier in the guest, not shown)
+HTTP 204
+[exit 0]

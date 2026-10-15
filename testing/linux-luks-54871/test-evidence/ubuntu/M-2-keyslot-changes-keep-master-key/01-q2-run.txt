@@ -1,0 +1,25 @@
+# 2026-10-15T20:57:59Z  guest, as root
+$ bash /tmp/q2-guest.sh
+M-1 baseline
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: ] marker_sha=e65ed01544c8eb74
+M-2a luksAddKey (authorised with the escrow key; adds slot 2)
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: 2: ] marker_sha=e65ed01544c8eb74
+M-2b luksChangeKey slot 2 (new passphrase)
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: 2: ] marker_sha=e65ed01544c8eb74
+M-2c luksKillSlot 2 (removes it, authorised with the escrow key)
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: ] marker_sha=e65ed01544c8eb74
+M-2d luksAddKey again, then luksRemoveKey by passphrase
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: 2: ] marker_sha=e65ed01544c8eb74
+  uuid=22e0008a-5be6-4222-80cb-67ff6adb81b0 digest=76c786fef3c7172b... slots=[0: 1: ] marker_sha=e65ed01544c8eb74
+M-2e escrow key and user passphrase still open their slots
+  escrow slot 1: opens
+  user slot 0: opens
+M-3 data still reads (no re-encryption): marker sha unchanged above; root fs mounted: /dev/mapper/ubuntu--vg-ubuntu--lv
+M-5 control on a scratch loop device (never the root): which command DOES change the volume key
+  scratch digest before: 07172427a3010514...
+  after luksAddKey: 07172427a3010514...
+  after luksChangeKey: 07172427a3010514...
+Key file can be used only with --key-slot or with exactly one key slot active.
+  after cryptsetup reencrypt: 07172427a3010514...
+end
+[exit 0]

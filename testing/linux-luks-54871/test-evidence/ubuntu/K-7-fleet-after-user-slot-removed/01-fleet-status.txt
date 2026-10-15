@@ -1,0 +1,3 @@
+# 2026-10-15T21:02:26Z  3 minutes after removing slot 0 and requesting a refetch
+os_settings.disk_encryption {'status': 'verified', 'detail': ''} | encryption_key_available True
+stored key present: True updated_at 2026-10-15T20:56:36.46621Z

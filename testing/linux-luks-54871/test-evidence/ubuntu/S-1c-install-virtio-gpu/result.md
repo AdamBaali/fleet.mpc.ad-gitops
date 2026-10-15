@@ -6,7 +6,7 @@
 
 ## Steps and evidence
 - `01`-`16`: new VM with an NVMe disk. With **virtio-ramfb** the live desktop was black; with **virtio-gpu-pci** the installer ran. Pages to the **Create a passphrase** page (Use LVM and encryption selected).
-- `17`-`25`: nobody was at the screen to type credentials, so it switched to Automated installation with a config URL. Screenshots of the review page were deleted (it prints the config including the passphrase).
+- `22`, `25`: nobody was at the screen to type credentials, so it switched to Automated installation with a config URL. Screenshots of the review page were deleted (it prints the config including the passphrase).
 - `30`: copying files. About 28 minutes later the installer showed "Something went wrong" (system program problem, no useful log).
 
 ## Result: FAIL

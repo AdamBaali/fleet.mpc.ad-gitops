@@ -1,0 +1,6 @@
+# 2026-10-15T21:02:44Z
+$ cryptsetup luksKillSlot /dev/nvme0n1p3 1 --key-file <user passphrase>   (removes the ESCROW slot)
+escrow slot 1 removed
+  0: luks2 
+escrow key still opens: NO
+[exit 0]

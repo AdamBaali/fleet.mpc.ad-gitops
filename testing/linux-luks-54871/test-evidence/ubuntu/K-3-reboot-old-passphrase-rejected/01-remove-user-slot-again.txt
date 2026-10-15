@@ -1,0 +1,5 @@
+# 2026-10-15T21:09:20Z
+$ cryptsetup luksKillSlot /dev/nvme0n1p3 0 --key-file <escrow key>   (K-1 again, with the fresh escrow key)
+user slot 0 removed
+  1: luks2 
+[exit 0]

@@ -1,0 +1,8 @@
+# 2026-10-15T20:57:33Z  Fleet API for host 17 (fleet 5), token from the fleetctl login not shown
+team_id 5 | platform ubuntu | disk_encryption_enabled True
+mdm.encryption_key_available True
+os_settings.disk_encryption {'status': 'verified', 'detail': ''}
+--- GET /api/latest/fleet/disk_encryption?fleet_id=5
+{'verified': 1, 'verifying': 0, 'action_required': 0, 'enforcing': 0, 'failed': 0, 'removing_enforcement': 0}
+--- GET /hosts/17/encryption_key (key value NOT shown)
+key present: True | length 35 | updated_at 2026-10-15T20:56:36.46621Z

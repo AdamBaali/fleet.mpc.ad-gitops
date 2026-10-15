@@ -1,0 +1,5 @@
+user passphrase on any slot: rejected
+escrow key on slot 1: OPENS
+root still mounted: /dev/mapper/ubuntu--vg-ubuntu--lv
+e65ed01544c8eb74
+[exit 0]
