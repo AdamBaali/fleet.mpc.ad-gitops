@@ -6,14 +6,18 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 2 |
+| PASS | 4 |
+| FAIL | 1 |
 | BLOCKED | 1 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
 | Desk review | D-1: what Fleet claims (docs and code) | PASS | [open](#d-1-what-fleet-claims-docs-and-code) |
-| Ubuntu | S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption" | PASS | [open](#s-1-ubuntu-24045-desktop-installer-use-lvm-and-encryption) |
-| Ubuntu | S-8: first boot after install | BLOCKED | [open](#s-8-first-boot-after-install) |
+| Ubuntu VM | S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption" | PASS | [open](#s-1-ubuntu-24045-desktop-installer-use-lvm-and-encryption) |
+| Ubuntu VM | S-1c: second Ubuntu desktop install attempt (VM `luks-ubuntu2`, since deleted) | FAIL | [open](#s-1c-second-ubuntu-desktop-install-attempt-vm-luks-ubuntu2-since-deleted) |
+| Ubuntu VM | S-1d: Ubuntu 24.04.5 server ISO, unattended autoinstall (LVM on LUKS), VM `luks-ubuntu` | PASS | [open](#s-1d-ubuntu-24045-server-iso-unattended-autoinstall-lvm-on-luks-vm-luks-ubuntu) |
+| Ubuntu VM | S-3: baseline luksDump (before Fleet escrow) | PASS | [open](#s-3-baseline-luksdump-before-fleet-escrow) |
+| Ubuntu VM | S-8: first boot after install | BLOCKED | [open](#s-8-first-boot-after-install) |
 
 ## Desk review
 
@@ -28,7 +32,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
-## Ubuntu
+## Ubuntu VM
 
 ### S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption"
 
@@ -121,6 +125,209 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![remove installation medium](test-evidence/ubuntu/S-1-installer/22-remove-installation-medium.png)
 
+
+---
+
+### S-1c: second Ubuntu desktop install attempt (VM `luks-ubuntu2`, since deleted)
+
+**Result: FAIL** · [full notes](test-evidence/ubuntu/S-1c-install-virtio-gpu/result.md)
+
+- **Objective:** Get the desktop installer working on a new VM and follow the end user guide.
+- **Expected:** An encrypted LVM install.
+
+**live session**
+
+![live session](test-evidence/ubuntu/S-1c-install-virtio-gpu/01-live-session.png)
+
+**welcome language**
+
+![welcome language](test-evidence/ubuntu/S-1c-install-virtio-gpu/02-welcome-language.png)
+
+**accessibility**
+
+![accessibility](test-evidence/ubuntu/S-1c-install-virtio-gpu/03-accessibility.png)
+
+**keyboard**
+
+![keyboard](test-evidence/ubuntu/S-1c-install-virtio-gpu/04-keyboard.png)
+
+**installer update offered**
+
+![installer update offered](test-evidence/ubuntu/S-1c-install-virtio-gpu/05-installer-update-offered.png)
+
+**try or install**
+
+![try or install](test-evidence/ubuntu/S-1c-install-virtio-gpu/06-try-or-install.png)
+
+**after install ubuntu**
+
+![after install ubuntu](test-evidence/ubuntu/S-1c-install-virtio-gpu/07-after-install-ubuntu.png)
+
+**apps**
+
+![apps](test-evidence/ubuntu/S-1c-install-virtio-gpu/08-apps.png)
+
+**interactive next**
+
+![interactive next](test-evidence/ubuntu/S-1c-install-virtio-gpu/09-interactive-next.png)
+
+**apps next**
+
+![apps next](test-evidence/ubuntu/S-1c-install-virtio-gpu/10-apps-next.png)
+
+**optimise next**
+
+![optimise next](test-evidence/ubuntu/S-1c-install-virtio-gpu/11-optimise-next.png)
+
+**disk setup page**
+
+![disk setup page](test-evidence/ubuntu/S-1c-install-virtio-gpu/12-disk-setup-page.png)
+
+**advanced features**
+
+![advanced features](test-evidence/ubuntu/S-1c-install-virtio-gpu/13-advanced-features.png)
+
+**select lvm and encryption**
+
+![select lvm and encryption](test-evidence/ubuntu/S-1c-install-virtio-gpu/14-select-lvm-and-encryption.png)
+
+**advanced ok**
+
+![advanced ok](test-evidence/ubuntu/S-1c-install-virtio-gpu/15-advanced-ok.png)
+
+**create passphrase page**
+
+![create passphrase page](test-evidence/ubuntu/S-1c-install-virtio-gpu/16-create-passphrase-page.png)
+
+**back 1**
+
+![back 1](test-evidence/ubuntu/S-1c-install-virtio-gpu/17-back-1.png)
+
+**back 2**
+
+![back 2](test-evidence/ubuntu/S-1c-install-virtio-gpu/18-back-2.png)
+
+**back 3**
+
+![back 3](test-evidence/ubuntu/S-1c-install-virtio-gpu/19-back-3.png)
+
+**choose automated**
+
+![choose automated](test-evidence/ubuntu/S-1c-install-virtio-gpu/20-choose-automated.png)
+
+**back 4**
+
+![back 4](test-evidence/ubuntu/S-1c-install-virtio-gpu/21-back-4.png)
+
+**choose automated installation**
+
+![choose automated installation](test-evidence/ubuntu/S-1c-install-virtio-gpu/22-choose-automated-installation.png)
+
+**url field focused**
+
+![url field focused](test-evidence/ubuntu/S-1c-install-virtio-gpu/23-url-field-focused.png)
+
+**url typed**
+
+![url typed](test-evidence/ubuntu/S-1c-install-virtio-gpu/24-url-typed.png)
+
+**validate**
+
+![validate](test-evidence/ubuntu/S-1c-install-virtio-gpu/25-validate.png)
+
+**installing copying files**
+
+![installing copying files](test-evidence/ubuntu/S-1c-install-virtio-gpu/30-installing-copying-files.png)
+
+**progress 01**
+
+![progress 01](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-01.png)
+
+**progress 02**
+
+![progress 02](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-02.png)
+
+**progress 03**
+
+![progress 03](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-03.png)
+
+**progress 04**
+
+![progress 04](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-04.png)
+
+**progress 05**
+
+![progress 05](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-05.png)
+
+**progress 06**
+
+![progress 06](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-06.png)
+
+**progress 07**
+
+![progress 07](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-07.png)
+
+**progress 08**
+
+![progress 08](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-08.png)
+
+**progress 09**
+
+![progress 09](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-09.png)
+
+**progress 10**
+
+![progress 10](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-10.png)
+
+**progress 11**
+
+![progress 11](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-11.png)
+
+**progress 12**
+
+![progress 12](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-12.png)
+
+**progress 13**
+
+![progress 13](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-13.png)
+
+**progress 14**
+
+![progress 14](test-evidence/ubuntu/S-1c-install-virtio-gpu/progress-14.png)
+
+
+---
+
+### S-1d: Ubuntu 24.04.5 server ISO, unattended autoinstall (LVM on LUKS), VM `luks-ubuntu`
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-1d-server-autoinstall/result.md)
+
+- **Objective:** A working encrypted Ubuntu VM with no one at the keyboard.
+- **Expected:** Installs unattended, powers off, boots from the encrypted disk.
+
+**confirmed yes**
+
+![confirmed yes](test-evidence/ubuntu/S-1d-server-autoinstall/confirmed-yes.png)
+
+**first boot after unlock**
+
+![first boot after unlock](test-evidence/ubuntu/S-1d-server-autoinstall/first-boot-after-unlock.png)
+
+**install 10**
+
+![install 10](test-evidence/ubuntu/S-1d-server-autoinstall/install-10.png)
+
+
+---
+
+### S-3: baseline luksDump (before Fleet escrow)
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/S-3-baseline-luksdump/result.md)
+
+- **Objective:** Record the LUKS header before any Fleet change.
+- **Expected:** LUKS2, one keyslot (the end user's), no tokens.
+
+**Output:** [01-luksdump-baseline.txt](test-evidence/ubuntu/S-3-baseline-luksdump/01-luksdump-baseline.txt) · [02-lsblk-guide-step2.txt](test-evidence/ubuntu/S-3-baseline-luksdump/02-lsblk-guide-step2.txt)
 
 ---
 

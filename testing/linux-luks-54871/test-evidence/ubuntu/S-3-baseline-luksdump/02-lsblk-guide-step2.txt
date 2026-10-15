@@ -1,0 +1,4 @@
+$ lsblk -o NAME,TYPE,FSTYPE,SIZE,MOUNTPOINT   (guide step 2 verify command, adapted)
+└─nvme0n1p3                            part  21.9G        crypto_LUKS
+  └─dm_crypt-0                         crypt 21.9G        LVM2_member
+[exit 0]

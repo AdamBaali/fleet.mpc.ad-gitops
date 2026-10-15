@@ -10,4 +10,4 @@
 
 ## Result: BLOCKED
 
-Next: boot the installer ISO's "Try Ubuntu" session to inspect the disk, or use a VM created with UTM's own wizard (which the earlier AppleScript-built VMs differ from), or install the server image with encrypted LVM.
+Superseded: S-1d (server ISO, unattended) produced a working VM; this first VM was deleted. Cause of the black screen: unconfirmed (virtio disk and display on a script-built VM).

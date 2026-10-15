@@ -53,3 +53,9 @@ Installed Ubuntu 24.04.5 (arm64 desktop) in UTM by following the end user guide.
 
 ## S-8: first boot after install: BLOCKED
 Black screen "Display output is not active" on every start. See HANDOFF.md.
+
+## 2026-10-15 progress
+- **S-1d PASS:** unattended Ubuntu 24.04.5 install (server ISO, LVM on LUKS), VM `luks-ubuntu`. Boots from the encrypted disk without anyone at the console: Adam runs `tools/unlock-watch.sh`, which types the passphrase after each boot. Guest agent works, so tests run through `tools/vm-run.sh`.
+- **S-1c FAIL:** desktop autoinstall crashed after 28 min. Ubuntu desktop live needs `virtio-gpu-pci` (black on `virtio-ramfb`).
+- **S-3 PASS:** baseline `luksDump`: LUKS2, one keyslot (0, argon2id), no tokens. Next: Fleet escrow (S-4 to S-6), then Q2 (M-*), then Q1 (K-*).
+- Finding: with the installer ISO still attached the VM boots the installer; pick "Boot from next volume" in GRUB (UTM scripting can't eject).

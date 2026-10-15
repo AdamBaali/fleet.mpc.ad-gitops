@@ -1,0 +1,46 @@
+# 2026-10-15T20:47:29Z  luks-ubuntu (guest)
+$ cryptsetup luksDump /dev/nvme0n1p3   (salts masked, digest shortened)
+LUKS header information
+Version:       	2
+Epoch:         	3
+Metadata area: 	16384 [bytes]
+Keyslots area: 	16744448 [bytes]
+UUID:          	22e0008a-5be6-4222-80cb-67ff6adb81b0
+Label:         	(no label)
+Subsystem:     	(no subsystem)
+Flags:       	(no flags)
+
+Data segments:
+  0: crypt
+	offset: 16777216 [bytes]
+	length: (whole device)
+	cipher: aes-xts-plain64
+	sector: 512 [bytes]
+
+Keyslots:
+  0: luks2
+	Key:        512 bits
+	Priority:   normal
+	Cipher:     aes-xts-plain64
+	Cipher key: 512 bits
+	PBKDF:      argon2id
+	Time cost:  94
+	Memory:     114290
+	Threads:    4
+	Salt:        <masked>
+	            .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. 
+	AF stripes: 4000
+	AF hash:    sha256
+	Area offset:32768 [bytes]
+	Area length:258048 [bytes]
+	Digest ID:  0
+Tokens:
+Digests:
+  0: pbkdf2
+	Hash:       sha256
+	Iterations: 300623
+	Salt:        <masked>
+	            .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. 
+	Digest:      76c786fef3c7172b... (shortened, 16 bytes)
+	            .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. 
+[exit 0]

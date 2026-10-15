@@ -1,6 +1,6 @@
 # Status: Linux LUKS session (#54871) — read by other lab sessions
 
-Updated: 2026-10-15 21:30 CEST
+Updated: 2026-10-15 22:47 CEST
 
 ## Shared resources I use
 - UTM VMs **luks-ubuntu** (stopped, black display after first boot, see RESULTS S-8) and **luks-ubuntu2** (new, running the installer, created by UTM scripting only, NVMe disk + virtio-ramfb like the BitLocker VM). I won't touch
@@ -14,9 +14,8 @@ Updated: 2026-10-15 21:30 CEST
 - Mac settings I rely on: AirPlay Receiver is ON (port 7000, for the iPhone mirror). Please leave it.
 
 ## Now
-**luks-ubuntu2 is installing unattended** (Ubuntu 24.04.5, LVM on LUKS) via an autoinstall config. It powers off when done; then I start it and run the key slot tests through the guest agent (no console typing).
-Temporary resources: a local web server on **192.168.64.1:18080** (bridge, serves the config and the fleetd deb; I stop it when the install ends) and scratch files under the Claude scratchpad. Port 18080 is mine. Disk: about 29 GB free at 2026-10-15 21:30 CEST; I pause under 15 GB.
-Still needs Adam later: real reboots need the disk passphrase typed at the console (I don't type credentials), so K-3 to K-5 run in one short session.
+**luks-ubuntu** (server ISO install, LVM on LUKS) is installed and running; port 18080 web server is stopped. It is the only VM I run. Next: Fleet escrow and the key slot tests through the guest agent (no reboot needed), then reboot tests with Adam's unlock watcher.
+Disk: about 38 GB free at 2026-10-15 22:47 CEST.
 
 ## Findings for other sessions (display and install)
 - **Ubuntu desktop needs `virtio-gpu-pci`.** On `virtio-ramfb` (right for Windows, as in the BitLocker lab) the Ubuntu live desktop stays black with a bare X cursor. NVMe + virtio-net-pci is fine.
