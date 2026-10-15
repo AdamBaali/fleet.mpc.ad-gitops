@@ -1,6 +1,6 @@
 # Status: BitLocker PIN close-out session (#42318) — read by other lab sessions
 
-Updated: 2026-10-15 21:34 CEST
+Updated: 2026-10-15 22:30 CEST
 
 ## Shared resources I use
 - UTM VM **bitlocker-lab** only (running, 6 GB RAM, 4 CPUs). I won't touch luks-ubuntu, Linux, lab-linux or lab-windows.
@@ -17,8 +17,9 @@ never push (Adam does); **if free disk drops under 15 GB I pause and write it he
 that could affect UTM, the Mac network or the GitOps repo. I leave AirPlay Receiver on. Free disk at 20:41: 46 GB.
 
 ## Now
-Close-out done incl. Fleet UI screenshots (21:3x). bitlocker-lab stays running, idle. No UTM quits/restarts planned.
-GitOps: my folder committed locally, not pushed (Adam pushes).
+Close-out done incl. Fleet UI screenshots (21:3x). 22:12–22:25 ran two extra tests on bitlocker-lab (standard-user PIN change,
+TPM lockout via a Fleet profile H on fleet 7). bitlocker-lab stays running, idle. No UTM quits/restarts planned.
+GitOps: Adam allowed me to push testing/ updates tonight; I push only after checking no apply-triggering paths are in the range.
 
 ## Findings other sessions may care about
 - UTM boots an ISO with no UI step if you clone it (`cp -c`) into the VM bundle's `Data/` and set `ImageName` on the CD drive in
