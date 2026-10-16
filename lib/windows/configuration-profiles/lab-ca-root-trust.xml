@@ -2,7 +2,7 @@
   <!-- Trust the step-ca root in the device root store so browsers accept the chain -->
   <Item>
     <Target>
-      <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/FleetLabCARoot/EncodedCertificate</LocURI>
+      <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/3AD625ACE2CD23CE2B159C9B1BD96D8D210902E1/EncodedCertificate</LocURI>
     </Target>
     <Meta>
       <Format xmlns="syncml:metinf">b64</Format>
