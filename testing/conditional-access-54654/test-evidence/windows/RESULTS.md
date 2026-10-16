@@ -17,12 +17,12 @@ Host: UTM VM on an Apple silicon Mac, Windows 11 Pro 26300 (arm64), virtual TPM 
 ## Guide findings from Windows
 1. **Root CA profile node name.** `./Device/Vendor/MSFT/RootCATrustedCertificates/Root/<name>/EncodedCertificate` failed with status 500 when `<name>` was a free-text label (`FleetLabCARoot`). Naming the node by the certificate's SHA-1 thumbprint (uppercase hex) made it `Verified`. Fleet's Wi-Fi guide uses a free-text name (`<YOURCA>`); Microsoft's CSP defines the node as the certificate hash. Not yet re-tested with a second CA.
 2. **Chrome and Edge on Windows.** The guide says only "deploy the policy". Writing `HKLM\SOFTWARE\Policies\Microsoft\Edge\AutoSelectCertificateForUrls\1` (and `Google\Chrome`) with the JSON pattern for port 9032 worked (`lab-setup/windows-vm/set-browser-autoselect.ps1`). Not yet delivered as a Fleet script or profile.
-3. **Duo Desktop on Windows Arm** installs and runs under emulation, though Duo lists Intel only, but the sign-in is not trusted (D-5 blocked, `error loading dakey`).
+3. **Duo Desktop on Windows Arm** installs and runs under emulation (Duo lists Intel only). The device is trusted only when the VM has no TPM; with UTM's virtual TPM it logs `error loading dakey` and is not trusted. Emulation result, not a support claim.
 4. **Windows sign-in prompts:** besides the local network permission, Edge asks "This site is trying to open Duo Desktop" (protocol handler) on the first Duo sign-in.
 
-| D-5 Duo sign-in | **BLOCKED** | [notes](D-5-duo-sign-in-blocked-on-arm/result.md): Duo Desktop runs and answers the browser, but logs `error loading dakey` (TPM key) and Duo says "Device not allowed" (Trusted Endpoint: Unknown) |
+| D-5 Duo sign-in | PASS without a TPM in the VM; fails with UTM's virtual TPM | [notes](D-5-duo-sign-in-blocked-on-arm/result.md): second-factor screen reached and Duo Admin lists the device as Trusted Endpoint: Yes; with the TPM present Duo Desktop logs `error loading dakey` and Duo says "Device not allowed" |
 
 ## Not done on Windows yet
-- D-8 (depends on D-5).
+- D-8 (blocked when removed from the list) was not run on Windows.
 - D-11 `report_cap` (needs at least two Windows hosts in the fleet; one host cannot show hosts dropping out).
 - P-15 renewal, Chrome (Edge only), Fleet-delivered auto-select, second CA for the root-trust node name.

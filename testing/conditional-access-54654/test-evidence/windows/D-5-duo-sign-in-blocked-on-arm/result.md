@@ -1,6 +1,6 @@
 # D-5 Windows: Duo sign-in (Arm VM, Duo Desktop under emulation)
 
-**Result: BLOCKED (not a pass).** Duo reaches Duo Desktop but does not trust the device.
+**Result: PASS with no TPM in the VM; FAILS (device not trusted) with a virtual TPM present.** See "No-TPM result" at the end. The sections below are the history of the failing attempts.
 
 Setup: Windows integration "Generic with Duo Desktop 1" set to *Test with a group* (`fleet-lab`); list uploaded with the host's MachineGuid (`a00c4070-...`, equal to `HKLM\SOFTWARE\Microsoft\Cryptography\MachineGuid`; the page Duo documents for Windows says MachineGuid).
 
@@ -23,3 +23,11 @@ What is established: Duo Desktop runs, answers the browser, logs `error loading 
 To rule out UTM's virtual TPM, the VM disk was run in standalone Homebrew QEMU 11.1 with Homebrew swtpm 0.10.2 (`lab-setup/windows-vm/standalone-qemu/`). UTM's sandbox cannot connect to an external swtpm socket, and Homebrew's QEMU has no CRB TPM device for the Arm `virt` machine, so the TIS device was used. Windows booted and the guest agent worked, and Windows' own provider created ECDSA P-256/P-384 keys in that TPM. But the guest became very slow and Edge reported "This page isn't responding" before the Duo sign-in could be repeated, and Duo Desktop's first health check never finished. So this retest neither confirms nor rules out the TPM as the cause.
 
 **Conclusion for the guide:** Duo Desktop for Windows is documented as Intel-only. On Windows 11 Arm under UTM, Duo Desktop installs and runs but the device is not trusted (`error loading dakey`). Treat Windows Duo (D-5, D-8) as untested; it needs Intel Windows hardware.
+
+## No-TPM result (2026-10-16, last): PASS
+Idea: Duo Desktop's library has a TPM key path and a software key path (`RsaKeyPairGenerator`, `EncryptAndStoreCompkey`), so the failure may come from the TPM path. The same VM disk was started with **no TPM device** (`QEMU.TPMDevice = false`, nothing else changed; Windows booted normally).
+- Sign-in at the demo app as `lab-test`, Edge, same Windows integration (Testing, group `fleet-lab`), same uploaded MachineGuid.
+- Duo moved past the device check to the second-factor screen ("Enter bypass code", [screenshot](04-no-tpm-second-factor-screen.png), IDs masked). Earlier, with the TPM present, the same flow ended at "Install Duo Desktop" and then "Device not allowed".
+- Duo Admin, Endpoints page (read-only): the new Windows row (Edge Chromium, 12:39 PM UTC) shows **Trusted Endpoint: Yes**, source "Generic with Duo Desktop 1", with device health details (Encryption disabled, Password not set). The earlier Windows row from the TPM-present attempt still shows Trusted Endpoint: Unknown.
+
+Conclusion: the Windows Duo flow works end to end under x64 emulation on Arm (Duo Desktop 7.22.0, MachineGuid in the uploaded list, Windows integration active for the test group) when the VM has no TPM. With UTM's virtual TPM present Duo Desktop logs `error loading dakey` and Duo does not trust the device; the cause inside that TPM path (UTM's CRB TPM, or Duo's key handling under emulation) was not found. The second TPM tried (standalone QEMU + swtpm 0.10, TIS device) hung before the sign-in could be repeated. The Windows result is therefore an emulation result; Duo still documents Windows support as Intel-only. D-8 (blocked when removed from the list) was not run on Windows.
