@@ -30,7 +30,7 @@ chronological log, dead ends included.
 | [`tests/platform-role.ps1`](tests/platform-role.ps1) | Fleet script: prints platform role (Slate?), model and the slates setting |
 | Policy | `SELECT 1 FROM bitlocker_key_protectors WHERE drive_letter = 'C:' AND key_protector_type IN (4, 6);` (passes with a PIN) |
 
-Profiles E–G are the #27903 tests (see EVIDENCE.md).
+Profiles E–G are the fleetdm/fleet#27903 tests (see EVIDENCE.md).
 
 ## Reproduce
 - VM: `vm/build-vm.sh` (UTM, unattended Windows 11 arm64, TPM 2.0); then install fleetd with `tools/build-windows-msi.sh`.
