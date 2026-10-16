@@ -1,6 +1,6 @@
 # Check of the ask against the evidence (fleetdm/fleet#54871)
 
-Generated 2026-10-16 09:34 from the result files. Nothing here is posted anywhere.
+Generated 2026-10-16 13:17 from the result files. Nothing here is posted anywhere.
 
 ## What was asked
 Issue #54871 ("CSA task: Help clarify and document Linux/LUKS behavior"), from the discussion in #35241. Three things to document and verify:
@@ -48,7 +48,7 @@ The three questions above came from it. Its proposal also asks for things that a
 ## Also required by the task
 | Requirement | Status |
 | --- | --- |
-| Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ([S-1-installer](test-evidence/ubuntu/S-1-installer/): PASS). The Fleet Desktop banner and dialog were not shown: orbit's flow was driven through the same API and a lab zenity wrapper ([S-4-escrow-trigger](test-evidence/ubuntu/S-4-escrow-trigger/): PASS). Deviations are logged. |
+| Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ([S-1-installer](test-evidence/ubuntu/S-1-installer/): PASS). The main runs drove orbit's flow through the same API and a lab zenity wrapper ([S-4-escrow-trigger](test-evidence/ubuntu/S-4-escrow-trigger/): PASS); the real Fleet Desktop banner and passphrase dialog were captured separately ([G-banner-and-dialog](test-evidence/ubuntu/G-banner-and-dialog/): PASS). Deviations are logged. |
 | `luksDump` before and after each step | Done, masked: [S-3-baseline-luksdump](test-evidence/ubuntu/S-3-baseline-luksdump/): PASS, [S-6-luksdump-after-escrow](test-evidence/ubuntu/S-6-luksdump-after-escrow/): PASS, [K-1-remove-user-keyslot](test-evidence/ubuntu/K-1-remove-user-keyslot/): PASS, [M-2-keyslot-changes-keep-master-key](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/): PASS |
 | Second distro (Fedora) | [F-Fedora-VM-repeat](test-evidence/desk/F-Fedora-VM-repeat/): NOT-RUN |
 | Proposed doc edits in Fleet's style | [DOC_EDITS.md](DOC_EDITS.md) |
@@ -58,6 +58,5 @@ The three questions above came from it. Its proposal also asks for things that a
 
 ## Open
 - Arch VM and Fedora VM were not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
-- The real Fleet Desktop banner and passphrase dialog have no screenshots.
 - Nothing is pushed or posted.
 

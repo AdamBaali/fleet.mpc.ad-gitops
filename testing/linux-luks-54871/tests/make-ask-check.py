@@ -64,7 +64,7 @@ The three questions above came from it. Its proposal also asks for things that a
 ## Also required by the task
 | Requirement | Status |
 | --- | --- |
-| Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ({ev("S-1")}). The Fleet Desktop banner and dialog were not shown: orbit's flow was driven through the same API and a lab zenity wrapper ({ev("S-4")}). Deviations are logged. |
+| Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ({ev("S-1")}). The main runs drove orbit's flow through the same API and a lab zenity wrapper ({ev("S-4")}); the real Fleet Desktop banner and passphrase dialog were captured separately ({ev("G-banner-and-dialog")}). Deviations are logged. |
 | `luksDump` before and after each step | Done, masked: {ev("S-3")}, {ev("S-6")}, {ev("K-1")}, {ev("M-2")} |
 | Second distro (Fedora) | {ev("F-Fedora")} |
 | Proposed doc edits in Fleet's style | [DOC_EDITS.md](DOC_EDITS.md) |
@@ -74,7 +74,6 @@ The three questions above came from it. Its proposal also asks for things that a
 
 ## Open
 - Arch VM and Fedora VM were not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
-- The real Fleet Desktop banner and passphrase dialog have no screenshots.
 - Nothing is pushed or posted.
 '''
 print(out)

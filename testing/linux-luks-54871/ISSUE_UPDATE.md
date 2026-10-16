@@ -9,7 +9,9 @@ Tested on an Ubuntu 24.04.5 arm64 VM (LVM on LUKS2) enrolled in a lab fleet with
 
 **3. Arch Linux:** Not supported. Docs list Ubuntu, Kubuntu and Fedora. The server also accepts Arch, Manjaro, CachyOS and Omarchy, but fleetdm/fleet#55070 removes them because no user could complete escrow, and #55069 lists why for Omarchy. Not shown on a live Arch VM.
 
-**Not done:** Fedora VM, a live Arch VM, and Ubuntu 26 TPM-backed FDE. The real Fleet Desktop banner and dialog weren't captured: the Create key request was sent through Fleet's device API and the passphrase dialog was answered by a lab wrapper (no one typed it). Escrow took about 4 minutes from request to key slot.
+**What a user sees:** I captured the real Fleet Desktop banner ("Create a new disk encryption key" with a Create key button on My device) and the real passphrase dialog orbit opens (`G-banner-and-dialog`). Two things to document: the dialog needs a visible, unlocked desktop (a locked screen or the first-run welcome window hides it, it times out after 60 s and Fleet shows no error), and after a timed-out request the next request returns HTTP 409 for several minutes. Escrow took about 4 minutes from request to key slot. In the main runs the request was sent through Fleet's device API and a lab wrapper answered the dialog (no one typed it).
+
+**Not done:** a live Fedora VM, a live Arch VM, and Ubuntu 26 TPM-backed FDE.
 
 **Also checked for #35241 (the request these came from):**
 - Decrypt-and-mount after the lock: with the end user's slot removed, a disk can't be decrypted or mounted with the old passphrase or without the escrow key (scratch disk test).
