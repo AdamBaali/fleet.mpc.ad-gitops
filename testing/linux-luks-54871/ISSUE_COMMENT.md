@@ -1,13 +1,11 @@
-Tested on an Ubuntu 24.04 arm64 VM (LVM on LUKS2) with Linux key escrow on. Evidence: EVIDENCE.md. Proposed doc edits: DOC_EDITS.md.
+Tested on an Ubuntu 24.04 arm64 VM (LVM on LUKS2) with Linux key escrow on. Evidence: [EVIDENCE.md](https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/testing/linux-luks-54871/EVIDENCE.md). Proposed doc edits: [DOC_EDITS.md](https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/testing/linux-luks-54871/DOC_EDITS.md).
 
-Removing the end user’s key: Yes, the user has to ask IT at every boot. Fleet only adds a key slot. If the user’s slot is removed, their passphrase is rejected at boot. The escrowed key unlocks the host. Nothing on a standard install remembers it (no TPM token or key file), so every reboot waits at the prompt. Fleet doesn’t notice: status stays “Verified”. Removing Fleet’s own slot shows “Action required”. A saved LUKS header can bring a removed key back.
-Does LUKS invalidate any key? No. Escrow, luksAddKey, luksChangeKey, luksKillSlot and luksRemoveKey didn’t change the UUID, the master key digest or the data. Only cryptsetup reencrypt or reformatting does.
-Arch Linux: Not supported. The docs list Ubuntu, Kubuntu and Fedora. The server also accepts Arch, Manjaro, CachyOS and Omarchy, but #55070 removes them because no user could complete escrow. Not tested on a live Arch VM.
+1. **Removing the end user's key:** Yes, the user has to ask IT at every boot. Fleet only adds a key slot. If the user's slot is removed, their passphrase is rejected at boot. The escrowed key unlocks the host. Nothing on a standard install remembers it (no TPM token or key file), so every reboot waits at the prompt. Fleet doesn't notice: status stays "Verified". Removing Fleet's own slot shows "Action required". A saved LUKS header can bring a removed key back.
+2. **Does LUKS invalidate any key?** No. Escrow, `luksAddKey`, `luksChangeKey`, `luksKillSlot` and `luksRemoveKey` didn't change the UUID, the master key digest or the data. Only `cryptsetup reencrypt` or reformatting does.
+3. **Arch Linux:** Not supported. The docs list Ubuntu, Kubuntu and Fedora. The server also accepts Arch, Manjaro, CachyOS and Omarchy, but #55070 removes them because no user could complete escrow. Not tested on a live Arch VM.
 
-Also for #35241: with the user’s slot removed, a disk can’t be decrypted or mounted without the escrow key. Fleet’s lock script refuses ordinary SSH logins, but root with an SSH key still gets in.
+Also for #35241: with the user's slot removed, a disk can't be decrypted or mounted without the escrow key. Fleet's lock script refuses ordinary SSH logins, but root with an SSH key still gets in.
 
 Docs gaps found: the passphrase dialog needs a visible, unlocked desktop (it times out after 60 s with no error in Fleet), and a request after a timeout returns 409 for several minutes. Escrow took about 4 minutes.
 
 Not tested: Fedora and Arch VMs, TPM-backed layouts.
-
-I haven’t posted anything. The Fedora VM is still running in the background, waiting on its escrow key slot.
