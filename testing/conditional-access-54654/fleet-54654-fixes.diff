@@ -1,13 +1,12 @@
 diff --git a/articles/duo-conditional-access-integration.md b/articles/duo-conditional-access-integration.md
-index 7abf9acda3..d141fa8fa7 100644
+index 7abf9acda3..7abdef61f1 100644
 --- a/articles/duo-conditional-access-integration.md
 +++ b/articles/duo-conditional-access-integration.md
-@@ -15,13 +15,18 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
+@@ -15,13 +15,17 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
  ## Prerequisites
  
  - A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
-+- For Linux, x86-64 hosts. Duo doesn't support Duo Desktop on Linux on ARM. In testing, it ran on an Arm VM under x86 emulation and Duo trusted the host, but that setup isn't supported.
-+- For Windows, Intel hosts. Duo lists Duo Desktop for Windows as Intel only. In testing, it ran on a Windows 11 Arm VM under x64 emulation and Duo trusted the host, but that setup isn't supported.
++- For Linux, x86-64 hosts. For Windows, Intel hosts. Duo doesn't support Duo Desktop on ARM, but it ran on Arm VMs under emulation in our testing.
  - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
  
  ## Step 1: Create a Fleet API user
@@ -22,7 +21,7 @@ index 7abf9acda3..d141fa8fa7 100644
  
  ## Step 2: Install Duo Desktop
  
-@@ -48,16 +53,52 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+@@ -48,16 +52,52 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
  
  ## Step 5: Sync hosts
  
@@ -34,7 +33,7 @@ index 7abf9acda3..d141fa8fa7 100644
 +3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts. Add `--dry_run` the first time to check the file without changing what Duo holds.
 +4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
 +
-+> **Note:** GitHub runs scheduled workflows on a best-effort basis. A run can start late or be skipped when GitHub is busy. In testing, a 5-minute schedule started a run only twice in 11 hours. For a steady 5-minute sync, run the same steps from a server with cron or a systemd timer. A run every 5 minutes also uses about 8,600 minutes a month, more than the 2,000 free minutes of a private repository.
++> **Note:** GitHub runs scheduled workflows on a best-effort basis, so a run can start late or be skipped. In testing, a 5-minute schedule started 2 runs in 11 hours. For a steady sync, run the steps from a server with cron or a systemd timer. A run every 5 minutes also uses about 8,600 Actions minutes a month. A private repository gets 2,000 free minutes.
 +
 +Duo's script has the integration's keys written into it, so don't commit it as is. Edit it to read the keys from environment variables instead. Replace the `MKEY_CREDENTIALS = {...}` block near the top with this:
 +
@@ -78,7 +77,7 @@ index 7abf9acda3..d141fa8fa7 100644
  jobs:
    sync:
      runs-on: ubuntu-latest
-@@ -67,15 +108,36 @@ jobs:
+@@ -67,15 +107,36 @@ jobs:
          with:
            python-version: "3.12"
        - run: pip install "duo-client>=4.3.0"
@@ -120,16 +119,16 @@ index 7abf9acda3..d141fa8fa7 100644
  ## Step 6: Turn on the policy
  
  1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
-@@ -92,6 +154,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+@@ -92,6 +153,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
  ## Troubleshooting
  
  - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
-+- **macOS asks for local network access**: Duo Desktop talks to the browser over the local network. When Duo shows "Duo Desktop needs permission to access your local network", allow the browser's prompt. If you select **Skip for now**, Duo can't read the device ID and blocks the host. In **System Settings > Privacy & Security > Local Network**, make sure the browser is on.
++- **macOS asks for local network access**: Duo shows "Duo Desktop needs permission to access your local network". Allow the browser's prompt. If you select **Skip for now**, Duo can't read the device ID and blocks the host. To check, go to **System Settings > Privacy & Security > Local Network** and turn on the browser.
  - **Windows host missing from `windows.csv`**: Check that the Step 3 report has results for the host.
  
  <meta name="articleTitle" value="Conditional access: Duo">
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 6bb54dd7a7..d217ef2731 100644
+index 6bb54dd7a7..e55f32c4a0 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
 @@ -13,6 +13,7 @@ How it works:
@@ -140,7 +139,7 @@ index 6bb54dd7a7..d217ef2731 100644
  - PingFederate with the X.509 Certificate Integration Kit [installed](https://docs.pingidentity.com/integrations/x509/x509_certificate_integration_kit/pf_x509_certificate_ik_deploying_the_integration_files.html), including setting `pf.secondary.https.port`.
  
  ## Step 1: Create a Fleet API user
-@@ -30,26 +31,29 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
+@@ -30,26 +31,37 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
  
  ## Step 3: Deploy the certificate
  
@@ -150,20 +149,27 @@ index 6bb54dd7a7..d217ef2731 100644
  ### macOS
  
 -Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it.
-+Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it. In the SCEP payload, set `AllowAllAppsAccess` to `true` and `KeyIsExtractable` to `false`. Even then, macOS asks the end user for their login keychain password the first time Safari, Chrome or Firefox uses the certificate. They select **Always Allow** once for each browser. See the [custom SCEP example](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate) for a profile.
++Deploy a SCEP [configuration profile](https://fleetdm.com/guides/custom-os-settings) for your CA. Set `PayloadScope` to `User` so the certificate lands in the login keychain, where browsers can use it. In the SCEP payload, set `AllowAllAppsAccess` to `true` and `KeyIsExtractable` to `false`.
++
++The first time Safari, Chrome, or Firefox uses the certificate, macOS asks the end user for their login keychain password. They select **Always Allow** once for each browser.
++
++See the [custom SCEP example](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate) for a profile.
  
  ### Windows
  
--Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands in the user certificate store. See [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile) for an example profile.
-+Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands in the user certificate store. See [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile) for an example profile. The example sets `SubjectName` to the host's serial number. Change it to `CN=$FLEET_VAR_HOST_UUID,OU=$FLEET_VAR_CERTIFICATE_RENEWAL_ID` so the CN is the host's UUID and Fleet can renew the certificate.
-+
-+If the host doesn't already trust your CA, deploy a second profile that installs the CA's root certificate. In its `./Device/Vendor/MSFT/RootCATrustedCertificates/Root/<name>/EncodedCertificate` path, use the certificate's SHA-1 thumbprint (uppercase) as `<name>`. In testing, a made-up name failed with status 500, and the thumbprint worked.
+ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands in the user certificate store. See [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile) for an example profile.
  
++The example sets `SubjectName` to the host's serial number. Change it to `CN=$FLEET_VAR_HOST_UUID,OU=$FLEET_VAR_CERTIFICATE_RENEWAL_ID`. This sets the CN to the host's UUID and lets Fleet renew the certificate.
++
++If the host doesn't trust your CA yet, deploy a second profile that installs the CA's root certificate. In the `./Device/Vendor/MSFT/RootCATrustedCertificates/Root/<name>/EncodedCertificate` path, set `<name>` to the certificate's SHA-1 thumbprint in uppercase. A custom name fails with status 500.
++
  ### Linux
  
  1. Follow the [Hydrant](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate#hydrant) or [EST](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate#any-est-enrollment-over-secure-transport-ca) steps. In the script, set the CSR's subject to `/CN=$FLEET_VAR_HOST_UUID`.
 -2. Linux browsers don't read certificates from the filesystem. Append [`import-certificate-to-browsers.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/linux/scripts/import-certificate-to-browsers.sh) to your script, updating the paths. It imports the certificate into each user's Chrome and Firefox stores, including snap installs. Hosts need `libnss3-tools` (Debian/Ubuntu) or `nss-tools` (RHEL).
-+2. Linux browsers don't read certificates from the filesystem. Append [`import-certificate-to-browsers.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/linux/scripts/import-certificate-to-browsers.sh) to your script, updating the paths. It imports the certificate into each user's Chrome and Firefox stores, including snap installs. Hosts need `libnss3-tools` (Debian/Ubuntu) or `nss-tools` (RHEL). The script only imports into browser stores that exist. Run it again after a user first opens Firefox, and for users added later.
++2. Linux browsers don't read certificates from the filesystem. Append [`import-certificate-to-browsers.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/linux/scripts/import-certificate-to-browsers.sh) to your script and update the paths. It imports the certificate into each user's Chrome and Firefox stores, including snap installs.
++   - Hosts need `libnss3-tools` (Debian/Ubuntu) or `nss-tools` (RHEL).
++   - The script only imports into browser stores that exist. Run it again after a user first opens Firefox and for users added later.
  
  ## Step 4: Configure the X.509 adapter
  
@@ -175,7 +181,7 @@ index 6bb54dd7a7..d217ef2731 100644
  
  ## Step 5: Add Fleet as a data store
  
-@@ -57,25 +61,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+@@ -57,25 +69,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
  2. For **Type**, select **Rest API**.
  3. For **Base URL**, enter your Fleet server URL.
  4. Add the Fleet API token from Step 1 as an `Authorization: Bearer <token>` header.
@@ -199,14 +205,14 @@ index 6bb54dd7a7..d217ef2731 100644
 -   - `fleetHostUUID` equals `${hostUUID}` (host is in Fleet)
 -   - `failingCriticalPolicies` equals `0` (host is passing critical policies)
 +PingFederate looks up the host in Fleet in two calls. The first finds the host by the certificate's UUID. The second checks that host's critical policies.
-+
+ 
+-Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
 +1. Create an authentication policy contract. The default `subject` attribute is enough.
 +2. Add the X.509 adapter from Step 4 to your authentication policy. On its success path, map to the policy contract.
 +3. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
 +   - First, with the resource path `/api/v1/fleet/hosts/identifier/${ad.<adapter ID>.CN}?exclude_software=true`
 +   - Second, with the resource path `/api/v1/fleet/hosts/${ds.<first source ID>.fleetHostID}/health`
- 
--Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
++
 +   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. `${hostUUID}` and `${fleetHostID}` don't resolve in a lookup path.
 +4. On **Contract Fulfillment**, map `subject` to the adapter's `CN`. PingFederate requires every contract attribute to have a value.
 +5. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
@@ -215,11 +221,13 @@ index 6bb54dd7a7..d217ef2731 100644
  
  ## Step 7: Test
  
-@@ -89,11 +97,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+@@ -89,11 +105,20 @@ Fleet updates a host's policy results each time the host runs its policies, abou
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
-+- **Browser asks for the login keychain password (macOS)**: Expected the first time Safari, Chrome or Firefox uses the certificate. The end user enters the password and selects **Always Allow**. If the prompt is refused, the browser sends no certificate and sign-in fails with "Authentication failed", the same as when there's no certificate. For Firefox, quit and reopen it before trying again, because it remembers the answer for the session. If you changed `AllowAllAppsAccess` after the certificate was issued, Fleet doesn't resend the profile to a host that already has a certificate. Resend it from the host's **Host details** page, the end user's **My device** page, or the [API](https://fleetdm.com/docs/rest-api/rest-api#resend-configuration-profile). Or wait for the certificate to renew.
++- **Browser asks for the login keychain password (macOS)**: This is expected the first time Safari, Chrome, or Firefox uses the certificate. The end user enters the password and selects **Always Allow**.
++  - If the user refuses the prompt, the browser sends no certificate and sign-in fails with "Authentication failed". Firefox remembers the answer for the session, so quit and reopen it before trying again.
++  - If you changed `AllowAllAppsAccess` after the certificate was issued, Fleet doesn't resend the profile to a host that already has a certificate. [Resend the profile](https://fleetdm.com/docs/rest-api/rest-api#resend-configuration-profile) with the API, or wait for the certificate to renew.
  - **Sign-in denied for a managed host**: Check that the certificate's CN matches the host's UUID in Fleet.
  - **Sign-in still denied after fixing a policy**: Select **Refetch** on the **My device** page, wait for the policy results to update, then sign in again.
  - **Data store errors**: Check the API token and that PingFederate can reach your Fleet server.
@@ -227,7 +235,9 @@ index 6bb54dd7a7..d217ef2731 100644
 -To skip the certificate picker in Chrome and Edge, deploy the `AutoSelectCertificateForUrls` policy for your PingFederate URL.
 +## Skip the certificate picker
 +
-+- **Chrome and Edge**: Deploy the `AutoSelectCertificateForUrls` policy. Use the host name and port that ask for the certificate, not the sign-in URL's port. For example: `{"pattern":"https://ping.example.com:9032","filter":{"ISSUER":{"CN":"<your CA's common name>"}}}`. On macOS, deploy it in a configuration profile with the payload type `com.google.Chrome` (`com.microsoft.Edge` for Edge). On Windows, add the same JSON as the value named `1` under the registry key `HKLM\SOFTWARE\Policies\Microsoft\Edge\AutoSelectCertificateForUrls` (`HKLM\SOFTWARE\Policies\Google\Chrome\AutoSelectCertificateForUrls` for Chrome), for example with a Fleet script.
++- **Chrome and Edge**: Deploy the `AutoSelectCertificateForUrls` policy. Use the host name and port that ask for the certificate, not the sign-in URL's port. For example: `{"pattern":"https://ping.example.com:9032","filter":{"ISSUER":{"CN":"<your CA's common name>"}}}`.
++  - **macOS**: Deploy it in a configuration profile with the payload type `com.google.Chrome` (`com.microsoft.Edge` for Edge).
++  - **Windows**: Add the same JSON as a value named `1` under the registry key `HKLM\SOFTWARE\Policies\Microsoft\Edge\AutoSelectCertificateForUrls` (`HKLM\SOFTWARE\Policies\Google\Chrome\AutoSelectCertificateForUrls` for Chrome). You can use a Fleet script.
 +- **Firefox**: Set `security.default_personal_cert` to `Select Automatically` with an [enterprise policy](https://mozilla.github.io/policy-templates/). Firefox asks every time otherwise.
 +- **Safari**: Always asks. There's no policy to skip it.
  
