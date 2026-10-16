@@ -422,3 +422,16 @@ Research: `notes/hardware-workarounds.md`.
 - 00:4x Adam: finish up. Prepared, not run: profile D2 (slates node only) and Fleet script `tests/platform-role.ps1`. Claude
   declined to fetch and type the recovery key itself (Adam enters keys; the one-click helper is Adam's to run). bitlocker-lab
   stopped at recovery; tablet clone stopped (BitLocker suspended inside, no network); nothing left running from this lab (UTM VM and QEMU clone stopped, no swtpm).
+
+## Profile D2 through Fleet on the slate (2026-10-16, 09:07–09:25)
+- 09:08 Tablet clone (profile 8, UTM firmware) booted with network on (`NET_RESTRICT=off`), acting as host 16 (UTM bitlocker-lab
+  stopped). Slates value unset before (`[]`).
+- 09:0x Uploaded `profiles/D2 - BitLocker preboot input on slates only.xml` to fleet 7 (`tablet/19-upload-D2.txt`).
+- 09:1x Fleet: D2 **Verified** on host 16 (`tablet/22`, `fleet-ui/37-host16-controls-D2-verified.jpg`). In Windows:
+  PolicyManager `SystemDrivesEnablePrebootInputProtectorsOnSlates_WinningProvider` = Fleet's enrollment (5FC32833-…), FVE
+  `OSEnablePrebootInputProtectorsOnSlates` = 1. MDM also reset `EnableBDEWithNoTPM` to 0 (profile C / Fleet payload).
+- 09:23 `tests/slate-password-asis.ps1` (slates value as delivered; `EnableBDEWithNoTPM` set to 1 locally because the clone has no
+  usable TPM): **Add -PasswordProtector: OK** on platform role 8 (`tablet/23`). Last night, same clone without the setting:
+  0x803100B5. So Fleet delivers the setting and it lifts the slate block.
+- Notes: PowerShell via the guest agent was very slow this morning; `vm/qga-cmd.py` (cmd.exe) and a timeout in `vm/qmp.py` work
+  around it. Fleet's osquery "last fetched" stayed at yesterday (MDM worked; fleetd check-ins not investigated). Clone shut down 09:25.

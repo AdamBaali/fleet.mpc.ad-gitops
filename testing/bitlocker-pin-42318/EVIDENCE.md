@@ -152,9 +152,12 @@ network restricted. Windows reads the ACPI profile as its platform role.
 | SL-3 | Pre-boot keyboard protector on the slate | **0x803100B5 "No pre-boot keyboard detected"** | `tablet/16` |
 | SL-4 | Same with `OSEnablePrebootInputProtectorsOnSlates` = 1 | **OK** | `tablet/16` |
 | SL-5 | Control: same disk as Desktop, setting unset | OK | `tablet/18` |
+| SL-6 | **Setting sent through Fleet** (profile D2, slates node only) | D2 **Verified**; winning provider = Fleet's enrollment; value 1; on the slate: **OK** | `tablet/19`, `22`, `23`, `fleet-ui/37` |
 
-Caveats: tested with a startup password (no working TPM in the standalone QEMU), not TPM+PIN; the slates value was set as a local
-policy value, not delivered by Fleet. Both use the same pre-boot-keyboard rule in Windows.
+Caveat: tested with a startup password (no working TPM in the standalone QEMU), not TPM+PIN. Both use the same pre-boot-keyboard
+rule in Windows (the slates setting covers PIN and password).
+
+Fleet host 16 Controls: D2 Verified: ![D2 verified](test-evidence/close-out/fleet-ui/37-host16-controls-D2-verified.jpg)
 
 Slate pre-boot screen ("or the Windows key"): ![Slate](test-evidence/tablet/01-clone-boot-25s.png)
 

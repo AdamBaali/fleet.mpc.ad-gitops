@@ -1,0 +1,17 @@
+
+
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\current\device\BitLocker
+    SystemDrivesEnablePrebootInputProtectorsOnSlates_WinningProvider    REG_SZ    5FC32833-C2E2-4640-B264-A4504C2B1BA4
+
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    OSEnablePrebootInputProtectorsOnSlates    REG_DWORD    0x1
+
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE
+    EnableBDEWithNoTPM    REG_DWORD    0x0
+
+ERROR: The system was unable to find the specified registry key or value.
+[exit 0]
+Fleet host 16 profiles: [('H - 42318 TPM lockout ADMX', 'verified'), ('D2 - BitLocker preboot input on slates only', 'verified'), ('C - BitLocker PIN required, others disallowed', 'verified')]
