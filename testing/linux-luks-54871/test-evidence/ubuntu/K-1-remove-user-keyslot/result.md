@@ -8,5 +8,6 @@
 - `01-kill-user-slot.txt`: header backup first (for K-11), then `cryptsetup luksKillSlot /dev/nvme0n1p3 0 --key-file <escrow key>`.
 - `02-luksdump-after.txt`: only keyslot 1 remains; UUID and digest unchanged.
 - `03-who-can-unlock-now.txt`: user passphrase rejected, escrow key opens, root still mounted, data hash unchanged.
+- `04-screenshot-who-can-unlock.png`: window screenshot: slot 0 removed, one slot left, which key opens what.
 
 ## Result: PASS

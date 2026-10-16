@@ -6,5 +6,6 @@
 
 ## Steps and evidence
 - `01-fleet-api-after-escrow.txt`: host in fleet 5, `os_settings.disk_encryption.status` = verified, fleet summary linux verified 1, an escrowed key is stored (length 35, `updated_at` at the escrow time). Key value not shown.
+- `02-screenshot-fleet-api.png`: window screenshot of Fleet's answer (verified, key stored).
 
 ## Result: PASS

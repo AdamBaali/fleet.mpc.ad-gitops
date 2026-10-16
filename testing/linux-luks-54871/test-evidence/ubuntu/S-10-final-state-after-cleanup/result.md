@@ -7,5 +7,6 @@
 ## Steps and evidence
 - `01-slots.txt`: slot 0 opens with the user's passphrase only; slot 2 (the newest escrow, created by orbit) opens with the key Fleet stores; a stale slot that neither key opened was removed. UUID and master key digest are the same as at the start (S-3).
 - Fleet (checked after a refetch): `verified`, escrowed key available.
+- `02-screenshot-final-slots.png`: window screenshot of the final slots.
 
 ## Result: PASS

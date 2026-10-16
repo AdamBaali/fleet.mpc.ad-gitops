@@ -8,6 +8,7 @@
 - `01-q2-run.txt` (script `tests/q2-guest.sh`, run in the guest): a random marker file is hashed first. Then `luksAddKey` (slot 2, authorised with the escrow key), `luksChangeKey` on slot 2, `luksKillSlot 2`, `luksAddKey` again and `luksRemoveKey`. After every step: UUID, shortened master key digest, slot list and marker hash.
 - Result of every step: UUID `22e0008a-...`, digest `76c786fef3c7172b...`, marker hash `e65ed01544c8eb74` stayed the same. Only the slot list changed (`0 1` to `0 1 2` and back). After all of it the escrow key still opens slot 1 and the user passphrase still opens slot 0.
 - The root file system stayed mounted on `/dev/mapper/ubuntu--vg-ubuntu--lv` throughout (no re-encryption).
+- `02-screenshot-run.png`: window screenshot of the run output.
 
 ## Result: PASS
 

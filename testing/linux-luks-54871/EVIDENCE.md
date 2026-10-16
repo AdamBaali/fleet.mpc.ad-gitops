@@ -114,6 +114,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-kill-user-slot.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/01-kill-user-slot.txt) · [02-luksdump-after.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/02-luksdump-after.txt) · [03-who-can-unlock-now.txt](test-evidence/ubuntu/K-1-remove-user-keyslot/03-who-can-unlock-now.txt)
 
+**screenshot who can unlock**
+
+![screenshot who can unlock](test-evidence/ubuntu/K-1-remove-user-keyslot/04-screenshot-who-can-unlock.png)
+
+
 ---
 
 ### K-11: a header backup brings a removed key back
@@ -163,6 +168,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [00-boot.txt](test-evidence/ubuntu/K-4-reboot-with-escrow-key/00-boot.txt) · [02-after-unlock.txt](test-evidence/ubuntu/K-4-reboot-with-escrow-key/02-after-unlock.txt)
 
+**screenshot after unlock**
+
+![screenshot after unlock](test-evidence/ubuntu/K-4-reboot-with-escrow-key/03-screenshot-after-unlock.png)
+
+
 ---
 
 ### K-5: does every reboot ask for the key again?
@@ -207,6 +217,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-remove-escrow-slot.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/01-remove-escrow-slot.txt) · [02-fleet-status-polling.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/02-fleet-status-polling.txt) · [03-re-escrow.txt](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/03-re-escrow.txt)
 
+**screenshot fleet polling**
+
+![screenshot fleet polling](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/04-screenshot-fleet-polling.png)
+
+
 ---
 
 ### M-1 to M-3: key slot changes don't change the volume key or the data
@@ -218,6 +233,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-q2-run.txt](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/01-q2-run.txt)
 
+**screenshot run**
+
+![screenshot run](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/02-screenshot-run.png)
+
+
 ---
 
 ### M-5: control, what DOES change the volume key
@@ -228,6 +248,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** `luksAddKey` and `luksKillSlot` keep the digest. `reencrypt` and `luksFormat` change it.
 
 **Output:** [01-control.txt](test-evidence/ubuntu/M-5-control-reencrypt-changes-the-key/01-control.txt)
+
+**screenshot control**
+
+![screenshot control](test-evidence/ubuntu/M-5-control-reencrypt-changes-the-key/02-screenshot-control.png)
+
 
 ---
 
@@ -285,6 +310,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** User passphrase on one slot, Fleet's escrow key on another, nothing else, Fleet Verified.
 
 **Output:** [01-slots.txt](test-evidence/ubuntu/S-10-final-state-after-cleanup/01-slots.txt)
+
+**screenshot final slots**
+
+![screenshot final slots](test-evidence/ubuntu/S-10-final-state-after-cleanup/02-screenshot-final-slots.png)
+
 
 ---
 
@@ -359,6 +389,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-fleet-api-after-escrow.txt](test-evidence/ubuntu/S-5-fleet-status-after-escrow/01-fleet-api-after-escrow.txt)
 
+**screenshot fleet api**
+
+![screenshot fleet api](test-evidence/ubuntu/S-5-fleet-status-after-escrow/02-screenshot-fleet-api.png)
+
+
 ---
 
 ### S-6: luksDump after the escrow
@@ -369,6 +404,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** One new keyslot. UUID and master key digest unchanged.
 
 **Output:** [01-luksdump-after-escrow.txt](test-evidence/ubuntu/S-6-luksdump-after-escrow/01-luksdump-after-escrow.txt)
+
+**screenshot baseline vs after**
+
+![screenshot baseline vs after](test-evidence/ubuntu/S-6-luksdump-after-escrow/02-screenshot-baseline-vs-after.png)
+
 
 ---
 

@@ -7,6 +7,7 @@
 ## Steps and evidence
 - `01-luksdump-after-escrow.txt`: keyslots 0 and 1 (both luks2, argon2id), still no tokens, one digest.
 - UUID `22e0008a-...` and digest `76c786fef3c7172b...` are identical to the baseline (S-3).
+- `02-screenshot-baseline-vs-after.png`: window screenshot: baseline and after-escrow `luksDump` side by side (same UUID, same digest, one more keyslot).
 
 ## Result: PASS
 
