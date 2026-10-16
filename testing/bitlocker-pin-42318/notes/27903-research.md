@@ -10,7 +10,7 @@ build 26300 arm64, TPM 2.0, not Entra/AD joined, standard user signed in). Log: 
 1. **Author (opened 2025-04-04):** full encryption of the **OS drive (C:)** instead of used-space-only. Reason (2026-10-14): data
    deleted *before* BitLocker was turned on stays in free clusters as plaintext on already-deployed machines. They said they could
    "add additional scripting to wipe the free space" but wanted a feature.
-2. **`customer-juliana`** (issue body, Gong): encrypt **all drives**, not just C:.
+2. **Another customer** (issue body): encrypt **all drives**, not just C:.
 
 ## Test results
 | Test | Result | Evidence |

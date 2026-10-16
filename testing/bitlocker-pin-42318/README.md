@@ -32,6 +32,14 @@ chronological log, dead ends included.
 
 Profiles E–G are the fleetdm/fleet#27903 tests (see EVIDENCE.md).
 
+## Drafts and notes
+- [`drafts/issue-comment-42318.md`](drafts/issue-comment-42318.md): the update for fleetdm/fleet#42318.
+- [`drafts/customer-reply.md`](drafts/customer-reply.md): the reply for the customer (sent by the CSM after the Manager of CSA decides).
+- [`drafts/issue-comment-27903.md`](drafts/issue-comment-27903.md): the reply for fleetdm/fleet#27903.
+- [`notes/requirements-and-asks.md`](notes/requirements-and-asks.md): every requirement and question, and where it's answered.
+- [`notes/research-2026-10-15.md`](notes/research-2026-10-15.md), [`notes/27903-research.md`](notes/27903-research.md),
+  [`notes/hardware-workarounds.md`](notes/hardware-workarounds.md): code, docs and tooling research.
+
 ## Reproduce
 - VM: `vm/build-vm.sh` (UTM, unattended Windows 11 arm64, TPM 2.0); then install fleetd with `tools/build-windows-msi.sh`.
   Run PowerShell in the guest as SYSTEM: `tools/win-run.sh <vm> - < script.ps1`.
@@ -43,5 +51,4 @@ Profiles E–G are the fleetdm/fleet#27903 tests (see EVIDENCE.md).
 The customer's devices reporting "Slate"; TPM+PIN (rather than a startup password) on the slate VM; refetch stalls on physical
 devices; a standard user completing a PIN change (dialog and lockout only).
 
-No PINs, recovery keys or secrets are in this folder (screenshots show dots or the recovery key ID only). Customer notes and
-unposted drafts are kept outside this repo.
+No PINs, recovery keys, secrets or customer names are in this folder (screenshots show dots or the recovery key ID only).

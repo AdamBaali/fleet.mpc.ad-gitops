@@ -84,7 +84,7 @@
   11:19 UTC). No secrets or codenames in them. GitHub can't delete timeline events; rewriting history wouldn't remove them.
   From now on, commit messages in public repos name the lab ("#42318 lab"), never `owner/repo#N`.
 - 13:40 Research (`notes/research-2026-10-15.md`): open docs PR fleetdm/fleet#43915 (draft) says "Resolves #42318" and still
-  says a PIN can only be enforced on unencrypted drives; customer-deebradel doesn't deploy Fleet Desktop, so the 4.93 My
+  says a PIN can only be enforced on unencrypted drives; the customer doesn't deploy Fleet Desktop, so the 4.93 My
   device PIN form wouldn't reach them; fleetd 1.62 (milestone due 2026-10-02, overdue) carries the PIN capability on branch
   `rc-minor-fleetd-v1.62.0`; fleetd doesn't recognise "no pre-boot keyboard" errors (0x803100B5/B6) and nothing in Fleet checks
   Modern Standby/HSTI/slates. Second Microsoft node Fleet never sends: `SystemDrivesEnablePreBootPinExceptionOnDECapableDevice`.
