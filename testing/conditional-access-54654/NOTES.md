@@ -36,7 +36,7 @@ as a note until it has been run.
 5. Restore step-ca `fleet-scep` lifetime to 2160 h after P-15 (backup of `ca.json` in the session scratchpad).
 
 ## Later (needs hardware or a decision)
-- Windows: done on a Windows 11 Arm VM (see `test-evidence/windows/RESULTS.md`). Open: D-5/D-8 (activate the Windows Duo integration for the test group), D-7, D-11 (needs two Windows hosts), L-1 against Duo, P-15 renewal, Chrome, Fleet-delivered auto-select.
+- Windows: done on a Windows 11 Arm VM (see `test-evidence/windows/RESULTS.md`). D-5 passes with no TPM in the VM (fails with UTM's virtual TPM). Open: D-8, D-7, D-11 (needs two Windows hosts), P-15 renewal, Chrome, Fleet-delivered auto-select.
 - Linux: Duo Desktop ran under x86 emulation and passed D-5 and L-1. Still open: a controlled test of whether the TPM matters, D-8 sign-in block on Linux, a Fleet-driven install of the custom package, and Fleet's EST path.
 - Noah: should the guide say a new host signs in before its first policy run (P-13)?
 
