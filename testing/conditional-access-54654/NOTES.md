@@ -36,7 +36,7 @@ as a note until it has been run.
 5. Restore step-ca `fleet-scep` lifetime to 2160 h after P-15 (backup of `ca.json` in the session scratchpad).
 
 ## Later (needs hardware or a decision)
-- Windows x64 test machine: P-2, D-1, D-2, D-5, D-7, D-8, D-11, L-1 and the Windows sign-in tests.
+- Windows (plan in `WINDOWS_PLAN.md`; try the 42318-style Windows 11 ARM VM with x64 emulation first, x64 machine only if Duo Desktop fails to install): P-2, D-1, D-2, D-5, D-7, D-8, D-11, L-1 and the Windows sign-in tests.
 - Linux: Duo Desktop ran under x86 emulation and passed D-5 and L-1. Still open: a controlled test of whether the TPM matters, D-8 sign-in block on Linux, a Fleet-driven install of the custom package, and Fleet's EST path.
 - Noah: should the guide say a new host signs in before its first policy run (P-13)?
 
