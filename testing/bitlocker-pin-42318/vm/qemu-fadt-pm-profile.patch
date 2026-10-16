@@ -1,0 +1,8 @@
+--- a/hw/acpi/aml-build.c
++++ b/hw/acpi/aml-build.c
+@@ -2490,3 +2490,4 @@
+     /* Preferred_PM_Profile */
+-    build_append_int_noprefix(tbl, 0 /* Unspecified */, 1);
++    /* lab #42318: QEMU_FADT_PM_PROFILE env (8 = Tablet/slate); default 0 Unspecified */
++    build_append_int_noprefix(tbl, getenv("QEMU_FADT_PM_PROFILE") ? atoi(getenv("QEMU_FADT_PM_PROFILE")) : 0, 1);
+     build_append_int_noprefix(tbl, f->sci_int, 2); /* SCI_INT */

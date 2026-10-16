@@ -1,5 +1,7 @@
 # Test plan: BitLocker PIN with a custom disk encryption profile (fleetdm/fleet#42318)
 
+> Plan as written at the start of the lab (2026-10-15). What actually ran, and the results: [EVIDENCE.md](EVIDENCE.md).
+
 Question: with `mdm.enable_custom_disk_encryption` on, does a custom BitLocker profile let an end user add a startup PIN in
 Manage BitLocker on an **already encrypted** Windows 11 Pro + TPM 2.0 host, with PIN at Allow (2)?
 

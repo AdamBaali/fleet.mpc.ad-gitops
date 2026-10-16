@@ -1,3 +1,5 @@
+<!-- Raw chronological lab log (published copy of RESULTS.md): every step, including dead ends and conclusions that
+     later tests overturned. For results read README.md and EVIDENCE.md. -->
 # Results: #42318 BitLocker PIN (running log, newest at the bottom)
 
 ## 2026-10-15
@@ -370,7 +372,7 @@ deliberately wrong test values.
   before profile H), the next one refused with **"BitLocker has disabled PIN changes after too many failed requests. Click the link
   to reset the PIN as an administrator."** TPM lockout counter still 0. The threshold 3 from the profile didn't stop it at 3
   (probably read at TBS start/restart; not verified, the VM can't reboot). `close-out/41`–`45`, `46`.
-- First click attempts missed (helper `clickd` scaling is for another window size; used guest `click`); `35`–`40` are those misses.
+- First click attempts missed (helper `clickd` scaling is for another window size; used guest `click`); those screenshots were deleted.
 
 ## Getting around the hardware (2026-10-15, 22:51–)
 Adam's go-ahead 22:5x: suspend BitLocker on bitlocker-lab, reboot diagnosis, then patched QEMU on a disk clone; stop under 20 GB free.
