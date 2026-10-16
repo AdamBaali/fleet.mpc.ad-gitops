@@ -26,7 +26,7 @@ I followed the PingFederate and Duo guides in a lab and fixed what didn't work. 
 - Note that GitHub's scheduler is best effort. A 5-minute schedule started 2 runs in 11 hours. For a steady 5 minutes, use cron or a systemd timer. A run every 5 minutes also uses about 8,600 minutes a month.
 - Add a dry run and a note about the macOS local network prompt.
 - List the API endpoints each API-only user needs. Tested with throwaway users: both lists are enough, and other endpoints return 403.
-- Prerequisites: Linux needs x86-64 hosts, and Windows needs Intel hosts. Duo lists both as the only supported hardware.
+- Prerequisites: Linux needs x86-64 hosts, and Windows needs Intel hosts. Duo lists both as the only supported hardware. Duo Desktop did run on Arm VMs under emulation in testing (Linux and Windows 11), and Duo trusted the hosts, so the guide says that and that it isn't supported.
 
 ### Script
 - `import-certificate-to-browsers.sh`: fixes found on Ubuntu 24.04 (deb Firefox, snap Chromium, snap Firefox, Chrome).

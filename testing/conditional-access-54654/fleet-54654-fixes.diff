@@ -1,96 +1,36 @@
-diff --git a/articles/conditional-access.md b/articles/conditional-access.md
-index 4b08137086..50657d11f3 100644
---- a/articles/conditional-access.md
-+++ b/articles/conditional-access.md
-@@ -1,14 +1,19 @@
- # Conditional access
- 
--Fleet's conditional access feature lets IT and security teams enforce access controls on macOS and Windows hosts based on policy status. When a host fails a particular policy in Fleet, access to third-party apps can be blocked until the issue is resolved.
-+Fleet's conditional access feature lets IT and security teams block access to third-party apps from hosts that don't meet your requirements. You can require that hosts:
- 
--Fleet currently has built-in conditional access integrations with Okta (macOS only) and Entra (macOS and Windows):
--- [Okta setup guide](https://fleetdm.com/guides/okta-conditional-access-integration)
--- [Entra setup guide](https://fleetdm.com/guides/entra-conditional-access-integration)
-+- Are managed by Fleet
-+- Are passing specific Fleet policies. When a host fails one of these policies, access is blocked until the issue is resolved.
- 
--You can also use Fleet's API for conditional access with [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access-integration) (macOS, Windows, and Linux).
-+Fleet has built-in conditional access integrations that check policies:
-+- [Okta](https://fleetdm.com/guides/okta-conditional-access-integration) (macOS)
-+- [Entra](https://fleetdm.com/guides/entra-conditional-access-integration) (macOS and Windows)
- 
--To only require that hosts are managed by Fleet, without checking policies, see [Require Fleet-managed hosts in Duo](https://fleetdm.com/guides/require-fleet-managed-hosts-in-duo) or [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile).
-+You can also use Fleet's API for conditional access with:
-+- [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access-integration) (macOS, Windows, and Linux): require managed hosts that are passing critical policies
-+- [Duo](https://fleetdm.com/guides/duo-conditional-access-integration) (macOS, Windows, and Linux): require managed hosts
-+
-+To require managed Windows hosts in Okta, see [Enable Okta Verify on Windows](https://fleetdm.com/guides/enable-okta-verify-on-windows-using-a-scep-configuration-profile).
- 
- ## How it works
- 
 diff --git a/articles/duo-conditional-access-integration.md b/articles/duo-conditional-access-integration.md
-new file mode 100644
-index 0000000000..58e51c02ce
---- /dev/null
+index 7abf9acda3..d141fa8fa7 100644
+--- a/articles/duo-conditional-access-integration.md
 +++ b/articles/duo-conditional-access-integration.md
-@@ -0,0 +1,165 @@
-+# Conditional access: Duo
-+
-+With Fleet's [conditional access](https://fleetdm.com/guides/conditional-access), Duo blocks sign-in from hosts that aren't managed by Fleet. It works on macOS, Windows, and Linux.
-+
-+How it works:
-+
-+1. Duo Desktop on each host reports the host's device ID to Duo at sign-in.
-+2. Every few minutes, a script exports the device IDs of your Fleet hosts, and Duo's sync script uploads them to Duo.
-+3. Duo's [Trusted Endpoints](https://duo.com/docs/trusted-endpoints-generic-duo-desktop) policy blocks sign-in from hosts that aren't on the list.
-+
-+Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access-integration), Duo doesn't need a certificate on the host.
-+
-+> **Note:** Blocking hosts that are failing critical Fleet policies with Duo is coming soon. Fleet will add an activity when a host refetches ([macOS, iOS, and iPadOS](https://github.com/fleetdm/fleet/issues/50576), [Windows](https://github.com/fleetdm/fleet/issues/50577), [Linux](https://github.com/fleetdm/fleet/issues/50578)), so the sync can run as soon as an end user fixes an issue and selects **Refetch**. Until then, the best practice is to trust every host in Fleet. If you also block failing hosts today, an end user who fixes the issue can't sign in until the next sync, up to 5 minutes later. To block failing hosts anyway, [mark those policies as critical](https://fleetdm.com/guides/pingfederate-conditional-access-integration#step-2-mark-critical-policies) and set `REQUIRE_PASSING_CRITICAL_POLICIES=true` when you run the export script.
-+
-+## Prerequisites
-+
-+- A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
-+- For Linux, x86-64 hosts. Duo Desktop doesn't support Linux on ARM.
-+- For Windows, Intel hosts. Duo lists Duo Desktop for Windows as Intel only.
-+- A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
-+
-+## Step 1: Create a Fleet API user
-+
-+Create an [API-only user](https://fleetdm.com/guides/fleetctl#create-api-only-user) with the **Observer** role. The export script uses its API token.
-+
+@@ -15,13 +15,18 @@ Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access
+ ## Prerequisites
+ 
+ - A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
++- For Linux, x86-64 hosts. Duo doesn't support Duo Desktop on Linux on ARM. In testing, it ran on an Arm VM under x86 emulation and Duo trusted the host, but that setup isn't supported.
++- For Windows, Intel hosts. Duo lists Duo Desktop for Windows as Intel only. In testing, it ran on a Windows 11 Arm VM under x64 emulation and Duo trusted the host, but that setup isn't supported.
+ - A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
+ 
+ ## Step 1: Create a Fleet API user
+ 
+ Create an [API-only user](https://fleetdm.com/guides/fleetctl#create-api-only-user) with the **Observer** role. The export script uses its API token.
+ 
+-Select **Specific API endpoints** and add only the endpoint the script calls: [List hosts](https://fleetdm.com/docs/rest-api/rest-api#list-hosts).
 +Select **Specific API endpoints** and add only the endpoints the script calls:
 +
 +- [List hosts](https://fleetdm.com/docs/rest-api/rest-api#list-hosts)
 +- [Get report data](https://fleetdm.com/docs/rest-api/rest-api#get-report-data) (for the Windows report in Step 3)
-+
-+## Step 2: Install Duo Desktop
-+
-+1. In Fleet, head to **Software** and select **Add software**. For macOS and Windows, add **Duo Desktop** from **Fleet-maintained**. For Linux, add Duo's [Duo Desktop package](https://duo.com/docs/duo-desktop) as a **Custom package**.
-+2. Install it on every host with a [policy automation](https://fleetdm.com/guides/automatic-software-install-in-fleet).
-+
-+## Step 3: Collect Windows device IDs
-+
-+Duo identifies Windows hosts by `MachineGuid`, not the UUID Fleet stores. Collect it with a report:
-+
-+1. Head to **Reports** and select **Add report**. Use this query, target **Windows**, and select **Save**:
-+
-+```sql
-+SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid';
-+```
-+
-+2. Note the report's ID in its URL.
-+
-+## Step 4: Add Duo integrations
-+
-+1. In the Duo Admin Panel, head to **Devices > Trusted Endpoints** and select **Add Integration**.
-+2. Select **Generic Integrations**, choose **macOS**, and select **Add**. Repeat for **Windows** and **Linux**.
-+3. On each integration's page, download Duo's `device_cache_sync.py`.
-+
-+## Step 5: Sync hosts
-+
+ 
+ ## Step 2: Install Duo Desktop
+ 
+@@ -48,16 +53,52 @@ SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTW
+ 
+ ## Step 5: Sync hosts
+ 
+-1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh) and set your Fleet URL and the report ID from Step 3.
 +1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh), set your Fleet URL and the report ID from Step 3, and save it in your repository as `duo/export-fleet-hosts-for-duo.sh`.
-+2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
+ 2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
+-3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
+-4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
 +3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`. Duo's script refuses a file with no device IDs, so skip an operating system that has no hosts. Add `--dry_run` the first time to check the file without changing what Duo holds.
 +4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow. It can live in any repository. It doesn't need to be your GitOps repository.
 +
@@ -119,14 +59,14 @@ index 0000000000..58e51c02ce
 +- For each of `MACOS`, `WINDOWS`, and `LINUX`: `DUO_<OS>_MKEY` (the integration ID, which starts with `DM`), `DUO_<OS>_IKEY`, and `DUO_<OS>_SKEY`.
 +
 +Then add this workflow, for example as `.github/workflows/duo-sync.yml`:
-+
-+```yaml
+ 
+ ```yaml
 +name: Sync Fleet hosts to Duo Trusted Endpoints
 +
-+on:
-+  schedule:
-+    - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
-+  workflow_dispatch:
+ on:
+   schedule:
+     - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
+   workflow_dispatch:
 +
 +concurrency:
 +  group: ${{ github.workflow }}
@@ -135,17 +75,19 @@ index 0000000000..58e51c02ce
 +permissions:
 +  contents: read
 +
-+jobs:
-+  sync:
-+    runs-on: ubuntu-latest
-+    steps:
-+      - uses: actions/checkout@v4
-+      - uses: actions/setup-python@v5
-+        with:
-+          python-version: "3.12"
-+      - run: pip install "duo-client>=4.3.0"
+ jobs:
+   sync:
+     runs-on: ubuntu-latest
+@@ -67,15 +108,36 @@ jobs:
+         with:
+           python-version: "3.12"
+       - run: pip install "duo-client>=4.3.0"
+-      - run: |
+-          ./export-fleet-hosts-for-duo.sh
+-          for os in macos windows linux; do python duo/$os/device_cache_sync.py --infile $os.csv; done
 +      - name: Export Fleet hosts and sync to Duo
-+        env:
+         env:
+-          FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
 +          FLEET_API_TOKEN: ${{ secrets.DUO_FLEET_API_TOKEN }}
 +          DUO_API_HOST: ${{ secrets.DUO_API_HOST }}
 +          DUO_MACOS_MKEY: ${{ secrets.DUO_MACOS_MKEY }}
@@ -169,41 +111,28 @@ index 0000000000..58e51c02ce
 +              echo "$os: no credentials or no hosts, skipped"
 +            fi
 +          done
-+```
-+
+ ```
+ 
+-Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
 +No GitHub? Run the same export and upload steps on a schedule anywhere that can reach Fleet and Duo, like cron, a systemd timer, or Windows Task Scheduler. Set the same environment variables in the job. On macOS, don't keep the scripts in Downloads, Documents, or Desktop. macOS blocks scheduled jobs from reading those folders.
-+
+ 
 +Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
-+## Step 6: Turn on the policy
-+
-+1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
-+2. In your Duo policy, set **Trusted Endpoints** to block hosts that aren't trusted.
-+3. After testing, activate each integration for all users.
-+
-+## Step 7: Test
-+
-+| Host | Expected result |
-+|---|---|
-+| In Fleet | Sign-in succeeds |
-+| Not in Fleet | Sign-in denied |
-+
-+## Troubleshooting
-+
-+- **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
+ ## Step 6: Turn on the policy
+ 
+ 1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
+@@ -92,6 +154,7 @@ Each sync replaces the previous list, so a newly enrolled host can sign in after
+ ## Troubleshooting
+ 
+ - **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
 +- **macOS asks for local network access**: Duo Desktop talks to the browser over the local network. When Duo shows "Duo Desktop needs permission to access your local network", allow the browser's prompt. If you select **Skip for now**, Duo can't read the device ID and blocks the host. In **System Settings > Privacy & Security > Local Network**, make sure the browser is on.
-+- **Windows host missing from `windows.csv`**: Check that the Step 3 report has results for the host.
-+
-+<meta name="articleTitle" value="Conditional access: Duo">
-+<meta name="authorFullName" value="Noah Talerman">
-+<meta name="authorGitHubUsername" value="noahtalerman">
-+<meta name="category" value="guides">
-+<meta name="publishedOn" value="2026-09-29">
-+<meta name="description" value="Use Duo for conditional access, blocking sign-in from hosts that aren't managed by Fleet.">
+ - **Windows host missing from `windows.csv`**: Check that the Step 3 report has results for the host.
+ 
+ <meta name="articleTitle" value="Conditional access: Duo">
 diff --git a/articles/pingfederate-conditional-access-integration.md b/articles/pingfederate-conditional-access-integration.md
-index 3b6388ff63..d217ef2731 100644
+index 6bb54dd7a7..d217ef2731 100644
 --- a/articles/pingfederate-conditional-access-integration.md
 +++ b/articles/pingfederate-conditional-access-integration.md
-@@ -13,38 +13,47 @@ How it works:
+@@ -13,6 +13,7 @@ How it works:
  ## Prerequisites
  
  - A certificate authority (CA) connected to Fleet. See [supported CAs](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate). Best practice is a dedicated issuing CA used only for these certificates, because PingFederate trusts every certificate the CA issues.
@@ -211,17 +140,7 @@ index 3b6388ff63..d217ef2731 100644
  - PingFederate with the X.509 Certificate Integration Kit [installed](https://docs.pingidentity.com/integrations/x509/x509_certificate_integration_kit/pf_x509_certificate_ik_deploying_the_integration_files.html), including setting `pf.secondary.https.port`.
  
  ## Step 1: Create a Fleet API user
- 
- Create an [API-only user](https://fleetdm.com/guides/fleetctl#create-api-only-user) with the **Observer** role. PingFederate uses its API token to look up hosts.
- 
-+Select **Specific API endpoints** and add only the endpoints PingFederate calls:
-+
-+- [Get host by identifier](https://fleetdm.com/docs/rest-api/rest-api#get-host-by-identifier)
-+- [Get host's device health report](https://fleetdm.com/docs/rest-api/rest-api#get-hosts-device-health-report)
-+
- ## Step 2: Mark critical policies
- 
- In Fleet, head to **Policies**. For each policy that should block sign-in, open the policy, select **Critical**, and select **Save**.
+@@ -30,26 +31,29 @@ In Fleet, head to **Policies**. For each policy that should block sign-in, open
  
  ## Step 3: Deploy the certificate
  
@@ -256,7 +175,7 @@ index 3b6388ff63..d217ef2731 100644
  
  ## Step 5: Add Fleet as a data store
  
-@@ -52,25 +61,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
+@@ -57,25 +61,29 @@ Deploy a SCEP profile for your CA using `./User/` paths so the certificate lands
  2. For **Type**, select **Rest API**.
  3. For **Base URL**, enter your Fleet server URL.
  4. Add the Fleet API token from Step 1 as an `Authorization: Bearer <token>` header.
@@ -280,14 +199,14 @@ index 3b6388ff63..d217ef2731 100644
 -   - `fleetHostUUID` equals `${hostUUID}` (host is in Fleet)
 -   - `failingCriticalPolicies` equals `0` (host is passing critical policies)
 +PingFederate looks up the host in Fleet in two calls. The first finds the host by the certificate's UUID. The second checks that host's critical policies.
- 
--Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
++
 +1. Create an authentication policy contract. The default `subject` attribute is enough.
 +2. Add the X.509 adapter from Step 4 to your authentication policy. On its success path, map to the policy contract.
 +3. On **Attribute Sources & User Lookup**, add the Fleet data store twice:
 +   - First, with the resource path `/api/v1/fleet/hosts/identifier/${ad.<adapter ID>.CN}?exclude_software=true`
 +   - Second, with the resource path `/api/v1/fleet/hosts/${ds.<first source ID>.fleetHostID}/health`
-+
+ 
+-Fleet updates a host's policy results each time the host runs its policies, about once an hour. So a user who fixes a failing policy is still blocked until the host rechecks. If they select **Refetch** on their **My device** page, results usually update within a minute or so, and their next sign-in works right away.
 +   Replace `<adapter ID>` with the ID of the X.509 adapter instance (for example, `${ad.x509.CN}`) and `<first source ID>` with the ID you gave the first Fleet data source. `${hostUUID}` and `${fleetHostID}` don't resolve in a lookup path.
 +4. On **Contract Fulfillment**, map `subject` to the adapter's `CN`. PingFederate requires every contract attribute to have a value.
 +5. On **Issuance Criteria**, add `failingCriticalPolicies` equals `0`. This denies sign-in if the host is failing critical policies. It also denies sign-in if the host isn't in Fleet, because the second lookup then returns nothing.
@@ -296,7 +215,7 @@ index 3b6388ff63..d217ef2731 100644
  
  ## Step 7: Test
  
-@@ -84,11 +97,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
+@@ -89,11 +97,16 @@ Fleet updates a host's policy results each time the host runs its policies, abou
  ## Troubleshooting
  
  - **Browser doesn't prompt for a certificate**: Check that the certificate is in the user store (macOS login keychain, Windows `Cert:\CurrentUser\My`, or Linux NSS). On Linux, run `certutil -L -d sql:$HOME/.pki/nssdb`.
@@ -314,123 +233,6 @@ index 3b6388ff63..d217ef2731 100644
  
  <meta name="articleTitle" value="Conditional access: PingFederate">
  <meta name="authorFullName" value="Noah Talerman">
-diff --git a/articles/require-fleet-managed-hosts-in-duo.md b/articles/require-fleet-managed-hosts-in-duo.md
-deleted file mode 100644
-index c0401c7c0f..0000000000
---- a/articles/require-fleet-managed-hosts-in-duo.md
-+++ /dev/null
-@@ -1,100 +0,0 @@
--# Require Fleet-managed hosts in Duo
--
--This guide shows how to block Duo sign-in from hosts that aren't managed by Fleet. It works on macOS, Windows, and Linux.
--
--How it works:
--
--1. Duo Desktop on each host reports the host's device ID to Duo at sign-in.
--2. Every few minutes, a script exports the device IDs of your Fleet hosts, and Duo's sync script uploads them to Duo.
--3. Duo's [Trusted Endpoints](https://duo.com/docs/trusted-endpoints-generic-duo-desktop) policy blocks sign-in from hosts that aren't on the list.
--
--Unlike [PingFederate](https://fleetdm.com/guides/pingfederate-conditional-access-integration), Duo doesn't need a certificate on the host.
--
--> **Note:** [Conditional access](https://fleetdm.com/guides/conditional-access) with Duo, which also blocks hosts that are failing critical Fleet policies, is coming soon. Fleet will add an activity when a host refetches ([macOS, iOS, and iPadOS](https://github.com/fleetdm/fleet/issues/50576), [Windows](https://github.com/fleetdm/fleet/issues/50577), [Linux](https://github.com/fleetdm/fleet/issues/50578)), so the sync can run as soon as an end user fixes an issue and selects **Refetch**. Until then, the best practice is to trust every host in Fleet. If you also block failing hosts today, an end user who fixes the issue can't sign in until the next sync, up to 5 minutes later. To block failing hosts anyway, [mark those policies as critical](https://fleetdm.com/guides/pingfederate-conditional-access-integration#step-2-mark-critical-policies) and set `REQUIRE_PASSING_CRITICAL_POLICIES=true` when you run the export script.
--
--## Prerequisites
--
--- A Duo Essentials, Advantage, or Premier plan, and an Owner, Administrator, or Application Manager role in the Duo Admin Panel.
--- A computer or CI job that can reach Fleet and Duo, with `curl`, `jq`, Python 3.9 or later, and [`duo-client`](https://pypi.org/project/duo-client/) 4.3.0 or later.
--
--## Step 1: Create a Fleet API user
--
--Create an [API-only user](https://fleetdm.com/guides/fleetctl#create-api-only-user) with the **Observer** role. The export script uses its API token.
--
--## Step 2: Install Duo Desktop
--
--1. In Fleet, head to **Software** and select **Add software**. For macOS and Windows, add **Duo Desktop** from **Fleet-maintained**. For Linux, add Duo's [Duo Desktop package](https://duo.com/docs/duo-desktop) as a **Custom package**.
--2. Install it on every host with a [policy automation](https://fleetdm.com/guides/automatic-software-install-in-fleet).
--
--## Step 3: Collect Windows device IDs
--
--Duo identifies Windows hosts by `MachineGuid`, not the UUID Fleet stores. Collect it with a report:
--
--1. Head to **Reports** and select **Add report**. Use this query, target **Windows**, and select **Save**:
--
--```sql
--SELECT data AS machine_guid FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid';
--```
--
--2. Note the report's ID in its URL.
--
--## Step 4: Add Duo integrations
--
--1. In the Duo Admin Panel, head to **Devices > Trusted Endpoints** and select **Add Integration**.
--2. Select **Generic Integrations**, choose **macOS**, and select **Add**. Repeat for **Windows** and **Linux**.
--3. On each integration's page, download Duo's `device_cache_sync.py`.
--
--## Step 5: Sync hosts
--
--1. Download [`export-fleet-hosts-for-duo.sh`](https://github.com/fleetdm/fleet/blob/main/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh) and set your Fleet URL and the report ID from Step 3.
--2. Run it with `FLEET_API_TOKEN` set to the token from Step 1. It writes `macos.csv`, `windows.csv`, and `linux.csv`.
--3. Upload each file with the matching integration's sync script, for example `python device_cache_sync.py --infile macos.csv`.
--4. Schedule these steps to run every 5 minutes. The best practice is a [GitHub Actions](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule) workflow in your GitOps repository, with `FLEET_API_TOKEN` stored as a repository secret:
--
--```yaml
--on:
--  schedule:
--    - cron: "2-59/5 * * * *" # Every 5 minutes, avoiding the top of the hour when GitHub is busiest
--  workflow_dispatch:
--jobs:
--  sync:
--    runs-on: ubuntu-latest
--    steps:
--      - uses: actions/checkout@v4
--      - uses: actions/setup-python@v5
--        with:
--          python-version: "3.12"
--      - run: pip install "duo-client>=4.3.0"
--      - run: |
--          ./export-fleet-hosts-for-duo.sh
--          for os in macos windows linux; do python duo/$os/device_cache_sync.py --infile $os.csv; done
--        env:
--          FLEET_API_TOKEN: ${{ secrets.FLEET_API_TOKEN }}
--```
--
--Each sync replaces the previous list, so a newly enrolled host can sign in after the next sync.
--
--## Step 6: Turn on the policy
--
--1. On each integration's page, under **Change Integration Status**, activate the integration for a test group.
--2. In your Duo policy, set **Trusted Endpoints** to block hosts that aren't trusted.
--3. After testing, activate each integration for all users.
--
--## Step 7: Test
--
--| Host | Expected result |
--|---|---|
--| In Fleet | Sign-in succeeds |
--| Not in Fleet | Sign-in denied |
--
--## Troubleshooting
--
--- **Sign-in denied for a managed host**: Check that Duo Desktop is installed and running, and that the last sync included the host.
--- **Windows host missing from `windows.csv`**: Check that the Step 3 report has results for the host.
--
--<meta name="articleTitle" value="Require Fleet-managed hosts in Duo">
--<meta name="authorFullName" value="Noah Talerman">
--<meta name="authorGitHubUsername" value="noahtalerman">
--<meta name="category" value="guides">
--<meta name="publishedOn" value="2026-09-29">
--<meta name="description" value="Block Duo sign-in from hosts that aren't managed by Fleet.">
-diff --git a/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh b/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
-index 7cf21f0dda..45ec238fe3 100755
---- a/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
-+++ b/docs/solutions/api-scripts/export-fleet-hosts-for-duo.sh
-@@ -1,5 +1,5 @@
- #!/bin/bash
--# Script template used in this guide: https://fleetdm.com/guides/require-fleet-managed-hosts-in-duo
-+# Script template used in this guide: https://fleetdm.com/guides/duo-conditional-access-integration
- # Writes macos.csv, windows.csv, and linux.csv for Duo's device_cache_sync.py, with the
- # device IDs of Fleet hosts. Set REQUIRE_PASSING_CRITICAL_POLICIES=true to only include hosts
- # that are passing all critical policies. Needs curl and jq.
 diff --git a/docs/solutions/linux/scripts/import-certificate-to-browsers.sh b/docs/solutions/linux/scripts/import-certificate-to-browsers.sh
 index 073d577512..cc085a4355 100755
 --- a/docs/solutions/linux/scripts/import-certificate-to-browsers.sh
