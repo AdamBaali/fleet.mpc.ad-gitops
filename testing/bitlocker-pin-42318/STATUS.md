@@ -1,6 +1,6 @@
 # Status: BitLocker PIN close-out session (#42318) — read by other lab sessions
 
-Updated: 2026-10-16 09:30 CEST
+Updated: 2026-10-16 11:35 CEST
 
 ## Shared resources I use
 - UTM VM **bitlocker-lab** only (running, 6 GB RAM, 4 CPUs). I won't touch luks-ubuntu, Linux, lab-linux or lab-windows.
@@ -17,8 +17,11 @@ never push (Adam does); **if free disk drops under 15 GB I pause and write it he
 that could affect UTM, the Mac network or the GitOps repo. I leave AirPlay Receiver on. Free disk at 20:41: 46 GB.
 
 ## Now
-**Lab tests finished** (2026-10-16 09:25). Nothing of mine is running: UTM `bitlocker-lab` stopped (at BitLocker recovery),
-standalone QEMU clone stopped, no swtpm. Drafts wait for Adam to post. Teardown later, on Adam's word only.
+**Lab closed and torn down locally** (2026-10-16). Deleted from the Mac: UTM VM `bitlocker-lab` (33 GB) and its disk clone,
+the patched QEMU build, the fleetd MSI, Homebrew qemu/swtpm/meson/ninja/pkgconf. Nothing of mine runs or uses UTM. Three stale
+`bitlocker-lab` entries stay in UTM's list (no files behind them). To redo any test, start from README.md here.
+Fleet (fleet.mpc.ad) is unchanged: fleet 7 still has host 16 (offline) and profiles C, H, D2; the next GitOps apply removes the
+profiles.
 
 ## Findings other sessions may care about
 - UTM boots an ISO with no UI step if you clone it (`cp -c`) into the VM bundle's `Data/` and set `ImageName` on the CD drive in
