@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-which-slot-opens-with-which-key.txt`: `cryptsetup open --test-passphrase -S <slot>` for each pair.
+- `02-screenshot-which-key-opens-what.png`: window screenshot of the slot and key matrix.
 
 ## Result: PASS
 

@@ -10,6 +10,7 @@
 - `03`: orbit validates the user's passphrase against any keyslot, picks the next free slot, **adds** a keyslot with a random passphrase, and escrows it. It needs `zenity` or `kdialog`. Nothing removes or edits the user's slot.
 - `04`: open PR #55070 reduces eligibility to Ubuntu, Zorin and Fedora: the Arch family and Omarchy were accepted by the server, but "No user could complete escrow on them".
 - `05`: issue #55069 (Omarchy): the escrow flow doesn't work end to end today (Wayland dialog environment, no zenity or kdialog, lsblk mountpoints).
+- `06-screenshot-code-and-docs.png`: window screenshot of `IsLUKSSupported` and the docs list.
 
 ## Result: PASS
 

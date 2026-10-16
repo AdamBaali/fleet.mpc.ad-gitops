@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-unlock-paths.txt`: crypttab, LUKS tokens, key files, initramfs scripts, TPM device, snapd FDE.
+- `02-screenshot-unlock-paths.png`: window screenshot of crypttab, tokens, key files, TPM, snapd.
 
 ## Result: PASS
 

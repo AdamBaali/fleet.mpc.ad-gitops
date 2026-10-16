@@ -60,6 +60,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-islukssupported-in-the-fleet-clone.txt](test-evidence/desk/D-1-fleet-code-and-docs/01-islukssupported-in-the-fleet-clone.txt) · [02-docs-list-supported-distros.txt](test-evidence/desk/D-1-fleet-code-and-docs/02-docs-list-supported-distros.txt) · [03-orbit-escrow-adds-a-keyslot.txt](test-evidence/desk/D-1-fleet-code-and-docs/03-orbit-escrow-adds-a-keyslot.txt) · [04-open-pr-55070-removes-arch-family.txt](test-evidence/desk/D-1-fleet-code-and-docs/04-open-pr-55070-removes-arch-family.txt) · [05-issue-55069-omarchy-findings.txt](test-evidence/desk/D-1-fleet-code-and-docs/05-issue-55069-omarchy-findings.txt)
 
+**screenshot code and docs**
+
+![screenshot code and docs](test-evidence/desk/D-1-fleet-code-and-docs/06-screenshot-code-and-docs.png)
+
+
 ---
 
 ### F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2
@@ -78,6 +83,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Record exactly what was tested so a reader can recreate the lab.
 
 **Output:** [01-versions.txt](test-evidence/ubuntu/00-environment/01-versions.txt)
+
+**screenshot versions**
+
+![screenshot versions](test-evidence/ubuntu/00-environment/02-screenshot-versions.png)
+
 
 ---
 
@@ -130,6 +140,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-restore.txt](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/01-restore.txt)
 
+**screenshot restore**
+
+![screenshot restore](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/02-screenshot-restore.png)
+
+
 ---
 
 ### K-12: recovering access after every known key was lost
@@ -140,6 +155,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** Not from the running system's memory (root can't read the volume key); yes from an earlier header backup.
 
 **Output:** [01-recovery.txt](test-evidence/ubuntu/K-12-recover-key-from-running-system/01-recovery.txt)
+
+**screenshot recovery**
+
+![screenshot recovery](test-evidence/ubuntu/K-12-recover-key-from-running-system/02-screenshot-recovery.png)
+
 
 ---
 
@@ -184,6 +204,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [00-boot.txt](test-evidence/ubuntu/K-5-every-boot-asks-again/00-boot.txt) · [02-after-unlock.txt](test-evidence/ubuntu/K-5-every-boot-asks-again/02-after-unlock.txt)
 
+**screenshot second reboot**
+
+![screenshot second reboot](test-evidence/ubuntu/K-5-every-boot-asks-again/03-screenshot-second-reboot.png)
+
+
 ---
 
 ### K-6: is there any other unlock path?
@@ -195,6 +220,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-unlock-paths.txt](test-evidence/ubuntu/K-6-no-other-unlock-path/01-unlock-paths.txt)
 
+**screenshot unlock paths**
+
+![screenshot unlock paths](test-evidence/ubuntu/K-6-no-other-unlock-path/02-screenshot-unlock-paths.png)
+
+
 ---
 
 ### K-7: what Fleet shows after the user slot is removed
@@ -205,6 +235,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** No: Fleet verifies the escrow slot's salt, not the user's slot.
 
 **Output:** [01-fleet-status.txt](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/01-fleet-status.txt)
+
+**screenshot fleet still verified**
+
+![screenshot fleet still verified](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/02-screenshot-fleet-still-verified.png)
+
 
 ---
 
@@ -367,6 +402,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-luksdump-baseline.txt](test-evidence/ubuntu/S-3-baseline-luksdump/01-luksdump-baseline.txt) · [02-lsblk-guide-step2.txt](test-evidence/ubuntu/S-3-baseline-luksdump/02-lsblk-guide-step2.txt)
 
+**screenshot baseline**
+
+![screenshot baseline](test-evidence/ubuntu/S-3-baseline-luksdump/03-screenshot-baseline.png)
+
+
 ---
 
 ### S-4: trigger Fleet's Linux escrow (the "Create key" action)
@@ -377,6 +417,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** Orbit asks for the passphrase, adds a keyslot, escrows the new key.
 
 **Output:** [01-trigger.txt](test-evidence/ubuntu/S-4-escrow-trigger/01-trigger.txt) · [02-keyslot-count-polling.txt](test-evidence/ubuntu/S-4-escrow-trigger/02-keyslot-count-polling.txt) · [03-orbit-log-dialogs.txt](test-evidence/ubuntu/S-4-escrow-trigger/03-orbit-log-dialogs.txt)
+
+**screenshot trigger and slots**
+
+![screenshot trigger and slots](test-evidence/ubuntu/S-4-escrow-trigger/04-screenshot-trigger-and-slots.png)
+
 
 ---
 
@@ -421,6 +466,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-which-slot-opens-with-which-key.txt](test-evidence/ubuntu/S-7-escrowed-key-unlocks-slot1/01-which-slot-opens-with-which-key.txt)
 
+**screenshot which key opens what**
+
+![screenshot which key opens what](test-evidence/ubuntu/S-7-escrowed-key-unlocks-slot1/02-screenshot-which-key-opens-what.png)
+
+
 ---
 
 ### S-8: first boot after install
@@ -445,5 +495,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** verified, key available.
 
 **Output:** [01-fleet.txt](test-evidence/ubuntu/S-9-fleet-after-reboots/01-fleet.txt)
+
+**screenshot fleet**
+
+![screenshot fleet](test-evidence/ubuntu/S-9-fleet-after-reboots/02-screenshot-fleet.png)
+
 
 ---

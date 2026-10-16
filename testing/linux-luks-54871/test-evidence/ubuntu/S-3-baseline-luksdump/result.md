@@ -7,6 +7,7 @@
 ## Steps and evidence
 - `01-luksdump-baseline.txt`: `cryptsetup luksDump /dev/nvme0n1p3` from the guest. Salts masked, digest shortened.
 - `02-lsblk-guide-step2.txt`: the guide's step 2 verify command: `crypto_LUKS` partition with `dm_crypt-0` and LVM.
+- `03-screenshot-baseline.png`: window screenshot of the baseline header and the guide's verify command.
 
 ## Result: PASS
 

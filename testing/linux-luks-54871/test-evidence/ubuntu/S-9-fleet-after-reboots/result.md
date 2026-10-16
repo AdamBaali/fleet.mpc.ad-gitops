@@ -6,5 +6,6 @@
 
 ## Steps and evidence
 - `01-fleet.txt`: disk encryption summary (fleet 5) and the host's status.
+- `02-screenshot-fleet.png`: window screenshot of Fleet's summary after the reboots.
 
 ## Result: PASS

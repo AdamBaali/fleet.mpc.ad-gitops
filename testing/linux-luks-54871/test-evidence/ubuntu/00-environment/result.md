@@ -5,5 +5,6 @@
 
 ## Steps and evidence
 - `01-versions.txt`: macOS, UTM, fleetctl, guest kernel, Ubuntu, cryptsetup, orbit, zenity, Fleet server.
+- `02-screenshot-versions.png`: window screenshot of the versions.
 
 ## Result: INFO

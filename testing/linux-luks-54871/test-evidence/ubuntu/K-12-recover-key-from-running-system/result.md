@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-recovery.txt`: (1) `dmsetup table --showkeys` shows only a kernel key reference (60 hex characters, not the 128 of a 64-byte key), so `luksAddKey --volume-key-file` fails: "Cannot read 64 bytes from keyfile". (2) `cryptsetup luksHeaderRestore` from the backup taken before the first slot removal brings back the user's slot. The user's passphrase opens the disk again; UUID and master key digest are unchanged; the root file system stayed mounted throughout.
+- `02-screenshot-recovery.png`: window screenshot of both recovery attempts.
 
 ## Result: PASS
 

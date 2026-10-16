@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-restore.txt`: header backup taken before slot 0 was removed; after `cryptsetup luksHeaderRestore` the user's passphrase unlocks the volume again (slots 0 and 1, same UUID and digest).
+- `02-screenshot-restore.png`: window screenshot of the restore.
 
 ## Result: PASS
 

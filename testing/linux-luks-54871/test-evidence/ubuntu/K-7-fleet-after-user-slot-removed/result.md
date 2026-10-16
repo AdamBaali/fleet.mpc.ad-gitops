@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-fleet-status.txt`: after removing slot 0 and a refetch (3 minutes), the host is still **verified**, the escrowed key is still stored and available. No banner or action required.
+- `02-screenshot-fleet-still-verified.png`: window screenshot: Fleet still verified.
 
 ## Result: PASS
 
