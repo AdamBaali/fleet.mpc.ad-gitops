@@ -1,0 +1,11 @@
+# 2026-10-16T07:26:39Z guest
+Logging out lab
+passwd: password changed.
+Created symlink /etc/systemd/system/systemd-user-sessions.service → /dev/null.
+All non-root users have been logged out and their accounts locked.
+---
+-rw-r--r-- 1 root root 24 Oct 16 07:26 /etc/nologin
+-rw-r--r-- 1 root root 24 Oct 16 07:26 /run/nologin
+graphical.target
+lab L 2026-10-15 0 99999 7 -1
+[exit 0]

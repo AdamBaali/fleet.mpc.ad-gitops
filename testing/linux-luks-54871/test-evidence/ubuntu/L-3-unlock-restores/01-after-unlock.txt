@@ -1,0 +1,7 @@
+# 2026-10-16T07:29:42Z after the unlock and a cold restart
+ssh lab@guest (key): Connection timed out during banner exchange 
+graphical.target
+ls: cannot access '/etc/nologin': No such file or directory
+lab P 2026-10-15 0 99999 7 -1
+inactive
+[exit 3]

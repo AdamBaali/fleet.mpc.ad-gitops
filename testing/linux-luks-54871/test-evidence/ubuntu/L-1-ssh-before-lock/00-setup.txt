@@ -1,0 +1,6 @@
+inactive
+/etc/ssh/sshd_config:UsePAM yes
+/etc/ssh/sshd_config.d/50-cloud-init.conf:PasswordAuthentication yes
+6:# Disallow non-root logins when /etc/nologin exists.
+7:account    required     pam_nologin.so
+[exit 0]

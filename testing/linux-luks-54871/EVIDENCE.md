@@ -6,7 +6,8 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 22 |
+| PASS | 24 |
+| PARTIAL | 2 |
 | FAIL | 1 |
 | BLOCKED | 2 |
 | NOT RUN | 1 |
@@ -22,12 +23,16 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Ubuntu VM | K-1 and K-2: remove the end user's keyslot (no reboot) | PASS | [open](#k-1-and-k-2-remove-the-end-users-keyslot-no-reboot) |
 | Ubuntu VM | K-11: a header backup brings a removed key back | PASS | [open](#k-11-a-header-backup-brings-a-removed-key-back) |
 | Ubuntu VM | K-12: recovering access after every known key was lost | PASS | [open](#k-12-recovering-access-after-every-known-key-was-lost) |
+| Ubuntu VM | K-13: decrypt and mount after the end user's key is removed | PASS | [open](#k-13-decrypt-and-mount-after-the-end-users-key-is-removed) |
 | Ubuntu VM | K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected | PASS | [open](#k-1--k-3-remove-the-end-users-key-then-reboot-the-old-passphrase-is-rejected) |
 | Ubuntu VM | K-4: reboot with only the escrowed key | PASS | [open](#k-4-reboot-with-only-the-escrowed-key) |
 | Ubuntu VM | K-5: does every reboot ask for the key again? | PASS | [open](#k-5-does-every-reboot-ask-for-the-key-again) |
 | Ubuntu VM | K-6: is there any other unlock path? | PASS | [open](#k-6-is-there-any-other-unlock-path) |
 | Ubuntu VM | K-7: what Fleet shows after the user slot is removed | PASS | [open](#k-7-what-fleet-shows-after-the-user-slot-is-removed) |
 | Ubuntu VM | K-9: negative control, remove the ESCROW slot instead | PASS | [open](#k-9-negative-control-remove-the-escrow-slot-instead) |
+| Ubuntu VM | L-1: SSH works before the lock | PARTIAL | [open](#l-1-ssh-works-before-the-lock) |
+| Ubuntu VM | L-2: SSH after Fleet's real Linux lock script | PASS | [open](#l-2-ssh-after-fleets-real-linux-lock-script) |
+| Ubuntu VM | L-3: the unlock script restores the machine | PARTIAL | [open](#l-3-the-unlock-script-restores-the-machine) |
 | Ubuntu VM | M-1 to M-3: key slot changes don't change the volume key or the data | PASS | [open](#m-1-to-m-3-key-slot-changes-dont-change-the-volume-key-or-the-data) |
 | Ubuntu VM | M-5: control, what DOES change the volume key | PASS | [open](#m-5-control-what-does-change-the-volume-key) |
 | Ubuntu VM | S-1: Ubuntu 24.04.5 desktop installer, "Use LVM and encryption" | PASS | [open](#s-1-ubuntu-24045-desktop-installer-use-lvm-and-encryption) |
@@ -163,6 +168,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
+### K-13: decrypt and mount after the end user's key is removed
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/K-13-mount-after-user-key-removed/result.md)
+
+- **Objective:** #35241 item 4: after a crypto-lock, can the disk be decrypted and mounted without IT's key (the 'decrypt-and-mount workaround')?
+- **Expected:** No. Only the escrowed key opens and mounts it.
+
+**Output:** [01-k13.txt](test-evidence/ubuntu/K-13-mount-after-user-key-removed/01-k13.txt)
+
+---
+
 ### K-1 / K-3: remove the end user's key, then reboot: the old passphrase is rejected
 
 **Result: PASS** · [full notes](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/result.md)
@@ -256,6 +272,39 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![screenshot fleet polling](test-evidence/ubuntu/K-9-escrow-slot-removed-fleet-reaction/04-screenshot-fleet-polling.png)
 
+
+---
+
+### L-1: SSH works before the lock
+
+**Result: PARTIAL** · [full notes](test-evidence/ubuntu/L-1-ssh-before-lock/result.md)
+
+- **Objective:** Baseline for the #35241 comment that users can still SSH into a locked machine.
+- **Expected:** Key login works for lab and root.
+
+**Output:** [00-setup.txt](test-evidence/ubuntu/L-1-ssh-before-lock/00-setup.txt) · [01-ssh.txt](test-evidence/ubuntu/L-1-ssh-before-lock/01-ssh.txt)
+
+---
+
+### L-2: SSH after Fleet's real Linux lock script
+
+**Result: PASS** · [full notes](test-evidence/ubuntu/L-2-ssh-after-fleet-lock/result.md)
+
+- **Objective:** Does `ee/server/service/embedded_scripts/linux_lock.sh` stop SSH logins? (#35241 comment from customer-reedtimmer.)
+- **Expected:** Per the script: it kills the user's processes, runs `passwd -l`, writes /etc/nologin; it does nothing about sshd or keys.
+
+**Output:** [00-lock-applied.txt](test-evidence/ubuntu/L-2-ssh-after-fleet-lock/00-lock-applied.txt) · [01-ssh-after-lock.txt](test-evidence/ubuntu/L-2-ssh-after-fleet-lock/01-ssh-after-lock.txt)
+
+---
+
+### L-3: the unlock script restores the machine
+
+**Result: PARTIAL** · [full notes](test-evidence/ubuntu/L-3-unlock-restores/result.md)
+
+- **Objective:** Fleet's unlock removes the lock state.
+- **Expected:** nologin gone, password unlocked, graphical target back, SSH works for lab.
+
+**Output:** [00-unlock-applied.txt](test-evidence/ubuntu/L-3-unlock-restores/00-unlock-applied.txt) · [01-after-unlock.txt](test-evidence/ubuntu/L-3-unlock-restores/01-after-unlock.txt)
 
 ---
 

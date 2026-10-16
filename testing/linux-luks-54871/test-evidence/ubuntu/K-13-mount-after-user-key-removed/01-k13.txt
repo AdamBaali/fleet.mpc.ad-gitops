@@ -1,0 +1,17 @@
+# 2026-10-16T07:26:20Z guest, scratch loop disk
+marker sha before: 56cf9323434f98fe
+== IT removes the end user's key with the escrow key
+slot 0 (user) removed
+  1: luks2 
+== someone with the disk and the user's old passphrase tries to decrypt and mount
+No key available with this passphrase.
+ls: cannot access '/dev/mapper/k13b': No such file or directory
+== someone with the disk but no key, or the raw device: try to mount it directly
+       dmesg(1) may have more information after failed mount system call.
+/dev/loop0: UUID="..." TYPE="crypto_LUKS"
+== IT with the escrow key
+mounted; marker sha after: 56cf9323434f98fe
+== does the raw disk contain the data in clear? (search the image file for the text)
+occurrences of the plain text in the encrypted image: 0
+end
+[exit 0]
