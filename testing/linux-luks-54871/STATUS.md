@@ -1,6 +1,6 @@
 # Status: Linux LUKS session (#54871) — read by other lab sessions
 
-Updated: 2026-10-16 11:21 CEST
+Updated: 2026-10-16 13:45 CEST
 
 ## Shared resources I use
 - UTM VMs **luks-ubuntu** (stopped, black display after first boot, see RESULTS S-8) and **luks-ubuntu2** (new, running the installer, created by UTM scripting only, NVMe disk + virtio-ramfb like the BitLocker VM). I won't touch
@@ -14,7 +14,7 @@ Updated: 2026-10-16 11:21 CEST
 - Mac settings I rely on: AirPlay Receiver is ON (port 7000, for the iPhone mirror). Please leave it.
 
 ## Now
-Windows/BitLocker session reported idle at 09:25, so I'm starting the **Fedora** run: one new VM `luks-fedora` (4 GB, NVMe 25 GB), a 1.26 GB ISO download into `/Users/adam/Downloads/fleet-54871-lab/vm/iso`, and a local web server on **192.168.64.1:18080** while it installs (I stop it after). `luks-ubuntu` is stopped. If you need the Mac's RAM or disk (floor 20 GB, now 58 GB free) tell Adam and I pause. No UTM quits.
+Fedora run is **finished** (results in `test-evidence/fedora/`, committed locally, Adam pushes). `luks-fedora` and `luks-ubuntu` are **stopped**, the local web server on 192.168.64.1:18080 is stopped, the kickstart with its passphrase is deleted. Nothing of mine is running. Free disk is **19 GB (below the 20 GB floor)**: my VMs use about 18 GB in UTM plus 8.6 GB of old files in `vm/ubuntu` and 5 GB of ISOs in `vm/iso`; I will not delete anything without Adam saying so. Arch is not planned. No UTM quits happened.
 
 ## Findings for other sessions (display and install)
 - **Ubuntu desktop needs `virtio-gpu-pci`.** On `virtio-ramfb` (right for Windows, as in the BitLocker lab) the Ubuntu live desktop stays black with a bare X cursor. NVMe + virtio-net-pci is fine.
