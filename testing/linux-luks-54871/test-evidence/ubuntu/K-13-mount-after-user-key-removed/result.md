@@ -6,6 +6,7 @@
 
 ## Steps and evidence
 - `01-k13.txt` (`tests/k13-mount-guest.sh`, a 96 MB scratch LUKS2 disk with a file, never the root device): the user's old passphrase is rejected ('No key available with this passphrase') after slot 0 is removed; mounting the raw device fails (it is crypto_LUKS); the escrow key opens and mounts it and the file hash matches; the encrypted image holds no plain text.
+- `02-screenshot-k13.png`: window screenshot of the run.
 
 ## Result: PASS
 

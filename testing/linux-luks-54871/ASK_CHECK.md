@@ -1,6 +1,6 @@
 # Check of the ask against the evidence (fleetdm/fleet#54871)
 
-Generated 2026-10-16 09:29 from the result files. Nothing here is posted anywhere.
+Generated 2026-10-16 09:34 from the result files. Nothing here is posted anywhere.
 
 ## What was asked
 Issue #54871 ("CSA task: Help clarify and document Linux/LUKS behavior"), from the discussion in #35241. Three things to document and verify:
@@ -33,6 +33,17 @@ Status: **PASS**. True as stated.
 | Does Fleet support it? | **No.** Docs list Ubuntu, Kubuntu, Fedora. The server code also accepts Arch, Arch ARM, Manjaro, CachyOS and Omarchy, but open PR #55070 removes them: "No user could complete escrow on them". Omarchy issue #55069 lists why (Wayland dialog environment, no zenity or kdialog, lsblk mountpoints). | [D-1-fleet-code-and-docs](test-evidence/desk/D-1-fleet-code-and-docs/): PASS |
 | Live Arch test? | **Not done**: no Arch arm64 VM was built. | [A-Arch-VM-escrow](test-evidence/desk/A-Arch-VM-escrow/): BLOCKED |
 Status: **answered from code, docs and open PRs; not shown on a live Arch VM.**
+
+## The parent request, #35241 (Linux lock: reboot option and LUKS crypto-lock)
+The three questions above came from it. Its proposal also asks for things that are product features, not behaviours; here is what the lab can say about each.
+| #35241 item | What the lab shows | Evidence |
+| --- | --- | --- |
+| Crypto-lock: remove the user's keyslot, keep IT's recovery key, reboot | Works by hand: user rejected, IT key boots it, every boot asks again. Fleet does not notice the removal (so a built-in action needs its own audit event). | [K-1-remove-user-keyslot](test-evidence/ubuntu/K-1-remove-user-keyslot/): PASS, [K-3-reboot-old-passphrase-rejected](test-evidence/ubuntu/K-3-reboot-old-passphrase-rejected/): PASS, [K-4-reboot-with-escrow-key](test-evidence/ubuntu/K-4-reboot-with-escrow-key/): PASS, [K-7-fleet-after-user-slot-removed](test-evidence/ubuntu/K-7-fleet-after-user-slot-removed/): PASS |
+| Prevent decrypt-and-mount after the lock | A scratch disk with the user slot removed can't be decrypted or mounted without the escrow key; no plain text in the image. A saved header copy would restore the old key. | [K-13-mount-after-user-key-removed](test-evidence/ubuntu/K-13-mount-after-user-key-removed/): PASS, [K-11-header-restore-brings-back-removed-slot](test-evidence/ubuntu/K-11-header-restore-brings-back-removed-slot/): PASS |
+| Lock behaviour on Linux (what the lock script relies on) | Fleet's `linux_lock.sh` kills the user's processes, runs `passwd -l`, writes /etc/nologin, and on Ubuntu with GDM schedules a reboot into text mode. It does not touch sshd or SSH keys. | [L-2-ssh-after-fleet-lock](test-evidence/ubuntu/L-2-ssh-after-fleet-lock/): PASS |
+| Customer comment: users can still SSH into a locked machine | Ordinary users are refused (PAM account/nologin). **root is exempt from /etc/nologin and still logs in with a key.** | [L-1-ssh-before-lock](test-evidence/ubuntu/L-1-ssh-before-lock/): PASS, [L-2-ssh-after-fleet-lock](test-evidence/ubuntu/L-2-ssh-after-fleet-lock/): PASS |
+| Unlock restores the machine | Yes (nologin gone, password unlocked, graphical target restored, user logs in). | [L-3-unlock-restores](test-evidence/ubuntu/L-3-unlock-restores/): PASS |
+| "Lock and reboot for all" option, prerequisite policies, dry-run, audit events | Product features: not testable as behaviour. Noted for the product team. | none |
 
 ## Also required by the task
 | Requirement | Status |

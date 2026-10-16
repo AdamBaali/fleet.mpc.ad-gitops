@@ -10,3 +10,8 @@ Tested on an Ubuntu 24.04.5 arm64 VM (LVM on LUKS2) enrolled in a lab fleet with
 **3. Arch Linux:** Not supported. Docs list Ubuntu, Kubuntu and Fedora. The server also accepts Arch, Manjaro, CachyOS and Omarchy, but fleetdm/fleet#55070 removes them because no user could complete escrow, and #55069 lists why for Omarchy. Not shown on a live Arch VM.
 
 **Not done:** Fedora VM, a live Arch VM, and Ubuntu 26 TPM-backed FDE. The real Fleet Desktop banner and dialog weren't captured: the Create key request was sent through Fleet's device API and the passphrase dialog was answered by a lab wrapper (no one typed it). Escrow took about 4 minutes from request to key slot.
+
+**Also checked for #35241 (the request these came from):**
+- Decrypt-and-mount after the lock: with the end user's slot removed, a disk can't be decrypted or mounted with the old passphrase or without the escrow key (scratch disk test).
+- Fleet's Linux lock script (`linux_lock.sh`) kills the user's processes, locks the account (`passwd -l`) and writes `/etc/nologin`; it doesn't touch sshd or keys. On a locked host an ordinary user's SSH login is refused (PAM), but **root with an SSH key still logs in**, because root is exempt from `/etc/nologin`. The unlock script restores everything.
+- Not tested: the "lock and reboot for all" option, prerequisite policies, dry-run and audit events (product features), live Fedora and Arch VMs, TPM-backed layouts.

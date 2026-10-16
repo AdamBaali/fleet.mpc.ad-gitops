@@ -1,12 +1,18 @@
-# 2026-10-16T07:28:02Z after the lock and a cold restart (disk unlocked by the watcher)
-ssh lab@guest (key): Connection timed out during banner exchange 
-ssh root@guest (key): Connection timed out during banner exchange 
---- state
-graphical.target
-ls: cannot access '/etc/nologin': No such file or directory
-/run/nologin
-cat: /etc/nologin: No such file or directory
-lab P 2026-10-15 0 99999 7 -1
-logged-in users: 0
-inactive
-[exit 3]
+# 2026-10-16T07:32:56Z from the Mac, key login AFTER the lock (the machine is locked: /etc/nologin present, lab password locked)
+ssh lab@guest: 
+ssh root@guest: login ok as root 
+# 2026-10-16T07:33:08Z lab login, verbose (last lines) and exit codes
+debug1: Authenticator provider $SSH_SK_PROVIDER did not resolve; disabling
+debug1: Connection established.
+debug1: Authenticating to 192.168.64.15:22 as 'lab'
+debug1: Authentications that can continue: publickey,password
+Connection closed by 192.168.64.15 port 22
+exit code lab: 255
+exit code root: 0
+--- sshd log for the lab attempt
+Oct 16 07:33:20 luks-ubuntu sshd[4664]: fatal: Access denied for user lab by PAM account configuration [preauth]
+Oct 16 07:33:20 luks-ubuntu sshd[4666]: Accepted publickey for root from 192.168.64.1 port 51289 ssh2: ED25519 SHA256:JowbAW+p4kE7zHQRbbsVAzF6upTgWpPKjhZjwBY6usg
+Oct 16 07:33:20 luks-ubuntu sshd[4666]: pam_unix(sshd:session): session opened for user root(uid=0) by root(uid=0)
+Oct 16 07:33:20 luks-ubuntu sshd[4666]: Disconnected from user root 192.168.64.1 port 51289
+Oct 16 07:33:20 luks-ubuntu sshd[4666]: pam_unix(sshd:session): session closed for user root
+[exit 0]

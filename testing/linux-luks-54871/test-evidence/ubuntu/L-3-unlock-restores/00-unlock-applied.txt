@@ -1,11 +1,12 @@
-# 2026-10-16T07:28:19Z guest
-Unlocking password for lab
+# 2026-10-16T07:33:10Z guest: Fleet's real linux_unlock.sh, scheduled reboot cancelled
 All non-root users have been unlocked.
 Scheduling system reboot in 10 seconds to complete unlock process...
-Running timer as unit: run-r743ef5b87c4e4c53a8938365e2c10b87.timer
-Will run service as unit: run-r743ef5b87c4e4c53a8938365e2c10b87.service
+Running timer as unit: run-r3591fb72f1b74230bfbc3eb43c6d4fb1.timer
+Will run service as unit: run-r3591fb72f1b74230bfbc3eb43c6d4fb1.service
+--- state
 ls: cannot access '/etc/nologin': No such file or directory
 ls: cannot access '/run/nologin': No such file or directory
 graphical.target
 lab P 2026-10-15 0 99999 7 -1
+active
 [exit 0]

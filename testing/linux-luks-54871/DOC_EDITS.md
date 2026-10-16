@@ -39,3 +39,15 @@ Fleet's style: short plain sentences, sentence case headings. For `articles/enfo
 > After the end user selects **Create key**, it can take a few minutes for the new key to appear.
 
 (Evidence S-4: about 3.5 to 4.5 minutes from the request to the new key slot.)
+
+## 5. Add to "Lock and wipe hosts" (Linux lock)
+
+> The Linux lock logs the end user out, locks their account, and blocks new logins for everyone except root. It doesn't turn off SSH. If SSH is enabled on a host, the root account can still log in with an SSH key (or a password if root password login is allowed). To block this, disable the SSH service or root login on hosts you may lock.
+
+(Evidence L-2. Check the exact behaviour of "root password login" before publishing.)
+
+## 6. Add to the crypto-lock section (section 2)
+
+> If someone has the disk and the end user's old passphrase, they can't decrypt or mount the disk after you remove the end user's passphrase. They also can't if they only have a copy of the disk without Fleet's key.
+
+(Evidence K-13.)

@@ -1,11 +1,12 @@
-# L-1: SSH works before the lock
+# L-1: SSH key login works on the unlocked machine (baseline)
 
 - **Date:** 2026-10-16
 - **Objective:** Baseline for the #35241 comment that users can still SSH into a locked machine.
-- **Expected:** Key login works for lab and root.
+- **Expected:** key login works for the user and for root.
 
 ## Steps and evidence
-- `00-setup.txt`: lab SSH key installed for lab and root (a test key kept in the Mac's secrets folder); sshd settings; the `pam_nologin` line in the sshd PAM file.
-- `01-ssh.txt`: key login from the Mac.
+- `00-setup.txt`: sshd active, `PasswordAuthentication yes`, the sshd PAM file's `nologin` line, the lab account unlocked, no /etc/nologin.
+- `01-ssh.txt`: key login from the Mac as `lab` and as `root` both succeed. The test key is a throwaway key kept in the Mac's secrets folder and removed after the test.
+- `02-screenshot-baseline.png`: window screenshot.
 
-## Result: PARTIAL
+## Result: PASS

@@ -50,6 +50,17 @@ Status: **{st("M-2")}**. True as stated.
 | Live Arch test? | **Not done**: no Arch arm64 VM was built. | {ev("A-Arch")} |
 Status: **answered from code, docs and open PRs; not shown on a live Arch VM.**
 
+## The parent request, #35241 (Linux lock: reboot option and LUKS crypto-lock)
+The three questions above came from it. Its proposal also asks for things that are product features, not behaviours; here is what the lab can say about each.
+| #35241 item | What the lab shows | Evidence |
+| --- | --- | --- |
+| Crypto-lock: remove the user's keyslot, keep IT's recovery key, reboot | Works by hand: user rejected, IT key boots it, every boot asks again. Fleet does not notice the removal (so a built-in action needs its own audit event). | {ev("K-1")}, {ev("K-3")}, {ev("K-4")}, {ev("K-7")} |
+| Prevent decrypt-and-mount after the lock | A scratch disk with the user slot removed can't be decrypted or mounted without the escrow key; no plain text in the image. A saved header copy would restore the old key. | {ev("K-13")}, {ev("K-11")} |
+| Lock behaviour on Linux (what the lock script relies on) | Fleet's `linux_lock.sh` kills the user's processes, runs `passwd -l`, writes /etc/nologin, and on Ubuntu with GDM schedules a reboot into text mode. It does not touch sshd or SSH keys. | {ev("L-2")} |
+| Customer comment: users can still SSH into a locked machine | Ordinary users are refused (PAM account/nologin). **root is exempt from /etc/nologin and still logs in with a key.** | {ev("L-1")}, {ev("L-2")} |
+| Unlock restores the machine | Yes (nologin gone, password unlocked, graphical target restored, user logs in). | {ev("L-3")} |
+| "Lock and reboot for all" option, prerequisite policies, dry-run, audit events | Product features: not testable as behaviour. Noted for the product team. | none |
+
 ## Also required by the task
 | Requirement | Status |
 | --- | --- |
