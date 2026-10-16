@@ -1,0 +1,18 @@
+# 2026-10-16T11:32:20Z
+Fedora release 44 (Forty Four)
+7.2.10-200.fc44.aarch64
+aarch64
+cryptsetup 2.8.8 flags: UDEV BLKID KEYRING FIPS KERNEL_CAPI PWQUALITY HW_OPAL 
+fleet-osquery-1.61.0-1.aarch64
+zenity-4.2.2-1.fc44.aarch64
+cryptsetup-2.8.8-1.fc44.aarch64
+orbit 1.61.0
+NAME                                          FSTYPE       SIZE MOUNTPOINTS
+zram0                                         swap         3.8G [SWAP]
+nvme0n1                                                     25G 
+├─nvme0n1p1                                   vfat         600M /boot/efi
+├─nvme0n1p2                                   xfs            2G /boot
+└─nvme0n1p3                                   crypto_LUKS 22.4G 
+  └─luks-c4a91226-ea1b-43a7-bc80-a2391e2b2589 LVM2_member 22.4G 
+    └─fedora_luks--fedora-root                xfs           15G /
+Permissive

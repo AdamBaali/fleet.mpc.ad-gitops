@@ -66,14 +66,14 @@ The three questions above came from it. Its proposal also asks for things that a
 | --- | --- |
 | Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ({ev("S-1")}). The main runs drove orbit's flow through the same API and a lab zenity wrapper ({ev("S-4")}); the real Fleet Desktop banner and passphrase dialog were captured separately ({ev("G-banner-and-dialog")}). Deviations are logged. |
 | `luksDump` before and after each step | Done, masked: {ev("S-3")}, {ev("S-6")}, {ev("K-1")}, {ev("M-2")} |
-| Second distro (Fedora) | {ev("F-Fedora")} |
+| Second distro (Fedora 44 VM) | Escrow works ({ev("F-2")}); key slot changes keep the master key ({ev("F-3")}); with the user slot removed, the old passphrase is rejected and every reboot waits for the escrow key ({ev("F-4")}). Same behaviour as Ubuntu. |
 | Proposed doc edits in Fleet's style | [DOC_EDITS.md](DOC_EDITS.md) |
 | Short issue update for Adam to paste | [ISSUE_UPDATE.md](ISSUE_UPDATE.md) (draft, never posted) |
 | Evidence Adam can review | [EVIDENCE.md](EVIDENCE.md) |
 | No secrets in evidence | Scanned: passphrases, keys and tokens are not in the folder. Header backups stay in the guest. |
 
 ## Open
-- Arch VM and Fedora VM were not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
+- Arch VM was not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
 - Nothing is pushed or posted.
 '''
 print(out)

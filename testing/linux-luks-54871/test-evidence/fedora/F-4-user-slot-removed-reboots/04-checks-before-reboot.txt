@@ -1,0 +1,4 @@
+old user passphrase rejected: yes
+escrow key opens: yes
+marker sha before reboots: 854e47e1a485130e
+fleet status right after: verified

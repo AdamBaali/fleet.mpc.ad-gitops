@@ -23,6 +23,6 @@ sd(){ cryptsetup luksDump $L | awk '/Digests:/{f=1} f&&/Digest:/{gsub(/[ \t]/,""
 echo "  scratch digest before: $(sd)"
 cryptsetup luksAddKey $L $TMPK --key-file $P --pbkdf pbkdf2 --pbkdf-force-iterations 1000 2>/dev/null || { printf x2 > $TMPK; cryptsetup luksAddKey $L $TMPK --key-file $P --pbkdf pbkdf2 --pbkdf-force-iterations 1000; }; echo "  after luksAddKey: $(sd)"
 cryptsetup luksChangeKey $L $NEWK --key-file $P --pbkdf pbkdf2 --pbkdf-force-iterations 1000 2>/dev/null; echo "  after luksChangeKey: $(sd)"
-cryptsetup reencrypt --batch-mode --key-file $P $L 2>&1 | tail -1; echo "  after cryptsetup reencrypt: $(sd)"
+cryptsetup reencrypt --batch-mode --key-slot 0 --key-file $P $L 2>&1 | tail -1; echo "  after cryptsetup reencrypt: $(sd)"
 losetup -d $L; rm -f $F $P $TMPK $NEWK
 echo "end"

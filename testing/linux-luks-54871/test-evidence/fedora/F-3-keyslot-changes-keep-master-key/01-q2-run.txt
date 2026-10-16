@@ -1,0 +1,22 @@
+M-1 baseline
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: ] marker_sha=854e47e1a485130e
+M-2a luksAddKey (authorised with the escrow key; adds slot 2)
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: 2: ] marker_sha=854e47e1a485130e
+M-2b luksChangeKey slot 2 (new passphrase)
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: 2: ] marker_sha=854e47e1a485130e
+M-2c luksKillSlot 2 (removes it, authorised with the escrow key)
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: ] marker_sha=854e47e1a485130e
+M-2d luksAddKey again, then luksRemoveKey by passphrase
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: 2: ] marker_sha=854e47e1a485130e
+  uuid=c4a91226-ea1b-43a7-bc80-a2391e2b2589 digest=85e25d0b309f352b... slots=[0: 1: ] marker_sha=854e47e1a485130e
+M-2e escrow key and user passphrase still open their slots
+  escrow slot 1: opens
+  user slot 0: opens
+M-3 data still reads (no re-encryption): marker sha unchanged above; root fs mounted: /dev/mapper/fedora_luks--fedora-root
+M-5 control on a scratch loop device (never the root): which command DOES change the volume key
+  scratch digest before: 669aca11229f788b...
+  after luksAddKey: 669aca11229f788b...
+  after luksChangeKey: 669aca11229f788b...
+Key file or keyring key description can be used only with --key-slot or with exactly one key slot active.
+  after cryptsetup reencrypt: 669aca11229f788b...
+end

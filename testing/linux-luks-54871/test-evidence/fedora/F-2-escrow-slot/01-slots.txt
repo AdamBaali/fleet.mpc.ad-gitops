@@ -1,0 +1,10 @@
+# 2026-10-16T11:32:21Z
+fleet disk encryption status: verified
+
+keyslots:
+  0: luks2
+  1: luks2
+escrow key opens slot 0: no
+escrow key opens slot 1: yes
+user passphrase opens slot 0: yes
+user passphrase opens slot 1: no

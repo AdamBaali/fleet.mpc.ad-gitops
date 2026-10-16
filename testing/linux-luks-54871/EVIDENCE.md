@@ -6,17 +6,15 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 26 |
+| PASS | 29 |
 | FAIL | 1 |
 | BLOCKED | 2 |
-| NOT RUN | 1 |
-| info | 1 |
+| info | 2 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
 | Desk review | A-Arch-VM-escrow: Arch Linux VM: orbit and escrow | BLOCKED | [open](#a-arch-vm-escrow-arch-linux-vm-orbit-and-escrow) |
 | Desk review | D-1: what Fleet claims (docs and code) | PASS | [open](#d-1-what-fleet-claims-docs-and-code) |
-| Desk review | F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2 | NOT RUN | [open](#f-fedora-vm-repeat-fedora-vm-repeat-q1-and-q2) |
 | Ubuntu VM | 00: environment | info | [open](#00-environment) |
 | Ubuntu VM | G: the real Fleet Desktop banner and the real passphrase dialog | PASS | [open](#g-the-real-fleet-desktop-banner-and-the-real-passphrase-dialog) |
 | Ubuntu VM | K-1 and K-2: remove the end user's keyslot (no reboot) | PASS | [open](#k-1-and-k-2-remove-the-end-users-keyslot-no-reboot) |
@@ -45,6 +43,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Ubuntu VM | S-7: the escrowed key opens only its own slot | PASS | [open](#s-7-the-escrowed-key-opens-only-its-own-slot) |
 | Ubuntu VM | S-8: first boot after install | BLOCKED | [open](#s-8-first-boot-after-install) |
 | Ubuntu VM | S-9: Fleet after the reboots | PASS | [open](#s-9-fleet-after-the-reboots) |
+| Fedora VM | F-1: Fedora VM environment | info | [open](#f-1-fedora-vm-environment) |
+| Fedora VM | F-2: Fleet escrow adds a key slot on Fedora | PASS | [open](#f-2-fleet-escrow-adds-a-key-slot-on-fedora) |
+| Fedora VM | F-3: add, change, kill and remove key slots keep the master key (Fedora) | PASS | [open](#f-3-add-change-kill-and-remove-key-slots-keep-the-master-key-fedora) |
+| Fedora VM | F-4: remove the user's key slot; does every reboot ask for the key? (Fedora) | PASS | [open](#f-4-remove-the-users-key-slot-does-every-reboot-ask-for-the-key-fedora) |
 
 ## Desk review
 
@@ -67,13 +69,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **screenshot code and docs**
 
 ![screenshot code and docs](test-evidence/desk/D-1-fleet-code-and-docs/06-screenshot-code-and-docs.png)
-
-
----
-
-### F-Fedora-VM-repeat: Fedora VM: repeat Q1 and Q2
-
-**Result: NOT RUN** · [full notes](test-evidence/desk/F-Fedora-VM-repeat/result.md)
 
 
 ---
@@ -568,5 +563,51 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![screenshot fleet](test-evidence/ubuntu/S-9-fleet-after-reboots/02-screenshot-fleet.png)
 
+
+---
+
+## Fedora VM
+
+### F-1: Fedora VM environment
+
+**Result: info** · [full notes](test-evidence/fedora/F-1-environment/result.md)
+
+- **Objective:** Record the Fedora VM so a reader can recreate it.
+- **Expected:** Fedora Server 44 aarch64 with root on LVM inside LUKS2, fleetd enrolled in the Linux LUKS Lab fleet.
+
+**Output:** [01-guest.txt](test-evidence/fedora/F-1-environment/01-guest.txt) · [02-luksdump-masked.txt](test-evidence/fedora/F-1-environment/02-luksdump-masked.txt)
+
+---
+
+### F-2: Fleet escrow adds a key slot on Fedora
+
+**Result: PASS** · [full notes](test-evidence/fedora/F-2-escrow-slot/result.md)
+
+- **Objective:** Does Fleet's Linux escrow work on Fedora, and what does it change on the disk?
+- **Expected:** One new key slot (slot 1) that the escrowed key opens; the user's slot 0 untouched; Fleet shows Verified.
+
+**Output:** [01-slots.txt](test-evidence/fedora/F-2-escrow-slot/01-slots.txt) · [02-luksdump-masked.txt](test-evidence/fedora/F-2-escrow-slot/02-luksdump-masked.txt)
+
+---
+
+### F-3: add, change, kill and remove key slots keep the master key (Fedora)
+
+**Result: PASS** · [full notes](test-evidence/fedora/F-3-keyslot-changes-keep-master-key/result.md)
+
+- **Objective:** Q2: does LUKS invalidate any encryption key when a passphrase or key slot is rotated?
+- **Expected:** UUID, master key digest and the data hash stay the same through luksAddKey, luksChangeKey, luksKillSlot and luksRemoveKey. A scratch-device control shows that only `cryptsetup reencrypt` changes the digest.
+
+**Output:** [01-q2-run.txt](test-evidence/fedora/F-3-keyslot-changes-keep-master-key/01-q2-run.txt) · [02-control-rerun.txt](test-evidence/fedora/F-3-keyslot-changes-keep-master-key/02-control-rerun.txt)
+
+---
+
+### F-4: remove the user's key slot; does every reboot ask for the key? (Fedora)
+
+**Result: PASS** · [full notes](test-evidence/fedora/F-4-user-slot-removed-reboots/result.md)
+
+- **Objective:** Q1: after the end user's LUKS key is removed, does the user have to contact IT at every reboot?
+- **Expected:** The old passphrase is rejected, the escrowed key unlocks the disk, and every boot waits at the unlock prompt until someone types the key.
+
+**Output:** [01-luksdump-before.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/01-luksdump-before.txt) · [02-kill-user-slot.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/02-kill-user-slot.txt) · [03-luksdump-after-kill.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/03-luksdump-after-kill.txt) · [04-checks-before-reboot.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/04-checks-before-reboot.txt) · [05-reboot-1.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/05-reboot-1.txt) · [05-reboot-2.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/05-reboot-2.txt) · [06-fleet-after.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/06-fleet-after.txt) · [07-restore-user-slot.txt](test-evidence/fedora/F-4-user-slot-removed-reboots/07-restore-user-slot.txt)
 
 ---

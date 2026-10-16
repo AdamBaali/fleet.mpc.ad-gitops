@@ -67,3 +67,12 @@ Black screen "Display output is not active" on every start. See HANDOFF.md.
 - **The real dialog and banner** were captured (G). Findings: the dialog needs an unlocked, visible desktop; after a timed-out request a new one returns 409 for minutes; orbit's key add took about 4 minutes the first time and over 15 minutes while the host was busy (argon2).
 - **Not done:** Fedora VM, Arch VM, TPM-backed layouts.
 - **Lab mistakes recorded:** a watcher typed a key into GRUB's command line (part of a lab-only key appeared on a screen; that slot was removed); a restore script deleted the only key file (recovered from a header backup, K-12).
+
+## 2026-10-16 Fedora 44 VM (same questions as Ubuntu): PASS
+Evidence: `test-evidence/fedora/` (F-1 environment, F-2 escrow slot, F-3 keyslot changes, F-4 user slot removed + two reboots). Runner: `tests/run-fedora.sh`.
+- **Escrow works on Fedora.** Fleet added key slot 1 (the escrowed key opens only slot 1) and showed Verified. It took about 14 minutes (Ubuntu: 4) while this Mac was busy.
+- **Q2:** UUID, master key digest and data hash stayed the same through luksAddKey, luksChangeKey, luksKillSlot and luksRemoveKey. Only `cryptsetup reencrypt` and a new `luksFormat` changed the digest (scratch device).
+- **Q1:** with the user's slot removed, the old passphrase is rejected, the escrow key unlocks the disk, and each of two reboots waited at the unlock prompt until the key was typed (SSH answered about 2 s after the watcher typed it). Fleet still showed Verified.
+- **Deviations, in order of impact:** the installer's GRUB ignored letter keys (kickstart delivered on an OEMDRV disk); the display stays "not active" after GRUB unless the kernel has `nomodeset` (still blank, so no console screenshots for Fedora); SELinux set to permissive so the guest agent works (tests run over SSH); the first kickstart had an empty user-password hash (macOS openssl has no `-6`) and two installs were thrown away; fleetd was installed by hand after the kickstart download failed.
+- **Test-script bugs found and fixed first:** `sudo` closes the file descriptor behind `<(...)` (a user-passphrase check wrongly said "no"); `wc -l` padding broke the F-2 verdict; the scratch `reencrypt` control needs `--key-slot 0`. Each is recorded in the result files.
+- **Not done on Fedora:** the real passphrase dialog and Fleet Desktop banner (blank display), TPM-backed layouts, Arch.

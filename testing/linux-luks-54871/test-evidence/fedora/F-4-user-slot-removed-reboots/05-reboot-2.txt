@@ -1,0 +1,7 @@
+# reboot 2 at 2026-10-16T11:37:14Z
+seconds from VM start until SSH answered: 105 (the watcher types the key 90 s after start)
+times the watcher typed so far: 2
+2026-10-16 11:35:42
+root: /dev/mapper/fedora_luks--fedora-root
+  1: luks2
+marker sha: 854e47e1a485130e

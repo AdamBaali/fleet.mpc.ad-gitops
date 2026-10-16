@@ -1,6 +1,6 @@
 # Check of the ask against the evidence (fleetdm/fleet#54871)
 
-Generated 2026-10-16 13:17 from the result files. Nothing here is posted anywhere.
+Generated 2026-10-16 13:37 from the result files. Nothing here is posted anywhere.
 
 ## What was asked
 Issue #54871 ("CSA task: Help clarify and document Linux/LUKS behavior"), from the discussion in #35241. Three things to document and verify:
@@ -50,13 +50,13 @@ The three questions above came from it. Its proposal also asks for things that a
 | --- | --- |
 | Follow the end user guide word for word on a VM | Ubuntu desktop installer followed with screenshots ([S-1-installer](test-evidence/ubuntu/S-1-installer/): PASS). The main runs drove orbit's flow through the same API and a lab zenity wrapper ([S-4-escrow-trigger](test-evidence/ubuntu/S-4-escrow-trigger/): PASS); the real Fleet Desktop banner and passphrase dialog were captured separately ([G-banner-and-dialog](test-evidence/ubuntu/G-banner-and-dialog/): PASS). Deviations are logged. |
 | `luksDump` before and after each step | Done, masked: [S-3-baseline-luksdump](test-evidence/ubuntu/S-3-baseline-luksdump/): PASS, [S-6-luksdump-after-escrow](test-evidence/ubuntu/S-6-luksdump-after-escrow/): PASS, [K-1-remove-user-keyslot](test-evidence/ubuntu/K-1-remove-user-keyslot/): PASS, [M-2-keyslot-changes-keep-master-key](test-evidence/ubuntu/M-2-keyslot-changes-keep-master-key/): PASS |
-| Second distro (Fedora) | [F-Fedora-VM-repeat](test-evidence/desk/F-Fedora-VM-repeat/): NOT-RUN |
+| Second distro (Fedora 44 VM) | Escrow works ([F-2-escrow-slot](test-evidence/fedora/F-2-escrow-slot/): PASS); key slot changes keep the master key ([F-3-keyslot-changes-keep-master-key](test-evidence/fedora/F-3-keyslot-changes-keep-master-key/): PASS); with the user slot removed, the old passphrase is rejected and every reboot waits for the escrow key ([F-4-user-slot-removed-reboots](test-evidence/fedora/F-4-user-slot-removed-reboots/): PASS). Same behaviour as Ubuntu. |
 | Proposed doc edits in Fleet's style | [DOC_EDITS.md](DOC_EDITS.md) |
 | Short issue update for Adam to paste | [ISSUE_UPDATE.md](ISSUE_UPDATE.md) (draft, never posted) |
 | Evidence Adam can review | [EVIDENCE.md](EVIDENCE.md) |
 | No secrets in evidence | Scanned: passphrases, keys and tokens are not in the folder. Header backups stay in the guest. |
 
 ## Open
-- Arch VM and Fedora VM were not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
+- Arch VM was not built. Ubuntu 26 TPM-backed FDE (snapd) is a different path and was not tested.
 - Nothing is pushed or posted.
 
