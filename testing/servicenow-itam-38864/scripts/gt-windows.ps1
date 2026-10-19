@@ -19,8 +19,9 @@ $ErrorActionPreference = 'Stop'
 
 # ---- Test programs (change here). Publishers are company or project names. ----
 $MsiApp = 'VLC media player'; $MsiPublisher = 'VideoLAN'
-$MsiOldVer = '3.0.20'; $MsiOld = 'https://get.videolan.org/vlc/3.0.20/win64/vlc-3.0.20-win64.msi'
-$MsiNewVer = '3.0.21'; $MsiNew = 'https://get.videolan.org/vlc/3.0.21/win64/vlc-3.0.21-win64.msi'
+# VideoLAN published no win64 MSI for 3.0.21, so the upgrade pair is 3.0.19 to 3.0.20.
+$MsiOldVer = '3.0.19'; $MsiOld = 'https://download.videolan.org/pub/videolan/vlc/3.0.19/win64/vlc-3.0.19-win64.msi'
+$MsiNewVer = '3.0.20'; $MsiNew = 'https://download.videolan.org/pub/videolan/vlc/3.0.20/win64/vlc-3.0.20-win64.msi'
 $MsiExe = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
 $ExeApp = 'Notepad++'; $ExePublisher = 'Notepad++ Team'; $ExeWingetId = 'Notepad++.Notepad++'
 $ExeUrl = 'https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.7.1/npp.8.7.1.Installer.x64.exe'
