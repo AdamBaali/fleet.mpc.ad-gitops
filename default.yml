@@ -14,6 +14,9 @@ org_settings:
         challenge: $FLEET_LAB_CA_SCEP_CHALLENGE
   server_settings:
     server_url: $FLEET_URL
+    # The ServiceNow ITAM reports (fleetdm/fleet#38864) return one row per app or package,
+    # and a Fedora Workstation host alone has about 2000 packages, over the default 1000. Remove with that lab.
+    report_cap: 10000
   org_info:
     org_name: Fleet
   secrets:

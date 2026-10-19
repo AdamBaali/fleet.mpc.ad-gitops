@@ -7,7 +7,9 @@ Hosts: one Mac, one Windows 11 VM, one Fedora host, one Ubuntu host.
 | Report file | Fills |
 | --- | --- |
 | `lib/macos/reports/software-itam.reports.yml` | Install date proxies, publisher from code signing, pkg receipts |
-| `lib/windows/reports/software-itam.reports.yml` | Install date and publisher from Programs, last run from Prefetch and UserAssist |
+| `lib/windows/reports/software-itam.reports.yml` | Install date and publisher from Programs |
 | `lib/linux/reports/software-itam.reports.yml` | RPM install time and vendor, DEB last changed and maintainer |
+
+Last opened comes from Fleet's own software inventory on every OS, so no report collects it. `default.yml` sets `report_cap: 10000` because these reports return one row per app or package.
 
 Needs the repository secret `FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET` before the first apply.

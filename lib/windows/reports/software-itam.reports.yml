@@ -1,8 +1,9 @@
 # Fill the ServiceNow ITAM gaps on Windows until Fleet collects them (fleetdm/fleet#38864).
-# Fleet stores programs.publisher as vendor but doesn't show it (#54914) and drops install_date (#54912).
-# Hourly, because the export to ServiceNow runs hourly.
+# Fleet already returns last_opened_at for programs (from Prefetch). It reads publisher but
+# doesn't return it from the API (#54914), and it doesn't read install_date (#54912).
+# Native osquery tables only. Hourly, because the export to ServiceNow runs hourly.
 
-- name: ITAM Windows programs install date and publisher
+- name: ITAM Windows program install date and publisher
   automations_enabled: false
   description: |
     install_date is the InstallDate registry value (YYYYMMDD). Installers don't always write it,
@@ -13,33 +14,5 @@
   observer_can_run: false
   platform: windows
   query: |
-    SELECT name, version, publisher, install_date, install_location, identifying_number
+    SELECT name, version, publisher, install_date
     FROM programs;
-
-- name: ITAM Windows last run from Prefetch
-  automations_enabled: false
-  description: |
-    Last run time per executable. Prefetch is on by default on Windows 10 and 11 clients
-    and off on Windows Server. Matching an exe to a program uses the install location.
-  discard_data: false
-  interval: 3600
-  logging: snapshot
-  observer_can_run: false
-  platform: windows
-  query: |
-    SELECT filename, CAST(last_run_time AS INTEGER) AS last_run_time, run_count
-    FROM prefetch;
-
-- name: ITAM Windows last run from UserAssist
-  automations_enabled: false
-  description: |
-    Last run time per program a user started from Explorer or the Start menu, per user.
-    A second source for hosts where Prefetch is off.
-  discard_data: false
-  interval: 3600
-  logging: snapshot
-  observer_can_run: false
-  platform: windows
-  query: |
-    SELECT path, CAST(last_execution_time AS INTEGER) AS last_execution_time, count, sid
-    FROM userassist;
