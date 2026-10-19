@@ -1,13 +1,25 @@
 # Lab fleet for testing which software fields Fleet can export to ServiceNow ITAM
-# (fleetdm/fleet#38864). Nothing else lives here so the hourly reports never touch other fleets.
+# (fleetdm/fleet#38864). Nothing else lives here so the hourly reports and the
+# software_itam extension never touch other fleets.
 name: "ServiceNow ITAM Lab"
 policies:
+  # Keep the software_itam extension loaded. Each policy runs its installer below.
+  - path: ../lib/macos/policies/software-itam-extension.policies.yml
+  - path: ../lib/windows/policies/software-itam-extension.policies.yml
+  - path: ../lib/linux/policies/software-itam-extension.policies.yml
 reports:
+  # Native osquery tables, no extension needed.
   - path: ../lib/macos/reports/software-itam.reports.yml
   - path: ../lib/windows/reports/software-itam.reports.yml
   - path: ../lib/linux/reports/software-itam.reports.yml
+  # The same fields from the extension, for comparing the two paths.
+  - path: ../lib/all/reports/software-itam-extension.reports.yml
 agent_options:
 controls:
+  scripts:
+    - path: ../lib/macos/scripts/install-software-itam-extension.sh
+    - path: ../lib/windows/scripts/install-software-itam-extension.ps1
+    - path: ../lib/linux/scripts/install-software-itam-extension.sh
 software:
 settings:
   secrets:
