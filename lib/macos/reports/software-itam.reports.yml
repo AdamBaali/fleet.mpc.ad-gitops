@@ -1,0 +1,53 @@
+# Fill the ServiceNow ITAM gaps on macOS until Fleet collects them (fleetdm/fleet#38864).
+# Fleet's apps inventory has no install date (#54912) and an empty publisher (#54914).
+# Hourly, because the export to ServiceNow runs hourly.
+
+- name: ITAM macOS app install and last opened
+  automations_enabled: false
+  description: |
+    Install date proxies for each app bundle. btime is when the bundle was created on disk and resets
+    when an update replaces the bundle. kMDItemDateAdded is when Spotlight saw it arrive in its folder.
+    The test plan compares both against known install times. last_opened_time is from Spotlight.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT a.name, a.bundle_identifier, a.bundle_short_version AS version, a.path,
+           CAST(f.btime AS INTEGER) AS bundle_created,
+           (SELECT value FROM mdls WHERE path = a.path AND key = 'kMDItemDateAdded') AS date_added,
+           CAST(a.last_opened_time AS INTEGER) AS last_opened
+    FROM apps a
+    JOIN file f ON f.path = a.path;
+
+- name: ITAM macOS app publisher
+  automations_enabled: false
+  description: |
+    Publisher from the code signature. authority is the signing certificate,
+    for example "Developer ID Application: Example Inc (TEAMID1234)". Apple apps show "Software Signing".
+    hash_resources = 0 skips hashing every file in the bundle, which keeps the hourly run cheap.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT a.name, a.bundle_identifier, a.path, s.signed, s.authority, s.team_identifier
+    FROM apps a
+    JOIN signature s ON s.path = a.path
+    WHERE s.hash_resources = 0;
+
+- name: ITAM macOS package receipts
+  automations_enabled: false
+  description: |
+    Install time for software installed from a pkg. Covers pkg installs that the app bundle
+    proxies miss, and gives a second source to check them against.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT package_id, version, CAST(install_time AS INTEGER) AS install_time, installer_name, location
+    FROM package_receipts;
