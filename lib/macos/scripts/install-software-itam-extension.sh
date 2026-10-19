@@ -26,9 +26,9 @@
 set -eu
 
 EXT_NAME='software_itam'
-EXT_COMMIT='__EXT_COMMIT__'
-SHA256_X86_64='__SHA256_DARWIN_X86_64__'
-SHA256_ARM64='__SHA256_DARWIN_ARM64__'
+EXT_COMMIT='1c520ee80a44dddfe798169f7fbe114c4ccf5140'
+SHA256_X86_64='e0d68f7324e81c6e4ad6877787a89c14dc54c6f39baad2ed85fc7167346bd430'
+SHA256_ARM64='7f9c9889ec2ddebd6d5f036a9e8d0f63904815fdc06c21026fd495892c5c809b'
 BASE_URL="https://raw.githubusercontent.com/AdamBaali/fleet-extensions/${EXT_COMMIT}/software_itam"
 
 OSQUERY_HOME='/var/osquery'

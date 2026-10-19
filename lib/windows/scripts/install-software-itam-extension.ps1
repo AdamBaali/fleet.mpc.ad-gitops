@@ -39,11 +39,11 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $ExtensionName = 'software_itam'
-$ExtCommit     = '__EXT_COMMIT__'
+$ExtCommit     = '1c520ee80a44dddfe798169f7fbe114c4ccf5140'
 $BaseUrl       = "https://raw.githubusercontent.com/AdamBaali/fleet-extensions/$ExtCommit/software_itam"
 $Assets = @{
-    'AMD64' = @{ File = 'software_itam-amd64.exe'; Sha256 = '__SHA256_WINDOWS_AMD64__' }
-    'ARM64' = @{ File = 'software_itam-arm64.exe'; Sha256 = '__SHA256_WINDOWS_ARM64__' }
+    'AMD64' = @{ File = 'software_itam-amd64.exe'; Sha256 = '6a5f51f3363f347d69945a0791b234374d65e9f74f823aa61a47b7e17123b8ee' }
+    'ARM64' = @{ File = 'software_itam-arm64.exe'; Sha256 = 'f47b7c958d9c3370a10216143331db598f4c2d98dc637145982383b97c66d579' }
 }
 
 $OsqueryHome   = 'C:\Program Files\osquery'
