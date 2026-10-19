@@ -1,0 +1,15 @@
+# Lab fleet for testing software installs and scripts on a sleeping Mac laptop
+# (fleetdm/fleet#46924). Nothing else lives here so it never touches other fleets.
+name: "Power Nap Lab"
+policies:
+  - path: ../lib/macos/policies/power-nap-test.policies.yml
+reports:
+agent_options:
+controls:
+software:
+  fleet_maintained_apps:
+    - slug: google-chrome/darwin
+    - slug: swiftdialog/darwin
+settings:
+  secrets:
+    - secret: "$FLEET_POWER_NAP_LAB_ENROLL_SECRET"

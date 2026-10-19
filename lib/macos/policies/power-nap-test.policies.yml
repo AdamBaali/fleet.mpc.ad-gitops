@@ -1,0 +1,29 @@
+# Test policies for fleetdm/fleet#46924. Each one fails on demand, so its automation
+# runs at the next policy check, which on a closed laptop happens during a DarkWake.
+
+- name: Power Nap test - Google Chrome installed
+  description: Large download (PN-1). Delete Google Chrome to make this fail.
+  resolution: Fleet installs Google Chrome when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM apps WHERE bundle_identifier = 'com.google.Chrome';
+  install_software:
+    fleet_maintained_app_slug: google-chrome/darwin
+
+- name: Power Nap test - swiftDialog installed
+  description: Small download (PN-2). Delete /Library/Application Support/Dialog to make this fail.
+  resolution: Fleet installs swiftDialog when this policy fails.
+  platform: darwin
+  query: |
+    SELECT 1 FROM file WHERE path = '/Library/Application Support/Dialog/Dialog.app/Contents/Info.plist';
+  install_software:
+    fleet_maintained_app_slug: swiftdialog/darwin
+
+- name: Power Nap test - script flag file absent
+  description: Script run (PN-3). Create /var/tmp/fleet-pn-script to make this fail.
+  resolution: Fleet runs power-nap-timestamps.sh, which logs for 120 seconds and then deletes the flag file.
+  platform: darwin
+  query: |
+    SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM file WHERE path = '/var/tmp/fleet-pn-script');
+  run_script:
+    path: ../scripts/power-nap-timestamps.sh

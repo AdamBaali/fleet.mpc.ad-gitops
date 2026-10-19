@@ -23,6 +23,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Linux LUKS Lab | Test Linux disk encryption behavior (#54871) | `fleets/linux-luks-lab.yml` | `testing/` project for #54871 |
 | iOS Google Lab | Test the Google conditional access guide for iPhones (fleetdm/fleet#55107) | `fleets/ios-google-lab.yml` | `testing/` project for #55107 |
 | Windows BitLocker Lab | Test BitLocker PIN with a custom disk encryption profile (fleetdm/fleet#42318) | `fleets/windows-bitlocker-lab.yml` | `fleets/windows-bitlocker-lab/`, `testing/bitlocker-pin-42318/` |
+| Power Nap Lab | Test installs and scripts on a sleeping Mac laptop (fleetdm/fleet#46924) | `fleets/power-nap-lab.yml` | `fleets/power-nap-lab/`, `testing/power-nap-46924/` |
 
 ## Adding a fleet or a test
 1. **Fleet:** add `fleets/<name>.yml` (the `name:` must be unique), put shared files under `lib/`, and add
