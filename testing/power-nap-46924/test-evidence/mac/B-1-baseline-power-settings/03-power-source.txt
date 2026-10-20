@@ -1,0 +1,3 @@
+# 2026-10-20T10:45:39Z
+$ fleetctl query --hosts macbook-air --exit --timeout 90s --query "SELECT state, charging, charged, percent_remaining FROM battery;" 2>/dev/null | grep '"host"'
+

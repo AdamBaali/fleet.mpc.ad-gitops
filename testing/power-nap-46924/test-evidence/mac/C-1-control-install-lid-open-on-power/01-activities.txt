@@ -1,0 +1,10 @@
+# 2026-10-20T10:45:41Z
+$ fleetctl api /api/v1/fleet/hosts/20/activities 2>/dev/null | python3 -c 'import json,sys
+for a in reversed(json.load(sys.stdin)["activities"]):
+  d=a.get("details") or {}; print(a["created_at"], a["type"], d.get("software_title") or d.get("script_name") or "-", d.get("status"), d.get("policy_name"))'
+
+2026-10-20T10:32:55.697156Z mdm_enrolled - None None
+2026-10-20T10:40:09.556413Z installed_software Google Chrome installed Power Nap test - Google Chrome installed
+2026-10-20T10:40:40.525963Z ran_script - None None
+2026-10-20T10:41:28.244228Z installed_software swiftDialog installed Power Nap test - swiftDialog installed
+[exit 0]

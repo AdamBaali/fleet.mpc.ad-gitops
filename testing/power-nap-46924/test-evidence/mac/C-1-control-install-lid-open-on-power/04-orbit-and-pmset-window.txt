@@ -1,0 +1,61 @@
+# 2026-10-20T11:04:54Z
+$ python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print("exit", r.get("exit_code")); print(r.get("output"))' <fleet script result> c1-logs-final.json
+
+exit 0
+== lid: "AppleClamshellState" = No
+== now 2026-10-20T13:03:39+0200
+== orbit from 2026-10-20 12:30 local
+2026-10-20T12:32:10+02:00 INF received notification for software installers: [0c293bb9-6ccc-4408-b02f-b598d723dfbb] runner=installer
+2026-10-20T12:32:10+02:00 INF processing installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:32:10+02:00 INF fetching installer details installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:32:10+02:00 INF about to download software installer from Fleet installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:35:05+02:00 INF received notification for software installers: [0c293bb9-6ccc-4408-b02f-b598d723dfbb] runner=installer
+2026-10-20T12:35:05+02:00 INF processing installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:35:05+02:00 INF fetching installer details installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:35:06+02:00 INF about to download software installer from Fleet installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:40:01+02:00 INF done downloading installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:40:01+02:00 INF software installer downloaded installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb installerPath=/tmp/3991343269/GoogleChrome.pkg runner=installer
+2026-10-20T12:40:01+02:00 INF about to run install script installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:40:09+02:00 INF install script exitCode=0 installerID=0c293bb9-6ccc-4408-b02f-b598d723dfbb runner=installer
+2026-10-20T12:40:40+02:00 INF received notification to run scripts [85eb5587-a8a0-4d31-96ef-6e86b8bfde89]
+2026-10-20T12:40:40+02:00 INF proceeding to run scripts [85eb5587-a8a0-4d31-96ef-6e86b8bfde89]
+2026-10-20T12:40:40+02:00 INF processing script 85eb5587-a8a0-4d31-96ef-6e86b8bfde89
+2026-10-20T12:40:40+02:00 INF getting script 85eb5587-a8a0-4d31-96ef-6e86b8bfde89
+2026-10-20T12:40:40+02:00 INF proceeding to execution of script 85eb5587-a8a0-4d31-96ef-6e86b8bfde89
+2026-10-20T12:40:40+02:00 INF ready to execute script 85eb5587-a8a0-4d31-96ef-6e86b8bfde89
+2026-10-20T12:40:40+02:00 INF saving script result 85eb5587-a8a0-4d31-96ef-6e86b8bfde89 with exit code 0
+2026-10-20T12:40:40+02:00 INF running scripts [85eb5587-a8a0-4d31-96ef-6e86b8bfde89] succeeded
+2026-10-20T12:41:10+02:00 INF received notification for software installers: [9692bff7-f717-4800-8ea9-b3104eb74425] runner=installer
+2026-10-20T12:41:10+02:00 INF processing installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T12:41:10+02:00 INF fetching installer details installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T12:41:10+02:00 INF about to download software installer from Fleet installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T12:41:25+02:00 INF done downloading installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T12:41:25+02:00 INF software installer downloaded installerID=9692bff7-f717-4800-8ea9-b3104eb74425 installerPath=/tmp/373358247/dialog-3.1.0-4994.pkg runner=installer
+2026-10-20T12:41:25+02:00 INF about to run install script installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T12:41:28+02:00 INF install script exitCode=0 installerID=9692bff7-f717-4800-8ea9-b3104eb74425 runner=installer
+2026-10-20T13:03:38+02:00 INF received notification to run scripts [b16a284b-4232-4af0-b665-01ec309d66b2]
+2026-10-20T13:03:38+02:00 INF proceeding to run scripts [b16a284b-4232-4af0-b665-01ec309d66b2]
+2026-10-20T13:03:38+02:00 INF processing script b16a284b-4232-4af0-b665-01ec309d66b2
+2026-10-20T13:03:38+02:00 INF getting script b16a284b-4232-4af0-b665-01ec309d66b2
+2026-10-20T13:03:39+02:00 INF proceeding to execution of script b16a284b-4232-4af0-b665-01ec309d66b2
+2026-10-20T13:03:39+02:00 INF ready to execute script b16a284b-4232-4af0-b665-01ec309d66b2
+== pmset sleep and wake from 2026-10-20 12:30 local
+Sleep/Wakes since boot at 2026-10-20 12:25:59 +0200 :0   Dark Wake Count in this sleep cycle:0
+2026-10-20 12:43:15 +0200 Sleep               	Entering Sleep state due to 'Idle Sleep':TCPKeepAlive=active Using AC (Charge:46%) 2 secs    
+2026-10-20 12:43:17 +0200 Wake Requests       	[process=mDNSResponder request=Maintenance deltaSecs=7198 wakeAt=2026-10-20 14:43:15 info="upkeep wake"] [process=dasd request=SleepService deltaSecs=993 wakeAt=2026-10-20 12:59:50 info="com.apple.dasd:501:com.apple.GenerativeFunctions.PeriodicTasks.SystemAppInstall.PostBuddy"] [process=dasd request=TimerPlugin deltaSecs=912 wakeAt=2026-10-20 12:58:29 info="com.apple.dasd:501:com.apple.ScreenTimeAgent.persistent-history-cleanup"] [process=powerd request=CSPNEvaluation deltaSecs=6932 wakeAt=2026-10-20 14:38:49] [*process=powerd request=UserWake deltaSecs=583 wakeAt=2026-10-20 12:53:00 info="com.apple.alarm.user-invisible-com.apple.acmd.alarm,30"]           
+2026-10-20 12:43:17 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1531 ms)]           
+2026-10-20 12:43:17 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to /UserActivity Assertion Using AC (Charge:46%) 10 secs   
+2026-10-20 12:43:27 +0200 Sleep               	Entering Sleep state due to 'Idle Sleep':TCPKeepAlive=active Using AC (Charge:46%) 1 secs    
+2026-10-20 12:43:28 +0200 Wake Requests       	[process=mDNSResponder request=Maintenance deltaSecs=7198 wakeAt=2026-10-20 14:43:27 info="upkeep wake"] [process=dasd request=SleepService deltaSecs=915 wakeAt=2026-10-20 12:58:44 info="com.apple.dasd:501:com.apple.GenerativeFunctions.PeriodicTasks.SystemAppInstall.PostBuddy"] [process=dasd request=TimerPlugin deltaSecs=967 wakeAt=2026-10-20 12:59:36 info="com.apple.dasd:501:com.apple.ScreenTimeAgent.persistent-history-cleanup"] [process=powerd request=CSPNEvaluation deltaSecs=6921 wakeAt=2026-10-20 14:38:49] [*process=powerd request=UserWake deltaSecs=571 wakeAt=2026-10-20 12:53:00 info="com.apple.alarm.user-invisible-com.apple.acmd.alarm,30"]           
+2026-10-20 12:43:28 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1531 ms)]           
+2026-10-20 12:43:28 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to /UserActivity Assertion Using AC (Charge:46%) 19 secs   
+2026-10-20 12:43:47 +0200 Sleep               	Entering Sleep state due to 'Idle Sleep':TCPKeepAlive=active Using AC (Charge:47%) 553 secs  
+2026-10-20 12:43:49 +0200 Wake Requests       	[process=mDNSResponder request=Maintenance deltaSecs=7198 wakeAt=2026-10-20 14:43:47 info="upkeep wake"] [process=dasd request=SleepService deltaSecs=995 wakeAt=2026-10-20 13:00:24 info="com.apple.dasd:501:com.apple.GenerativeFunctions.PeriodicTasks.SystemAppInstall.PostBuddy"] [process=dasd request=TimerPlugin deltaSecs=966 wakeAt=2026-10-20 12:59:55 info="com.apple.dasd:501:com.apple.ScreenTimeAgent.persistent-history-cleanup"] [process=powerd request=CSPNEvaluation deltaSecs=6900 wakeAt=2026-10-20 14:38:49] [*process=powerd request=UserWake deltaSecs=551 wakeAt=2026-10-20 12:53:00 info="com.apple.alarm.user-invisible-com.apple.acmd.alarm,30"]           
+2026-10-20 12:43:49 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.audio.MacAudio is slow(311 ms)] [com.apple.bluetooth.sleep is slow(1542 ms)]           
+2026-10-20 12:53:00 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/Maintenance Using AC (Charge:47%) 180 secs  
+2026-10-20 12:56:00 +0200 Sleep               	Entering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using AC (Charge:63%) 449 secs  
+2026-10-20 12:56:02 +0200 Wake Requests       	[process=mDNSResponder request=Maintenance deltaSecs=7198 wakeAt=2026-10-20 14:56:00 info="upkeep wake"] [*process=dasd request=SleepService deltaSecs=908 wakeAt=2026-10-20 13:11:10 info="com.apple.dasd:501:com.apple.GenerativeFunctions.PeriodicTasks.SystemAppInstall.PostBuddy"] [process=dasd request=TimerPlugin deltaSecs=1026 wakeAt=2026-10-20 13:13:08 info="com.apple.dasd:501:com.apple.ScreenTimeAgent.persistent-history-cleanup"] [process=powerd request=CSPNEvaluation deltaSecs=6167 wakeAt=2026-10-20 14:38:49] [process=powerd request=UserWake deltaSecs=2818 wakeAt=2026-10-20 13:43:00 info="com.apple.alarm.user-invisible-com.apple.acmd.alarm,30"]           
+2026-10-20 12:56:02 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1532 ms)]           
+2026-10-20 13:03:29 +0200 Wake                	Wake from Deep Idle [CDNVA] : due to MTP.DOCK.CHANNELS.AP0.IRQ RTP.multi-touch/HID Activity Using AC (Charge:63%)           
+
+[exit 0]

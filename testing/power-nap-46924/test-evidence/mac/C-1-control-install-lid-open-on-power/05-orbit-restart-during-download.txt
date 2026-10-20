@@ -1,0 +1,49 @@
+# 2026-10-20T11:04:54Z
+$ python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print("exit", r.get("exit_code")); print(r.get("output"))' <fleet script result> pn4a-start.json | sed -n '1,/== PN-4a start/p' | grep -v '== PN-4a start'
+
+exit 0
+== orbit 12:31 to 12:36 local, unfiltered
+2026-10-20T12:31:02+02:00 INF added enroll secret to keystore: default keychain
+2026-10-20T12:31:02+02:00 INF deleting enroll secret file: /opt/orbit/secret.txt
+2026-10-20T12:31:03+02:00 INF hash(orbit)=58bab925d36b95b4418d9098d854800603444670546d712ccde017e0927578c7db1f50e7953051b02c29802be2f217f0fe7cf9d771ae98010407b368ad307ebd
+2026-10-20T12:31:03+02:00 INF hash(osqueryd)=a673a715de9dff3bd13e43e676fe8cadba91dc1b18f3062ce6ff1f867cb94e498b59eaac9ad09277d506ccbae244df866f91031ed08c7a0a9b0b136e62d1c6a2
+2026-10-20T12:31:03+02:00 INF hash(desktop)=cbfccf9ec78fd150b0d28ac9d8c7d1415f3e0db328a2d90d54d9e3cdb0ce8dca9d1ad9bb2e898d32756803a1a0052963ee96de03b34d3e4820d7da69854f337c
+2026-10-20T12:31:03+02:00 INF orbit version: 1.61.0
+2026-10-20T12:31:04+02:00 INF Found osquery version: 5.24.0
+2026-10-20T12:31:07+02:00 INF orbit node key file not found, enrolling server=https://fleet.mpc.ad
+2026-10-20T12:31:08+02:00 INF token rotation is enabled
+2026-10-20T12:31:09+02:00 INF Found fleet-desktop version: 1.61.0
+2026-10-20T12:31:09+02:00 INF checking for custom mdm enrollment profile with end user email
+2026-10-20T12:31:09+02:00 INF get custom enrollment profile end user email: profile not found
+2026-10-20T12:31:09+02:00 INF orbitClient.GetServerCapabilities() map[end_user_email:{} escrow_buddy:{} linux_disk_encryption_escrow:{} linux_escrow_status:{} luks_recovery_key_escrow:{} macos_web_setup_experience:{} orbit_endpoints:{} setup_experience:{} token_rotation:{} web_setup_experience:{} wi
+2026-10-20T12:31:09+02:00 INF opening path="/opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app"
+2026-10-20T12:31:09+02:00 INF start osqueryd cmd="/opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/Contents/MacOS/osqueryd --pidfile=/opt/orbit/osquery.pid --extensions_socket=/opt/orbit/orbit-osquery.em --logger_path=/opt/orbit/osquery_log --enroll_secret_env ENROLL_SECRET --tls_hostname=fleet.
+2026-10-20T12:31:09+02:00 INF killing any pre-existing fleet-desktop instances
+2026-10-20T12:31:19+02:00 WRN failed to read CFBundleExecutable from Info.plist, returning empty binary path error="exit status 1" path=/System/Library/CoreServices/PassViewer.app
+2026-10-20T12:31:19+02:00 WRN empty path provided, returning empty hash
+2026-10-20T12:34:23+02:00 INF interrupt update runner error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt config receivers error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt osqueryd runner error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt capabilities checker error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt osqueryd extension runner error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt desktop runner error="received signal terminated"
+2026-10-20T12:34:23+02:00 INF interrupt signal handler error="received signal terminated"
+2026-10-20T12:34:29+02:00 INF trying to read fleet-url and enroll-secret from a configuration profile
+2026-10-20T12:34:29+02:00 INF setting enroll-secret and fleet-url configs from configuration profile
+2026-10-20T12:34:29+02:00 INF found configuration values in system profile
+2026-10-20T12:34:29+02:00 INF hash(orbit)=58bab925d36b95b4418d9098d854800603444670546d712ccde017e0927578c7db1f50e7953051b02c29802be2f217f0fe7cf9d771ae98010407b368ad307ebd
+2026-10-20T12:34:29+02:00 INF hash(osqueryd)=a673a715de9dff3bd13e43e676fe8cadba91dc1b18f3062ce6ff1f867cb94e498b59eaac9ad09277d506ccbae244df866f91031ed08c7a0a9b0b136e62d1c6a2
+2026-10-20T12:34:30+02:00 INF hash(desktop)=cbfccf9ec78fd150b0d28ac9d8c7d1415f3e0db328a2d90d54d9e3cdb0ce8dca9d1ad9bb2e898d32756803a1a0052963ee96de03b34d3e4820d7da69854f337c
+2026-10-20T12:34:30+02:00 INF orbit version: 1.61.0
+2026-10-20T12:34:30+02:00 INF Found osquery version: 5.24.0
+2026-10-20T12:34:34+02:00 INF token rotation is enabled
+2026-10-20T12:34:35+02:00 INF Found fleet-desktop version: 1.61.0
+2026-10-20T12:34:35+02:00 INF checking for custom mdm enrollment profile with end user email
+2026-10-20T12:34:35+02:00 INF get custom enrollment profile end user email: profile not found
+2026-10-20T12:34:35+02:00 INF orbitClient.GetServerCapabilities() map[end_user_email:{} escrow_buddy:{} linux_disk_encryption_escrow:{} linux_escrow_status:{} luks_recovery_key_escrow:{} macos_web_setup_experience:{} orbit_endpoints:{} setup_experience:{} token_rotation:{} web_setup_experience:{} wi
+2026-10-20T12:34:35+02:00 INF opening path="/opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app"
+2026-10-20T12:34:35+02:00 INF start osqueryd cmd="/opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/Contents/MacOS/osqueryd --pidfile=/opt/orbit/osquery.pid --extensions_socket=/opt/orbit/orbit-osquery.em --logger_path=/opt/orbit/osquery_log --enroll_secret_env ENROLL_SECRET --tls_hostname=fleet.
+2026-10-20T12:34:35+02:00 INF killing any pre-existing fleet-desktop instances
+2026-10-20T12:35:44+02:00 WRN failed to read CFBundleExecutable from Info.plist, returning empty binary path error="exit status 1" path=/System/Library/CoreServices/PassViewer.app
+2026-10-20T12:35:44+02:00 WRN empty path provided, returning empty hash
+[exit 0]

@@ -1,0 +1,2 @@
+B-1	INFO	B-1-baseline-power-settings	Power Nap on, tcpkeepalive on, standby on, sleep 1 min, hibernatemode 3 (battery and AC). Restore these at teardown if changed
+C-1	PASS	C-1-control-install-lid-open-on-power	Chrome and swiftDialog installed by policy automation on AC, lid open. Chrome took 8 min including one restart caused by MDM enrollment
