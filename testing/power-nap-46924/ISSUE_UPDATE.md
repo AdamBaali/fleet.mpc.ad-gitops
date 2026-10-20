@@ -9,4 +9,4 @@ Lab: MacBook Air (M4), macOS 27.0.1, fleetd 1.61.0 (orbit 1.61.0, osquery 5.24.0
 
 orbit and `pmset -g log` lines for the same window are in [PN-1](https://github.com/AdamBaali/fleet.mpc.ad-gitops/tree/main/testing/power-nap-46924/test-evidence/mac/PN-1-large-install-lid-closed-battery). All results: [EVIDENCE.md](https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/testing/power-nap-46924/EVIDENCE.md).
 
-**Not tested yet:** a small install (PN-2, running), a script run (PN-3), lid closed on power (PN-4), Power Nap off (PN-5), a `caffeinate` wrapper (PN-7), presigned URLs.
+**Not tested yet:** a small install (PN-2: queued in a DarkWake at 14:28Z, no result after 50 minutes, still running), a script run (PN-3), lid closed on power (PN-4), Power Nap off (PN-5), a `caffeinate` wrapper (PN-7), presigned URLs.

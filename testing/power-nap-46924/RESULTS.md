@@ -41,3 +41,9 @@
 - **Found:** Fleet re-queued the install at the failure (12:23:26Z). It was not delivered in the two DarkWakes that followed (orbit logged "backing off"). After the lid opened, fleetd got the retry in 50 s, downloaded in 28 s and installed at 13:01:57Z. The policy passed at 13:02:17Z.
 - **Finding:** one automatic retry. In the 37 minutes the lid stayed closed after the failure, it did not start in a DarkWake. It ran 50 s after a full wake. Whether it would start in a later DarkWake overnight is not tested.
 - **Evidence:** `test-evidence/mac/PN-6-what-happens-next/`
+
+## PN-2: Small install, lid closed, battery (2026-10-20): in progress
+- **Steps:** swiftDialog deleted by a Fleet script at 13:28:02Z (lid open, battery 74%). Lid closed and refetch at 13:28:33Z.
+- **So far (2026-10-20T15:26:39Z):** first check-in 14:13:04Z (no policy run). Policies ran in a DarkWake at 14:28:36Z, the swiftDialog policy fails and the install is queued. No check-in or install result since 14:28:42Z.
+- **Note:** the refetch took an hour to run policies here and 42 minutes in PN-1. Why some check-ins run policies and others do not is not checked.
+- **Evidence:** `test-evidence/mac/PN-2-small-install-lid-closed-battery/`
