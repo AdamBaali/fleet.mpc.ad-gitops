@@ -1,7 +1,0 @@
-# 2026-10-20T07:37:41Z
-$ /osq/opt/osquery/bin/osqueryd -S --json --extensions_require=software_itam --extensions_timeout=20 "SELECT name, active, internal FROM osquery_registry WHERE registry = 'table' AND name = 'software_itam';"
-
-[
-  {"active":"1","internal":"0","name":"software_itam"}
-]
-[exit 0]

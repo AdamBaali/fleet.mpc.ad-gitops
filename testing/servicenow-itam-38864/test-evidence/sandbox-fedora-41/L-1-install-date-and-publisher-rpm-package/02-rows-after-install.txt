@@ -1,0 +1,6 @@
+# 2026-10-20T07:51:36Z
+$ snap install
+
+rows=138
+[{"install_time": "1792482693", "name": "hello", "vendor": "Fedora Project", "version": "2.12.2"}]
+[exit 0]

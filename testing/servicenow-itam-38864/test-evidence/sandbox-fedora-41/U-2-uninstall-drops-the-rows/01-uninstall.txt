@@ -1,8 +1,0 @@
-# 2026-10-20T07:37:59Z
-$ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh uninstall
-
-[1/3] Prepare transaction               100% | 222.0   B/s |   2.0   B |  00m00s
-[2/3] Removing info-0:7.1.1-1.fc41.x86_ 100% |   3.1 KiB/s |  16.0   B |  00m00s
-[3/3] Removing hello-0:2.12.2-1.fc41.x8 100% |   2.2 KiB/s |  53.0   B |  00m00s
-recorded uninstall hello at 2026-10-20T07:37:59Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/fedora-41.tsv
-[exit 0]

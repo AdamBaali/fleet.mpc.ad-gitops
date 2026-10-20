@@ -1,4 +1,4 @@
-# 2026-10-20T07:36:57Z
+# 2026-10-20T07:50:50Z
 $ /osq/opt/osquery/bin/osqueryd --version
 
 osqueryd version 5.14.1

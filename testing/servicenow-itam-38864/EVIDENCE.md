@@ -6,62 +6,46 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 22 |
+| PASS | 6 |
 | NOT RUN | 2 |
 | info | 4 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
-| Linux sandbox: Ubuntu 24.04 | L-2: Install date: deb package | PASS | [open](#l-2-install-date-deb-package) |
-| Linux sandbox: Ubuntu 24.04 | L-2u: Upgrade or reinstall: which dates move | PASS | [open](#l-2u-upgrade-or-reinstall-which-dates-move) |
+| Linux sandbox: Ubuntu 24.04 | L-2: Install date and publisher: deb package | PASS | [open](#l-2-install-date-and-publisher-deb-package) |
+| Linux sandbox: Ubuntu 24.04 | L-2u: Upgrade and reinstall: what list_changed shows | PASS | [open](#l-2u-upgrade-and-reinstall-what-listchanged-shows) |
 | Linux sandbox: Ubuntu 24.04 | L-3: Last used: facts | NOT RUN | [open](#l-3-last-used-facts) |
 | Linux sandbox: Ubuntu 24.04 | S-0: Sandbox facts | info | [open](#s-0-sandbox-facts) |
-| Linux sandbox: Ubuntu 24.04 | U-2: Uninstall drops the rows | PASS | [open](#u-2-uninstall-drops-the-rows) |
-| Linux sandbox: Ubuntu 24.04 | X-1: Installer: download, checksum, autoload file | PASS | [open](#x-1-installer-download-checksum-autoload-file) |
-| Linux sandbox: Ubuntu 24.04 | X-1b: Installer: second run changes nothing | PASS | [open](#x-1b-installer-second-run-changes-nothing) |
-| Linux sandbox: Ubuntu 24.04 | X-1c: Installer: wrong checksum is refused | PASS | [open](#x-1c-installer-wrong-checksum-is-refused) |
-| Linux sandbox: Ubuntu 24.04 | X-2: Table registered from the default autoload file | PASS | [open](#x-2-table-registered-from-the-default-autoload-file) |
-| Linux sandbox: Ubuntu 24.04 | X-3: Rows and coverage: native against extension | PASS | [open](#x-3-rows-and-coverage-native-against-extension) |
-| Linux sandbox: Ubuntu 24.04 | X-5: Publisher: deb package | PASS | [open](#x-5-publisher-deb-package) |
-| Linux sandbox: Ubuntu 24.04 | X-7: Reinstall: install date and first_seen | PASS | [open](#x-7-reinstall-install-date-and-firstseen) |
-| Linux sandbox: Ubuntu 24.04 | X-8: first_seen survives an osquery restart | PASS | [open](#x-8-firstseen-survives-an-osquery-restart) |
-| Linux sandbox: Ubuntu 24.04 | X-9: Cost of one software_itam query | info | [open](#x-9-cost-of-one-softwareitam-query) |
-| Linux sandbox: Fedora 41 | L-1: Install date: rpm package | PASS | [open](#l-1-install-date-rpm-package) |
-| Linux sandbox: Fedora 41 | L-2u: Upgrade or reinstall: which dates move | PASS | [open](#l-2u-upgrade-or-reinstall-which-dates-move) |
+| Linux sandbox: Ubuntu 24.04 | S-0c: Report coverage on the whole host | info | [open](#s-0c-report-coverage-on-the-whole-host) |
+| Linux sandbox: Ubuntu 24.04 | U-2: Uninstall drops the row | PASS | [open](#u-2-uninstall-drops-the-row) |
+| Linux sandbox: Fedora 41 | L-1: Install date and publisher: rpm package | PASS | [open](#l-1-install-date-and-publisher-rpm-package) |
+| Linux sandbox: Fedora 41 | L-1u: Upgrade and reinstall: what install_time shows | PASS | [open](#l-1u-upgrade-and-reinstall-what-installtime-shows) |
 | Linux sandbox: Fedora 41 | L-3: Last used: facts | NOT RUN | [open](#l-3-last-used-facts) |
 | Linux sandbox: Fedora 41 | S-0: Sandbox facts | info | [open](#s-0-sandbox-facts) |
-| Linux sandbox: Fedora 41 | U-2: Uninstall drops the rows | PASS | [open](#u-2-uninstall-drops-the-rows) |
-| Linux sandbox: Fedora 41 | X-1: Installer: download, checksum, autoload file | PASS | [open](#x-1-installer-download-checksum-autoload-file) |
-| Linux sandbox: Fedora 41 | X-1b: Installer: second run changes nothing | PASS | [open](#x-1b-installer-second-run-changes-nothing) |
-| Linux sandbox: Fedora 41 | X-1c: Installer: wrong checksum is refused | PASS | [open](#x-1c-installer-wrong-checksum-is-refused) |
-| Linux sandbox: Fedora 41 | X-2: Table registered from the default autoload file | PASS | [open](#x-2-table-registered-from-the-default-autoload-file) |
-| Linux sandbox: Fedora 41 | X-3: Rows and coverage: native against extension | PASS | [open](#x-3-rows-and-coverage-native-against-extension) |
-| Linux sandbox: Fedora 41 | X-5: Publisher: rpm package | PASS | [open](#x-5-publisher-rpm-package) |
-| Linux sandbox: Fedora 41 | X-7: Reinstall: install date and first_seen | PASS | [open](#x-7-reinstall-install-date-and-firstseen) |
-| Linux sandbox: Fedora 41 | X-8: first_seen survives an osquery restart | PASS | [open](#x-8-firstseen-survives-an-osquery-restart) |
-| Linux sandbox: Fedora 41 | X-9: Cost of one software_itam query | info | [open](#x-9-cost-of-one-softwareitam-query) |
+| Linux sandbox: Fedora 41 | S-0c: Report coverage on the whole host | info | [open](#s-0c-report-coverage-on-the-whole-host) |
+| Linux sandbox: Fedora 41 | U-2: Uninstall drops the row | PASS | [open](#u-2-uninstall-drops-the-row) |
 
 ## Linux sandbox: Ubuntu 24.04
 
-### L-2: Install date: deb package
+### L-2: Install date and publisher: deb package
 
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/L-2-install-date-deb-package/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/L-2-install-date-and-publisher-deb-package/result.md)
 
-- **Objective:** Install hello with the package manager, read the native report and software_itam
-- **Expected:** Native and extension install dates within 2 minutes of the recorded install
+- **Objective:** Install hello, run the native report
+- **Expected:** list_changed within 2 minutes of the recorded install. Publisher matches the package metadata
 
-**Output:** [01-install.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-deb-package/01-install.txt) · [02-rows-after-install.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-deb-package/02-rows-after-install.txt) · [03-check.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-deb-package/03-check.txt)
+**Output:** [01-install.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-and-publisher-deb-package/01-install.txt) · [02-rows-after-install.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-and-publisher-deb-package/02-rows-after-install.txt) · [03-date-check.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-and-publisher-deb-package/03-date-check.txt) · [04-publisher-check.txt](test-evidence/sandbox-ubuntu-2404/L-2-install-date-and-publisher-deb-package/04-publisher-check.txt)
 
 ---
 
-### L-2u: Upgrade or reinstall: which dates move
+### L-2u: Upgrade and reinstall: what list_changed shows
 
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-or-reinstall-which-dates-move/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/result.md)
 
-- **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version)
-- **Expected:** Native moves to the upgrade. Extension keeps the first install for DEB (dpkg.log), moves for RPM
+- **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version), then reinstall
+- **Expected:** list_changed moves to the latest change each time, so it is not a first install date
 
-**Output:** [01-upgrade.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-or-reinstall-which-dates-move/01-upgrade.txt) · [02-rows-after-upgrade.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-or-reinstall-which-dates-move/02-rows-after-upgrade.txt) · [03-check.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-or-reinstall-which-dates-move/03-check.txt)
+**Output:** [01-upgrade.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/01-upgrade.txt) · [02-rows-after-upgrade.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/02-rows-after-upgrade.txt) · [03-upgrade-check.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/03-upgrade-check.txt) · [04-uninstall.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/04-uninstall.txt) · [05-reinstall.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/05-reinstall.txt) · [06-rows-after-reinstall.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/06-rows-after-reinstall.txt) · [07-reinstall-check.txt](test-evidence/sandbox-ubuntu-2404/L-2u-upgrade-and-reinstall-what-listchanged-s/07-reinstall-check.txt)
 
 ---
 
@@ -83,141 +67,53 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Record the environment these results come from
 - **Expected:** Facts saved
 
-**Output:** [01-os-release.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/01-os-release.txt) · [02-osquery-version.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/02-osquery-version.txt) · [03-prior-installs.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/03-prior-installs.txt) · [04-mounts.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/04-mounts.txt)
+**Output:** [01-os-release.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/01-os-release.txt) · [02-osquery-version.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/02-osquery-version.txt) · [03-prior-installs.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/03-prior-installs.txt) · [04-report-sql.txt](test-evidence/sandbox-ubuntu-2404/S-0-sandbox-facts/04-report-sql.txt)
 
 ---
 
-### U-2: Uninstall drops the rows
+### S-0c: Report coverage on the whole host
 
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-rows/result.md)
+**Result: info** · [full notes](test-evidence/sandbox-ubuntu-2404/S-0c-report-coverage-on-the-whole-host/result.md)
 
-- **Objective:** Remove hello, read both again
-- **Expected:** No row in the native report or software_itam
+- **Objective:** Count rows with an install date and a publisher
+- **Expected:** Coverage recorded
 
-**Output:** [01-uninstall.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-rows/01-uninstall.txt) · [02-rows-after-uninstall.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-rows/02-rows-after-uninstall.txt) · [03-check.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-rows/03-check.txt)
-
----
-
-### X-1: Installer: download, checksum, autoload file
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-1-installer-download-checksum-autoload-fil/result.md)
-
-- **Objective:** Run the real Linux installer
-- **Expected:** Exit 0, binary matches the pinned SHA-256, path listed once in /etc/osquery/extensions.load, root-owned 0755, restart scheduled
-
-**Output:** [01-first-run.txt](test-evidence/sandbox-ubuntu-2404/X-1-installer-download-checksum-autoload-fil/01-first-run.txt) · [02-placed.txt](test-evidence/sandbox-ubuntu-2404/X-1-installer-download-checksum-autoload-fil/02-placed.txt)
+**Output:** [01-coverage.txt](test-evidence/sandbox-ubuntu-2404/S-0c-report-coverage-on-the-whole-host/01-coverage.txt)
 
 ---
 
-### X-1b: Installer: second run changes nothing
+### U-2: Uninstall drops the row
 
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-1b-installer-second-run-changes-nothing/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-row/result.md)
 
-- **Objective:** Re-run the installer
-- **Expected:** Already current, loader still has one line, no new restart
+- **Objective:** Remove hello, run the report
+- **Expected:** No row for hello
 
-**Output:** [01-second-run.txt](test-evidence/sandbox-ubuntu-2404/X-1b-installer-second-run-changes-nothing/01-second-run.txt)
-
----
-
-### X-1c: Installer: wrong checksum is refused
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-1c-installer-wrong-checksum-is-refused/result.md)
-
-- **Objective:** Run a copy of the installer with a wrong SHA-256
-- **Expected:** Exit 6, installed binary unchanged
-
-**Output:** [01-bad-sha.txt](test-evidence/sandbox-ubuntu-2404/X-1c-installer-wrong-checksum-is-refused/01-bad-sha.txt)
-
----
-
-### X-2: Table registered from the default autoload file
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-2-table-registered-from-the-default-autolo/result.md)
-
-- **Objective:** Load the extension the way osqueryd does under fleetd: no --extension flag
-- **Expected:** software_itam active with every documented column
-
-**Output:** [01-registry.txt](test-evidence/sandbox-ubuntu-2404/X-2-table-registered-from-the-default-autolo/01-registry.txt) · [02-columns.txt](test-evidence/sandbox-ubuntu-2404/X-2-table-registered-from-the-default-autolo/02-columns.txt)
-
----
-
-### X-3: Rows and coverage: native against extension
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-3-rows-and-coverage-native-against-extensi/result.md)
-
-- **Objective:** Count rows, install dates and publishers on the whole host
-- **Expected:** Row counts within 5%. Coverage recorded for C-1 and C-2
-
-**Output:** [01-coverage.txt](test-evidence/sandbox-ubuntu-2404/X-3-rows-and-coverage-native-against-extensi/01-coverage.txt)
-
----
-
-### X-5: Publisher: deb package
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-5-publisher-deb-package/result.md)
-
-- **Objective:** Compare the extension publisher to the package metadata
-- **Expected:** Same company or maintainer as the package manager shows
-
-**Output:** [01-check.txt](test-evidence/sandbox-ubuntu-2404/X-5-publisher-deb-package/01-check.txt)
-
----
-
-### X-7: Reinstall: install date and first_seen
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-7-reinstall-install-date-and-firstseen/result.md)
-
-- **Objective:** Install hello again
-- **Expected:** first_seen keeps the first sighting. DEB install_date keeps the first install from dpkg.log, RPM moves
-
-**Output:** [01-reinstall.txt](test-evidence/sandbox-ubuntu-2404/X-7-reinstall-install-date-and-firstseen/01-reinstall.txt) · [02-rows-after-reinstall.txt](test-evidence/sandbox-ubuntu-2404/X-7-reinstall-install-date-and-firstseen/02-rows-after-reinstall.txt) · [03-check.txt](test-evidence/sandbox-ubuntu-2404/X-7-reinstall-install-date-and-firstseen/03-check.txt)
-
----
-
-### X-8: first_seen survives an osquery restart
-
-**Result: PASS** · [full notes](test-evidence/sandbox-ubuntu-2404/X-8-firstseen-survives-an-osquery-restart/result.md)
-
-- **Objective:** Read first_seen in two separate osquery processes
-- **Expected:** Same value for every row
-
-**Output:** [01-second-process.txt](test-evidence/sandbox-ubuntu-2404/X-8-firstseen-survives-an-osquery-restart/01-second-process.txt) · [02-compare.txt](test-evidence/sandbox-ubuntu-2404/X-8-firstseen-survives-an-osquery-restart/02-compare.txt)
-
----
-
-### X-9: Cost of one software_itam query
-
-**Result: info** · [full notes](test-evidence/sandbox-ubuntu-2404/X-9-cost-of-one-softwareitam-query/result.md)
-
-- **Objective:** Time a full query
-- **Expected:** Seconds, not minutes
-
-**Output:** [01-timing.txt](test-evidence/sandbox-ubuntu-2404/X-9-cost-of-one-softwareitam-query/01-timing.txt)
+**Output:** [01-uninstall.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-row/01-uninstall.txt) · [02-rows-after-uninstall.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-row/02-rows-after-uninstall.txt) · [03-absent-check.txt](test-evidence/sandbox-ubuntu-2404/U-2-uninstall-drops-the-row/03-absent-check.txt)
 
 ---
 
 ## Linux sandbox: Fedora 41
 
-### L-1: Install date: rpm package
+### L-1: Install date and publisher: rpm package
 
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/L-1-install-date-rpm-package/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/L-1-install-date-and-publisher-rpm-package/result.md)
 
-- **Objective:** Install hello with the package manager, read the native report and software_itam
-- **Expected:** Native and extension install dates within 2 minutes of the recorded install
+- **Objective:** Install hello, run the native report
+- **Expected:** install_time within 2 minutes of the recorded install. Publisher matches the package metadata
 
-**Output:** [01-install.txt](test-evidence/sandbox-fedora-41/L-1-install-date-rpm-package/01-install.txt) · [02-rows-after-install.txt](test-evidence/sandbox-fedora-41/L-1-install-date-rpm-package/02-rows-after-install.txt) · [03-check.txt](test-evidence/sandbox-fedora-41/L-1-install-date-rpm-package/03-check.txt)
+**Output:** [01-install.txt](test-evidence/sandbox-fedora-41/L-1-install-date-and-publisher-rpm-package/01-install.txt) · [02-rows-after-install.txt](test-evidence/sandbox-fedora-41/L-1-install-date-and-publisher-rpm-package/02-rows-after-install.txt) · [03-date-check.txt](test-evidence/sandbox-fedora-41/L-1-install-date-and-publisher-rpm-package/03-date-check.txt) · [04-publisher-check.txt](test-evidence/sandbox-fedora-41/L-1-install-date-and-publisher-rpm-package/04-publisher-check.txt)
 
 ---
 
-### L-2u: Upgrade or reinstall: which dates move
+### L-1u: Upgrade and reinstall: what install_time shows
 
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/L-2u-upgrade-or-reinstall-which-dates-move/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/result.md)
 
-- **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version)
-- **Expected:** Native moves to the upgrade. Extension keeps the first install for DEB (dpkg.log), moves for RPM
+- **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version), then reinstall
+- **Expected:** install_time moves to the latest change each time, so it is not a first install date
 
-**Output:** [01-upgrade.txt](test-evidence/sandbox-fedora-41/L-2u-upgrade-or-reinstall-which-dates-move/01-upgrade.txt) · [02-rows-after-upgrade.txt](test-evidence/sandbox-fedora-41/L-2u-upgrade-or-reinstall-which-dates-move/02-rows-after-upgrade.txt) · [03-check.txt](test-evidence/sandbox-fedora-41/L-2u-upgrade-or-reinstall-which-dates-move/03-check.txt)
+**Output:** [01-upgrade.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/01-upgrade.txt) · [02-rows-after-upgrade.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/02-rows-after-upgrade.txt) · [03-upgrade-check.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/03-upgrade-check.txt) · [04-uninstall.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/04-uninstall.txt) · [05-reinstall.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/05-reinstall.txt) · [06-rows-after-reinstall.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/06-rows-after-reinstall.txt) · [07-reinstall-check.txt](test-evidence/sandbox-fedora-41/L-1u-upgrade-and-reinstall-what-installtime-s/07-reinstall-check.txt)
 
 ---
 
@@ -239,116 +135,28 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Record the environment these results come from
 - **Expected:** Facts saved
 
-**Output:** [01-os-release.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/01-os-release.txt) · [02-osquery-version.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/02-osquery-version.txt) · [03-prior-installs.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/03-prior-installs.txt) · [04-mounts.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/04-mounts.txt)
+**Output:** [01-os-release.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/01-os-release.txt) · [02-osquery-version.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/02-osquery-version.txt) · [03-prior-installs.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/03-prior-installs.txt) · [04-report-sql.txt](test-evidence/sandbox-fedora-41/S-0-sandbox-facts/04-report-sql.txt)
 
 ---
 
-### U-2: Uninstall drops the rows
+### S-0c: Report coverage on the whole host
 
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-rows/result.md)
+**Result: info** · [full notes](test-evidence/sandbox-fedora-41/S-0c-report-coverage-on-the-whole-host/result.md)
 
-- **Objective:** Remove hello, read both again
-- **Expected:** No row in the native report or software_itam
+- **Objective:** Count rows with an install date and a publisher
+- **Expected:** Coverage recorded
 
-**Output:** [01-uninstall.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-rows/01-uninstall.txt) · [02-rows-after-uninstall.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-rows/02-rows-after-uninstall.txt) · [03-check.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-rows/03-check.txt)
-
----
-
-### X-1: Installer: download, checksum, autoload file
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-1-installer-download-checksum-autoload-fil/result.md)
-
-- **Objective:** Run the real Linux installer
-- **Expected:** Exit 0, binary matches the pinned SHA-256, path listed once in /etc/osquery/extensions.load, root-owned 0755, restart scheduled
-
-**Output:** [01-first-run.txt](test-evidence/sandbox-fedora-41/X-1-installer-download-checksum-autoload-fil/01-first-run.txt) · [02-placed.txt](test-evidence/sandbox-fedora-41/X-1-installer-download-checksum-autoload-fil/02-placed.txt)
+**Output:** [01-coverage.txt](test-evidence/sandbox-fedora-41/S-0c-report-coverage-on-the-whole-host/01-coverage.txt)
 
 ---
 
-### X-1b: Installer: second run changes nothing
+### U-2: Uninstall drops the row
 
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-1b-installer-second-run-changes-nothing/result.md)
+**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-row/result.md)
 
-- **Objective:** Re-run the installer
-- **Expected:** Already current, loader still has one line, no new restart
+- **Objective:** Remove hello, run the report
+- **Expected:** No row for hello
 
-**Output:** [01-second-run.txt](test-evidence/sandbox-fedora-41/X-1b-installer-second-run-changes-nothing/01-second-run.txt)
-
----
-
-### X-1c: Installer: wrong checksum is refused
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-1c-installer-wrong-checksum-is-refused/result.md)
-
-- **Objective:** Run a copy of the installer with a wrong SHA-256
-- **Expected:** Exit 6, installed binary unchanged
-
-**Output:** [01-bad-sha.txt](test-evidence/sandbox-fedora-41/X-1c-installer-wrong-checksum-is-refused/01-bad-sha.txt)
-
----
-
-### X-2: Table registered from the default autoload file
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-2-table-registered-from-the-default-autolo/result.md)
-
-- **Objective:** Load the extension the way osqueryd does under fleetd: no --extension flag
-- **Expected:** software_itam active with every documented column
-
-**Output:** [01-registry.txt](test-evidence/sandbox-fedora-41/X-2-table-registered-from-the-default-autolo/01-registry.txt) · [02-columns.txt](test-evidence/sandbox-fedora-41/X-2-table-registered-from-the-default-autolo/02-columns.txt)
-
----
-
-### X-3: Rows and coverage: native against extension
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-3-rows-and-coverage-native-against-extensi/result.md)
-
-- **Objective:** Count rows, install dates and publishers on the whole host
-- **Expected:** Row counts within 5%. Coverage recorded for C-1 and C-2
-
-**Output:** [01-coverage.txt](test-evidence/sandbox-fedora-41/X-3-rows-and-coverage-native-against-extensi/01-coverage.txt)
-
----
-
-### X-5: Publisher: rpm package
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-5-publisher-rpm-package/result.md)
-
-- **Objective:** Compare the extension publisher to the package metadata
-- **Expected:** Same company or maintainer as the package manager shows
-
-**Output:** [01-check.txt](test-evidence/sandbox-fedora-41/X-5-publisher-rpm-package/01-check.txt)
-
----
-
-### X-7: Reinstall: install date and first_seen
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-7-reinstall-install-date-and-firstseen/result.md)
-
-- **Objective:** Install hello again
-- **Expected:** first_seen keeps the first sighting. DEB install_date keeps the first install from dpkg.log, RPM moves
-
-**Output:** [01-reinstall.txt](test-evidence/sandbox-fedora-41/X-7-reinstall-install-date-and-firstseen/01-reinstall.txt) · [02-rows-after-reinstall.txt](test-evidence/sandbox-fedora-41/X-7-reinstall-install-date-and-firstseen/02-rows-after-reinstall.txt) · [03-check.txt](test-evidence/sandbox-fedora-41/X-7-reinstall-install-date-and-firstseen/03-check.txt)
-
----
-
-### X-8: first_seen survives an osquery restart
-
-**Result: PASS** · [full notes](test-evidence/sandbox-fedora-41/X-8-firstseen-survives-an-osquery-restart/result.md)
-
-- **Objective:** Read first_seen in two separate osquery processes
-- **Expected:** Same value for every row
-
-**Output:** [01-second-process.txt](test-evidence/sandbox-fedora-41/X-8-firstseen-survives-an-osquery-restart/01-second-process.txt) · [02-compare.txt](test-evidence/sandbox-fedora-41/X-8-firstseen-survives-an-osquery-restart/02-compare.txt)
-
----
-
-### X-9: Cost of one software_itam query
-
-**Result: info** · [full notes](test-evidence/sandbox-fedora-41/X-9-cost-of-one-softwareitam-query/result.md)
-
-- **Objective:** Time a full query
-- **Expected:** Seconds, not minutes
-
-**Output:** [01-timing.txt](test-evidence/sandbox-fedora-41/X-9-cost-of-one-softwareitam-query/01-timing.txt)
+**Output:** [01-uninstall.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-row/01-uninstall.txt) · [02-rows-after-uninstall.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-row/02-rows-after-uninstall.txt) · [03-absent-check.txt](test-evidence/sandbox-fedora-41/U-2-uninstall-drops-the-row/03-absent-check.txt)
 
 ---

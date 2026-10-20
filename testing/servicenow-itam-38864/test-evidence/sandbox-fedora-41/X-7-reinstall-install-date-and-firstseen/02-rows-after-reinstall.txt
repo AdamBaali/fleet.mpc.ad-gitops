@@ -1,8 +1,0 @@
-# 2026-10-20T07:38:06Z
-$ snap reinstall
-
-rows=138 -> native-reinstall.json
-rows=138 -> ext-reinstall.json
-native-reinstall.json [{"install_time": "1792481884", "name": "hello", "vendor": "Fedora Project", "version": "2.12.2"}]
-ext-reinstall.json [{"arch": "x86_64", "first_seen": "1792481867", "identifier": "hello", "install_date": "1792481884", "install_date_candidates": "rpm_install_time=1792481884", "install_date_source": "rpm_install_time", "name": "hello", "path": "", "publisher": "Fedora Project", "publisher_source": "rpm_vendor", "source": "rpm_packages", "version": "2.12.2"}]
-[exit 0]

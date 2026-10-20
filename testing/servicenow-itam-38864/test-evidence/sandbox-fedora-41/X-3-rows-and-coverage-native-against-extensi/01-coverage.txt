@@ -1,8 +1,0 @@
-# 2026-10-20T07:37:47Z
-$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py coverage /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/native-install.json install_time vendor /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/ext-install.json rpm_packages
-
-rows            native    138   ext    138
-install date    native 100.0%   ext 100.0%
-publisher       native  99.3%   ext  99.3%
-ext install_date_source counts: {"rpm_install_time": 138}
-[exit 0]

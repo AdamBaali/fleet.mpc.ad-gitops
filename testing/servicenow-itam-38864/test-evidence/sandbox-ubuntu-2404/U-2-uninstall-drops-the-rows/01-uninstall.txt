@@ -1,5 +1,0 @@
-# 2026-10-20T07:37:16Z
-$ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh uninstall
-
-recorded uninstall hello at 2026-10-20T07:37:18Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/ubuntu-2404.tsv
-[exit 0]

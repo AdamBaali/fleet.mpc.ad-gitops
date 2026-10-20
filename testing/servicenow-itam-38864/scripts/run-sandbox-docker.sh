@@ -23,7 +23,7 @@ for image in "$@"; do
   esac
   echo "=== $image ($label) ==="
   # When this runs behind a TLS-inspecting proxy, pass it and its CA into the container,
-  # or the installer's pinned download fails certificate checks.
+  # or HTTPS package downloads fail certificate checks.
   net=()
   for v in HTTPS_PROXY HTTP_PROXY NO_PROXY https_proxy http_proxy no_proxy; do [ -n "${!v:-}" ] && net+=(-e "$v"); done
   if [ -n "${CA_BUNDLE:-}" ] && [ -f "$CA_BUNDLE" ]; then

@@ -1,4 +1,4 @@
-# 2026-10-20T07:37:27Z
+# 2026-10-20T07:51:12Z
 $ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh facts; /osq/opt/osquery/bin/osqueryd --version
 
 package_manager=apt source=deb_packages
