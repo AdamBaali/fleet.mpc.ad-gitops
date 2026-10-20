@@ -1,6 +1,6 @@
 # L-1u: Upgrade and reinstall: what install_time shows
 
-- **Started:** 2026-10-20T07:51:36Z
+- **Started:** 2026-10-20T09:01:57Z
 - **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version), then reinstall
 - **Expected:** install_time moves to the latest change each time, so it is not a first install date
 
@@ -17,4 +17,4 @@
 
 install_time moved to the upgrade, then to the reinstall. Label it last changed and use first seen for first installed
 
-_Finished 2026-10-20T07:51:49Z_
+_Finished 2026-10-20T09:02:07Z_

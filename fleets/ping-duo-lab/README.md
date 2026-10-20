@@ -7,4 +7,4 @@ Fleet used to test the PingFederate and Duo conditional access guides ([#54654](
 - **Duo sync:** `duo-sync/` holds the export script and Duo's sync script (keys come from environment variables).
   Run by `.github/workflows/duo-sync.yml` and `duo-sync-loop.yml`. Needs the `DUO_*` repository secrets.
 - **Tests and evidence:** `testing/conditional-access-54654/` (start at `EVIDENCE.md`).
-- **Certificate authorities:** `LAB_CA` (custom SCEP) is declared in `default.yml`.
+- **Certificate authorities:** none. `LAB_CA` (custom SCEP) and the SCEP user certificate profiles were removed after testing finished.

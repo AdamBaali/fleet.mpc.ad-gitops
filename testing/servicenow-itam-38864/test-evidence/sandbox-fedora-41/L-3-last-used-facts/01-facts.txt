@@ -1,4 +1,4 @@
-# 2026-10-20T07:51:52Z
+# 2026-10-20T09:02:10Z
 $ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh facts; /osq/opt/osquery/bin/osqueryd --version
 
 package_manager=dnf source=rpm_packages

@@ -43,7 +43,7 @@ t_setup() {
     [ -n "$id" ] || missing=$((missing + 1))
   done
   ev_cmd S-1 hosts-per-platform "jq -r '.platform' '$f' | sort | uniq -c"
-  local plats; plats="$(jq -r '.platform' "$f" | sed 's/ubuntu\|fedora\|rhel\|debian/linux/' | sort -u | tr '\n' ' ')"
+  local plats; plats="$(jq -r '.platform' "$f" | sed -E 's/ubuntu|fedora|rhel|debian/linux/' | sort -u | tr '\n' ' ')"
   if [ "$missing" -eq 0 ] && [[ "$plats" == *darwin* && "$plats" == *windows* && "$plats" == *linux* ]]; then
     ev_verdict S-1 PASS "All reports found. Platforms: $plats"
   else

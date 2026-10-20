@@ -1,6 +1,6 @@
-# 2026-10-20T07:50:54Z
+# 2026-10-20T09:01:09Z
 $ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py date /repo/testing/servicenow-itam-38864/ground-truth/ubuntu-2404.tsv install hello /repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/native-install.json list_changed
 
-native list_changed 2026-10-20T07:50:52Z  ground truth install 2026-10-20T07:50:52Z  delta +0s
+native list_changed 2026-10-20T09:01:07Z  ground truth install 2026-10-20T09:01:07Z  delta +0s
 match
 [exit 0]

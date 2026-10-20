@@ -1,6 +1,6 @@
-# 2026-10-20T07:51:49Z
+# 2026-10-20T09:02:07Z
 $ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py date /repo/testing/servicenow-itam-38864/ground-truth/fedora-41.tsv reinstall hello /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/native-reinstall.json install_time
 
-native install_time 2026-10-20T07:51:47Z  ground truth reinstall 2026-10-20T07:51:47Z  delta +0s
+native install_time 2026-10-20T09:02:04Z  ground truth reinstall 2026-10-20T09:02:04Z  delta +0s
 match
 [exit 0]

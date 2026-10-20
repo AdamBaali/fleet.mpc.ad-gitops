@@ -1,6 +1,6 @@
 # L-3: Last used: facts
 
-- **Started:** 2026-10-20T07:51:52Z
+- **Started:** 2026-10-20T09:02:10Z
 - **Objective:** Record what Fleet's built-in last_opened_at depends on
 - **Expected:** Mount options and osquery version saved. The value itself needs a Fleet server
 
@@ -11,4 +11,4 @@
 
 Built-in last_opened_at is computed by the Fleet server. Facts saved for the real host run
 
-_Finished 2026-10-20T07:51:52Z_
+_Finished 2026-10-20T09:02:10Z_

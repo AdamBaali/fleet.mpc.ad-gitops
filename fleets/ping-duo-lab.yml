@@ -14,13 +14,12 @@ agent_options:
 controls:
   apple_settings:
     configuration_profiles:
+      # The SCEP user certificate profiles left with LAB_CA when testing finished.
       - path: ../lib/macos/configuration-profiles/lab-ca-root-trust.mobileconfig
-      - path: ../lib/macos/configuration-profiles/lab-ca-scep-user.mobileconfig
       - path: ../lib/macos/configuration-profiles/lab-chrome-autoselect.mobileconfig
   windows_settings:
     configuration_profiles:
       - path: ../lib/windows/configuration-profiles/lab-ca-root-trust.xml
-      - path: ../lib/windows/configuration-profiles/lab-ca-scep-user.xml
 software:
   fleet_maintained_apps:
     - slug: duo-desktop/darwin

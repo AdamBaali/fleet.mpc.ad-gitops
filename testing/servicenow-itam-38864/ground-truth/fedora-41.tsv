@@ -1,6 +1,6 @@
 test_id	host	os	app	key	version	method	event	utc	expected_publisher	note
-L-1	fedora-41	linux	hello	hello	2.12.2	dnf	install	2026-10-20T07:51:33Z	Fedora Project	
-L-2	fedora-41	linux	hello	hello	2.12.2	dnf-downgrade-upgrade	upgrade	2026-10-20T07:51:40Z	Fedora Project	
-U-1	fedora-41	linux	hello	hello		dnf	uninstall	2026-10-20T07:51:43Z		
-U-4	fedora-41	linux	hello	hello	2.12.2	dnf	reinstall	2026-10-20T07:51:47Z	Fedora Project	
-U-1	fedora-41	linux	hello	hello		dnf	uninstall	2026-10-20T07:51:49Z		
+L-1	fedora-41	linux	hello	hello	2.12.2	dnf	install	2026-10-20T09:01:54Z	Fedora Project	
+L-2	fedora-41	linux	hello	hello	2.12.2	dnf-downgrade-upgrade	upgrade	2026-10-20T09:01:59Z	Fedora Project	
+U-1	fedora-41	linux	hello	hello		dnf	uninstall	2026-10-20T09:02:01Z		
+U-4	fedora-41	linux	hello	hello	2.12.2	dnf	reinstall	2026-10-20T09:02:04Z	Fedora Project	
+U-1	fedora-41	linux	hello	hello		dnf	uninstall	2026-10-20T09:02:07Z		

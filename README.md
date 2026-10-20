@@ -36,7 +36,6 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 ## Rules
 Secrets live in GitHub repository secrets and are referenced as `$FLEET_*` variables. Nothing secret is committed.
 
-## Known issue
-Every apply checks the `LAB_CA` SCEP URL in `default.yml` (`https://scep.mpc.ad/scep/fleet-scep`, served by the #54654 lab's
-Cloudflare tunnel and step-ca). If that tunnel is down, the whole apply fails with "Invalid SCEP URL" before any fleet is applied
-(2026-10-14 and 2026-10-15). Start the tunnel (`fleet-54654-lab/tools/resume.sh`, the cloudflared line) and re-run.
+## Lab CA retired
+The #54654 lab CA (`LAB_CA`, step-ca behind a Cloudflare tunnel) is removed now that its testing is finished. Applies no longer
+need Docker or the tunnel running. The repository secrets `FLEET_LAB_CA_SCEP_CHALLENGE` and `FLEET_SECRET_LAB_CA_THUMBPRINT` are unused.
