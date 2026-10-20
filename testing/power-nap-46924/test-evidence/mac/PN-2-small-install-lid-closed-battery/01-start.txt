@@ -1,0 +1,11 @@
+# 2026-10-20T13:28:04Z
+$ cat start.txt
+
+== PN-2 start 2026-10-20T15:28:02+0200
+"AppleClamshellState" = No
+Now drawing from 'Battery Power'
+ -InternalBattery-0 (id=2752611)	74%; discharging; (no estimate) present: true
+deleted /Library/Application Support/Dialog and /usr/local/bin/dialog
+Dialog folder absent
+
+[exit 0]
