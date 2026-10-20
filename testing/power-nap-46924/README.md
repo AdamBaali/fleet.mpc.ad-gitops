@@ -11,5 +11,6 @@ Tests what fleetd does when a policy automation installs software or runs a scri
 | [ISSUE_UPDATE.md](ISSUE_UPDATE.md) | Draft update for the issue, for review (not posted) |
 | `test-evidence/desk/` | Code and thread review |
 | `test-evidence/mac/` | Runs on the Mac laptop (created on the first run) |
+| `scripts/collect.sh` | Saves B-1 and each run's orbit and pmset logs for the same window |
 
-Status (2026-10-19): folder and plan created. Desk review done (D-1). No runs on a Mac yet.
+Status (2026-10-20): lab applied in Fleet and ready for enrollment. Desk review done (D-1). No runs on a Mac yet.
