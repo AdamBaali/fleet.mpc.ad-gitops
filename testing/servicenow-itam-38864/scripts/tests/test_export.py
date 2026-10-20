@@ -93,6 +93,8 @@ class ExportTest(unittest.TestCase):
         d = self.row('lab-ubuntu', 'hello')
         self.assertEqual(d['install_date_source'], 'ext:dpkg_log')
         self.assertEqual(d['publisher_source'], 'native:deb_maintainer')
+        # The sandbox run showed dpkg's "Name <address>" form. Only the name reaches ServiceNow.
+        self.assertEqual(d['publisher'], 'Ubuntu Developers')
 
     def test_native_used_without_extension(self):
         r = self.row('lab-mac.local', 'VLC')

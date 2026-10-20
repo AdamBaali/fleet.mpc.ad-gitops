@@ -271,6 +271,10 @@ def software_rows(host, software, idx, state, now):
                     if not publisher and n.get('maintainer'):
                         publisher, publisher_source = n['maintainer'], 'native:deb_maintainer'
 
+                # dpkg's Maintainer field is "Name <list address>". ServiceNow wants the name only.
+                if publisher_source.endswith('deb_maintainer'):
+                    publisher = re.sub(r'\s*<[^>]*>\s*$', '', publisher)
+
                 # First seen by this exporter. Kept even when a better date exists, so it can be compared.
                 skey = '%s|%s|%s|%s' % (serial or hid, source, title.get('name', ''), path)
                 fs = state.setdefault(skey, fmt(now))
