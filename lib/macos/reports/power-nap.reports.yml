@@ -1,0 +1,28 @@
+# Power settings for the Power Nap tests (fleetdm/fleet#46924). B-1 needs the values the Mac
+# had during each run, and a report records them without anyone at the Mac.
+# pmset is a fleetd table, so these reports need fleetd, not plain osquery.
+
+- name: Power Nap test - pmset settings
+  automations_enabled: false
+  description: |
+    pmset -g custom as JSON, per power source. powernap, tcpkeepalive, standby and sleep
+    decide whether fleetd runs in a DarkWake (B-1, PN-5).
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT json_result FROM pmset WHERE getting = 'custom';
+
+- name: Power Nap test - power source
+  automations_enabled: false
+  description: |
+    Battery or charger at the last check. PN-1 to PN-3 need battery, PN-4 needs the charger.
+  discard_data: false
+  interval: 600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT state, charging, charged, percent_remaining FROM battery;

@@ -10,4 +10,6 @@ Host: one MacBook Air.
 | Power Nap test - swiftDialog installed | `/Library/Application Support/Dialog` is deleted | Install swiftDialog (small download) |
 | Power Nap test - script flag file absent | `/var/tmp/fleet-pn-script` exists | Run `lib/macos/scripts/power-nap-timestamps.sh` |
 
-Needs the repository secret `FLEET_POWER_NAP_LAB_ENROLL_SECRET` before the first apply.
+Reports `Power Nap test - pmset settings` and `Power Nap test - power source` (`lib/macos/reports/power-nap.reports.yml`) record the power settings and power source for B-1 and each run.
+
+Enroll secret: repository secret `FLEET_POWER_NAP_LAB_ENROLL_SECRET` (set). Get the package from Fleet > Hosts > Add hosts.

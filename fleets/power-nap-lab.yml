@@ -4,6 +4,7 @@ name: "Power Nap Lab"
 policies:
   - path: ../lib/macos/policies/power-nap-test.policies.yml
 reports:
+  - path: ../lib/macos/reports/power-nap.reports.yml
 agent_options:
 controls:
   # A policy's run_script only works on a script listed here.
