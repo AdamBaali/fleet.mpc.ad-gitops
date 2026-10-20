@@ -10,7 +10,7 @@ Ready for enrollment. Power Nap Lab is applied in Fleet (fleet ID 8, 0 hosts). C
 Nothing run on the MacBook Air yet.
 
 ## Next steps
-1. Enroll the MacBook Air: Fleet > Hosts > Add hosts > fleet "Power Nap Lab" > macOS package. No MDM needed: fleetd runs the installs and scripts.
+1. Enroll the MacBook Air: install `~/Downloads/fleet-power-nap-lab.pkg` (built 2026-10-20 with `scripts/build-pkg.sh`, scripts on). No MDM needed: fleetd runs the installs and scripts.
 2. B-1: `testing/power-nap-46924/scripts/collect.sh baseline`.
 3. C-1, lid open, on power: delete Google Chrome, wait for the policy run, then `collect.sh window C-1 "<start>"`.
 4. PN-1: delete Google Chrome, close the lid on battery at once, leave it overnight. Next morning `collect.sh window PN-1 "<lid closed time>"` and save the Fleet activities for the same window.
