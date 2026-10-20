@@ -1,0 +1,54 @@
+# Fill the ServiceNow ITAM gaps on macOS until Fleet collects them (fleetdm/fleet#38864).
+# Fleet already returns last_opened_at and installed_paths for apps, so these reports add
+# only install date (#54912) and publisher (#54914). Native osquery tables only, so they
+# work without fleetd extensions. The fleetd codesign table gives the team ID, not a name.
+# Hourly, because the export to ServiceNow runs hourly.
+
+- name: ITAM macOS app install date
+  automations_enabled: false
+  description: |
+    Install date candidates for each app bundle. date_added is when Spotlight saw the bundle
+    arrive in its folder. bundle_created is when the bundle was created on disk and can keep
+    the time from a DMG. The test plan picks one against known install times.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT a.path, a.bundle_identifier, a.bundle_short_version AS version,
+           (SELECT value FROM mdls WHERE path = a.path AND key = 'kMDItemDateAdded') AS date_added,
+           CAST(f.btime AS INTEGER) AS bundle_created
+    FROM apps a
+    JOIN file f ON f.path = a.path;
+
+- name: ITAM macOS app publisher
+  automations_enabled: false
+  description: |
+    Publisher from the code signature. authority is the signing certificate,
+    for example "Developer ID Application: Example Inc (TEAMID1234)". Apple apps show "Software Signing".
+    hash_resources = 0 skips hashing every file in the bundle, which keeps the hourly run cheap.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT a.path, s.authority, s.team_identifier
+    FROM apps a
+    JOIN signature s ON s.path = a.path
+    WHERE s.hash_resources = 0;
+
+- name: ITAM macOS package receipts
+  automations_enabled: false
+  description: |
+    Install time recorded by the macOS installer for pkg installs. A second source to check
+    the app install date against, and the only one for pkgs that don't install an app bundle.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: darwin
+  query: |
+    SELECT package_id, version, CAST(install_time AS INTEGER) AS install_time
+    FROM package_receipts;

@@ -1,0 +1,6 @@
+S-0	INFO	S-0-sandbox-facts	Environment recorded
+L-1	PASS	L-1-install-date-and-publisher-rpm-package	install_time matched the recorded install. Publisher matched the package metadata
+S-0c	INFO	S-0c-report-coverage-on-the-whole-host	Coverage recorded in the output
+L-1u	PASS	L-1u-upgrade-and-reinstall-what-installtime-s	install_time moved to the upgrade, then to the reinstall. Label it last changed and use first seen for first installed
+U-2	PASS	U-2-uninstall-drops-the-row	Row gone at the next run
+L-3	NOT-RUN	L-3-last-used-facts	Built-in last_opened_at is computed by the Fleet server. Facts saved for the real host run

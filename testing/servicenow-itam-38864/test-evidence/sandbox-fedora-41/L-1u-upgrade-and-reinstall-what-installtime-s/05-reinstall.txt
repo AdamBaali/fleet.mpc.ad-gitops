@@ -1,0 +1,9 @@
+# 2026-10-20T07:51:45Z
+$ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh reinstall
+
+[1/4] Verify package files              100% |   2.0 KiB/s |   2.0   B |  00m00s
+[2/4] Prepare transaction               100% |  76.0   B/s |   2.0   B |  00m00s
+[3/4] Installing info-0:7.1.1-1.fc41.x8 100% |  44.2 MiB/s | 362.2 KiB |  00m00s
+[4/4] Installing hello-0:2.12.2-1.fc41. 100% |   8.6 MiB/s | 246.2 KiB |  00m00s
+recorded reinstall hello at 2026-10-20T07:51:47Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/fedora-41.tsv
+[exit 0]

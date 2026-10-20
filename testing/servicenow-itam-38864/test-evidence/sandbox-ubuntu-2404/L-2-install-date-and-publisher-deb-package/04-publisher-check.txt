@@ -1,0 +1,5 @@
+# 2026-10-20T07:50:54Z
+$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py publisher /repo/testing/servicenow-itam-38864/ground-truth/ubuntu-2404.tsv hello /repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/native-install.json maintainer
+
+expected 'Ubuntu Developers'  got 'Ubuntu Developers'  (raw 'Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>')
+[exit 0]

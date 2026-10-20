@@ -1,0 +1,6 @@
+# 2026-10-20T07:51:07Z
+$ snap reinstall
+
+rows=129
+[{"list_changed": "1792482665", "maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>", "name": "hello", "version": "2.10-3build1"}]
+[exit 0]

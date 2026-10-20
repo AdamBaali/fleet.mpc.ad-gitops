@@ -1,0 +1,15 @@
+# Lab fleet for testing which software fields Fleet can export to ServiceNow ITAM
+# (fleetdm/fleet#38864). Nothing else lives here so the hourly reports never touch other fleets.
+# Native osquery tables only: nothing is installed on hosts beyond fleetd.
+name: "ServiceNow ITAM Lab"
+policies:
+reports:
+  - path: ../lib/macos/reports/software-itam.reports.yml
+  - path: ../lib/windows/reports/software-itam.reports.yml
+  - path: ../lib/linux/reports/software-itam.reports.yml
+agent_options:
+controls:
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET"

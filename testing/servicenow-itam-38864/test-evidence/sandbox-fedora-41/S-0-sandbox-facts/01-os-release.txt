@@ -1,0 +1,7 @@
+# 2026-10-20T07:51:31Z
+$ grep -E '^(PRETTY_NAME|VERSION_ID)=' /etc/os-release; uname -m
+
+VERSION_ID=41
+PRETTY_NAME="Fedora Linux 41 (Container Image)"
+x86_64
+[exit 0]

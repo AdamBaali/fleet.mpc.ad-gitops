@@ -1,0 +1,5 @@
+# 2026-10-20T07:50:50Z
+$ printf '%s\n' "$NATIVE_SQL"
+
+SELECT d.name, d.version, d.maintainer,        (SELECT CAST(mtime AS INTEGER) FROM file          WHERE path IN ('/var/lib/dpkg/info/' || d.name || '.list',                         '/var/lib/dpkg/info/' || d.name || ':' || d.arch || '.list')) AS list_changed FROM deb_packages d; 
+[exit 0]

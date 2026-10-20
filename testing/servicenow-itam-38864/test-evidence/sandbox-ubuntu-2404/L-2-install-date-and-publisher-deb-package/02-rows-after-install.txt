@@ -1,0 +1,6 @@
+# 2026-10-20T07:50:54Z
+$ snap install
+
+rows=129
+[{"list_changed": "1792482652", "maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>", "name": "hello", "version": "2.10-3build1"}]
+[exit 0]

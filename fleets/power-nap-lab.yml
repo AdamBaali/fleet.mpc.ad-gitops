@@ -6,6 +6,9 @@ policies:
 reports:
 agent_options:
 controls:
+  # A policy's run_script only works on a script listed here.
+  scripts:
+    - path: ../lib/macos/scripts/power-nap-timestamps.sh
 software:
   fleet_maintained_apps:
     - slug: google-chrome/darwin

@@ -1,0 +1,450 @@
+{
+ "hosts": [
+  {
+   "id": 1,
+   "hostname": "lab-mac.local",
+   "display_name": "lab-mac",
+   "computer_name": "lab-mac",
+   "platform": "darwin",
+   "os_version": "macOS 26.1",
+   "hardware_serial": "MACSERIAL1",
+   "hardware_vendor": "Apple Inc.",
+   "hardware_model": "Mac15,9",
+   "seen_time": "2026-10-20T08:00:00Z",
+   "end_users": [
+    {
+     "idp_username": "user1@example.com",
+     "idp_full_name": "Test User",
+     "idp_department": "IT"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "hostname": "lab-win",
+   "display_name": "lab-win",
+   "platform": "windows",
+   "os_version": "Windows 11 Pro 24H2",
+   "hardware_serial": "",
+   "hardware_vendor": "QEMU",
+   "hardware_model": "Standard PC (Q35 + ICH9, 2009)",
+   "seen_time": "2026-10-20T08:01:00Z",
+   "end_users": []
+  },
+  {
+   "id": 3,
+   "hostname": "lab-ubuntu",
+   "display_name": "lab-ubuntu",
+   "platform": "ubuntu",
+   "os_version": "Ubuntu 24.04.3 LTS",
+   "hardware_serial": "UBU1",
+   "hardware_vendor": "Dell Inc.",
+   "hardware_model": "OptiPlex 7090",
+   "seen_time": "2026-10-20T08:02:00Z"
+  },
+  {
+   "id": 4,
+   "hostname": "lab-fedora",
+   "display_name": "lab-fedora",
+   "platform": "fedora",
+   "os_version": "Fedora Linux 43",
+   "hardware_serial": "FED1",
+   "hardware_vendor": "LENOVO",
+   "hardware_model": "20XW",
+   "seen_time": "2026-10-20T08:03:00Z"
+  }
+ ],
+ "software": {
+  "1": [
+   {
+    "id": 5771,
+    "name": "VLC",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "3.0.21",
+      "installed_paths": [
+       "/Applications/VLC.app"
+      ],
+      "last_opened_at": "2026-10-20T09:10:00Z",
+      "bundle_identifier": "org.videolan.vlc"
+     }
+    ]
+   },
+   {
+    "id": 963,
+    "name": "Google Chrome",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "149.0",
+      "installed_paths": [
+       "/Applications/Google Chrome.app",
+       "/Users/u/Applications/Google Chrome.app"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": "com.google.Chrome"
+     }
+    ]
+   },
+   {
+    "id": 6173,
+    "name": "Dialog",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "2.5.5",
+      "installed_paths": [
+       "/Library/Application Support/Dialog/Dialog.app"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": "au.csiro.dialog"
+     }
+    ]
+   },
+   {
+    "id": 6488,
+    "name": "Pages",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "14.4",
+      "installed_paths": [
+       "/Applications/Pages.app"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": "com.apple.iWork.Pages"
+     }
+    ]
+   },
+   {
+    "id": 5260,
+    "name": "ITAMUnsigned",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "1.0",
+      "installed_paths": [
+       "/Applications/ITAMUnsigned.app"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": "com.example.itamunsigned"
+     }
+    ]
+   },
+   {
+    "id": 1187,
+    "name": "Safari",
+    "source": "apps",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "26.1",
+      "installed_paths": [
+       "/Applications/Safari.app"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": "com.apple.Safari"
+     }
+    ]
+   },
+   {
+    "id": 9741,
+    "name": "git",
+    "source": "homebrew_packages",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "2.46.0",
+      "installed_paths": [
+       "/opt/homebrew/Cellar/git"
+      ],
+      "last_opened_at": "",
+      "bundle_identifier": ""
+     }
+    ]
+   }
+  ],
+  "2": [
+   {
+    "id": 7863,
+    "name": "VLC media player",
+    "source": "programs",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "3.0.21",
+      "installed_paths": [
+       "C:\\Program Files\\VideoLAN\\VLC\\"
+      ],
+      "last_opened_at": "2026-10-20T10:05:00Z",
+      "bundle_identifier": ""
+     }
+    ]
+   },
+   {
+    "id": 9618,
+    "name": "Notepad++ (64-bit x64)",
+    "source": "programs",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "8.7",
+      "installed_paths": [],
+      "last_opened_at": "",
+      "bundle_identifier": ""
+     }
+    ]
+   }
+  ],
+  "3": [
+   {
+    "id": 4288,
+    "name": "hello",
+    "source": "deb_packages",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "2.10-3build2",
+      "installed_paths": [],
+      "last_opened_at": "2026-10-20T11:00:30Z",
+      "bundle_identifier": ""
+     }
+    ]
+   },
+   {
+    "id": 6213,
+    "name": "adduser",
+    "source": "deb_packages",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "3.137ubuntu1",
+      "installed_paths": [],
+      "last_opened_at": "",
+      "bundle_identifier": ""
+     }
+    ]
+   }
+  ],
+  "4": [
+   {
+    "id": 4288,
+    "name": "hello",
+    "source": "rpm_packages",
+    "display_name": "",
+    "installed_versions": [
+     {
+      "version": "2.12.1",
+      "installed_paths": [],
+      "last_opened_at": "",
+      "bundle_identifier": ""
+     }
+    ]
+   }
+  ]
+ },
+ "reports": [
+  {
+   "id": 11,
+   "name": "ITAM macOS app install date"
+  },
+  {
+   "id": 12,
+   "name": "ITAM macOS app publisher"
+  },
+  {
+   "id": 13,
+   "name": "ITAM macOS package receipts"
+  },
+  {
+   "id": 21,
+   "name": "ITAM Windows program install date and publisher"
+  },
+  {
+   "id": 22,
+   "name": "ITAM Windows uninstall key written"
+  },
+  {
+   "id": 31,
+   "name": "ITAM Linux RPM install date and vendor"
+  },
+  {
+   "id": 32,
+   "name": "ITAM Linux DEB install date and maintainer"
+  },
+  {
+   "id": 99,
+   "name": "Unrelated report"
+  }
+ ],
+ "report_rows": {
+  "11": [
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/VLC.app",
+     "bundle_identifier": "org.videolan.vlc",
+     "version": "3.0.21",
+     "date_added": "2026-10-20 09:00:00 +0000",
+     "bundle_created": "1790000000"
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/Google Chrome.app",
+     "date_added": "2026-10-20 09:20:00 +0000",
+     "bundle_created": "1792500000"
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/Pages.app",
+     "date_added": "",
+     "bundle_created": "1792000000"
+    }
+   }
+  ],
+  "12": [
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/VLC.app",
+     "authority": "",
+     "team_identifier": ""
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/VLC.app",
+     "authority": "Developer ID Application: VideoLAN (75GAHG3SZQ)",
+     "team_identifier": "75GAHG3SZQ"
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/Google Chrome.app",
+     "authority": "Developer ID Application: Google LLC (EQHXZ8M8AV)",
+     "team_identifier": "EQHXZ8M8AV"
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/Pages.app",
+     "authority": "Apple Mac OS Application Signing",
+     "team_identifier": "74J34U3R6X"
+    }
+   },
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "path": "/Applications/Safari.app",
+     "authority": "Software Signing",
+     "team_identifier": ""
+    }
+   }
+  ],
+  "13": [
+   {
+    "host_id": 1,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "package_id": "au.csiro.dialog",
+     "version": "2.5.5",
+     "install_time": "1792490000"
+    }
+   }
+  ],
+  "21": [
+   {
+    "host_id": 2,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "name": "VLC media player",
+     "version": "3.0.21",
+     "publisher": "VideoLAN",
+     "install_date": "20261020",
+     "identifying_number": "VLC media player"
+    }
+   },
+   {
+    "host_id": 2,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "name": "Notepad++ (64-bit x64)",
+     "version": "8.7",
+     "publisher": "Notepad++ Team",
+     "install_date": "",
+     "identifying_number": "Notepad++"
+    }
+   }
+  ],
+  "22": [
+   {
+    "host_id": 2,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "key": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+     "name": "Notepad++",
+     "key_written": "1792494000"
+    }
+   }
+  ],
+  "31": [
+   {
+    "host_id": 4,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "name": "hello",
+     "version": "2.12.1",
+     "vendor": "Fedora Project",
+     "install_time": "1792491000"
+    }
+   }
+  ],
+  "32": [
+   {
+    "host_id": 3,
+    "host_name": "x",
+    "last_fetched": "2026-10-20T12:00:00Z",
+    "columns": {
+     "name": "hello",
+     "version": "2.10-3build2",
+     "maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+     "list_changed": "1792492000"
+    }
+   }
+  ]
+ }
+}

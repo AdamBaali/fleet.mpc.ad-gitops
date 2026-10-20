@@ -1,0 +1,38 @@
+# Fill the ServiceNow ITAM gaps on Windows until Fleet collects them (fleetdm/fleet#38864).
+# Fleet already returns last_opened_at for programs (from Prefetch). It reads publisher but
+# doesn't return it from the API (#54914), and it doesn't read install_date (#54912).
+# Uninstall key write times fill empty install dates.
+# Native osquery tables only. Hourly, because the export to ServiceNow runs hourly.
+
+- name: ITAM Windows program install date and publisher
+  automations_enabled: false
+  description: |
+    install_date is the InstallDate registry value (YYYYMMDD). Installers don't always write it,
+    so the test plan counts how often it is empty.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: windows
+  query: |
+    SELECT name, version, publisher, install_date, identifying_number
+    FROM programs;
+
+- name: ITAM Windows uninstall key written
+  automations_enabled: false
+  description: |
+    Last write time of each Uninstall registry key, one row per program. Installers
+    write the key at install, so it stands in for install_date where that is empty.
+    name matches programs.identifying_number. An upgrade or repair rewrites the key,
+    so the test plan checks how often it moves.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: windows
+  query: |
+    SELECT key, name, CAST(mtime AS INTEGER) AS key_written
+    FROM registry
+    WHERE key IN ('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
+                  'HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall')
+      AND type = 'subkey';

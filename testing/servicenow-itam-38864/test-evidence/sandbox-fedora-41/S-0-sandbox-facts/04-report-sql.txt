@@ -1,0 +1,5 @@
+# 2026-10-20T07:51:31Z
+$ printf '%s\n' "$NATIVE_SQL"
+
+SELECT name, version, vendor, CAST(install_time AS INTEGER) AS install_time FROM rpm_packages; 
+[exit 0]

@@ -1,0 +1,6 @@
+# 2026-10-20T07:51:51Z
+$ snap uninstall
+
+rows=136
+[]
+[exit 0]

@@ -1,0 +1,7 @@
+# 2026-10-20T07:50:54Z
+$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py coverage /repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/native-install.json list_changed maintainer
+
+rows          129
+install date  100.0%
+publisher     100.0%
+[exit 0]

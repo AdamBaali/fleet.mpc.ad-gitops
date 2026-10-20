@@ -1,0 +1,35 @@
+# Fill the ServiceNow ITAM gaps on Linux until Fleet collects them (fleetdm/fleet#38864).
+# Fleet already returns last_opened_at for RPM and DEB packages (from file access times).
+# It reads RPM vendor but doesn't return it from the API, and reads no DEB publisher or any
+# install date. Native osquery tables only. Hourly, because the export runs hourly.
+
+- name: ITAM Linux RPM install date and vendor
+  automations_enabled: false
+  description: |
+    install_time and vendor come from the RPM database. On rpm-ostree hosts this is the booted deployment.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: linux
+  query: |
+    SELECT name, version, vendor, CAST(install_time AS INTEGER) AS install_time
+    FROM rpm_packages;
+
+- name: ITAM Linux DEB install date and maintainer
+  automations_enabled: false
+  description: |
+    dpkg keeps no install time. The modified time of the package's file list changes on install
+    and upgrade, so it is a last changed date, not a first installed date.
+    Multi-arch packages name the list "<name>:<arch>.list", so both names are tried.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: false
+  platform: linux
+  query: |
+    SELECT d.name, d.version, d.maintainer,
+           (SELECT CAST(mtime AS INTEGER) FROM file
+             WHERE path IN ('/var/lib/dpkg/info/' || d.name || '.list',
+                            '/var/lib/dpkg/info/' || d.name || ':' || d.arch || '.list')) AS list_changed
+    FROM deb_packages d;

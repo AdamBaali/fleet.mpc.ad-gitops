@@ -1,0 +1,17 @@
+# ServiceNow ITAM Lab
+
+Purpose: test which software fields Fleet can export to ServiceNow ITAM on each OS (fleetdm/fleet#38864). Tests and results: `testing/servicenow-itam-38864/`.
+
+Hosts: one Mac, one Windows 11 VM, one Fedora host, one Ubuntu host.
+
+Reports only, on native osquery tables. Nothing is installed on hosts beyond fleetd.
+
+| Report file | Fills |
+| --- | --- |
+| `lib/macos/reports/software-itam.reports.yml` | Install date candidates, publisher from code signing, pkg receipts |
+| `lib/windows/reports/software-itam.reports.yml` | Install date and publisher from Programs, Uninstall key write time |
+| `lib/linux/reports/software-itam.reports.yml` | RPM install time and vendor, DEB last changed and maintainer |
+
+Last opened comes from Fleet's own software inventory on every OS, so no report collects it. `default.yml` sets `report_cap: 10000` because these reports return one row per app or package.
+
+Needs the repository secret `FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET` before the first apply.

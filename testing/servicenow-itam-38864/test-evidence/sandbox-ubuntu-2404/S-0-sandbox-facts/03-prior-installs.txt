@@ -1,0 +1,5 @@
+# 2026-10-20T07:50:50Z
+$ grep -h ' install hello' /var/log/dpkg.log* 2>/dev/null || echo 'no earlier hello install in dpkg.log'
+
+no earlier hello install in dpkg.log
+[exit 0]
