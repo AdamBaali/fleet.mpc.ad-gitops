@@ -16,7 +16,7 @@ The built-in connector (#38864), install date (#54912) and publisher (#54914) ar
 6. Keep the stopgap thin and disposable. Spend spare effort on getting #54912 and #54914 built.
 
 ## Where everything is
-Repo: AdamBaali/fleet.mpc.ad-gitops, branch `servicenow-itam-38864`, **PR #30** (https://github.com/AdamBaali/fleet.mpc.ad-gitops/pull/30). Last commit before this file: `e420a52`.
+Repo: AdamBaali/fleet.mpc.ad-gitops, `main`. PR #30 (https://github.com/AdamBaali/fleet.mpc.ad-gitops/pull/30, branch `servicenow-itam-38864`) merged 2026-10-20 08:14 UTC. Work on `main` or a new branch from it, not the merged branch.
 
 | Path | What |
 |---|---|
@@ -44,17 +44,15 @@ Repo: AdamBaali/fleet.mpc.ad-gitops, branch `servicenow-itam-38864`, **PR #30** 
 - **Not run yet:** every macOS and Windows test, every test that reads the lab Fleet (H, A, E, M, W), last opened (L-3). PowerShell scripts never parsed (no PowerShell in the cloud box).
 
 ## Next steps
-1. Add repository secret `FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET`. PR #30's GitOps dry run will likely fail on the missing value until it exists. Re-run the check after adding it.
-2. Merge PR #30. This applies to the live lab Fleet. Check the `LAB_CA` tunnel first (root README, Known issue).
-3. Enroll a Mac, the Windows 11 VM, a Fedora host and an Ubuntu host into "ServiceNow ITAM Lab". Follow `HANDOFF.md` run order.
-4. For API tests, create an API-only Observer user and export `FLEET_URL` and `FLEET_API_TOKEN` (or a `SECRETS_ENV` file). Never commit the token.
-5. Fill `RESULTS.md`, rebuild `EVIDENCE.md` with `testing/_framework/bin/build-evidence-index.py`.
-6. After tests: confirm the label `customer-rosner` and file the feature request (link in `share/feature-request-link.txt`), post the #54912 and #54914 comments, contribute the exporter to fleetdm/fleet `docs/solutions/api-scripts/` and open the guide PR.
+1. **Fix the failing apply.** The merge's apply (Actions run 39391993323) failed with `each item in 'secrets' must have a 'secret' key containing an ASCII string value`: an enroll secret is empty. The Power Nap push before it (run 39269633593) failed the same way, plus a `controls.scripts` error that PR #30 fixed. Add both repository secrets if missing: `FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET` and `FLEET_POWER_NAP_LAB_ENROLL_SECRET`. Then re-run "Apply latest configuration to Fleet" (workflow_dispatch). Until it passes, the lab Fleet has neither the Power Nap nor the ServiceNow ITAM config. Check the `LAB_CA` tunnel first (root README, Known issue).
+2. Enroll a Mac, the Windows 11 VM, a Fedora host and an Ubuntu host into "ServiceNow ITAM Lab". Follow `HANDOFF.md` run order.
+3. For API tests, create an API-only Observer user and export `FLEET_URL` and `FLEET_API_TOKEN` (or a `SECRETS_ENV` file). Never commit the token.
+4. Fill `RESULTS.md`, rebuild `EVIDENCE.md` with `testing/_framework/bin/build-evidence-index.py`.
+5. After tests: confirm the label `customer-rosner` and file the feature request (link in `share/feature-request-link.txt`), post the #54912 and #54914 comments, contribute the exporter to fleetdm/fleet `docs/solutions/api-scripts/` and open the guide PR.
 
 ## Local commands
 ```bash
 git clone https://github.com/AdamBaali/fleet.mpc.ad-gitops && cd fleet.mpc.ad-gitops
-git checkout servicenow-itam-38864
 
 # Exporter unit tests
 (cd testing/servicenow-itam-38864/scripts && python3 -m unittest discover -s tests)
