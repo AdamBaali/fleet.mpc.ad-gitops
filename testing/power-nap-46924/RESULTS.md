@@ -25,3 +25,19 @@
   - Idle sleep at 12:43:15 local, 2 minutes after the last install. No sleep during a download.
 - **Side finding:** an orbit restart mid-download drops the download with no error line. Fleet re-sends the install, so it finished.
 - **Evidence:** `test-evidence/mac/C-1-control-install-lid-open-on-power/`
+
+## PN-1: Large install, lid closed, battery (2026-10-20): PASS
+- **Steps:** Chrome deleted by a Fleet script at 11:04:39Z. Charger unplugged and lid closed at 11:07:48Z. Refetch at 11:08:00Z so the policies ran at the next check-in. Lid opened at 13:00:34Z. Logs read through Fleet scripts after that.
+- **Found (local time, UTC+2):**
+  - DarkWakes with the lid closed lasted 2 to 10 s, about every 16 minutes, on battery.
+  - 13:50:19 DarkWake: Fleet check-in, the Chrome policy fails, install queued.
+  - 14:06:13 DarkWake (2 s): fleetd gets the install at 14:06:16 and starts the download from Fleet.
+  - 14:23:25 DarkWake: at 14:23:26 fleetd logs `failed to download software installer ... copying from http stream to file: read tcp`. Fleet shows "Software installer download failed."
+- **Finding:** reproduced. The download starts in one DarkWake and the TCP stream is dead at the next, 17 minutes later. Nothing holds the Mac awake (D-1). This is the mechanism the issue thread reports, on the Fleet download path, without presigned URLs.
+- **Evidence:** `test-evidence/mac/PN-1-large-install-lid-closed-battery/`
+
+## PN-6: What happens next (2026-10-20): PASS
+- **Steps:** After PN-1, the lid opened at 13:00:34Z. A watcher logged Fleet every minute.
+- **Found:** Fleet re-queued the install at the failure (12:23:26Z). It was not delivered in the two DarkWakes that followed (orbit logged "backing off"). After the lid opened, fleetd got the retry in 50 s, downloaded in 28 s and installed at 13:01:57Z. The policy passed at 13:02:17Z.
+- **Finding:** one automatic retry. In the 37 minutes the lid stayed closed after the failure, it did not start in a DarkWake. It ran 50 s after a full wake. Whether it would start in a later DarkWake overnight is not tested.
+- **Evidence:** `test-evidence/mac/PN-6-what-happens-next/`

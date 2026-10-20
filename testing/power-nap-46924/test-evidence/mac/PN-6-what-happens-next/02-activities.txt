@@ -1,0 +1,16 @@
+# 2026-10-20T13:03:44Z
+$ fleetctl api /api/v1/fleet/hosts/20/activities 2>/dev/null | python3 -c 'import json,sys
+for a in reversed(json.load(sys.stdin)["activities"]):
+  d=a.get("details") or {}; print(a["created_at"], a["type"], d.get("software_title") or "-", d.get("status"))'
+
+2026-10-20T10:32:55.697156Z mdm_enrolled - None
+2026-10-20T10:40:09.556413Z installed_software Google Chrome installed
+2026-10-20T10:40:40.525963Z ran_script - None
+2026-10-20T10:41:28.244228Z installed_software swiftDialog installed
+2026-10-20T11:03:39.544426Z ran_script - None
+2026-10-20T11:04:40.197694Z ran_script - None
+2026-10-20T12:23:26.232933Z installed_software Google Chrome failed_install
+2026-10-20T13:01:57.474375Z installed_software Google Chrome installed
+2026-10-20T13:02:28.582471Z ran_script - None
+2026-10-20T13:02:58.799628Z ran_script - None
+[exit 0]

@@ -10,12 +10,15 @@ Ready for enrollment. Power Nap Lab is applied in Fleet (fleet ID 8, 0 hosts). C
 Nothing run on the MacBook Air yet.
 
 ## Next steps
-1. Enroll the MacBook Air: install `~/Downloads/fleet-power-nap-lab.pkg` (built 2026-10-20 with `scripts/build-pkg.sh`, scripts on). No MDM needed: fleetd runs the installs and scripts.
-2. B-1: `testing/power-nap-46924/scripts/collect.sh baseline`.
-3. C-1, lid open, on power: delete Google Chrome, wait for the policy run, then `collect.sh window C-1 "<start>"`.
-4. PN-1: delete Google Chrome, close the lid on battery at once, leave it overnight. Next morning `collect.sh window PN-1 "<lid closed time>"` and save the Fleet activities for the same window.
-5. PN-2 to PN-6. PN-3 starts with `sudo touch /var/tmp/fleet-pn-script`. PN-7 only if PN-1 fails.
+Done 2026-10-20: B-1, C-1, PN-1 (reproduced), PN-6. Host 20 (MacBook Air) is enrolled in Power Nap Lab. Laptop logs are read through Fleet scripts (root), so nobody needs to be at the laptop except to close or open the lid.
+1. PN-2: delete `/Library/Application Support/Dialog`, refetch, close the lid on battery. Small download: may finish inside one DarkWake.
+2. PN-3: `touch /var/tmp/fleet-pn-script` by Fleet script, refetch, close the lid on battery. Read `/var/tmp/fleet-pn-script.log` for gaps.
+3. PN-4: PN-1 with the charger connected.
+4. PN-5: `sudo pmset -b powernap 0`, repeat PN-1. Restore to 1 after (B-1).
+5. PN-7 (PN-1 failed): wrap the install in `caffeinate -s` and repeat PN-1.
 6. Write ISSUE_UPDATE.md from RESULTS.md.
+
+Side finding (C-1): an orbit restart mid-download (here about 90 s after MDM enrollment) drops the download with no error line. Fleet re-sends the install.
 
 ## Running services (keep them on)
 None yet.
