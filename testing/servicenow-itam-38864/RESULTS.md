@@ -192,6 +192,7 @@ The extension was dropped on 2026-10-20 to keep the stopgap simple, so this run 
 - **Actual:** 
 - **Evidence:** 
 - **Finding:**
+
 ## A-1: (2026-10-20): NOT-RUN
 - **Steps:** 
 - **Expected:** see TEST_PLAN.md
@@ -227,6 +228,7 @@ The extension was dropped on 2026-10-20 to keep the stopgap simple, so this run 
 - **Actual:** 
 - **Evidence:** 
 - **Finding:**
+
 ## E-1: (2026-10-20): NOT-RUN
 - **Steps:** 
 - **Expected:** see TEST_PLAN.md
