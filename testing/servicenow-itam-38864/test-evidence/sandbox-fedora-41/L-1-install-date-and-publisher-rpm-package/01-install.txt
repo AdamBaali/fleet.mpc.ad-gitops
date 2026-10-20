@@ -1,9 +1,9 @@
-# 2026-10-20T07:51:31Z
+# 2026-10-20T09:01:53Z
 $ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh install
 
 [1/4] Verify package files              100% |   2.0 KiB/s |   2.0   B |  00m00s
-[2/4] Prepare transaction               100% | 105.0   B/s |   2.0   B |  00m00s
-[3/4] Installing info-0:7.1.1-1.fc41.x8 100% |  50.5 MiB/s | 362.2 KiB |  00m00s
-[4/4] Installing hello-0:2.12.2-1.fc41. 100% |   8.3 MiB/s | 246.2 KiB |  00m00s
-recorded install hello at 2026-10-20T07:51:33Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/fedora-41.tsv
+[2/4] Prepare transaction               100% | 117.0   B/s |   2.0   B |  00m00s
+[3/4] Installing info-0:7.1.1-1.fc41.aa 100% | 103.0 MiB/s | 422.0 KiB |  00m00s
+[4/4] Installing hello-0:2.12.2-1.fc41. 100% |  15.3 MiB/s | 266.2 KiB |  00m00s
+recorded install hello at 2026-10-20T09:01:54Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/fedora-41.tsv
 [exit 0]

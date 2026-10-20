@@ -1,4 +1,4 @@
-# 2026-10-20T07:51:36Z
+# 2026-10-20T09:01:57Z
 $ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py coverage /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/native-install.json install_time vendor
 
 rows          138

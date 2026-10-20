@@ -1,6 +1,6 @@
 # L-2: Install date and publisher: deb package
 
-- **Started:** 2026-10-20T07:50:50Z
+- **Started:** 2026-10-20T09:01:05Z
 - **Objective:** Install hello, run the native report
 - **Expected:** list_changed within 2 minutes of the recorded install. Publisher matches the package metadata
 
@@ -14,4 +14,4 @@
 
 list_changed matched the recorded install. Publisher matched the package metadata
 
-_Finished 2026-10-20T07:50:54Z_
+_Finished 2026-10-20T09:01:09Z_

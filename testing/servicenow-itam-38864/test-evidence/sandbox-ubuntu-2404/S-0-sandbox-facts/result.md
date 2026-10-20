@@ -1,6 +1,6 @@
 # S-0: Sandbox facts
 
-- **Started:** 2026-10-20T07:50:50Z
+- **Started:** 2026-10-20T09:01:05Z
 - **Objective:** Record the environment these results come from
 - **Expected:** Facts saved
 
@@ -16,4 +16,4 @@ No fleetd or Fleet server here. osquery runs the report SQL from the repo in she
 
 Environment recorded
 
-_Finished 2026-10-20T07:50:50Z_
+_Finished 2026-10-20T09:01:05Z_

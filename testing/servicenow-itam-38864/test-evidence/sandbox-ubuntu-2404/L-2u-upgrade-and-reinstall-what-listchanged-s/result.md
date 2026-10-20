@@ -1,6 +1,6 @@
 # L-2u: Upgrade and reinstall: what list_changed shows
 
-- **Started:** 2026-10-20T07:50:54Z
+- **Started:** 2026-10-20T09:01:09Z
 - **Objective:** Upgrade hello (downgrade then upgrade, or reinstall when the repo has one version), then reinstall
 - **Expected:** list_changed moves to the latest change each time, so it is not a first install date
 
@@ -17,4 +17,4 @@
 
 list_changed moved to the upgrade, then to the reinstall. Label it last changed and use first seen for first installed
 
-_Finished 2026-10-20T07:51:08Z_
+_Finished 2026-10-20T09:01:21Z_

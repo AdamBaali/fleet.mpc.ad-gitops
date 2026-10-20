@@ -1,6 +1,6 @@
 # U-2: Uninstall drops the row
 
-- **Started:** 2026-10-20T07:51:08Z
+- **Started:** 2026-10-20T09:01:21Z
 - **Objective:** Remove hello, run the report
 - **Expected:** No row for hello
 
@@ -13,4 +13,4 @@
 
 Row gone at the next run
 
-_Finished 2026-10-20T07:51:12Z_
+_Finished 2026-10-20T09:01:25Z_

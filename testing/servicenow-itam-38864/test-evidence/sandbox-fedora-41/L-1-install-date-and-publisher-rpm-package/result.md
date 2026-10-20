@@ -1,6 +1,6 @@
 # L-1: Install date and publisher: rpm package
 
-- **Started:** 2026-10-20T07:51:31Z
+- **Started:** 2026-10-20T09:01:53Z
 - **Objective:** Install hello, run the native report
 - **Expected:** install_time within 2 minutes of the recorded install. Publisher matches the package metadata
 
@@ -14,4 +14,4 @@
 
 install_time matched the recorded install. Publisher matched the package metadata
 
-_Finished 2026-10-20T07:51:36Z_
+_Finished 2026-10-20T09:01:57Z_
