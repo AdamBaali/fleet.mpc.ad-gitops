@@ -1,0 +1,6 @@
+# 2026-10-20T07:38:03Z
+$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py absent hello /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/native-uninstall.json /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/ext-uninstall.json
+
+native row: absent
+ext row:    absent
+[exit 0]

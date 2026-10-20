@@ -1,0 +1,10 @@
+# 2026-10-20T07:37:59Z
+$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py date /repo/testing/servicenow-itam-38864/ground-truth/fedora-41.tsv upgrade hello /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/native-upgrade.json install_time /repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/ext-upgrade.json --ext-expect event
+
+native install_time   2026-10-20T07:37:55Z  ground truth upgrade 2026-10-20T07:37:55Z  delta +0s
+  native: match
+ext    install_date   2026-10-20T07:37:55Z  (rpm_install_time)  want upgrade 2026-10-20T07:37:55Z  delta +0s
+       candidates     rpm_install_time=1792481875
+       first_seen     2026-10-20T07:37:47Z
+  ext: match
+[exit 0]

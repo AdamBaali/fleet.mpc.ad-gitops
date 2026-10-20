@@ -1,0 +1,8 @@
+# 2026-10-20T07:37:05Z
+$ python3 /repo/testing/servicenow-itam-38864/scripts/sandbox_check.py coverage /repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/native-install.json list_changed maintainer /repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/ext-install.json deb_packages
+
+rows            native    129   ext    129
+install date    native 100.0%   ext 100.0%
+publisher       native 100.0%   ext 100.0%
+ext install_date_source counts: {"dpkg_list_changed": 1, "dpkg_log": 128}
+[exit 0]

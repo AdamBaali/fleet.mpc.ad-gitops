@@ -1,0 +1,8 @@
+# 2026-10-20T07:37:07Z
+$ snap restart
+
+rows=129 -> native-restart.json
+rows=129 -> ext-restart.json
+native-restart.json [{"list_changed": "1792481822", "maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>", "name": "hello", "version": "2.10-3build1"}]
+ext-restart.json [{"arch": "amd64", "first_seen": "1792481825", "identifier": "hello", "install_date": "1792481822", "install_date_candidates": "dpkg_log=1792481822,dpkg_list_changed=1792481822", "install_date_source": "dpkg_log", "name": "hello", "path": "", "publisher": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>", "publisher_source": "deb_maintainer", "source": "deb_packages", "version": "2.10-3build1"}]
+[exit 0]

@@ -1,0 +1,9 @@
+# 2026-10-20T07:37:40Z
+$ PATH=/repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/shim:$PATH SHIM_LOG=/repo/testing/servicenow-itam-38864/test-evidence/sandbox-fedora-41/_work/systemd-calls.log sh /repo/lib/linux/scripts/install-software-itam-extension.sh; echo exit=$?
+
+=== software_itam osquery extension installer ===
+Binary already current (436553a59b3696750b3c1c388d80450200965b67f3597607a0154dc13d23bbfd)
+/etc/osquery/extensions.load already lists the extension
+Done. Verify: SELECT 1 FROM osquery_registry WHERE registry = 'table' AND name = 'software_itam' AND active = 1;
+exit=0
+[exit 0]

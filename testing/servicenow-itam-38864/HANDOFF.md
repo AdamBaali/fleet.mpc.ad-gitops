@@ -3,7 +3,11 @@
 ## State
 Drafted, not applied: lab fleet (`fleets/servicenow-itam-lab.yml`), native reports (`lib/{macos,windows,linux}/reports/software-itam.reports.yml`), extension report (`lib/all/reports/software-itam-extension.reports.yml`), extension policies and installers (`lib/<os>/policies/software-itam-extension.policies.yml`, `lib/<os>/scripts/install-software-itam-extension.*`) and `report_cap: 10000` in `default.yml`.
 
-Test tooling in `scripts/`: ground truth helpers, on-host check, API runner, exporter prototype and compare. The 28 unit and smoke tests pass against a fake Fleet API (`python3 -m unittest discover -s tests`). The PowerShell scripts have not been parsed or run: no PowerShell here. Nothing has run against the lab Fleet or a real host.
+Test tooling in `scripts/`: ground truth helpers, on-host check, API runner, exporter prototype and compare. The 28 unit and smoke tests pass against a fake Fleet API (`python3 -m unittest discover -s tests`). The PowerShell scripts have not been parsed or run: no PowerShell here. Nothing has run against the lab Fleet or a real host yet.
+
+Linux sandbox run done (2026-10-20, see RESULTS.md "Linux sandbox run"): in fresh Ubuntu 24.04 and Fedora 41 containers, the real installer, the pinned extension, osquery autoload from `/etc/osquery/extensions.load`, and the install, upgrade, uninstall and reinstall checks all passed (22 PASS). Rerun with `CA_BUNDLE=<proxy CA, if any> OSQ_DIR=<osquery tarball root> scripts/run-sandbox-docker.sh`. Findings: DEB first install survives only through the extension (`dpkg.log`); RPM install time is the latest install on both paths.
+
+Blocked here, needs the lab: everything that reads Fleet (no API token in this environment), and every macOS and Windows test (no hosts reachable).
 
 ## Run order (2026-10-20)
 1. **Morning setup.** Check the `LAB_CA` tunnel (root README). Add `FLEET_SERVICENOW_ITAM_LAB_ENROLL_SECRET`. Merge, let the apply run. Enroll the Mac, the Windows VM, the Fedora host and the Ubuntu host. Copy this repo onto each host.

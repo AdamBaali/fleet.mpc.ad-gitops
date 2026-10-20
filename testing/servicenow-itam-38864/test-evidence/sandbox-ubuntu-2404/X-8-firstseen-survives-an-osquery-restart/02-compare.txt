@@ -1,0 +1,5 @@
+# 2026-10-20T07:37:09Z
+$ python3 -c "import json; a={(r['source'],r['identifier'],r['path']):r['first_seen'] for r in json.load(open('/repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/ext-install.json'))}; b={(r['source'],r['identifier'],r['path']):r['first_seen'] for r in json.load(open('/repo/testing/servicenow-itam-38864/test-evidence/sandbox-ubuntu-2404/_work/ext-restart.json'))}; d=[k for k in a if k in b and a[k]!=b[k]]; print('rows', len(a), 'changed', len(d)); raise SystemExit(1 if d or not a else 0)"
+
+rows 129 changed 0
+[exit 0]

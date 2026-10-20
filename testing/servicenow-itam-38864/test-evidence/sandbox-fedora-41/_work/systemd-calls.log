@@ -1,0 +1,4 @@
+systemctl cat orbit.service
+systemd-run --on-active=30 --unit=software_itam-orbit-restart systemctl restart orbit.service
+systemctl cat orbit.service
+systemctl cat orbit.service

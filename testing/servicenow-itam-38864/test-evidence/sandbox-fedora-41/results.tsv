@@ -1,0 +1,14 @@
+S-0	INFO	S-0-sandbox-facts	Environment recorded
+X-1	PASS	X-1-installer-download-checksum-autoload-fil	Installed the pinned build, listed once in /etc/osquery/extensions.load, restart scheduled through systemd-run
+X-1b	PASS	X-1b-installer-second-run-changes-nothing	Idempotent: nothing downloaded, no duplicate loader line, no restart
+X-1c	PASS	X-1c-installer-wrong-checksum-is-refused	Checksum mismatch refused with exit 6, good binary left in place
+X-2	PASS	X-2-table-registered-from-the-default-autolo	Autoloaded from /etc/osquery/extensions.load with all 12 columns
+L-1	PASS	L-1-install-date-rpm-package	Native install_time and extension install_date both match the recorded install
+X-5	PASS	X-5-publisher-rpm-package	Publisher matches the package metadata
+X-3	PASS	X-3-rows-and-coverage-native-against-extensi	Extension row count within 5% of the native inventory. Coverage in the output
+X-8	PASS	X-8-firstseen-survives-an-osquery-restart	first_seen identical across two processes for every row. Reboot not tested in a container
+X-9	INFO	X-9-cost-of-one-softwareitam-query	Timing recorded in the output. Watchdog limits only apply under fleetd
+L-2u	PASS	L-2u-upgrade-or-reinstall-which-dates-move	Native moved to the upgrade time. Extension install_date followed the expected rule (event)
+U-2	PASS	U-2-uninstall-drops-the-rows	Both rows gone at the next query
+X-7	PASS	X-7-reinstall-install-date-and-firstseen	first_seen kept (1792481867). install_date followed the event rule
+L-3	NOT-RUN	L-3-last-used-facts	Built-in last_opened_at is computed by the Fleet server. Facts saved for the real host run

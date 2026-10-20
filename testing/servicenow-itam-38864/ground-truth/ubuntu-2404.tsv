@@ -1,0 +1,5 @@
+test_id	host	os	app	key	version	method	event	utc	expected_publisher	note
+L-2	ubuntu-2404	linux	hello	hello	2.10-3build1	apt	install	2026-10-20T07:37:02Z	Ubuntu Developers	
+L-2	ubuntu-2404	linux	hello	hello	2.10-3build1	reinstall	upgrade	2026-10-20T07:37:12Z	Ubuntu Developers	
+U-1	ubuntu-2404	linux	hello	hello		apt	uninstall	2026-10-20T07:37:18Z		
+X-7	ubuntu-2404	linux	hello	hello	2.10-3build1	apt	reinstall	2026-10-20T07:37:23Z	Ubuntu Developers	

@@ -1,0 +1,6 @@
+# 2026-10-20T07:37:00Z
+$ /repo/testing/servicenow-itam-38864/scripts/gt-linux.sh install
+
+debconf: delaying package configuration, since apt-utils is not installed
+recorded install hello at 2026-10-20T07:37:02Z -> /repo/testing/servicenow-itam-38864/scripts/../ground-truth/ubuntu-2404.tsv
+[exit 0]

@@ -1,0 +1,8 @@
+# 2026-10-20T07:37:46Z
+$ snap install
+
+rows=138 -> native-install.json
+rows=138 -> ext-install.json
+native-install.json [{"install_time": "1792481864", "name": "hello", "vendor": "Fedora Project", "version": "2.12.2"}]
+ext-install.json [{"arch": "x86_64", "first_seen": "1792481867", "identifier": "hello", "install_date": "1792481864", "install_date_candidates": "rpm_install_time=1792481864", "install_date_source": "rpm_install_time", "name": "hello", "path": "", "publisher": "Fedora Project", "publisher_source": "rpm_vendor", "source": "rpm_packages", "version": "2.12.2"}]
+[exit 0]

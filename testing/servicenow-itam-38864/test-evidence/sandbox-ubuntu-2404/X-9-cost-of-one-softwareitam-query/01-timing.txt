@@ -1,0 +1,7 @@
+# 2026-10-20T07:37:09Z
+$ /usr/bin/time -v /osq/opt/osquery/bin/osqueryd -S --json --extensions_require=software_itam --extensions_timeout=20 'SELECT COUNT(*) AS n FROM software_itam;' 2>&1 | grep -E '"n"|Elapsed|Maximum resident' || (time /osq/opt/osquery/bin/osqueryd -S --json --extensions_require=software_itam --extensions_timeout=20 'SELECT COUNT(*) AS n FROM software_itam;')
+
+  {"n":"129"}
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.65
+	Maximum resident set size (kbytes): 42860
+[exit 0]

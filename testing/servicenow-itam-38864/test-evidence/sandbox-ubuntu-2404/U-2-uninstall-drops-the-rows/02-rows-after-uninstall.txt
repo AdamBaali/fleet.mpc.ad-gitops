@@ -1,0 +1,8 @@
+# 2026-10-20T07:37:20Z
+$ snap uninstall
+
+rows=128 -> native-uninstall.json
+rows=128 -> ext-uninstall.json
+native-uninstall.json []
+ext-uninstall.json []
+[exit 0]

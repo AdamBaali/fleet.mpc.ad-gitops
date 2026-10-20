@@ -1,0 +1,18 @@
+# 2026-10-20T07:36:59Z
+$ /osq/opt/osquery/bin/osqueryd -S --json --extensions_require=software_itam --extensions_timeout=20 "SELECT name, type FROM pragma_table_info('software_itam');"
+
+[
+  {"name":"source","type":"TEXT"},
+  {"name":"name","type":"TEXT"},
+  {"name":"version","type":"TEXT"},
+  {"name":"identifier","type":"TEXT"},
+  {"name":"path","type":"TEXT"},
+  {"name":"arch","type":"TEXT"},
+  {"name":"publisher","type":"TEXT"},
+  {"name":"publisher_source","type":"TEXT"},
+  {"name":"install_date","type":"BIGINT"},
+  {"name":"install_date_source","type":"TEXT"},
+  {"name":"install_date_candidates","type":"TEXT"},
+  {"name":"first_seen","type":"BIGINT"}
+]
+[exit 0]

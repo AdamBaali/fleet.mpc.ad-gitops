@@ -18,6 +18,6 @@ Tests every host and software field the issue lists, on macOS, Windows and Linux
 | `ground-truth/` | `<host>.tsv`, written by the gt scripts on test day |
 | `test-evidence/` | Outputs, one folder per test (created on the first run) |
 
-Status (2026-10-19): plan, reports, extension wiring, scripts and exporter written. The 28 unit and smoke tests pass against the fake API. Nothing applied to Fleet and nothing run on a host yet.
+Status (2026-10-20): Linux sandbox run passed in Ubuntu and Fedora containers (see RESULTS.md and EVIDENCE.md). Lab Fleet, macOS and Windows tests next.
 
 No customer or person names in this folder. Refer to the request by its public issue numbers only.
