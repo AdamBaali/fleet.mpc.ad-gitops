@@ -8,7 +8,7 @@ Against Fleet `main` at 4.93.0 (2026-10-08), following the Fleet repo's own GitO
 - Every report table and column: Fleet's osquery schema (`schema/osquery_fleet_schema.json`, through the skill's `validate.py --table`).
 - The report cap: `CHANGELOG.md` 4.93.0, `server/fleet/app.go`, `docs/Configuration/yaml-files.md`.
 
-The Linux report SQL ran clean in osquery 5.14.1 in an Ubuntu container (837 DEB packages, every one found its dpkg file list). The macOS and Windows SQL has not run on a host yet. S-1 does that.
+The Linux report SQL ran clean in osquery 5.14.1 in Ubuntu and Fedora containers (see RESULTS.md). The macOS and Windows SQL has not run on a host yet. S-1 does that.
 
 ## What Fleet already returns
 `GET /api/v1/fleet/hosts/:id/software` already gives these, so the reports don't collect them again:
@@ -23,7 +23,7 @@ The Linux report SQL ran clean in osquery 5.14.1 in an Ubuntu container (837 DEB
 Fleet reads `programs.publisher` and `rpm_packages.vendor` into the software `vendor` field, but the host software API doesn't return it. Fleet doesn't read any install date.
 
 ## Why native tables, not fleetd tables
-No fleetd table has an install date or a publisher name for the apps we need. `codesign` returns only the team ID and the code directory hash, and Fleet already ingests both. `fleetd_pacman_packages` has an install date, but only for Arch Linux. Native osquery tables cover every gap and also work on hosts without fleetd's extensions. The native path needs no scripts: every field comes from a report.
+No fleetd table has an install date or a publisher name for the apps we need. `codesign` returns only the team ID and the code directory hash, and Fleet already ingests both. `fleetd_pacman_packages` has an install date, but only for Arch Linux. Native osquery tables cover every gap. No scripts and nothing installed: every field comes from a report.
 
 ## What the reports add
 | Field | macOS | Windows | Linux RPM | Linux DEB |
@@ -33,23 +33,18 @@ No fleetd table has an install date or a publisher name for the apps we need. `c
 
 Join keys back to the software API: macOS on app path (`installed_paths`), Windows and Linux on name and version.
 
-## Third path: the software_itam extension
-`software_itam` (fleet-extensions repo) is a Go osquery extension with one table, one row per app or package, deployed the way this repo deploys its other extensions: a policy checks `osquery_registry` for the table and runs an installer when it is missing. The installer pulls a pinned commit, checks the SHA-256, adds the binary to osquery's default `extensions.load` and restarts fleetd. No TUF server.
+## Why no extension
+An osquery extension (`software_itam`) was built and tested on 2026-10-19 and 2026-10-20, then dropped to keep the stopgap simple. Reports need nothing installed, reviewed or pinned on hosts, and they go away with a YAML delete when Fleet ships #54912 and #54914.
 
-What it adds over the native reports:
-- **macOS first install from InstallHistory.** `/Library/Receipts/InstallHistory.plist` keeps every install, including App Store installs, so the earliest entry is the first install. It survives upgrades, which `kMDItemDateAdded` and `btime` may not (M-2, X-6).
-- **macOS App Store publisher.** Apple re-signs App Store apps, so the signing certificate names Apple. The extension falls back to the bundle's copyright string.
-- **DEB first install from dpkg.log.** The earliest `install` line in `/var/log/dpkg.log*` (rotated and gzipped files included) is a real first install date, inside the log retention. The native report only has the file list time, a last changed date.
-- **Windows key write time fallback.** The Uninstall key's last write time fills an empty `InstallDate`. The native path now has this too (report "ITAM Windows uninstall key written").
-- **First seen on the host.** Kept in `software_itam_state.json` next to the binary, so it survives fleetd restarts and Fleet server changes.
-- **One row per app.** The exporter reads one report instead of joining three on macOS.
+What that gives up, and how the export covers it:
+- **First install that survives upgrades.** The extension read macOS `InstallHistory.plist` and `dpkg.log`. Reports read Spotlight date added, bundle creation, RPM install time and the dpkg file list time, which can move on an upgrade or reinstall. The exporter's own `first_seen` column keeps the first sighting instead. It starts on the exporter's first run.
+- **App Store publisher on macOS.** Apple re-signs App Store apps, so the native publisher is empty for them. The Team ID stays available in Fleet's `signature_information`.
 
-What it costs:
-- **Install.** A binary per OS and architecture, a policy and an installer script per OS. A host without it falls back to the native reports.
-- **Review.** The customer's security team has to approve a root binary from a GitHub repo. The pinned commit and SHA-256 make the review concrete.
-- **Upkeep.** A new pin for every change. Teardown has to remove the binary, the `extensions.load` line and the state file.
-
-Every value carries its source (`install_date_source`, `publisher_source`) and `install_date_candidates` lists every source found, so the C tests compare the paths per field from one run.
+## Sandbox findings (2026-10-20)
+Ubuntu 24.04 and Fedora 41 containers, real package manager, osquery shell mode, no Fleet server (see RESULTS.md):
+- **DEB.** `list_changed` moves to every upgrade and reinstall. It is a last changed date. Label it that way.
+- **RPM.** `install_time` moves to every upgrade, downgrade and reinstall. It is the install time of the version on disk.
+- On both, the exporter's `first_seen` is the only date that stays at the first sighting.
 
 ## Report cap
 Fleet stores at most `report_cap` results per report (default 1000). Since 4.93.0 Fleet raises that to the host count when the host count is higher, so a report with one row per host is never clipped. These reports return one row per app or package, so the cap still applies. When a report is full, Fleet keeps updating hosts already in it and skips new hosts. A host result over 512 KB isn't stored.
@@ -61,8 +56,8 @@ Production: rows are about hosts times apps. 2000 Macs with 150 apps each is 300
 2. Raise `report_cap`. Fleet's docs recommend one report at a time while watching the database.
 3. Read per host with `GET /api/v1/fleet/hosts/:id/reports/:report_id`. Still capped, since storage is the limit.
 
-## First seen fallback
-Where no install date exists, the exporter can record the first time it sees an app on a host and keep that date, labeled "first seen". Apps installed before the exporter started all get the start date. #54912 proposes the same thing inside Fleet.
+## First seen
+The exporter records the first time it sees each app on each host and keeps that date in its state file (`--state`). It goes to ServiceNow as its own `first_seen` column next to `install_date`, and as the install date when no OS source exists. Apps installed before the exporter's first run all get that run's date. #54912 proposes the same thing inside Fleet. Keep the state file between runs, or every app looks new.
 
 ## Exporter
 `scripts/fleet_itam_export.py` is the prototype, Python standard library only. Without `--post` it sends nothing. It does what an hourly job would do, for example a scheduled GitHub Action or a ServiceNow scheduled import:
@@ -78,20 +73,21 @@ Where no install date exists, the exporter can record the first time it sees an 
 |---|---|
 | Installed on | Host, matched by serial number |
 | Display name, version | Software API name, version |
-| Publisher | Extension `publisher`, else the native report column for the OS. Source in `publisher_source` |
-| Install date | Extension `install_date`, else native (Windows InstallDate, uninstall key time, RPM install time, Spotlight date added, dpkg list time, bundle created), else exporter first seen. Source in `install_date_source` |
+| Publisher | The native report column for the OS. Source in `publisher_source` |
+| Install date | Native (Windows InstallDate, uninstall key time, RPM install time, Spotlight date added, dpkg list time, bundle created), else exporter first seen. Source in `install_date_source` |
+| First seen | Exporter state file. First time the exporter saw the app on the host |
 | Last used | Software API `last_opened_at`. Source in `last_used_source` |
-| Install location | Software API `installed_paths`, else extension `path` |
+| Install location | Software API `installed_paths` |
 
-The order inside the native fallback puts real install records before proxies. The C tests may change it.
+The order puts real install records before proxies. M-1, W-1, L-1 and L-2 may change it.
 
 ## Risks
 - **Proxy dates.** An auditor may treat a proxy as a fact. Label each date with its source in ServiceNow.
 - **Windows last opened is per install path.** Programs with an empty `install_location` get no last opened date.
 - **Linux last opened depends on mount options.** `noatime` stops it, and `relatime` updates it at most once a day.
 - **macOS signature cost.** Fleet keeps its own `codesign` query separate from the main software query for performance. M-5 checks the `signature` report on a host with many apps.
-- **Extension supply chain.** A root binary from GitHub. Pin and hash every release, and keep the native reports as the fallback.
-- **dpkg.log retention.** Logs rotate after about a year on Ubuntu. Older packages fall back to the file list time.
+- **Moving install dates on Linux.** Upgrades and reinstalls move both the RPM and DEB dates. Send `first_seen` with every row so auditors have a fixed date.
+- **Lost state file.** If the exporter's state file is lost, every `first_seen` resets to the next run.
 
 ## Lab versus production
 Four lab hosts against a full fleet. A new ServiceNow developer instance has no existing hardware rows, so E-1 creates its own host record first.

@@ -43,7 +43,7 @@ class ExportTest(unittest.TestCase):
     def test_pagination_reaches_every_host_and_report(self):
         self.assertEqual(set(self.by), {'lab-mac.local', 'lab-win', 'lab-ubuntu', 'lab-fedora'})
         self.assertEqual(self.meta['mac_publisher']['rows'], 5)
-        self.assertEqual(self.meta['ext']['rows'], 2)
+        self.assertNotIn('ext', self.meta)
         pages = [q.get('page') for p, q in fake_fleet.Handler.requests if p == '/api/v1/fleet/hosts']
         self.assertGreaterEqual(len(pages), 2)
 
@@ -84,24 +84,30 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(ex.macos_publisher(''), '')
         self.assertEqual(self.row('lab-mac.local', 'ITAMUnsigned')['publisher'], '')
 
-    def test_extension_preferred_over_native(self):
+    def test_macos_app_store_falls_back_to_bundle_created(self):
+        # App Store apps carry Apple's re-signing certificate, so no publisher comes from codesign.
         r = self.row('lab-mac.local', 'Pages')
-        self.assertEqual(r['install_date_source'], 'ext:install_history')
-        self.assertEqual(r['publisher'], 'Apple')
-        self.assertEqual(r['publisher_source'], 'ext:copyright')
-        self.assertIn('native:bundle_created', r['candidates'])
+        self.assertEqual(r['install_date_source'], 'native:bundle_created')
+        self.assertEqual(r['publisher'], '')
+        self.assertEqual(r['publisher_source'], '')
+
+    def test_linux_native_dates_and_publishers(self):
         d = self.row('lab-ubuntu', 'hello')
-        self.assertEqual(d['install_date_source'], 'ext:dpkg_log')
+        self.assertEqual(d['install_date_source'], 'native:dpkg_list_changed')
+        self.assertEqual(d['install_date'], ex.fmt(ex.epoch_to_dt('1792492000')))
         self.assertEqual(d['publisher_source'], 'native:deb_maintainer')
         # The sandbox run showed dpkg's "Name <address>" form. Only the name reaches ServiceNow.
         self.assertEqual(d['publisher'], 'Ubuntu Developers')
-
-    def test_native_used_without_extension(self):
-        r = self.row('lab-mac.local', 'VLC')
-        self.assertEqual(r['install_date_source'], 'native:spotlight_date_added')
         f = self.row('lab-fedora', 'hello')
         self.assertEqual(f['install_date_source'], 'native:rpm_install_time')
         self.assertEqual(f['publisher'], 'Fedora Project')
+        self.assertEqual(f['publisher_source'], 'native:rpm_vendor')
+
+    def test_first_seen_column(self):
+        # Every row carries the exporter's own first seen date, next to install_date.
+        self.assertTrue(all(r['first_seen'] == '2026-10-20 12:00:00' for r in self.rows))
+        f = self.row('lab-fedora', 'hello')
+        self.assertNotEqual(f['first_seen'], f['install_date'])
 
     def test_windows_joins_on_name_and_version(self):
         r = self.row('lab-win', 'VLC media player')
@@ -139,6 +145,9 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(st, json.load(open(os.path.join(self.tmp, 'state.json'))))
         b = [r for r in rows if r['install_location'] == '/Users/u/Applications/Google Chrome.app'][0]
         self.assertEqual(b['install_date'], '2026-10-20 12:00:00')
+        # first_seen keeps the first run's date even when the next run is days later, as after
+        # an RPM upgrade or a DEB reinstall moves install_date.
+        self.assertTrue(all(r['first_seen'] == '2026-10-20 12:00:00' for r in rows))
 
     def test_bad_token_fails(self):
         with self.assertRaises(Exception):
@@ -149,7 +158,7 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(ex.fmt(ex.parse_any_date('2026-10-20 09:00:00 +0000')), '2026-10-20 09:00:00')
         self.assertIsNone(ex.parse_any_date('0'))
         self.assertIsNone(ex.parse_any_date('garbage'))
-        self.assertEqual(ex.parse_candidates('a=0,b=1792491500,c')['b'].year, 2026)
+        self.assertEqual(ex.epoch_to_dt('1792491500').year, 2026)
 
 
 if __name__ == '__main__':

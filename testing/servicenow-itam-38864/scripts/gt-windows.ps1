@@ -1,15 +1,15 @@
 <#
 .SYNOPSIS
-    Ground truth for the Windows ITAM tests (W-1 to W-3, X-4, X-6, X-7, U-1). Run in an elevated PowerShell.
+    Ground truth for the Windows ITAM tests (W-1 to W-4, U-1, U-4). Run in an elevated PowerShell.
 
 .DESCRIPTION
     Usage: .\gt-windows.ps1 -Action <action>
-      msi-install   install MSI_OLD silently (W-1, X-4)
-      msi-upgrade   install MSI_NEW over it (X-6)
-      exe-install   install EXE with winget when present, else the vendor installer (W-1, X-4)
+      msi-install   install MSI_OLD silently (W-1)
+      msi-upgrade   install MSI_NEW over it (W-4)
+      exe-install   install EXE with winget when present, else the vendor installer (W-1)
       open          start each test program for 15 s (W-2)
       uninstall     remove the MSI program (U-1)
-      reinstall     install MSI_NEW again after uninstall (X-7)
+      reinstall     install MSI_NEW again after uninstall (U-4)
       facts         print the Prefetch setting W-2 depends on
     Each action appends to ..\ground-truth\<host>.tsv with the UTC time, before anyone reads Fleet.
 #>
@@ -59,8 +59,8 @@ function Install-Msi($Url, $TestId, $Event) {
 
 switch ($Action) {
     'msi-install' { Install-Msi $MsiOld 'W-1' 'install' }
-    'msi-upgrade' { Install-Msi $MsiNew 'X-6' 'upgrade' }
-    'reinstall'   { Install-Msi $MsiNew 'X-7' 'reinstall' }
+    'msi-upgrade' { Install-Msi $MsiNew 'W-4' 'upgrade' }
+    'reinstall'   { Install-Msi $MsiNew 'U-4' 'reinstall' }
     'exe-install' {
         $method = 'exe'
         if (Get-Command winget -ErrorAction SilentlyContinue) {

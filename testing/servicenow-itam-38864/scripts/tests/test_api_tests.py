@@ -40,7 +40,7 @@ class ApiTestsSmoke(unittest.TestCase):
         self.assertEqual(self.proc.returncode, 0, self.proc.stderr[-2000:])
 
     def test_every_test_has_a_verdict(self):
-        for t in ('S-1', 'H-1', 'H-2', 'H-3', 'H-4', 'H-5', 'H-6', 'X-1', 'X-3', 'A-2', 'A-1'):
+        for t in ('S-1', 'H-1', 'H-2', 'H-3', 'H-4', 'H-5', 'H-6', 'A-2', 'A-1'):
             self.assertIn(t, self.tsv, t)
 
     def test_verdicts_follow_fixtures(self):
@@ -48,8 +48,7 @@ class ApiTestsSmoke(unittest.TestCase):
         self.assertEqual(self.tsv['H-1'], 'PASS')
         self.assertEqual(self.tsv['H-3'], 'PARTIAL')   # Windows VM has no serial
         self.assertEqual(self.tsv['H-5'], 'PARTIAL')   # only the Mac has an IdP user
-        self.assertEqual(self.tsv['X-1'], 'FAIL')      # Windows host policy fails in the fixture
-        self.assertEqual(self.tsv['X-3'], 'FAIL')      # the fixture extension report covers few apps
+        self.assertFalse(any(t.startswith(('X-', 'C-')) for t in self.tsv))  # no extension tests
         self.assertEqual(self.tsv['A-2'], 'PASS')
         self.assertEqual(self.tsv['A-1'], 'PASS')
 

@@ -2,7 +2,7 @@
 
 Template: `.github/ISSUE_TEMPLATE/feature-request.md` on fleetdm/fleet `main` (fetched 2026-10-19). Labels: `:product`, `customer-rosner` (the label already on #38864, #54912 and #54914; confirm before filing). Gong snippet: none yet.
 
-Install date and publisher are already filed (#54912, #54914), as are the connector (#38864) and extension hosting (#31036). The one gap our lab work found that no issue covers is below.
+Install date and publisher are already filed (#54912, #54914), as is the connector (#38864). The one gap our lab work found that no issue covers is below.
 
 ---
 
@@ -48,14 +48,12 @@ From a lab stopgap for this request. Sources per OS that need no fleetd change, 
 - Linux RPM: `rpm_packages.install_time`.
 - Linux DEB: dpkg keeps no install time. The first `install` line in `/var/log/dpkg.log*` (including rotated `.gz` files) is the first install within log retention. The `/var/lib/dpkg/info/<pkg>.list` mtime is the last change.
 
-Labeling each date with its source let the export show proxies as proxies. Lab results with ground-truth installs land on 2026-10-20 and will be added here.
+A sandbox run on 2026-10-20 (Ubuntu 24.04 and Fedora 41, real package managers) showed `rpm_packages.install_time` and the dpkg file list time both move to every upgrade, downgrade and reinstall. Neither is a first install date. A "first seen" timestamp in `host_software` would be the only stable value on Linux without parsing package manager logs.
+
+Labeling each date with its source let the export show proxies as proxies. macOS and Windows results with ground-truth installs will be added here.
 
 ## Comment for #54914 (publisher)
 
 From the same stopgap. The native osquery `signature` table already returns the signing certificate name in `authority` (for example, "Developer ID Application: Example Inc (TEAMID1234)"). With `hash_resources = 0` it skips hashing the bundle, so no `codesign` table change or Team ID mapping is needed for Developer ID apps. Two cases need a fallback: App Store apps are re-signed by Apple, and unsigned apps have no authority. `NSHumanReadableCopyright` in Info.plist names the company in both cases.
 
 Windows and RPM publishers are stored as `vendor` but `GET /api/v1/fleet/hosts/:id/software` doesn't return them. Returning `vendor` there closes those two platforms without new collection.
-
-## Comment for #31036 (extension hosting)
-
-Another case for this: a stopgap for #38864 needed an osquery extension on macOS, Windows, and Linux. `agent_options.extensions` needs a self-hosted TUF server, so the extension was deployed with a policy plus `run_script` instead. The script downloads a binary pinned by commit and SHA-256 and adds it to osquery's default `extensions.load`. Orbit's own `extensions.load` couldn't be used, because orbit empties it when `agent_options.extensions` is unset. Fleet-hosted extensions would remove the script, the pinning, and the restart handling from every customer that needs one.

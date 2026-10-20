@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# API-only ITAM tests (fleetdm/fleet#38864): S-1 (API part), H-1 to H-6, X-1, X-3, A-1, A-2, A-3, U-1, U-2.
+# API-only ITAM tests (fleetdm/fleet#38864): S-1 (API part), H-1 to H-6, A-1, A-2, A-3, U-1.
 # Runs from any machine that reaches Fleet. Writes evidence with the framework's ev.sh.
 #
 # Usage: ./run-api-tests.sh <action> <fleet_id> [args]
-#   setup <fleet_id>                     S-1: the eight ITAM reports exist, hosts per platform
+#   setup <fleet_id>                     S-1: the seven ITAM reports exist, hosts per platform
 #   hosts <fleet_id>                     H-1..H-6: every host field the issue lists, per host
-#   ext-policy <fleet_id>                X-1: the extension policy passes on every host
-#   ext-rows <fleet_id>                  X-3: extension rows per host against Fleet's inventory, 5% tolerance
 #   report-cap <fleet_id>                A-2: rows and clipping per report, estimate for 2000 Macs
 #   export <fleet_id>                    A-1: run fleet_itam_export.py, check field coverage, run compare.py
 #   watch <fleet_id> <host_id> <name> present|absent [timeout_s]
-#                                        A-3, U-1, U-2: minutes until a change shows in the software API
-#                                        and in the extension report
-#   all <fleet_id>                       setup, hosts, ext-policy, ext-rows, report-cap, export
+#                                        A-3, U-1: minutes until a change shows in the software API.
+#                                        The reports refresh hourly; U-2 checks them through the export
+#   all <fleet_id>                       setup, hosts, report-cap, export
 # Needs FLEET_URL and FLEET_API_TOKEN (or SECRETS_ENV), curl, jq and python3.
 # ITAM_STATE overrides where the exporter keeps first seen dates (default ../test-evidence/first_seen.json).
 set -euo pipefail
@@ -32,14 +30,13 @@ ITAM_REPORTS=(
   "ITAM macOS app install date" "ITAM macOS app publisher" "ITAM macOS package receipts"
   "ITAM Windows program install date and publisher" "ITAM Windows uninstall key written"
   "ITAM Linux RPM install date and vendor" "ITAM Linux DEB install date and maintainer"
-  "ITAM software (extension)"
 )
 
 hosts_file() { [ -s "$TMP/hosts.jsonl" ] || fleet_hosts "$1" > "$TMP/hosts.jsonl"; echo "$TMP/hosts.jsonl"; }
 
 t_setup() {
   local f id missing=0; f="$(hosts_file "$1")"
-  ev_init S-1 "API setup check" "The ITAM reports exist in the fleet and hosts of each OS are enrolled" "8 reports found, at least one host per OS" >/dev/null
+  ev_init S-1 "API setup check" "The ITAM reports exist in the fleet and hosts of each OS are enrolled" "7 reports found, at least one host per OS" >/dev/null
   for n in "${ITAM_REPORTS[@]}"; do
     id="$(fleet_report_id "$n" "$1")"
     ev_note S-1 "- $n: ${id:-MISSING}"
@@ -79,34 +76,6 @@ t_hosts() {
   ev_note H-4 "Apple hosts report a model identifier (for example Mac15,9), not a marketing name. Map it in ServiceNow if needed."
 }
 
-t_ext_policy() {
-  local f fails=0 n=0 hid plat resp; f="$(hosts_file "$1")"
-  ev_init X-1 "extension installed by policy" "The software_itam policy passes on every host after its installer runs" "Policy passes on all hosts" >/dev/null
-  while read -r hid plat; do
-    n=$((n + 1))
-    resp="$(fleet_host "$hid" | jq -r '[.host.policies[]? | select(.name | startswith("software_itam osquery extension loaded")) | .response] | first // "missing"')"
-    ev_note X-1 "- host $hid ($plat): $resp"
-    [ "$resp" = pass ] || fails=$((fails + 1))
-  done < <(jq -r '[.id, .platform] | @tsv' "$f")
-  if [ "$n" -eq 0 ]; then ev_verdict X-1 BLOCKED "No hosts"
-  elif [ "$fails" -eq 0 ]; then ev_verdict X-1 PASS "Policy passes on $n hosts"
-  else ev_verdict X-1 FAIL "$fails of $n hosts not passing"; fi
-}
-
-t_ext_rows() {
-  local f rid hid plat ext fleet_n bad=0; f="$(hosts_file "$1")"
-  rid="$(fleet_report_id "ITAM software (extension)" "$1")"
-  ev_init X-3 "extension rows match inventory" "software_itam returns one row per app or package Fleet inventories" "Counts within 5% per host" >/dev/null
-  [ -n "$rid" ] || { ev_verdict X-3 BLOCKED "Report ITAM software (extension) not found"; return; }
-  while read -r hid plat; do
-    ext="$(fleet_get "/api/v1/fleet/hosts/$hid/reports/$rid" | jq '.results | length')"
-    fleet_n="$(fleet_host_software "$hid" | jq -s '[.[] | select(.source | IN("apps","programs","rpm_packages","deb_packages")) | .installed_versions[]? | ((.installed_paths // []) | if length == 0 then 1 else length end)] | add // 0')"
-    ev_note X-3 "- host $hid ($plat): extension $ext rows, Fleet inventory $fleet_n"
-    python3 -c "import sys; e,n=int(sys.argv[1]),int(sys.argv[2]); sys.exit(0 if n and abs(e-n)/n<=0.05 else 1)" "$ext" "$fleet_n" || bad=$((bad + 1))
-  done < <(jq -r '[.id, .platform] | @tsv' "$f")
-  [ "$bad" -eq 0 ] && ev_verdict X-3 PASS "All hosts within 5%" || ev_verdict X-3 FAIL "$bad host(s) outside 5%. Check the per-host notes"
-}
-
 t_report_cap() {
   local rid body count clipped mac_rows=0 macs clipped_any=0
   ev_init A-2 "report cap" "Each ITAM report fits under report_cap and is not clipped" "Lab under 10000 rows, report_clipped false" >/dev/null
@@ -134,11 +103,11 @@ for p in glob.glob(sys.argv[1] + '/hosts/*.json'):
     d = json.load(open(p)); plat = d['host']['platform']
     for r in d['software']:
         t[plat] += 1
-        for k in ('publisher', 'install_date', 'last_used', 'install_location'):
+        for k in ('publisher', 'install_date', 'first_seen', 'last_used', 'install_location'):
             if r[k]: c[(plat, k)] += 1
         c[(plat, 'src:' + r['install_date_source'].split(':')[0])] += 1
 for plat in sorted(t):
-    print(plat, 'rows', t[plat], ' '.join('%s=%d%%' % (k, 100 * c[(plat, k)] // t[plat]) for k in ('publisher', 'install_date', 'last_used', 'install_location')))
+    print(plat, 'rows', t[plat], ' '.join('%s=%d%%' % (k, 100 * c[(plat, k)] // t[plat]) for k in ('publisher', 'install_date', 'first_seen', 'last_used', 'install_location')))
     print('  install_date sources:', {k[1]: v for k, v in c.items() if k[0] == plat and k[1].startswith('src:')})
 PY"
   if ls "$PROJECT"/ground-truth/*.tsv >/dev/null 2>&1; then
@@ -151,42 +120,31 @@ PY"
 # Polls once a minute. A test tool waiting on Fleet's own refresh, so a short interval is fine.
 t_watch() { # fleet_id host_id name present|absent timeout
   local id; case "$4" in present) id=A-3 ;; absent) id=U-1 ;; *) echo "present|absent" >&2; exit 2 ;; esac
-  local start now sw_done="" rep_done="" rid; start="$(date +%s)"
-  rid="$(fleet_report_id "ITAM software (extension)" "$1")"
-  ev_init "$id" "$3 $4 in Fleet" "Minutes until $3 is $4 in the software API and the extension report" "Within 60 minutes (hourly export)" >/dev/null
+  local start now sw_done=""; start="$(date +%s)"
+  ev_init "$id" "$3 $4 in Fleet" "Minutes until $3 is $4 in the software API" "Within 60 minutes (hourly export)" >/dev/null
   while :; do
     now="$(date +%s)"
-    if [ -z "$sw_done" ]; then
-      local hit; hit="$(fleet_host_software "$2" | jq -r --arg n "$3" 'select(.name | ascii_downcase | startswith($n | ascii_downcase)) | .name' | head -1)"
-      if { [ "$4" = present ] && [ -n "$hit" ]; } || { [ "$4" = absent ] && [ -z "$hit" ]; }; then
-        sw_done=$(( (now - start) / 60 )); ev_note "$id" "- software API: $4 after $sw_done min"; fi
-    fi
-    if [ -z "$rep_done" ] && [ -n "$rid" ]; then
-      local rhit; rhit="$(fleet_get "/api/v1/fleet/hosts/$2/reports/$rid" | jq -r --arg n "$3" '.results[]?.columns | select(.name | ascii_downcase | startswith($n | ascii_downcase)) | .name' | head -1)"
-      if { [ "$4" = present ] && [ -n "$rhit" ]; } || { [ "$4" = absent ] && [ -z "$rhit" ]; }; then
-        rep_done=$(( (now - start) / 60 )); ev_note "$id" "- extension report (U-2): $4 after $rep_done min"; fi
-    fi
-    [ -n "$sw_done" ] && { [ -n "$rep_done" ] || [ -z "$rid" ]; } && break
+    local hit; hit="$(fleet_host_software "$2" | jq -r --arg n "$3" 'select(.name | ascii_downcase | startswith($n | ascii_downcase)) | .name' | head -1)"
+    if { [ "$4" = present ] && [ -n "$hit" ]; } || { [ "$4" = absent ] && [ -z "$hit" ]; }; then
+      sw_done=$(( (now - start) / 60 )); ev_note "$id" "- software API: $4 after $sw_done min"; break; fi
     [ $((now - start)) -ge "${5:-5400}" ] && break
     sleep 60
   done
-  if [ -n "$sw_done" ] && [ "$sw_done" -le 60 ] && { [ -z "$rid" ] || { [ -n "$rep_done" ] && [ "$rep_done" -le 60 ]; }; }; then
-    ev_verdict "$id" PASS "Software API $sw_done min, extension report ${rep_done:-n/a} min"
+  if [ -n "$sw_done" ] && [ "$sw_done" -le 60 ]; then
+    ev_verdict "$id" PASS "Software API $sw_done min"
   else
-    ev_verdict "$id" FAIL "Software API ${sw_done:-not seen} min, extension report ${rep_done:-not seen} min"
+    ev_verdict "$id" FAIL "Software API ${sw_done:-not seen} min"
   fi
 }
 
 act="${1:-}"; fid="${2:-}"
-[ -n "$act" ] && [ -n "$fid" ] || { sed -n '2,19p' "$0"; exit 2; }
+[ -n "$act" ] && [ -n "$fid" ] || { sed -n '2,15p' "$0"; exit 2; }
 case "$act" in
   setup) t_setup "$fid" ;;
   hosts) t_hosts "$fid" ;;
-  ext-policy) t_ext_policy "$fid" ;;
-  ext-rows) t_ext_rows "$fid" ;;
   report-cap) t_report_cap "$fid" ;;
   export) t_export "$fid" ;;
   watch) t_watch "$fid" "${3:?host_id}" "${4:?name}" "${5:?present|absent}" "${6:-5400}" ;;
-  all) t_setup "$fid"; t_hosts "$fid"; t_ext_policy "$fid"; t_ext_rows "$fid"; t_report_cap "$fid"; t_export "$fid" ;;
-  *) sed -n '2,19p' "$0"; exit 2 ;;
+  all) t_setup "$fid"; t_hosts "$fid"; t_report_cap "$fid"; t_export "$fid" ;;
+  *) sed -n '2,15p' "$0"; exit 2 ;;
 esac

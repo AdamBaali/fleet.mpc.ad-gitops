@@ -279,10 +279,6 @@
    "name": "ITAM Linux DEB install date and maintainer"
   },
   {
-   "id": 41,
-   "name": "ITAM software (extension)"
-  },
-  {
    "id": 99,
    "name": "Unrelated report"
   }
@@ -447,44 +443,6 @@
      "version": "2.10-3build2",
      "maintainer": "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
      "list_changed": "1792492000"
-    }
-   }
-  ],
-  "41": [
-   {
-    "host_id": 1,
-    "host_name": "x",
-    "last_fetched": "2026-10-20T12:00:00Z",
-    "columns": {
-     "source": "apps",
-     "name": "Pages",
-     "version": "14.4",
-     "identifier": "com.apple.iWork.Pages",
-     "path": "/Applications/Pages.app",
-     "publisher": "Apple",
-     "publisher_source": "copyright",
-     "install_date": "1792100000",
-     "install_date_source": "install_history",
-     "install_date_candidates": "install_history=1792100000,bundle_created=1792000000",
-     "first_seen": "1792400000"
-    }
-   },
-   {
-    "host_id": 3,
-    "host_name": "x",
-    "last_fetched": "2026-10-20T12:00:00Z",
-    "columns": {
-     "source": "deb_packages",
-     "name": "hello",
-     "version": "2.10-3build2",
-     "identifier": "hello",
-     "path": "",
-     "publisher": "",
-     "publisher_source": "",
-     "install_date": "1792491500",
-     "install_date_source": "dpkg_log",
-     "install_date_candidates": "dpkg_log=1792491500,dpkg_list_changed=1792492000",
-     "first_seen": "1792491600"
     }
    }
   ]

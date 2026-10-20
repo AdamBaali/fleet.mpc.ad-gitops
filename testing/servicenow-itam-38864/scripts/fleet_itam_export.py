@@ -28,7 +28,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-# Report names as declared in lib/*/reports/software-itam.reports.yml and the extension report.
+# Report names as declared in lib/*/reports/software-itam.reports.yml.
 REPORTS = {
     'mac_install': 'ITAM macOS app install date',
     'mac_publisher': 'ITAM macOS app publisher',
@@ -37,7 +37,6 @@ REPORTS = {
     'win_keys': 'ITAM Windows uninstall key written',
     'rpm': 'ITAM Linux RPM install date and vendor',
     'deb': 'ITAM Linux DEB install date and maintainer',
-    'ext': 'ITAM software (extension)',
 }
 
 # The sources the issue asks about. Other sources (browser extensions, Homebrew, Python packages)
@@ -49,7 +48,7 @@ DAY_PRECISION = {'registry_install_date'}
 
 SNOW_FIELDS = [
     'installed_on_serial', 'installed_on_name', 'display_name', 'version', 'source',
-    'publisher', 'publisher_source', 'install_date', 'install_date_source',
+    'publisher', 'publisher_source', 'install_date', 'install_date_source', 'first_seen',
     'last_used', 'last_used_source', 'install_location',
 ]
 
@@ -172,18 +171,6 @@ def macos_publisher(authority):
     return m.group(1).strip() if m else a
 
 
-def parse_candidates(s):
-    """'install_history=1760000000,spotlight_date_added=1760000100' to {source: datetime}."""
-    out = {}
-    for part in (s or '').split(','):
-        if '=' in part:
-            k, v = part.split('=', 1)
-            d = epoch_to_dt(v)
-            if d:
-                out[k.strip()] = d
-    return out
-
-
 # ---------- Join ----------
 
 def index_reports(rows_by_report):
@@ -208,10 +195,6 @@ def index_reports(rows_by_report):
         for r in rows_by_report.get(name, []):
             c = r['columns']
             put(name, r['host_id'], (c.get('name', ''), c.get('version', '')), c)
-    for r in rows_by_report.get('ext', []):
-        c = r['columns']
-        key = c.get('path', '') if c.get('source') == 'apps' else (c.get('name', ''), c.get('version', ''))
-        put('ext', r['host_id'], (c.get('source', ''), key), c)
     return idx
 
 
@@ -229,11 +212,8 @@ def software_rows(host, software, idx, state, now):
             paths = iv.get('installed_paths') or ['']
             for path in paths:
                 key = path if source == 'apps' else (title.get('name', ''), version)
-                ext = idx.get('ext', {}).get(hid, {}).get((source, key), {})
-                cands = parse_candidates(ext.get('install_date_candidates'))
+                cands = {}
                 publisher, publisher_source = '', ''
-                if ext.get('publisher'):
-                    publisher, publisher_source = ext['publisher'], 'ext:' + (ext.get('publisher_source') or '')
 
                 if source == 'apps':
                     ni = idx.get('mac_install', {}).get(hid, {}).get(path, {})
@@ -241,10 +221,9 @@ def software_rows(host, software, idx, state, now):
                         d = parse_any_date(ni.get(col))
                         if d:
                             cands.setdefault('native:' + src, d)
-                    if not publisher:
-                        np = idx.get('mac_publisher', {}).get(hid, {}).get(path, {})
-                        publisher = macos_publisher(np.get('authority'))
-                        publisher_source = 'native:codesign_authority' if publisher else ''
+                    np = idx.get('mac_publisher', {}).get(hid, {}).get(path, {})
+                    publisher = macos_publisher(np.get('authority'))
+                    publisher_source = 'native:codesign_authority' if publisher else ''
                 elif source == 'programs':
                     n = idx.get('win_programs', {}).get(hid, {}).get(key, {})
                     d = parse_any_date(n.get('install_date'))
@@ -254,45 +233,44 @@ def software_rows(host, software, idx, state, now):
                     d = parse_any_date(kw.get('key_written'))
                     if d:
                         cands.setdefault('native:registry_key_written', d)
-                    if not publisher and n.get('publisher'):
+                    if n.get('publisher'):
                         publisher, publisher_source = n['publisher'], 'native:registry_publisher'
                 elif source == 'rpm_packages':
                     n = idx.get('rpm', {}).get(hid, {}).get(key, {})
                     d = parse_any_date(n.get('install_time'))
                     if d:
                         cands.setdefault('native:rpm_install_time', d)
-                    if not publisher and n.get('vendor'):
+                    if n.get('vendor'):
                         publisher, publisher_source = n['vendor'], 'native:rpm_vendor'
                 elif source == 'deb_packages':
                     n = idx.get('deb', {}).get(hid, {}).get(key, {})
                     d = parse_any_date(n.get('list_changed'))
                     if d:
                         cands.setdefault('native:dpkg_list_changed', d)
-                    if not publisher and n.get('maintainer'):
+                    if n.get('maintainer'):
                         publisher, publisher_source = n['maintainer'], 'native:deb_maintainer'
 
                 # dpkg's Maintainer field is "Name <list address>". ServiceNow wants the name only.
                 if publisher_source.endswith('deb_maintainer'):
                     publisher = re.sub(r'\s*<[^>]*>\s*$', '', publisher)
 
-                # First seen by this exporter. Kept even when a better date exists, so it can be compared.
+                # First seen by this exporter, kept in the state file between runs. RPM install_time and
+                # DEB list_changed move on every upgrade and reinstall (sandbox run, 2026-10-20), so this is
+                # the only date that stays put. It goes to ServiceNow as its own column, next to install_date.
                 skey = '%s|%s|%s|%s' % (serial or hid, source, title.get('name', ''), path)
                 fs = state.setdefault(skey, fmt(now))
-                cands['exporter_first_seen'] = parse_any_date(fs)
+                first_seen = parse_any_date(fs)
+                cands['exporter_first_seen'] = first_seen
 
-                # Preference: the extension's chosen date, then native report dates, then first seen.
+                # Preference: native report dates in this order, then first seen.
                 install, install_src = None, ''
-                ext_d = epoch_to_dt(ext.get('install_date'))
-                if ext_d:
-                    install, install_src = ext_d, 'ext:' + (ext.get('install_date_source') or '')
+                for src in ('native:registry_install_date', 'native:registry_key_written', 'native:rpm_install_time',
+                            'native:spotlight_date_added', 'native:dpkg_list_changed', 'native:bundle_created'):
+                    if src in cands:
+                        install, install_src = cands[src], src
+                        break
                 else:
-                    for src in ('native:registry_install_date', 'native:registry_key_written', 'native:rpm_install_time',
-                                'native:spotlight_date_added', 'native:dpkg_list_changed', 'native:bundle_created'):
-                        if src in cands:
-                            install, install_src = cands[src], src
-                            break
-                    else:
-                        install, install_src = cands['exporter_first_seen'], 'exporter_first_seen'
+                    install, install_src = first_seen, 'exporter_first_seen'
 
                 last = parse_any_date(iv.get('last_opened_at'))
                 rows.append({
@@ -302,14 +280,15 @@ def software_rows(host, software, idx, state, now):
                     'display_name': title.get('name', ''),
                     'version': version,
                     'source': source,
-                    'bundle_identifier': iv.get('bundle_identifier') or ext.get('identifier') or '',
+                    'bundle_identifier': iv.get('bundle_identifier') or '',
                     'publisher': publisher,
                     'publisher_source': publisher_source,
                     'install_date': fmt(install),
                     'install_date_source': install_src,
+                    'first_seen': fmt(first_seen),
                     'last_used': fmt(last),
                     'last_used_source': 'fleet:last_opened_at' if last else '',
-                    'install_location': path or ext.get('path', ''),
+                    'install_location': path,
                     'candidates': {k: fmt(v) for k, v in sorted(cands.items())},
                 })
     return rows

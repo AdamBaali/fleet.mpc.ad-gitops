@@ -101,7 +101,7 @@ org_settings:
 
 ## Create the ServiceNow import
 
-1. In ServiceNow, create an Import Set table (for example, `u_fleet_sw_install`) with these columns: `installed_on_serial`, `installed_on_name`, `display_name`, `version`, `source`, `publisher`, `publisher_source`, `install_date`, `install_date_source`, `last_used`, `last_used_source`, and `install_location`.
+1. In ServiceNow, create an Import Set table (for example, `u_fleet_sw_install`) with these columns: `installed_on_serial`, `installed_on_name`, `display_name`, `version`, `source`, `publisher`, `publisher_source`, `install_date`, `install_date_source`, `first_seen`, `last_used`, `last_used_source`, and `install_location`.
 2. Create a transform map from that table to the Software Installation table (`cmdb_sam_sw_install`).
 3. Map `installed_on_serial` to the **Installed on** field, coalescing on the computer's serial number so each row lands on the hardware record ServiceNow already has.
 4. Map the remaining columns to the matching Software Installation fields. Keep the `*_source` columns, in custom fields or in a note, so auditors can see where each date came from.
@@ -134,7 +134,7 @@ python3 sync_fleet_software_to_servicenow.py --fleet-id 3 --out export-out \
   --post --snow-instance <instance name> --snow-table u_fleet_sw_install
 ```
 
-Schedule the second command hourly with cron, a scheduled CI job, or a ServiceNow MID Server. Keep the `--out` folder between runs. The script stores a first seen date there, used when no OS install date exists.
+Schedule the second command hourly with cron, a scheduled CI job, or a ServiceNow MID Server. Keep the `--out` folder between runs. The script stores a first seen date per app there and sends it as `first_seen` on every row. It's also the install date when no OS source exists.
 
 ## Verify
 

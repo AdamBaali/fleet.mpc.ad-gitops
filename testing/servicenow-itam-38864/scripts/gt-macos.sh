@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Ground truth for the macOS ITAM tests (M-1 to M-4, X-4 to X-7, U-1). Run with sudo on the test Mac.
+# Ground truth for the macOS ITAM tests (M-1 to M-4, U-1, U-4). Run with sudo on the test Mac.
 #
 # Usage: sudo ./gt-macos.sh <action>
-#   dmg-install       install DMG_OLD by drag copy (M-1, X-4)
-#   dmg-upgrade       replace it with DMG_NEW (M-2, X-6)
-#   pkg-install       install PKG_OLD with installer (M-1, X-4)
-#   pkg-upgrade       install PKG_NEW over it (M-2, X-6)
-#   fma-wait          wait for FMA_PATH to appear after you click Install in Fleet, then record (M-1, X-4)
-#   appstore-wait     wait for APPSTORE_PATH after you install it from the App Store, then record (M-4, X-5)
-#   unsigned-install  build an unsigned app bundle (M-4, X-5)
+#   dmg-install       install DMG_OLD by drag copy (M-1)
+#   dmg-upgrade       replace it with DMG_NEW (M-2)
+#   pkg-install       install PKG_OLD with installer (M-1)
+#   pkg-upgrade       install PKG_NEW over it (M-2)
+#   fma-wait          wait for FMA_PATH to appear after you click Install in Fleet, then record (M-1)
+#   appstore-wait     wait for APPSTORE_PATH after you install it from the App Store, then record (M-4)
+#   unsigned-install  build an unsigned app bundle (M-4)
 #   open              open every installed test app as the console user, 15 s each (M-3)
-#   uninstall         remove the DMG app (U-1, X-7)
-#   reinstall         reinstall DMG_NEW after uninstall (X-7)
+#   uninstall         remove the DMG app (U-1, U-4)
+#   reinstall         reinstall DMG_NEW after uninstall (U-4)
 #   all-installs      dmg-install, pkg-install, unsigned-install
 # Each action appends to ../ground-truth/<host>.tsv. Re-running an action records a new event.
 set -euo pipefail
@@ -92,7 +92,7 @@ case "${1:-}" in
   unsigned-install) unsigned_build ;;
   open)             open_app "$DMG_PATH" "$DMG_APP" M-3; open_app "$PKG_PATH" "$PKG_APP" M-3; open_app "$FMA_PATH" "$FMA_APP" M-3 ;;
   uninstall)        rm -rf "$DMG_PATH"; gt_record "U-1" macos "$DMG_APP" "$DMG_PATH" "" rm uninstall ;;
-  reinstall)        dmg_copy "$DMG_NEW" "X-7" reinstall dmg ;;
+  reinstall)        dmg_copy "$DMG_NEW" "U-4" reinstall dmg ;;
   all-installs)     dmg_copy "$DMG_OLD" "M-1" install dmg; pkg_inst "$PKG_OLD" "M-1" install; unsigned_build ;;
   *) sed -n '2,19p' "$0"; exit 2 ;;
 esac

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Ground truth for the Linux ITAM tests (L-1 to L-3, X-4, X-6, X-7, U-1). Run with sudo on the test host.
+# Ground truth for the Linux ITAM tests (L-1 to L-3, U-1, U-4). Run with sudo on the test host.
 #
 # Usage: sudo ./gt-linux.sh <action>
-#   install     install PKG with the host's package manager (L-1 on RPM, L-2 on DEB, X-4)
+#   install     install PKG with the host's package manager (L-1 on RPM, L-2 on DEB)
 #   open        run PKG_BIN once (L-3)
-#   upgrade     downgrade then upgrade PKG when the repos carry two versions, else reinstall (L-2, X-6)
+#   upgrade     downgrade then upgrade PKG when the repos carry two versions, else reinstall (L-2)
 #   uninstall   remove PKG (U-1)
-#   reinstall   install PKG again after uninstall (X-7)
+#   reinstall   install PKG again after uninstall (U-4)
 #   facts       print the package manager, osquery version and mount options L-3 depends on
 # Detects apt, dnf, or rpm-ostree (atomic hosts, applied live so no reboot is needed).
 # Each action appends to ../ground-truth/<host>.tsv.
@@ -65,7 +65,7 @@ do_upgrade() {
 
 case "${1:-}" in
   install)   do_install "$T_INST" install ;;
-  reinstall) do_install "X-7" reinstall ;;
+  reinstall) do_install "U-4" reinstall ;;
   open)      command -v "$PKG_BIN" >/dev/null && "$PKG_BIN" >/dev/null
              gt_record "L-3" linux "$PKG" "$PKG" "$(pkg_ver)" run open ;;
   upgrade)   do_upgrade ;;

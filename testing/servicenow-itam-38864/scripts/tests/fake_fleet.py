@@ -50,10 +50,6 @@ class Handler(BaseHTTPRequestHandler):
             h = next((dict(x) for x in DATA['hosts'] if str(x['id']) == parts[4]), None)
             if h is None:
                 return self.send(404, {'message': 'not found'})
-            os_name = {'darwin': 'macos', 'windows': 'windows'}.get(h['platform'], 'linux')
-            # Host 2 (Windows) has not run the installer yet, so its policy fails.
-            h['policies'] = [{'name': 'software_itam osquery extension loaded (%s)' % os_name,
-                              'response': 'fail' if h['id'] == 2 else 'pass'}]
             return self.send(200, {'host': h})
         if len(parts) == 7 and parts[3] == 'hosts' and parts[5] == 'reports':
             rows = [{'columns': r['columns']} for r in DATA['report_rows'].get(parts[6], []) if str(r['host_id']) == parts[4]]

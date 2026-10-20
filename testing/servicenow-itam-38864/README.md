@@ -1,16 +1,16 @@
 # Host and software fields for a Fleet to ServiceNow ITAM export (fleetdm/fleet#38864)
 
-Tests every host and software field the issue lists, on macOS, Windows and Linux, as a stopgap until Fleet exports them itself. Focus: install date and publisher (#54912, #54914), which Fleet doesn't return yet. Three collection paths are compared: Fleet's built-in APIs, native osquery reports, and the `software_itam` extension. Same method as `../_framework`. Work in progress.
+Tests every host and software field the issue lists, on macOS, Windows and Linux, as a stopgap until Fleet exports them itself. Focus: install date and publisher (#54912, #54914), which Fleet doesn't return yet. Two collection paths: Fleet's built-in APIs and native osquery reports. Nothing is installed on hosts beyond fleetd. Same method as `../_framework`. Work in progress.
 
 | File or folder | What it is |
 | --- | --- |
 | [TEST_PLAN.md](TEST_PLAN.md) | Every test, how it runs and how it passes |
-| [NOTES.md](NOTES.md) | What each OS and path can give, the extension's tradeoffs, exporter design, risks |
+| [NOTES.md](NOTES.md) | What each OS can give, why no extension, exporter design, risks |
 | [RESULTS.md](RESULTS.md) | Ground truth summary and one entry per test |
 | [HANDOFF.md](HANDOFF.md) | State, run order, teardown |
 | `scripts/gt-macos.sh`, `gt-linux.sh`, `gt-windows.ps1` | Install, open, upgrade, uninstall test apps and record the UTC time of each |
 | `scripts/host-local-check.sh`, `.ps1` | Run every ITAM query on the host with fleetd's osqueryd, with timings |
-| `scripts/run-api-tests.sh` | API-only tests (setup, host fields, extension policy and rows, report cap, export, freshness, uninstall) |
+| `scripts/run-api-tests.sh` | API-only tests (setup, host fields, report cap, export, freshness, uninstall) |
 | `scripts/fleet-api.sh` | Fleet API helpers. The token never reaches argv or evidence |
 | `scripts/fleet_itam_export.py` | Exporter prototype: Fleet to ServiceNow rows. Dry run unless `--post` |
 | `scripts/compare.py` | Ground truth against export, one verdict per check |
