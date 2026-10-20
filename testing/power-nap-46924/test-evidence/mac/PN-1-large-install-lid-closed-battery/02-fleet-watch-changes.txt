@@ -1,0 +1,16 @@
+# 2026-10-20T12:24:39Z
+$ awk '{s=$0; sub(/^[^ ]+ /,"",s)} s!=p{print; p=s}' <watcher log> pn1-fleet-watch.log
+
+11:05:52Z status=online seen=2026-10-20T11:05:56Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:06:55Z status=online seen=2026-10-20T11:06:59Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:07:57Z status=online seen=2026-10-20T11:07:27Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:10:02Z status=offline seen=2026-10-20T11:07:27Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:18:21Z status=online seen=2026-10-20T11:17:50Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:20:27Z status=offline seen=2026-10-20T11:17:50Z chrome_policy=pass policy_updated=2026-10-20T10:42:12Z upcoming=[] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:50:38Z status=online seen=2026-10-20T11:50:23Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T11:50:22', 'installed_software', 'Google Chrome', 'pending_install')] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+11:52:43Z status=offline seen=2026-10-20T11:50:23Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T11:50:22', 'installed_software', 'Google Chrome', 'pending_install')] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+12:08:19Z status=online seen=2026-10-20T12:07:53Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T11:50:22', 'installed_software', 'Google Chrome', 'pending_install')] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+12:10:24Z status=offline seen=2026-10-20T12:07:53Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T11:50:22', 'installed_software', 'Google Chrome', 'pending_install')] past=[('2026-10-20T11:04:40', 'ran_script', None, None)]
+12:23:54Z status=offline seen=2026-10-20T12:07:53Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T12:23:26', 'installed_software', 'Google Chrome', 'pending_install')] past=[('2026-10-20T12:23:26', 'installed_software', 'Google Chrome', 'failed_install'), ('2026-10-20T11:04:40', 'ran_script', None, None)]
+DONE
+[exit 0]
