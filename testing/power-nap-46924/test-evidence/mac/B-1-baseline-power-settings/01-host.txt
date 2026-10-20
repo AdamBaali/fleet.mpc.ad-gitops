@@ -1,0 +1,12 @@
+# 2026-10-20T10:44:51Z
+$ fleetctl api /api/v1/fleet/hosts/20 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; [print(k, h.get(k)) for k in ("id","hostname","hardware_model","os_version","orbit_version","osquery_version","scripts_enabled","team_name")]'
+
+id 20
+hostname macbook-air
+hardware_model Mac16,12
+os_version macOS 27.0.1
+orbit_version 1.61.0
+osquery_version 5.24.0
+scripts_enabled True
+team_name Power Nap Lab
+[exit 0]

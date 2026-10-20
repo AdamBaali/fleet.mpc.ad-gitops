@@ -1,0 +1,21 @@
+# 2026-10-20T13:03:44Z
+$ cat orbit-installer.txt
+
+2026-10-20T14:06:16+02:00 INF received notification for software installers: [9b46eeea-b096-46eb-930d-20838a6d8f9d]
+2026-10-20T14:06:16+02:00 INF processing
+2026-10-20T14:06:16+02:00 INF fetching installer details
+2026-10-20T14:06:16+02:00 INF about to download software installer from Fleet
+2026-10-20T14:23:26+02:00 INF done downloading
+2026-10-20T14:23:26+02:00 ERR failed to download software installer error="POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http stream to file: read tcp <ip>
+2026-10-20T14:23:26+02:00 ERR failures found when processing installers errs=["POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http stream to file: read tcp <ip>
+2026-10-20T14:23:26+02:00 ERR running config receivers, backing off error="POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http stream to file: read tcp <ip>
+2026-10-20T15:01:24+02:00 INF received notification for software installers: [05697cd3-f809-4b38-baa1-f5a35451d78a]
+2026-10-20T15:01:24+02:00 INF processing
+2026-10-20T15:01:24+02:00 INF fetching installer details
+2026-10-20T15:01:24+02:00 INF about to download software installer from Fleet
+2026-10-20T15:01:52+02:00 INF done downloading
+2026-10-20T15:01:52+02:00 INF software installer downloaded installerPath=/tmp/3391675574/GoogleChrome.pkg
+2026-10-20T15:01:52+02:00 INF about to run install script
+2026-10-20T15:01:57+02:00 INF install script exitCode=0
+
+[exit 0]

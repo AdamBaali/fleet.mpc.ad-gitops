@@ -1,0 +1,4 @@
+B-1	INFO	B-1-baseline-power-settings	Power Nap on, tcpkeepalive on, standby on, sleep 1 min, hibernatemode 3 (battery and AC). Restore these at teardown if changed
+C-1	PASS	C-1-control-install-lid-open-on-power	Chrome and swiftDialog installed by policy automation on AC, lid open. Chrome took 8 min including one restart caused by MDM enrollment
+PN-1	PASS	PN-1-large-install-lid-closed-battery	Reproduced: download started in a 2 s DarkWake, read tcp error at the next DarkWake 17 min later, Fleet shows Software installer download failed
+PN-6	PASS	PN-6-what-happens-next	Fleet retried once after the failure. The retry waited for the lid to open and installed 83 s after the wake

@@ -1,0 +1,9 @@
+# 2026-10-20T11:05:08Z
+$ cat <fleet script result> pn4a-start.txt
+
+== PN-4a start 2026-10-20T13:04:39+0200 lid== 
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=2752611)	72%; charging; (no estimate) present: true
+deleted /Applications/Google Chrome.app
+
+[exit 0]

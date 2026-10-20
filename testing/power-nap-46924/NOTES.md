@@ -10,8 +10,8 @@
 ## Open questions
 - Does a script run fail the same way, or does it pause and resume across wakes (PN-3)?
 - Does fleetd run at all in DarkWake when Power Nap is off (PN-5)?
-- When does the policy automation try again after a download failure (PN-6)?
-- Can a report on the `pmset` table spot hosts with Power Nap on, as a stopgap?
+- When does the policy automation try again after a download failure? Answered by PN-6: one retry, queued at the failure, which ran 50 s after a full wake and not in the DarkWakes before it.
+- Can a report on the `pmset` table spot hosts with Power Nap on, as a stopgap? Yes for one host: the `Power Nap test - pmset settings` query returns `powernap` per power source (B-1, live query). Not tried across a fleet.
 
 ## Lab versus production
 - One MacBook Air, not a fleet. No presigned URLs, so the URL-then-Fleet fallback isn't exercised (out of scope).

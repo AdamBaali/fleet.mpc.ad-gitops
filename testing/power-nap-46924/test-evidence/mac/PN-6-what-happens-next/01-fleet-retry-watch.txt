@@ -1,0 +1,8 @@
+# 2026-10-20T13:03:44Z
+$ cat fleet-retry-watch.txt
+
+12:25:02Z status=offline seen=2026-10-20T12:07:53Z chrome_policy=fail policy_updated=2026-10-20T11:50:22Z upcoming=[('2026-10-20T12:23:26', 'installed_software', 'Google Chrome', 'pending_install')] past=[]
+13:01:28Z status=online seen=2026-10-20T13:01:19Z chrome_policy=fail policy_updated=2026-10-20T13:01:08Z upcoming=[('2026-10-20T12:23:26', 'installed_software', 'Google Chrome', 'pending_install'), ('2026-10-20T13:01:00', 'ran_script', None, None)] past=[]
+13:02:30Z status=online seen=2026-10-20T13:02:22Z chrome_policy=pass policy_updated=2026-10-20T13:02:17Z upcoming=[] past=[('2026-10-20T13:02:28', 'ran_script', None, None), ('2026-10-20T13:01:57', 'installed_software', 'Google Chrome', 'installed')]
+DONE
+[exit 0]
