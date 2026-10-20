@@ -13,4 +13,4 @@ Tests what fleetd does when a policy automation installs software or runs a scri
 | `test-evidence/mac/` | Runs on the Mac laptop (created on the first run) |
 | `scripts/collect.sh` | Saves B-1 and each run's orbit and pmset logs for the same window |
 
-Status (2026-10-20): lab applied in Fleet and ready for enrollment. Desk review done (D-1). No runs on a Mac yet.
+Status (2026-10-20): D-1, B-1, C-1, PN-1 (reproduced) and PN-6 done. PN-2 to PN-5 and PN-7 open.

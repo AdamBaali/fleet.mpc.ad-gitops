@@ -7,7 +7,7 @@ Ready for enrollment. Power Nap Lab is applied in Fleet (fleet ID 8, 0 hosts). C
 - Two reports, `Power Nap test - pmset settings` (hourly) and `Power Nap test - power source` (10 minutes), record power settings without anyone at the Mac.
 - `scripts/collect.sh` saves B-1 and each run's logs with the `_framework` helpers. Tried on the lab Mac (orbit 1.61.0, osquery 5.24.0), evidence not kept.
 
-Nothing run on the MacBook Air yet.
+Runs on the MacBook Air started 2026-10-20, see Next steps.
 
 ## Next steps
 Done 2026-10-20: B-1, C-1, PN-1 (reproduced), PN-6. Host 20 (MacBook Air) is enrolled in Power Nap Lab. Laptop logs are read through Fleet scripts (root), so nobody needs to be at the laptop except to close or open the lid.
