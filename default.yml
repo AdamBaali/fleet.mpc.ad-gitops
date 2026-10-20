@@ -6,12 +6,7 @@ agent_options:
 controls:
   windows_enabled_and_configured: true
 org_settings:
-  certificate_authorities:
-    # Lab step-ca for the PingFederate and Duo guides (fleetdm/fleet#54654).
-    custom_scep_proxy:
-      - name: LAB_CA
-        url: https://scep.mpc.ad/scep/fleet-scep
-        challenge: $FLEET_LAB_CA_SCEP_CHALLENGE
+  # No certificate_authorities: the #54654 lab CA (LAB_CA) is retired. GitOps deletes CAs that are not listed.
   server_settings:
     server_url: $FLEET_URL
     # The ServiceNow ITAM reports (fleetdm/fleet#38864) return one row per app or package,
