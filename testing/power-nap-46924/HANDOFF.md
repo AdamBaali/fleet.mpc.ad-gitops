@@ -10,8 +10,8 @@ Ready for enrollment. Power Nap Lab is applied in Fleet (fleet ID 8, 0 hosts). C
 Runs on the MacBook Air started 2026-10-20, see Next steps.
 
 ## Next steps
-Done: B-1, C-1, PN-1 (reproduced), PN-6 (2026-10-20). PN-2 PARTIAL (2026-10-21): the install never reached fleetd, and an FMA update dropped it. Host 20 (MacBook Air) is enrolled in Power Nap Lab. Laptop logs are read through Fleet scripts (root), so nobody needs to be at the laptop except to close or open the lid.
-1. PN-2b (rerun of PN-2) is running since 2026-10-21 08:50Z. Install queued 11:25Z in a DarkWake, no result yet. When it ends, open the lid and read the orbit and pmset logs.
+Done: B-1, C-1, PN-1 (reproduced), PN-6 (2026-10-20). PN-2 PARTIAL (2026-10-21): the install never reached fleetd, and an FMA update dropped it. PN-2b PASS (2026-10-21): the small install fails too. Host 20 (MacBook Air) is enrolled in Power Nap Lab. Laptop logs are read through Fleet scripts (root), so nobody needs to be at the laptop except to close or open the lid.
+1. PN-2b done (2026-10-21): the small install fails like the large one.
 2. PN-3: `touch /var/tmp/fleet-pn-script` by Fleet script, refetch, close the lid on battery. Read `/var/tmp/fleet-pn-script.log` for gaps.
 3. PN-4: PN-1 with the charger connected.
 4. PN-5: `sudo pmset -b powernap 0`, repeat PN-1. Restore to 1 after (B-1).

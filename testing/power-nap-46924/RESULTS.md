@@ -54,7 +54,13 @@
 - **Side finding:** an FMA version update drops a pending install silently. The policy stays failing, so the automation does not queue the install again, and the host stays without the app.
 - **Evidence:** `test-evidence/mac/PN-2-small-install-lid-closed-battery/`
 
-## PN-2b: Small install, lid closed, battery, rerun (2026-10-21): in progress
-- **Steps:** swiftDialog 3.1.1 reinstalled through Fleet with the lid open (installed 08:34:37Z), policy passes 08:35:40Z. swiftDialog deleted by a Fleet script at 08:36:09Z. Lid closed on battery and refetch at 08:50:09Z.
-- **So far (2026-10-21T12:26:06Z):** check-ins at 09:06:29Z and 11:08:17Z, neither ran policies. Policies ran in a DarkWake at 11:25:15Z, 2 h 35 min after the refetch, and the install was queued. No check-in or install result since 11:25:19Z. The install is still pending.
+## PN-2b: Small install, lid closed, battery, rerun (2026-10-21): PASS
+- **Steps:** swiftDialog 3.1.1 reinstalled through Fleet with the lid open (installed 08:34:37Z), policy passes 08:35:40Z. swiftDialog deleted by a Fleet script at 08:36:09Z. Lid closed on battery and refetch at 08:50:09Z. Logs read through Fleet scripts after the lid opened.
+- **Found (local time, UTC+2):**
+  - Check-ins at 11:06 and 13:08 did not run policies. Policies ran in a 2 s DarkWake at 13:25:15, 2 h 35 min after the refetch, and the install was queued.
+  - The DarkWakes at 13:41 and 13:52 did not deliver the install to fleetd.
+  - 14:10:02 DarkWake (2 s), sleep at 14:10:04. fleetd gets the install at 14:10:05 and starts the download.
+  - 14:26:46 next DarkWake: `failed to download software installer ... copying from http stream to file`. Fleet shows "Software installer download failed." and queues a retry.
+  - After the lid opened, the retry downloaded in 3 s and installed at 14:49:13.
+- **Finding:** answered. A small install fails the same way as a large one. fleetd starts the download one second after macOS logs Entering Sleep, so the package size does not matter. This matches the issue thread, where small packages such as swiftDialog failed too.
 - **Evidence:** `test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/`

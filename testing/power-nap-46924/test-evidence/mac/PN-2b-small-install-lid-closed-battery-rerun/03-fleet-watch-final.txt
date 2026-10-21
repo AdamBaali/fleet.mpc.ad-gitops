@@ -1,0 +1,10 @@
+# 2026-10-21T12:50:06Z
+$ cat fleet-watch-final.txt
+
+08:50:18Z status=online seen=2026-10-21T08:50:09Z dialog_policy=pass policy_updated=2026-10-21T08:35:40Z upcoming=[] past=[('2026-10-21T08:36:09', 'ran_script', None, None)]
+09:06:55Z status=online seen=2026-10-21T09:06:29Z dialog_policy=pass policy_updated=2026-10-21T08:35:40Z upcoming=[] past=[('2026-10-21T08:36:09', 'ran_script', None, None)]
+11:08:32Z status=online seen=2026-10-21T11:08:17Z dialog_policy=pass policy_updated=2026-10-21T08:35:40Z upcoming=[] past=[('2026-10-21T08:36:09', 'ran_script', None, None)]
+11:25:10Z status=online seen=2026-10-21T11:25:19Z dialog_policy=fail policy_updated=2026-10-21T11:25:15Z upcoming=[('2026-10-21T11:25:14', 'installed_software', 'swiftDialog', 'pending_install')] past=[('2026-10-21T08:36:09', 'ran_script', None, None)]
+12:27:33Z status=offline seen=2026-10-21T11:25:19Z dialog_policy=fail policy_updated=2026-10-21T11:25:15Z upcoming=[('2026-10-21T12:26:47', 'installed_software', 'swiftDialog', 'pending_install')] past=[('2026-10-21T12:26:47', 'installed_software', 'swiftDialog', 'failed_install'), ('2026-10-21T08:36:09', 'ran_script', None, Non
+DONE result
+[exit 0]
