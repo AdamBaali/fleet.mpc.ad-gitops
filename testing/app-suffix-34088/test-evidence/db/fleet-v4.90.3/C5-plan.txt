@@ -1,0 +1,29 @@
+# 2_plan.sql
+
+> SET @online_hours = 24  -- 0 rows affected
+
+> SET @exclude_bundle_ids = 'org.mozilla.firefox'  -- 0 rows affected
+
+> SET @batch_size = 100  -- 0 rows affected
+
+> DROP TABLE IF EXISTS zz_app_suffix_map  -- 0 rows affected
+
+> CREATE TABLE zz_app_suffix_map (  -- 0 rows affected
+
+> INSERT INTO zz_app_suffix_map (stale_id, stale_name, trimmed_name, target_checksum)  -- 2 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 1 rows affected
+
+> SET @n = -1  -- 0 rows affected
+
+> UPDATE zz_app_suffix_map  -- 2 rows affected
+
+> SELECT IF(survivor_id IS NULL, 'rename', 'merge') AS action,
+action | batches | software_rows
+merge | 1 | 1
+rename | 1 | 1
+
+> SELECT m.stale_id, m.stale_name, m.trimmed_name, s.version, s.bundle_identifier,
+action | bundle_identifier | host_links | stale_id | stale_name | survivor_id | trimmed_name | version
+merge | us.zoom.xos | 2 | 2 | Zoom.app | 7 | Zoom | 6.0
+rename | notion.id | 1 | 3 | Notion.app | NULL | Notion | 3.0

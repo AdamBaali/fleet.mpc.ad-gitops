@@ -1,0 +1,5 @@
+# 2026-10-21T09:17:49Z
+$ fleetctl api version 2>/dev/null | grep '"version"'
+
+  "version": "4.93.0",
+[exit 0]

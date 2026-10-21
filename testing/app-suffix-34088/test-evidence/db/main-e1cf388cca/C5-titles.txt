@@ -1,0 +1,14 @@
+# 4_titles.sql
+
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_titles (  -- 0 rows affected
+
+> INSERT IGNORE INTO zz_app_suffix_bak_titles (id, name)  -- 5 rows affected
+
+> SELECT t.id, t.name AS skipped_title
+(no rows)
+
+> UPDATE software_titles t  -- 5 rows affected
+
+> SELECT COUNT(*) AS titles_still_ending_in_app
+titles_still_ending_in_app
+0

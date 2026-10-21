@@ -1,0 +1,15 @@
+# 2_execute.sql
+
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_host_software (  -- 0 rows affected
+
+> INSERT IGNORE INTO zz_app_suffix_bak_host_software (host_id, software_id, last_opened_at)  -- 1 rows affected
+
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_software AS  -- 1 rows affected
+
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_titles AS  -- 2 rows affected
+
+> UPDATE host_software surv  -- 0 rows affected
+
+> DELETE hs FROM host_software hs
+
+STOPPED: DELETE hs FROM host_software hs: Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'LIMIT 1000' at line 9

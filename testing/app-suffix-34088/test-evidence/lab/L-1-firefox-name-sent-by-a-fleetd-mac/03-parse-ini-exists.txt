@@ -1,0 +1,5 @@
+# 2026-10-21T09:17:51Z
+$ fleetctl query --hosts MPC-Adam --exit --query "SELECT name FROM osquery_registry WHERE registry='table' AND name='parse_ini';" 2>/dev/null
+
+{"host":"MPC-Adam","rows":[{"host_display_name":"MPC-Adam","host_hostname":"MPC-Adam","name":"parse_ini"}]}
+[exit 0]
