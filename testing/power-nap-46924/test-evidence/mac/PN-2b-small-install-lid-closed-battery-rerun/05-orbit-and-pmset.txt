@@ -1,0 +1,50 @@
+# 2026-10-21T12:50:06Z
+$ cat orbit-and-pmset.txt
+
+== now 2026-10-21T14:49:44+0200 lid "AppleClamshellState" = No
+ -InternalBattery-0 (id=2752611)	74%; discharging; (no estimate) present: true
+== orbit from 10:50 local
+2026-10-21T14:10:05+02:00 INF received notification for software installers: [56b9ddae-5d5d-4bd1-8283-f0bc49b2e3de]
+2026-10-21T14:10:05+02:00 INF processing
+2026-10-21T14:10:05+02:00 INF fetching installer details
+2026-10-21T14:10:05+02:00 INF about to download software installer from Fleet
+2026-10-21T14:26:46+02:00 INF done downloading
+2026-10-21T14:26:46+02:00 ERR failed to download software installer error="POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http stream to
+2026-10-21T14:26:47+02:00 ERR failures found when processing installers errs=["POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http strea
+2026-10-21T14:26:47+02:00 ERR running config receivers, backing off error="POST /api/fleet/orbit/software_install/package?alt=media error with custom body handler contents: copying from http stream to
+2026-10-21T14:49:06+02:00 INF received notification for software installers: [209a0b2d-2882-442a-af92-e2586bdf3f0b]
+2026-10-21T14:49:06+02:00 INF processing
+2026-10-21T14:49:06+02:00 INF fetching installer details
+2026-10-21T14:49:06+02:00 INF about to download software installer from Fleet
+2026-10-21T14:49:09+02:00 INF done downloading
+2026-10-21T14:49:09+02:00 INF software installer downloaded installerPath=/tmp/3021189679/dialog-3.1.1-5000.pkg
+2026-10-21T14:49:09+02:00 INF about to run install script
+2026-10-21T14:49:13+02:00 INF install script exitCode=0
+== pmset 13:20 to 14:35 local
+2026-10-21 13:25:11 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/SleepService Using BATT (Charg
+2026-10-21 13:25:11 +0200 Kernel Client Acks  	Delays to Wake notifications: [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(68 ms)] [Codec Output d
+2026-10-21 13:25:13 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:74%) 9
+2026-10-21 13:25:16 +0200 Wake Requests       	
+2026-10-21 13:25:16 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1536 ms)] [mDNSResponder is slow(2785
+2026-10-21 13:41:48 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/SleepService Using BATT (Charg
+2026-10-21 13:41:48 +0200 Kernel Client Acks  	Delays to Wake notifications: [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(68 ms)] [Codec Output d
+2026-10-21 13:41:50 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:74%) 6
+2026-10-21 13:41:53 +0200 Wake Requests       	
+2026-10-21 13:41:53 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1528 ms)] [mDNSResponder is slow(2798
+2026-10-21 13:52:10 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/Maintenance Using BATT (Charge
+2026-10-21 13:52:10 +0200 Kernel Client Acks  	Delays to Wake notifications: [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(68 ms)] [Codec Output d
+2026-10-21 13:52:16 +0200 Sleep               	Entering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:74%) 1066 secs 
+2026-10-21 13:52:17 +0200 Wake Requests       	
+2026-10-21 13:52:17 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1532 ms)]           
+2026-10-21 14:10:02 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/SleepService Using BATT (Charg
+2026-10-21 14:10:02 +0200 Kernel Client Acks  	Delays to Wake notifications: [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(68 ms)] [Codec Output d
+2026-10-21 14:10:04 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:74%) 1
+2026-10-21 14:10:07 +0200 Wake Requests       	
+2026-10-21 14:10:07 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1529 ms)] [mDNSResponder is slow(2792
+2026-10-21 14:26:46 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMI0.SW3 nub-spmi0.0x02 rtc/SleepService Using BATT (Charg
+2026-10-21 14:26:46 +0200 Kernel Client Acks  	Delays to Wake notifications: [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(68 ms)] [Codec Output d
+2026-10-21 14:26:48 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:74%) 1
+2026-10-21 14:26:51 +0200 Wake Requests       	
+2026-10-21 14:26:51 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.bluetooth.sleep is slow(1543 ms)] [mDNSResponder is slow(2796
+
+[exit 0]

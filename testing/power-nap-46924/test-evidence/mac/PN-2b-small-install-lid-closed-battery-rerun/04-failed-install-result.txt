@@ -1,0 +1,11 @@
+# 2026-10-21T12:50:06Z
+$ cat failed-install-result.txt
+
+software_title : swiftDialog
+status : failed_install
+created_at : 2026-10-21T11:25:28.756323Z
+updated_at : 2026-10-21T12:50:03.268707Z
+--- output
+Installing software...
+Error: Software installer download failed.
+[exit 0]

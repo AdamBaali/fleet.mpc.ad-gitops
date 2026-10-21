@@ -2,3 +2,5 @@ B-1	INFO	B-1-baseline-power-settings	Power Nap on, tcpkeepalive on, standby on, 
 C-1	PASS	C-1-control-install-lid-open-on-power	Chrome and swiftDialog installed by policy automation on AC, lid open. Chrome took 8 min including one restart caused by MDM enrollment
 PN-1	PASS	PN-1-large-install-lid-closed-battery	Reproduced: download started in a 2 s DarkWake, read tcp error at the next DarkWake 17 min later, Fleet shows Software installer download failed
 PN-6	PASS	PN-6-what-happens-next	Fleet retried once after the failure. The retry waited for the lid to open and installed 83 s after the wake
+PN-2	PARTIAL	PN-2-small-install-lid-closed-battery	Install queued in a DarkWake but never reached fleetd. An FMA update to 3.1.1 at 17:37Z dropped it silently and nothing re-queued it. Small download not tested, rerun needed
+PN-2b	PASS	PN-2b-small-install-lid-closed-battery-rerun	Answered: the small install fails like the large one. Download starts 1 s after Entering Sleep, read error at the next DarkWake 17 min later. Retry installed after the lid opened (14:49:13 local)
