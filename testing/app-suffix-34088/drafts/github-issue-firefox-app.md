@@ -4,7 +4,7 @@ Title: macOS Firefox ingests as "Firefox.app" on hosts with fleetd tables, creat
 
 **Fleet versions**
   - *Discovered:* 4.90.3
-  - *Reproduced:* 4.93.0 (lab), 4.93.1 and `main` at e1cf388cca (database tests)
+  - *Reproduced:* 4.93.0 (lab Mac with fleetd). Same query in 4.90.3, 4.93.1 and `main` at e1cf388cca
 
 **Web browser and operating system**: N/A. Server ingestion, macOS hosts.
 
@@ -55,6 +55,6 @@ These steps:
 
 ### 🕯️ More info _(optional)_
 
-- Related, open: #52314 (rows from before 4.76.0 duplicate). Same symptom, two version rows for one app, different cause.
+- Related, open: #52314 (rows with old checksums duplicate). Same symptom, two version rows for one app, different cause.
 - Related, closed: #34088 (`.app` not trimmed), #42445 (Firefox title name with the Fleet-maintained app), #49682 (Firefox and Firefox ESR in one fleet).
-- Customers on osquery with the fleetd tables extension get the split on every Mac that has the extension, so the count is large.
+- Plain osquery with the `fleetd_tables` extension also gets `parse_ini` (`OrbitDefaultTables`), so those Macs report `Firefox.app` too. A fleet that mixes hosts with and without it gets both rows.

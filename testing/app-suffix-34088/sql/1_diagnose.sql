@@ -113,16 +113,17 @@ LIMIT 50;
 -- mirrors Software.ComputeRawChecksum (server/fleet/software.go).
 --
 --   current         matches today's formula. The cleanup works on these.
---   legacy_pre_4_76 matches the formula from before 4.75/4.76 (name
---                   first). Expected on instances upgraded from then for
---                   apps without a bundle ID. These can duplicate
+--   legacy_pre_4_75 matches the formula from before 4.75.0, which left
+--                   the name out for macOS apps. The 4.75.0 migration
+--                   recomputed apps with a bundle ID, so expect these only
+--                   for apps without one. They can duplicate
 --                   (fleetdm/fleet#52314). The cleanup skips them.
 --   unexplained     matches neither. Expected: 0. If not, STOP and send
 --                   these numbers.
 -- ---------------------------------------------------------------------
 SELECT
   SUM(cur)                     AS current,
-  SUM(NOT cur AND legacy)      AS legacy_pre_4_76,
+  SUM(NOT cur AND legacy)      AS legacy_pre_4_75,
   SUM(NOT cur AND NOT legacy)  AS unexplained
 FROM (
   SELECT
@@ -131,7 +132,7 @@ FROM (
         s.arch, s.vendor, s.extension_for, s.extension_id, s.name,
         NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, '')))) AS cur,
     s.checksum = UNHEX(MD5(CONCAT_WS(CHAR(0),
-        s.name, s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
+        s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
         s.arch, s.vendor, s.extension_for, s.extension_id))) AS legacy
   FROM software s
   WHERE s.source = 'apps'
@@ -177,7 +178,7 @@ LIMIT 200;
 -- ---------------------------------------------------------------------
 -- CHECK 7: duplicate versions across all software (fleetdm/fleet#52314)
 --
--- Not about ".app". Rows created before 4.76.0 kept an old checksum, so a
+-- Not about ".app". Rows created before 4.75.0 kept an old checksum, so a
 -- host reporting the same software again can create a second row: same
 -- name, version and source, split host counts. Fleet repaired giflib only
 -- (4.91.0). This counts what is left, by source, so the issue can be sized.

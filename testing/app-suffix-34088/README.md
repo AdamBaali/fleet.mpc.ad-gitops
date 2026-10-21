@@ -23,6 +23,8 @@ No customer or person names in this folder. Refer to the customer by the `custom
 | 4.90.0 | Product | One-shot migration renames mis-named titles from their sibling rows | Titles only |
 
 ## The database fix (this folder)
+Run after the customer's 4.93 upgrade. The upgrade runs the giflib merge migration (4.91.0), and `1_diagnose.sql` then reports what is left.
+
 Fleet's own repair for duplicate rows, `mergeDuplicateSoftware` in migration `20260810160000_DedupeSoftwareChecksums` (4.91.0), is the model: move host links to the surviving row, delete the duplicate. The scripts apply the same steps to `.app` rows.
 
 1. `sql/1_diagnose.sql`, read only. Splits `.app` rows into recurring, offline only and orphaned, checks for overrides, checks the checksum formula on the customer's data, lists titles, and sizes the #52314 duplicates.
@@ -33,7 +35,7 @@ Tested in Fleet's own test database with Fleet's ingestion code on 4.90.3, 4.93.
 
 ## The product fixes needed
 1. **`macos_firefox` sends `.app` names.** Fix the query, and merge existing Firefox rows in a migration. Draft: [drafts/github-issue-firefox-app.md](drafts/github-issue-firefox-app.md).
-2. **Rows created before 4.76.0 duplicate** (#52314, open, no milestone). The customer reported this for TeamViewer: several software IDs for one version. Fleet repaired giflib only. C3 reproduces it. Draft comment adding the customer: [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md).
+2. **Rows with checksums from before 4.75.0 duplicate** (#52314, open, no milestone). It may explain the customer's report of several software IDs for one version (TeamViewer). CHECK 7 will tell. Fleet repaired giflib only. C3 reproduces it. Draft comment adding the customer: [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md).
 
 ## Related customer issues
 See [TRACKING.md](TRACKING.md): every issue in this family, the fixes they carry, and the customer's other open software inventory and vulnerability items.

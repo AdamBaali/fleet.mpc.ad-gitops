@@ -3,16 +3,16 @@
 === PAUSE TestAppSuffix
 === CONT  TestAppSuffix
 === RUN   TestAppSuffix/C1_SelfHealWhenHostReports
-ts=2026-10-21T09:58:59Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.732917ms
-ts=2026-10-21T09:58:59Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.197167ms
+ts=2026-10-21T10:16:09Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.891583ms
+ts=2026-10-21T10:16:09Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=876.042µs
 === RUN   TestAppSuffix/C2_FirefoxComesBack
 === RUN   TestAppSuffix/C3_DiagnoseBuckets
 === RUN   TestAppSuffix/C4_CleanupThenIngest
-ts=2026-10-21T09:59:02Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=6.169292ms
---- PASS: TestAppSuffix (4.65s)
-    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.82s)
-    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.82s)
-    --- PASS: TestAppSuffix/C3_DiagnoseBuckets (0.92s)
-    --- PASS: TestAppSuffix/C4_CleanupThenIngest (0.98s)
+ts=2026-10-21T10:16:11Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=6.496791ms
+--- PASS: TestAppSuffix (4.76s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.88s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.78s)
+    --- PASS: TestAppSuffix/C3_DiagnoseBuckets (0.91s)
+    --- PASS: TestAppSuffix/C4_CleanupThenIngest (0.94s)
 PASS
-ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	6.053s
+ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	6.081s

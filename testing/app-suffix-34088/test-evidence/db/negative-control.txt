@@ -1,16 +1,16 @@
-# Negative control, 2026-10-21T09:59:21Z, Fleet main e1cf388cca
+# Negative control, 2026-10-21T10:16:34Z, Fleet main e1cf388cca
 # Copy of sql/ with the checksum's first two fields swapped (s.version, s.source -> s.source, s.version).
 # Expected: C3 and C4 fail. Swapping extension_for and extension_id would prove nothing: both are empty for macOS apps.
 
         	Error:      	Not equal: 
-        	Messages:   	the pre-4.76 row is recognized
+        	Messages:   	the pre-4.75 row is recognized
         	Error:      	Not equal: 
         	Messages:   	Zoom.app merges, Notion.app renames; Slack.app and Firefox.app are left
---- FAIL: TestAppSuffix (4.08s)
-    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.69s)
-    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.61s)
-    --- FAIL: TestAppSuffix/C3_DiagnoseBuckets (0.65s)
-    --- FAIL: TestAppSuffix/C4_CleanupThenIngest (0.62s)
+--- FAIL: TestAppSuffix (4.58s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.70s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.68s)
+    --- FAIL: TestAppSuffix/C3_DiagnoseBuckets (0.74s)
+    --- FAIL: TestAppSuffix/C4_CleanupThenIngest (0.67s)
 FAIL
-FAIL	github.com/fleetdm/fleet/v4/server/datastore/mysql	5.412s
+FAIL	github.com/fleetdm/fleet/v4/server/datastore/mysql	5.649s
 FAIL

@@ -19,9 +19,9 @@
 - **Finding:** No cleanup of Firefox lasts until `macos_firefox` changes. The plan excludes `org.mozilla.firefox`.
 
 ## C3: Diagnose buckets (2026-10-21): PASS
-- **Steps:** Build the fixture (override-era rows on offline hosts, today's rows on online hosts, one orphan, one online host still on `Slack.app`). Add a row with the pre-4.76 name-first checksum on one host, and let a second host report the same app. Run `sql/1_diagnose.sql`.
+- **Steps:** Build the fixture (override-era rows on offline hosts, today's rows on online hosts, one orphan, one online host still on `Slack.app`). Add a macOS app row without a bundle ID, with the pre-4.75 checksum (which left the name out), on one host, and let a second host report the same app. Run `sql/1_diagnose.sql`.
 - **Actual:** The second report inserted a twin of the old row: #52314 reproduced through `UpdateHostSoftware`. Buckets: orphaned 1, offline only 2, recurring 1 (Slack.app), recurring Firefox 1. CHECK 4: 1 legacy, 0 unexplained. CHECK 7: one `apps` group of 2 rows.
-- **Finding:** Old-checksum rows are expected on instances upgraded through 4.76.0. The cleanup skips them, and #52314 tracks them.
+- **Finding:** Old-checksum rows are expected on instances upgraded from before 4.75.0. The cleanup skips them, and #52314 tracks them.
 - **Evidence:** `test-evidence/db/<version>/C3-diagnose.txt`
 
 ## C4: Cleanup, then ingestion (2026-10-21): PASS

@@ -20,7 +20,7 @@ Why `.app` names exist, whether they come back, and whether the cleanup SQL is s
 | L-1 | Firefox name from a fleetd Mac | Live query `macos_firefox` and the main name expression on the lab Mac | Override gives `Firefox.app`, main query gives `Firefox` | Both outputs show it |
 | C1 | Self-heal | Host reports `Slack.app`, then `Slack`. Run the vulnerabilities cron functions | Link moves, `.app` row deleted, title keeps `.app` | Go assertions |
 | C2 | Firefox comes back | Merge `Firefox.app` by hand, then a fleetd host reports again | `.app` row is recreated | Go assertions |
-| C3 | Diagnose | Build the customer-like fixture plus a pre-4.76 checksum row, let a second host report that app, run `sql/1_diagnose.sql` | The old row duplicates (#52314). Buckets: 1 orphaned, 2 offline only, 1 recurring, 1 recurring Firefox. CHECK 4: 1 legacy, 0 unexplained. CHECK 7: 1 apps group of 2 rows | Go assertions |
+| C3 | Diagnose | Build the customer-like fixture plus a macOS app row with the pre-4.75 checksum (no name), let a second host report that app, run `sql/1_diagnose.sql` | The old row duplicates (#52314). Buckets: 1 orphaned, 2 offline only, 1 recurring, 1 recurring Firefox. CHECK 4: 1 legacy, 0 unexplained. CHECK 7: 1 apps group of 2 rows | Go assertions |
 | C4 | Cleanup, then ingestion | Run `2_plan`, `3_apply_batch` until done, `4_titles`. Then an offline host and a new host report | Zoom merges, Notion renames with Go's checksum, Slack and Firefox untouched, paths not doubled, newer last opened kept, no new software rows, no duplicate versions, no `.app` titles | Go assertions |
 | N-1 | Negative control | C3 and C4 with a wrong checksum field order | C3 and C4 fail, and the plan selects nothing | They fail |
 

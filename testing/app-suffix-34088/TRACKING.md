@@ -7,7 +7,7 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 |---|---|---|
 | `macos_firefox` sends `Firefox.app` and `Firefox ESR.app` | Nothing | To file: [drafts/github-issue-firefox-app.md](drafts/github-issue-firefox-app.md) |
 | Existing `.app` version rows and titles | Nothing since #34088 closed | Covered by the same draft (migration ask) and the scripts here |
-| Rows created before 4.76.0 duplicate (customer saw it for TeamViewer) | #52314, open, `bug`, `#g-supply-chain`, no milestone | Add `customer-ufa` and the comment in [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md) |
+| Rows with checksums from before 4.75.0 duplicate (may explain the customer's TeamViewer duplicates) | #52314, open, `bug`, `#g-supply-chain`, no milestone | Add `customer-ufa` and the comment in [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md) |
 | Customer request for the scripts | Internal support ticket, on hold | See `private/` |
 
 ## Closed issues in this family
@@ -37,7 +37,7 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 ## Customer's other open software inventory and vulnerability items
 | Issue | State | Milestone | Relation to this work |
 |---|---|---|---|
-| #52314 Duplicate entries for software with pre-4.76.0 checksums | Open | none | Same class: two rows for one version. `1_diagnose.sql` CHECK 7 sizes it. Not labeled `customer-ufa` yet |
+| #52314 Duplicate entries for software with old checksums (issue says pre-4.76.0, tags show 4.75.0) | Open | none | Same class: two rows for one version. `1_diagnose.sql` CHECK 7 sizes it. Not labeled `customer-ufa` yet |
 | #36365 Duplicate CVE entries for giflib 5.2.2 | Closed, 4.91.0 | 4.91.0 | Fixed by migration on upgrade. The customer's 4.93 upgrade runs it |
 | #45602 `software_cve` rows deleted when the feed sync fails | Closed | 4.87.0 | The customer cleaned their database after it. Not related to names |
 | #47911 More granular false-positive handling in `cpe_translations.json` | Open | none | Name and source matching. Two version rows for one app double matches |

@@ -19,7 +19,7 @@ org.mozilla.firefox | Firefox.app | 1 | 1
 com.tinyspeck.slackmacgap | Slack.app | 1 | 1
 
 > SELECT
-current | legacy_pre_4_76 | unexplained
+current | legacy_pre_4_75 | unexplained
 9 | 1 | 0
 
 > SELECT (c.id IS NOT NULL) AS paired, COUNT(*) AS software_rows

@@ -25,5 +25,5 @@ rename | 1 | 1
 
 > SELECT m.stale_id, m.stale_name, m.trimmed_name, s.version, s.bundle_identifier,
 action | bundle_identifier | host_links | stale_id | stale_name | survivor_id | trimmed_name | version
-merge | us.zoom.xos | 2 | 3 | Zoom.app | 7 | Zoom | 6.0
-rename | notion.id | 1 | 4 | Notion.app | NULL | Notion | 3.0
+merge | us.zoom.xos | 2 | 1 | Zoom.app | 6 | Zoom | 6.0
+rename | notion.id | 1 | 2 | Notion.app | NULL | Notion | 3.0
