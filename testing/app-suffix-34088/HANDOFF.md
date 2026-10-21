@@ -14,7 +14,7 @@
 
 1. Send `drafts/customer-update-now.md` in the customer thread.
 2. Post `drafts/help-customers-post.md` in #help-customers and tag the on-call engineer. Fold their review into `sql/` and rerun `tests/run-db-tests.sh`.
-3. File the bug from `drafts/github-issue-firefox-app.md`. Put its number in TRACKING.md and the customer reply.
+3. Done 2026-10-21: the Firefox bug is [fleetdm/fleet#56168](https://github.com/fleetdm/fleet/issues/56168).
 4. Add `customer-ufa` to #52314 and post `drafts/issue-comment-52314.md`. Add the customer's CHECK 7 numbers when they arrive.
 5. After the review, send the customer reply with the five SQL files attached, and store them on the support ticket too. Slack expires attachments.
 6. Read the customer's `1_diagnose.sql` output. Expected: recurring rows are Firefox only, CHECK 4 shows 0 unexplained. Anything else changes the plan.

@@ -49,8 +49,8 @@ We ran the scripts in Fleet's test database with Fleet's ingestion code and the 
 
 ## The product fixes needed
 
-1. `macos_firefox` sends `.app` names. Fix the query, and merge existing Firefox rows in a migration. Draft: [drafts/github-issue-firefox-app.md](drafts/github-issue-firefox-app.md).
-2. Rows with checksums from before 4.75.0 duplicate (#52314, open, no milestone). It may explain the customer's report of several software IDs for one version (TeamViewer). CHECK 7 will tell. Fleet repaired giflib only. C3 reproduces it. Draft comment adding the customer: [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md).
+1. `macos_firefox` sends `.app` names. Fix the query, and merge existing Firefox rows in a migration. Filed as [fleetdm/fleet#56168](https://github.com/fleetdm/fleet/issues/56168).
+2. Rows with checksums from before 4.75.0 duplicate ([fleetdm/fleet#52314](https://github.com/fleetdm/fleet/issues/52314), open, no milestone). It may explain the customer's report of several software IDs for one version (TeamViewer). CHECK 7 will tell. Fleet repaired giflib only. C3 reproduces it. Draft comment adding the customer: [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md).
 
 
 ## Related customer issues
