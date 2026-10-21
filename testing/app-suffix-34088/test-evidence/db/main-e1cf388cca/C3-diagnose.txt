@@ -19,8 +19,8 @@ org.mozilla.firefox | Firefox.app | 1 | 1
 com.tinyspeck.slackmacgap | Slack.app | 1 | 1
 
 > SELECT
-matching | mismatched
-8 | 0
+current | legacy_pre_4_76 | unexplained
+9 | 1 | 0
 
 > SELECT (c.id IS NOT NULL) AS paired, COUNT(*) AS software_rows
 paired | software_rows
@@ -29,17 +29,21 @@ paired | software_rows
 
 > SELECT 'title' AS kind, t.id, t.name, t.bundle_identifier
 bundle_identifier | id | kind | name
-org.mozilla.firefox | 2 | title | Firefox.app
-notion.id | 1 | title | Notion.app
+org.mozilla.firefox | 4 | title | Firefox.app
+notion.id | 3 | title | Notion.app
 com.example.old | 5 | title | Old.app
-com.tinyspeck.slackmacgap | 3 | title | Slack.app
-us.zoom.xos | 4 | title | Zoom.app
+com.tinyspeck.slackmacgap | 1 | title | Slack.app
+us.zoom.xos | 2 | title | Zoom.app
+
+> SELECT source,
+duplicate_groups | rows_in_groups | source
+1 | 2 | apps
 
 > SELECT table_name, table_rows,
 TABLE_NAME | TABLE_ROWS | size_gb
-software | 3 | 0
-software_titles | 2 | 0
+software | 10 | 0
+software_titles | 6 | 0
 software_cve | 0 | 0
 software_host_counts | 0 | 0
-host_software | 3 | 0
+host_software | 13 | 0
 host_software_installed_paths | 0 | 0

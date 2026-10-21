@@ -5,7 +5,7 @@
 -- that 3_apply_batch.sql reads. Nothing in Fleet reads it. Re-running this
 -- file rebuilds the plan from scratch.
 --
--- Run on the primary, after 1_diagnose.sql CHECK 4 showed mismatched = 0.
+-- Run on the primary, after 1_diagnose.sql CHECK 4 showed unexplained = 0.
 -- =====================================================================
 
 SET @online_hours = 24;

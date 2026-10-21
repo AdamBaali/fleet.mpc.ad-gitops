@@ -3,21 +3,16 @@
 === PAUSE TestAppSuffix
 === CONT  TestAppSuffix
 === RUN   TestAppSuffix/C1_SelfHealWhenHostReports
-ts=2026-10-21T09:39:04Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=2.776292ms
-ts=2026-10-21T09:39:04Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.381792ms
+ts=2026-10-21T09:58:38Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=2.212917ms
+ts=2026-10-21T09:58:38Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.145458ms
 === RUN   TestAppSuffix/C2_FirefoxComesBack
-=== RUN   TestAppSuffix/C3_HandoffScripts
-    zz_app_suffix_test.go:313: handoff 0_preflight.sql: err=<nil>
-    zz_app_suffix_test.go:313: handoff 1_preview.sql: err=<nil>
-    zz_app_suffix_test.go:313: handoff 2_execute.sql: err=DELETE hs FROM host_software hs: Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'LIMIT 1000' at line 9
-=== RUN   TestAppSuffix/C4_DiagnoseBuckets
-=== RUN   TestAppSuffix/C5_CleanupThenIngest
-ts=2026-10-21T09:39:08Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=8.635791ms
---- PASS: TestAppSuffix (6.29s)
-    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.82s)
-    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.90s)
-    --- PASS: TestAppSuffix/C3_HandoffScripts (0.71s)
-    --- PASS: TestAppSuffix/C4_DiagnoseBuckets (0.76s)
-    --- PASS: TestAppSuffix/C5_CleanupThenIngest (0.89s)
+=== RUN   TestAppSuffix/C3_DiagnoseBuckets
+=== RUN   TestAppSuffix/C4_CleanupThenIngest
+ts=2026-10-21T09:58:40Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=7.226708ms
+--- PASS: TestAppSuffix (4.64s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.69s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.64s)
+    --- PASS: TestAppSuffix/C3_DiagnoseBuckets (0.72s)
+    --- PASS: TestAppSuffix/C4_CleanupThenIngest (0.82s)
 PASS
-ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	7.518s
+ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	5.813s
