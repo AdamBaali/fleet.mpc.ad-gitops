@@ -51,7 +51,7 @@ See [TRACKING.md](TRACKING.md): every issue in this family, the fixes they carry
 | `tests/app_suffix_test.go` | Go test that runs `sql/` inside Fleet's own test database and ingestion code |
 | `tests/run-db-tests.sh` | Runs that test against any Fleet checkout: `tests/run-db-tests.sh ~/path/to/fleet` |
 | `tests/macos_firefox.sql`, `tests/main_name.sql` | The two live queries used in L-1 |
-| `drafts/` | The GitHub bug, the #52314 comment and the customer reply. Adam posts them |
+| `drafts/` | The #help-customers review request, the GitHub bug, the #52314 comment and the customer reply. Adam posts them |
 | `test-evidence/` | Raw output per test |
 
 Status (2026-10-21): all database tests pass on Fleet 4.90.3, 4.93.1 and `main`. Not yet run on the customer's data. Engineering review pending.
