@@ -1,5 +1,7 @@
 # 1_diagnose.sql
 
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
 > SET @online_hours = 24  -- 0 rows affected
 
 > SELECT 'global' AS scope,
@@ -19,8 +21,8 @@ org.mozilla.firefox | Firefox.app | 1 | 1
 com.tinyspeck.slackmacgap | Slack.app | 1 | 1
 
 > SELECT
-current | legacy_pre_4_75 | unexplained
-9 | 1 | 0
+current | legacy_pre_4_75 | renamed_by_fma | unexplained
+9 | 1 | 0 | 0
 
 > SELECT (c.id IS NOT NULL) AS paired, COUNT(*) AS software_rows
 paired | software_rows
@@ -29,11 +31,11 @@ paired | software_rows
 
 > SELECT 'title' AS kind, t.id, t.name, t.bundle_identifier
 bundle_identifier | id | kind | name
-org.mozilla.firefox | 2 | title | Firefox.app
-notion.id | 1 | title | Notion.app
+org.mozilla.firefox | 3 | title | Firefox.app
+notion.id | 2 | title | Notion.app
 com.example.old | 5 | title | Old.app
-com.tinyspeck.slackmacgap | 3 | title | Slack.app
-us.zoom.xos | 4 | title | Zoom.app
+com.tinyspeck.slackmacgap | 4 | title | Slack.app
+us.zoom.xos | 1 | title | Zoom.app
 
 > SELECT source,
 duplicate_groups | rows_in_groups | source
@@ -47,3 +49,11 @@ software_cve | 0 | 0
 software_host_counts | 0 | 0
 host_software | 13 | 0
 host_software_installed_paths | 0 | 0
+
+> SELECT COUNT(DISTINCT grp) AS duplicate_groups,
+duplicate_groups | rows_in_groups | rows_offline_only | rows_orphaned
+1 | 2 | 1 | 0
+
+> SELECT COUNT(*) AS darwin_catalog_apps FROM fleet_maintained_apps WHERE platform = 'darwin'
+darwin_catalog_apps
+0

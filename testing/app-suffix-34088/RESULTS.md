@@ -44,13 +44,40 @@
 - Evidence: `test-evidence/db/<version>/C4-*.txt`
 
 
+## C5: Fleet-maintained app renames (2026-10-21): PASS
+- Steps: An offline host has `Zoom.app` 6.0 and `Notion.app` 3.0. An online host reports `Zoom` 6.0. Add catalog entries for Zoom and Notion, then run Fleet's `ReconcileMaintainedAppSoftwareNames`. Run `1_diagnose.sql`, `2_plan.sql`, and `3_apply_batch.sql`. The offline host reports again, then the job and the vulnerabilities cron functions run.
+- Expected: The job turns old `.app` rows into same-name duplicates. Diagnose doesn't block. Pass 2 merges the duplicate. Nothing new is created afterward.
+- Actual: The job renamed `Zoom.app` to `Zoom` and `Notion.app` to `Notion`, and kept both checksums. That left two `Zoom` 6.0 rows. CHECK 2 found no `.app` names. CHECK 4 showed 2 `renamed_by_fma` and 0 unexplained. CHECK 9 showed 1 offline-only duplicate. The plan had one `duplicate` merge, and after it one `Zoom` 6.0 row was left. When the host reported again, it kept that row. The old `Notion` row was orphaned and deleted by the cron.
+- Evidence: `test-evidence/db/<version>/C5-*.txt`
+- Finding: Before this test, the scripts looked only for names ending in `.app`, and CHECK 4 would have told a Premium customer to stop. On Fleet Premium, most old `.app` rows of common apps are now same-name duplicates.
+
+## C6: Never merge into an orphan (2026-10-21): PASS
+- Steps: A `Zoom` 5.0 group after the Fleet-maintained app job ran: an orphan, an old `Zoom.app` row on an offline host, and the `zoom.us` row online hosts use. Also `Slack.app` on the offline host, whose only twin `Slack` is an orphan. Plan and apply.
+- Actual: Pass 2 picked the row online hosts use as survivor, not the orphan. `Slack.app` was skipped as `skip_orphan_twin`. No host link or path points at a missing row.
+- Finding (from the SQL review): before this fix, a merge could target an orphan the vulnerabilities cron was about to delete.
+
+## C7: Bundle ID fallback (2026-10-21): PASS
+- Steps: `Visual Studio Code.app` 1.85 on an offline host, `Code` 1.85 online, same bundle ID. `Postman Helper.app` 11.0 offline, and `Postman Helper (GPU)` and `Postman Helper (Renderer)` online with the same bundle ID. Plan and apply. Then the offline host reports again.
+- Actual: VS Code merged into `Code` with `pair_by` bundle. The helper has two candidates, so it was renamed to `Postman Helper` instead of merged. Reporting again created no rows.
+- Finding (from the SQL review): before this fix, the VS Code row would have been renamed to a name no host sends, leaving two rows for one version.
+
+## C8: No chains (2026-10-21): PASS
+- Steps: `Foo.app.app` and `Foo.app` (with a bundle ID) and `Bar.app.app` and `Bar.app` (without) on offline hosts. `Foo` and `Bar` online. Plan, apply, and verify.
+- Actual: Both Foo rows merged into `Foo`, the chain through the bundle ID fallback. `Bar.app` merged into `Bar`. `Bar.app.app` was skipped as `skip_stale_twin`. No host link or path points at a missing row.
+
+## CL-1: Scripts through the mysql client (2026-10-21): PASS
+- Steps: `tests/run-client-smoke.sh` loads Fleet's `schema.sql` into the `mysql_test` container (MySQL 8.0.44, `enforce_gtid_consistency` on, row-based binlog), adds `tests/fixture-client.sql`, and runs every script with `mysql --default-character-set=utf8mb4`, which connects with `utf8mb4_0900_ai_ci`. It also runs `2_plan.sql` without its `SET NAMES` line.
+- Actual: Without `SET NAMES`, the plan fails with `ERROR 1267 ... Illegal mix of collations`. With it, all five scripts exit 0. The end state: `Zoom.app` merged into `Zoom` with its installed path moved, `Notion.app` renamed to `Notion`, and the title renamed to `Zoom`.
+- Evidence: `test-evidence/client/<version>/`
+- Finding (from the SQL review): the Go test connects with Fleet's own settings, which set the collation, so it couldn't catch this.
+
 ## Versions
 
-C1 to C4 pass on `fleet-v4.90.3` (customer production), `fleet-v4.93.1` (customer's next upgrade), and `main` at e1cf388cca. One folder per version under `test-evidence/db/`.
+C1 to C8 and CL-1 pass on `fleet-v4.90.3` (customer production), `fleet-v4.93.1` (customer's next upgrade), and `main` at e1cf388cca. One folder per version under `test-evidence/db/`.
 
 
 ## N-1: Negative control (2026-10-21): PASS
 
 - Steps: A copy of `sql/` with `s.version, s.source` swapped in the checksum.
-- Actual: C3 and C4 fail. CHECK 4 reports mismatches, and the plan selects nothing, because it only takes rows whose stored checksum matches the formula. A wrong formula fails safe. A first attempt that swapped `extension_for` and `extension_id` still passed, because both are empty for macOS apps.
+- Actual: C3 to C8 fail. CHECK 4 reports mismatches, and pass 1 selects nothing, because it only takes rows whose stored checksum matches the formula. A wrong formula fails safe. A first attempt that swapped `extension_for` and `extension_id` still passed, because both are empty for macOS apps.
 - Evidence: `test-evidence/db/negative-control.txt`

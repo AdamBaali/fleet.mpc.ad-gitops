@@ -39,6 +39,10 @@ func TestAppSuffix(t *testing.T) {
 		{"C2_FirefoxComesBack", testAppSuffixFirefoxComesBack},
 		{"C3_DiagnoseBuckets", testAppSuffixDiagnose},
 		{"C4_CleanupThenIngest", testAppSuffixCleanupThenIngest},
+		{"C5_FleetMaintainedAppRenames", testAppSuffixFleetMaintainedAppRenames},
+		{"C6_NeverMergeIntoOrphans", testAppSuffixNeverMergeIntoOrphans},
+		{"C7_BundleFallback", testAppSuffixBundleFallback},
+		{"C8_StaleChains", testAppSuffixStaleChains},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -462,4 +466,208 @@ func testAppSuffixCleanupThenIngest(t *testing.T, ds *Datastore) {
 	syncSoftware(t, ds)
 	require.Equal(t, 2, countInt(t, ds, `SELECT hosts_count FROM software_host_counts
 		WHERE software_id = ? AND team_id = 0 AND global_stats = 1`, notionStale), "off1 and brandnew count under Notion")
+}
+
+// ---- C5 --------------------------------------------------------------------------------
+
+// On Fleet Premium the hourly Fleet-maintained app job renames software rows to the catalog
+// name and keeps their checksum. Old ".app" rows of catalog apps then stop ending in ".app" and
+// become same-name duplicates of the rows hosts report today. Pass 2 of the plan merges them.
+func testAppSuffixFleetMaintainedAppRenames(t *testing.T, ds *Datastore) {
+	ctx := context.Background()
+	now := time.Now()
+	off := newAppSuffixHost(t, ds, "fmaoff", now.Add(-60*24*time.Hour))
+	on := newAppSuffixHost(t, ds, "fmaon", now)
+	report(t, ds, off, app("Zoom.app", "6.0", "us.zoom.xos"), app("Notion.app", "3.0", "notion.id"))
+	report(t, ds, on, app("Zoom", "6.0", "us.zoom.xos"))
+	zoomStale := oneID(t, ds, "Zoom.app", "6.0")
+	zoom := oneID(t, ds, "Zoom", "6.0")
+	notion := oneID(t, ds, "Notion.app", "3.0")
+
+	for _, a := range []fleet.MaintainedApp{
+		{Name: "Zoom", Slug: "zoom/darwin", Platform: "darwin", UniqueIdentifier: "us.zoom.xos"},
+		{Name: "Notion", Slug: "notion/darwin", Platform: "darwin", UniqueIdentifier: "notion.id"},
+	} {
+		_, err := ds.UpsertMaintainedApp(ctx, &a)
+		require.NoError(t, err)
+	}
+	require.NoError(t, ds.ReconcileMaintainedAppSoftwareNames(ctx))
+	require.Equal(t, []uint{zoomStale, zoom}, softwareIDs(t, ds, "Zoom", "6.0"), "the job renamed Zoom.app to Zoom: two rows, one name")
+	require.Equal(t, []uint{notion}, softwareIDs(t, ds, "Notion", "3.0"))
+
+	res, err := runSQLFile(t, ds, sqlPath("1_diagnose.sql"), "C5-diagnose")
+	require.NoError(t, err)
+	require.Empty(t, res[1], "CHECK 2: no names end in .app any more")
+	require.Equal(t, "0", res[3][0]["unexplained"], "CHECK 4 recognizes rows the job renamed")
+	require.Equal(t, "2", res[3][0]["renamed_by_fma"])
+	require.Equal(t, "1", res[8][0]["rows_offline_only"], "CHECK 9: the old Zoom.app row")
+	require.Equal(t, "2", res[9][0]["darwin_catalog_apps"])
+
+	res, err = runSQLFile(t, ds, sqlPath("2_plan.sql"), "C5-plan")
+	require.NoError(t, err)
+	require.Equal(t, []map[string]string{{"kind": "duplicate", "pair_by": "group", "action": "merge", "software_rows": "1", "batches": "1"}}, res[0])
+	_, err = runSQLFile(t, ds, sqlPath("3_apply_batch.sql"), "C5-apply-1")
+	require.NoError(t, err)
+	require.Equal(t, []uint{zoom}, softwareIDs(t, ds, "Zoom", "6.0"))
+	require.Equal(t, zoom, hostLinks(t, ds, off.ID)["Zoom 6.0"])
+
+	// Notion was renamed by the job with its ".app" checksum and has no twin, so it stays as is.
+	// When the offline host reports again, it links to a new Notion row, and the old one is
+	// orphaned and deleted by the vulnerabilities cron.
+	setSeen(t, ds, off.ID, time.Now())
+	report(t, ds, off, app("Zoom", "6.0", "us.zoom.xos"), app("Notion", "3.0", "notion.id"))
+	require.Equal(t, zoom, hostLinks(t, ds, off.ID)["Zoom 6.0"], "no new Zoom row")
+	require.NoError(t, ds.ReconcileMaintainedAppSoftwareNames(ctx))
+	syncSoftware(t, ds)
+	require.Len(t, softwareIDs(t, ds, "Zoom", "6.0"), 1)
+	require.Len(t, softwareIDs(t, ds, "Notion", "3.0"), 1, "the old Notion row was orphaned and deleted")
+}
+
+func planStates(t *testing.T, ds *Datastore) map[uint]string {
+	var rows []struct {
+		ID    uint   `db:"stale_id"`
+		State string `db:"state"`
+	}
+	require.NoError(t, ds.primary.Select(&rows, `SELECT stale_id, state FROM zz_app_suffix_map`))
+	out := map[uint]string{}
+	for _, r := range rows {
+		out[r.ID] = r.State
+	}
+	return out
+}
+
+func applyAll(t *testing.T, ds *Datastore, label string) {
+	for i := 0; ; i++ {
+		require.Less(t, i, 5)
+		_, err := runSQLFile(t, ds, sqlPath("3_apply_batch.sql"), fmt.Sprintf("%s-apply-%d", label, i+1))
+		require.NoError(t, err)
+		if countInt(t, ds, `SELECT COUNT(*) FROM zz_app_suffix_map WHERE state = 'pending'`) == 0 {
+			return
+		}
+	}
+}
+
+func noDanglingLinks(t *testing.T, ds *Datastore) {
+	require.Zero(t, countInt(t, ds, `SELECT COUNT(*) FROM host_software hs LEFT JOIN software s ON s.id = hs.software_id WHERE s.id IS NULL`))
+	require.Zero(t, countInt(t, ds, `SELECT COUNT(*) FROM host_software_installed_paths p LEFT JOIN software s ON s.id = p.software_id WHERE s.id IS NULL`))
+}
+
+// ---- C6 --------------------------------------------------------------------------------
+
+// A survivor with no host links is an orphan the vulnerabilities cron is about to delete.
+// Pass 2 picks a linked row instead, and pass 1 skips a row whose only twin is an orphan.
+func testAppSuffixNeverMergeIntoOrphans(t *testing.T, ds *Datastore) {
+	ctx := context.Background()
+	now := time.Now()
+	off := newAppSuffixHost(t, ds, "orphoff", now.Add(-60*24*time.Hour))
+	on := newAppSuffixHost(t, ds, "orphon", now)
+	gone := newAppSuffixHost(t, ds, "orphgone", now)
+
+	// Pass 2 group: an orphan named like the catalog, a renamed old row on an offline host,
+	// and the row online hosts use, which reports another name ("zoom.us").
+	report(t, ds, gone, app("Zoom", "5.0", "us.zoom.xos"))
+	report(t, ds, gone) // the orphan keeps no links
+	report(t, ds, off, app("Zoom.app", "5.0", "us.zoom.xos"))
+	report(t, ds, on, app("zoom.us", "5.0", "us.zoom.xos"))
+	orphan := oneID(t, ds, "Zoom", "5.0")
+	live := oneID(t, ds, "zoom.us", "5.0")
+	_, err := ds.UpsertMaintainedApp(ctx, &fleet.MaintainedApp{Name: "Zoom", Slug: "zoom/darwin", Platform: "darwin", UniqueIdentifier: "us.zoom.xos"})
+	require.NoError(t, err)
+	require.NoError(t, ds.ReconcileMaintainedAppSoftwareNames(ctx))
+	require.Len(t, softwareIDs(t, ds, "Zoom", "5.0"), 3, "the job renamed all three to Zoom")
+
+	// Pass 1: Slack.app on the offline host, and its twin Slack exists only as an orphan.
+	report(t, ds, gone, app("Slack", "4.0", "com.tinyspeck.slackmacgap"))
+	report(t, ds, gone)
+	report(t, ds, off, app("Zoom.app", "5.0", "us.zoom.xos"), app("Slack.app", "4.0", "com.tinyspeck.slackmacgap"))
+	slackStale := oneID(t, ds, "Slack.app", "4.0")
+
+	_, err = runSQLFile(t, ds, sqlPath("2_plan.sql"), "C6-plan")
+	require.NoError(t, err)
+	var survivor uint
+	require.NoError(t, ds.primary.Get(&survivor, `SELECT survivor_id FROM zz_app_suffix_map WHERE kind = 'duplicate'`))
+	require.Equal(t, live, survivor, "the row online hosts use, not the orphan")
+	require.NotEqual(t, orphan, survivor)
+
+	applyAll(t, ds, "C6")
+	require.Equal(t, "skip_orphan_twin", planStates(t, ds)[slackStale])
+	require.Equal(t, live, hostLinks(t, ds, off.ID)["Zoom 5.0"])
+	noDanglingLinks(t, ds)
+}
+
+// ---- C7 --------------------------------------------------------------------------------
+
+// The row hosts report today can have another name than the trimmed file name, because Fleet
+// names apps from the bundle first. Pass 1 then merges by bundle ID and version, but only
+// when exactly one row qualifies.
+func testAppSuffixBundleFallback(t *testing.T, ds *Datastore) {
+	now := time.Now()
+	off := newAppSuffixHost(t, ds, "bfoff", now.Add(-60*24*time.Hour))
+	on := newAppSuffixHost(t, ds, "bfon", now)
+	report(t, ds, off,
+		app("Visual Studio Code.app", "1.85", "com.microsoft.VSCode"),
+		app("Postman Helper.app", "11.0", "com.postmanlabs.mac.helper"))
+	report(t, ds, on,
+		app("Code", "1.85", "com.microsoft.VSCode"),
+		app("Postman Helper (GPU)", "11.0", "com.postmanlabs.mac.helper"),
+		app("Postman Helper (Renderer)", "11.0", "com.postmanlabs.mac.helper"))
+	vscodeStale := oneID(t, ds, "Visual Studio Code.app", "1.85")
+	code := oneID(t, ds, "Code", "1.85")
+	helperStale := oneID(t, ds, "Postman Helper.app", "11.0")
+
+	res, err := runSQLFile(t, ds, sqlPath("2_plan.sql"), "C7-plan")
+	require.NoError(t, err)
+	require.Contains(t, res[0], map[string]string{"kind": "suffix", "pair_by": "bundle", "action": "merge", "software_rows": "1", "batches": "1"})
+	applyAll(t, ds, "C7")
+
+	states := planStates(t, ds)
+	require.Equal(t, "merged", states[vscodeStale])
+	require.Equal(t, code, hostLinks(t, ds, off.ID)["Code 1.85"])
+	require.Equal(t, "renamed", states[helperStale], "two helpers share the bundle ID, so no merge")
+	require.Equal(t, helperStale, oneID(t, ds, "Postman Helper", "11.0"))
+
+	// The offline host comes back and reports today's names: nothing new.
+	before := countInt(t, ds, `SELECT COUNT(*) FROM software`)
+	setSeen(t, ds, off.ID, time.Now())
+	report(t, ds, off, app("Code", "1.85", "com.microsoft.VSCode"), app("Postman Helper", "11.0", "com.postmanlabs.mac.helper"))
+	require.Equal(t, before, countInt(t, ds, `SELECT COUNT(*) FROM software`))
+	noDanglingLinks(t, ds)
+}
+
+// ---- C8 --------------------------------------------------------------------------------
+
+// A row whose checksum twin is itself in the plan ("Foo.app.app" next to "Foo.app"). With a
+// bundle ID, the fallback merges it into the row hosts use. Without one, it's skipped: merging
+// into the other stale row would delete both, and renaming would collide on the unique checksum.
+func testAppSuffixStaleChains(t *testing.T, ds *Datastore) {
+	now := time.Now()
+	off := newAppSuffixHost(t, ds, "choff", now.Add(-60*24*time.Hour))
+	off2 := newAppSuffixHost(t, ds, "choff2", now.Add(-60*24*time.Hour))
+	on := newAppSuffixHost(t, ds, "chon", now)
+	report(t, ds, off, app("Foo.app.app", "1.0", "com.example.foo"), app("Bar.app.app", "1.0", ""))
+	report(t, ds, off2, app("Foo.app", "1.0", "com.example.foo"), app("Bar.app", "1.0", ""))
+	report(t, ds, on, app("Foo", "1.0", "com.example.foo"), app("Bar", "1.0", ""))
+	fooChain := oneID(t, ds, "Foo.app.app", "1.0")
+	fooMid := oneID(t, ds, "Foo.app", "1.0")
+	foo := oneID(t, ds, "Foo", "1.0")
+	barChain := oneID(t, ds, "Bar.app.app", "1.0")
+	barMid := oneID(t, ds, "Bar.app", "1.0")
+	bar := oneID(t, ds, "Bar", "1.0")
+
+	_, err := runSQLFile(t, ds, sqlPath("2_plan.sql"), "C8-plan")
+	require.NoError(t, err)
+	applyAll(t, ds, "C8")
+	states := planStates(t, ds)
+	require.Equal(t, "merged", states[fooMid])
+	require.Equal(t, "merged", states[fooChain], "bundle fallback to the row hosts use")
+	require.Equal(t, foo, hostLinks(t, ds, off.ID)["Foo 1.0"])
+	require.Equal(t, foo, hostLinks(t, ds, off2.ID)["Foo 1.0"])
+	require.Equal(t, "merged", states[barMid])
+	require.Equal(t, "skip_stale_twin", states[barChain], "no bundle ID, twin is in the plan")
+	require.Equal(t, bar, hostLinks(t, ds, off2.ID)["Bar 1.0"])
+	require.Equal(t, barChain, hostLinks(t, ds, off.ID)["Bar.app.app 1.0"], "left alone")
+	noDanglingLinks(t, ds)
+
+	_, err = runSQLFile(t, ds, sqlPath("5_verify.sql"), "C8-verify")
+	require.NoError(t, err)
 }

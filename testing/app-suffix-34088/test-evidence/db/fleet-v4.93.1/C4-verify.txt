@@ -1,5 +1,7 @@
 # 5_verify.sql
 
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
 > SELECT state, COUNT(*) AS software_rows FROM zz_app_suffix_map GROUP BY state
 software_rows | state
 1 | merged
@@ -9,16 +11,16 @@ software_rows | state
 renamed_with_wrong_checksum
 0
 
-> SELECT COUNT(*) AS links_to_missing_software
-links_to_missing_software
-0
+> SELECT
+links_to_missing_software | paths_to_missing_software
+0 | 0
 
-> SELECT COUNT(*) AS duplicate_identity_groups FROM (
-duplicate_identity_groups
+> SELECT COUNT(*) AS duplicates_in_touched_groups FROM (
+duplicates_in_touched_groups
 0
 
 > SELECT COALESCE(s.bundle_identifier, '') AS bundle_identifier, COUNT(*) AS software_rows
 bundle_identifier | software_rows
-com.tinyspeck.slackmacgap | 1
 org.mozilla.firefox | 1
+com.tinyspeck.slackmacgap | 1
 com.example.old | 1

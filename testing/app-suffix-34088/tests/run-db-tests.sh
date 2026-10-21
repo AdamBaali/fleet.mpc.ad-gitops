@@ -12,10 +12,10 @@ out="$here/test-evidence/db/$ref"
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-fleet-app-suffix}"
 (cd "$fleet" && docker compose up -d mysql_test >/dev/null)
-# A checkout with a different compose file recreates the container, and the test fails if it
-# connects before MySQL accepts connections.
+# A checkout with a different compose file recreates the container. Wait for a real login:
+# mysqladmin ping answers before the root password is set.
 c="$(cd "$fleet" && docker compose ps -q mysql_test)"
-for _ in $(seq 1 60); do docker exec "$c" mysqladmin -uroot -ptoor ping >/dev/null 2>&1 && break; sleep 2; done
+for _ in $(seq 1 60); do docker exec "$c" mysql -uroot -ptoor -e "SELECT 1" >/dev/null 2>&1 && break; sleep 2; done
 cp "$here/tests/app_suffix_test.go" "$fleet/server/datastore/mysql/zz_app_suffix_test.go"
 trap 'rm -f "$fleet/server/datastore/mysql/zz_app_suffix_test.go"' EXIT
 

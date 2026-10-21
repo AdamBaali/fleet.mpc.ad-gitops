@@ -1,13 +1,15 @@
 # 4_titles.sql
 
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
 > CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_titles (  -- 0 rows affected
 
 > INSERT IGNORE INTO zz_app_suffix_bak_titles (id, name)  -- 5 rows affected
 
-> SELECT t.id, t.name AS skipped_title
-(no rows)
-
 > UPDATE software_titles t  -- 5 rows affected
+
+> SELECT t.id, t.name AS title_without_bundle_id
+(no rows)
 
 > SELECT COUNT(*) AS titles_still_ending_in_app
 titles_still_ending_in_app

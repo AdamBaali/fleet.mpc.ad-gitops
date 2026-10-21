@@ -1,48 +1,64 @@
 # 3_apply_batch.sql
 
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
+> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED  -- 0 rows affected
+
 > SET @online_hours = 24  -- 0 rows affected
 
 > SET @b = (SELECT MIN(batch_no) FROM zz_app_suffix_map WHERE state = 'pending')  -- 0 rows affected
 
-> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_software LIKE software  -- 0 rows affected
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_software AS  -- 0 rows affected
 
-> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_host_software LIKE host_software  -- 0 rows affected
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_host_software AS  -- 0 rows affected
 
-> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_paths LIKE host_software_installed_paths  -- 0 rows affected
+> CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_paths AS  -- 0 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
 
 > UPDATE zz_app_suffix_map m  -- 0 rows affected
 
-> UPDATE zz_app_suffix_map m  -- 0 rows affected
+> DROP TEMPORARY TABLE IF EXISTS zz_stale_ids  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_stale_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY)  -- 0 rows affected
+
+> INSERT INTO zz_stale_ids SELECT stale_id FROM zz_app_suffix_map WHERE state IN ('pending', 'merged', 'renamed')  -- 2 rows affected
 
 > UPDATE zz_app_suffix_map m  -- 2 rows affected
 
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
+
 > START TRANSACTION  -- 0 rows affected
 
-> INSERT IGNORE INTO zz_app_suffix_bak_software  -- 2 rows affected
+> INSERT INTO zz_app_suffix_bak_software  -- 2 rows affected
 
-> INSERT IGNORE INTO zz_app_suffix_bak_host_software  -- 3 rows affected
+> INSERT INTO zz_app_suffix_bak_host_software  -- 3 rows affected
 
-> INSERT IGNORE INTO zz_app_suffix_bak_paths  -- 1 rows affected
+> INSERT INTO zz_app_suffix_bak_paths  -- 1 rows affected
 
-> UPDATE host_software surv  -- 1 rows affected
+> DELETE p FROM zz_app_suffix_map m  -- 1 rows affected
 
-> DELETE st FROM host_software st  -- 1 rows affected
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
 
-> UPDATE host_software hs  -- 1 rows affected
+> UPDATE zz_app_suffix_map m  -- 1 rows affected
 
-> DELETE p FROM host_software_installed_paths p  -- 1 rows affected
+> DELETE st FROM zz_app_suffix_map m  -- 1 rows affected
 
-> UPDATE host_software_installed_paths p  -- 0 rows affected
+> UPDATE zz_app_suffix_map m  -- 1 rows affected
 
 > DELETE cve FROM software_cve cve  -- 0 rows affected
 
 > DELETE shc FROM software_host_counts shc  -- 0 rows affected
 
+> DELETE khc FROM kernel_host_counts khc  -- 0 rows affected
+
 > DELETE s FROM software s  -- 1 rows affected
 
 > UPDATE software s  -- 1 rows affected
 
-> UPDATE zz_app_suffix_map  -- 2 rows affected
+> UPDATE zz_app_suffix_map m  -- 2 rows affected
 
 > COMMIT  -- 0 rows affected
 

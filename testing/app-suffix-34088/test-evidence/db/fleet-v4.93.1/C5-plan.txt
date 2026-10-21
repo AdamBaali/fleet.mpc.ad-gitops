@@ -1,0 +1,75 @@
+# 2_plan.sql
+
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
+> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED  -- 0 rows affected
+
+> SET @online_hours = 24  -- 0 rows affected
+
+> SET @exclude_bundle_ids = 'org.mozilla.firefox'  -- 0 rows affected
+
+> SET @batch_size = 100  -- 0 rows affected
+
+> DROP TABLE IF EXISTS zz_app_suffix_map  -- 0 rows affected
+
+> CREATE TABLE zz_app_suffix_map (  -- 0 rows affected
+
+> INSERT INTO zz_app_suffix_map (stale_id, kind, stale_name, trimmed_name, target_checksum)  -- 0 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_stale_ids  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_stale_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY)  -- 0 rows affected
+
+> INSERT INTO zz_stale_ids SELECT stale_id FROM zz_app_suffix_map  -- 0 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_bundle_twins  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_bundle_twins (  -- 0 rows affected
+
+> INSERT INTO zz_bundle_twins  -- 0 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 0 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_dup_groups  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_dup_groups (grp BINARY(16) NOT NULL PRIMARY KEY)  -- 0 rows affected
+
+> INSERT INTO zz_dup_groups  -- 1 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_dup_rows  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_dup_rows (  -- 0 rows affected
+
+> INSERT INTO zz_dup_rows (id, grp, checksum, canonical, links, online_links)  -- 2 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_dup_survivors  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_dup_survivors (  -- 0 rows affected
+
+> INSERT INTO zz_dup_survivors (grp, survivor_id, checksum)  -- 1 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_pass1_survivors  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_pass1_survivors (id BIGINT UNSIGNED NOT NULL PRIMARY KEY)  -- 0 rows affected
+
+> INSERT IGNORE INTO zz_pass1_survivors  -- 0 rows affected
+
+> INSERT IGNORE INTO zz_app_suffix_map  -- 1 rows affected
+
+> DROP TEMPORARY TABLE IF EXISTS zz_batches  -- 0 rows affected
+
+> CREATE TEMPORARY TABLE zz_batches (stale_id BIGINT UNSIGNED NOT NULL PRIMARY KEY, batch_no INT UNSIGNED NOT NULL)  -- 0 rows affected
+
+> INSERT INTO zz_batches  -- 1 rows affected
+
+> UPDATE zz_app_suffix_map m JOIN zz_batches b ON b.stale_id = m.stale_id SET m.batch_no = b.batch_no  -- 1 rows affected
+
+> SELECT kind, pair_by, IF(survivor_id IS NULL, 'rename', 'merge') AS action,
+action | batches | kind | pair_by | software_rows
+merge | 1 | duplicate | group | 1
+
+> SELECT m.stale_id, m.kind, m.pair_by, m.stale_name, m.trimmed_name, s.version, s.bundle_identifier,
+action | bundle_identifier | host_links | kind | pair_by | stale_id | stale_name | survivor_id | survivor_name | trimmed_name | version
+merge | us.zoom.xos | 1 | duplicate | group | 1 | Zoom | 3 | Zoom | Zoom | 6.0

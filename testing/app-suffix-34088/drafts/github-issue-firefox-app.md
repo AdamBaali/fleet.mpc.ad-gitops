@@ -54,4 +54,5 @@ These steps:
 ### 🕯️ More info _(optional)_
 
 - Related, open: #52314. Rows with old checksums also create a second version row, from a different cause.
+- Not a duplicate of #50090 (Firefox 153.0 CVE version comparison, fixed for 4.94.0 by #55056) or #50077 (Windows Fleet-maintained app title matching). Neither changes `macos_firefox`, and the `rc-minor-fleet-v4.94.0` branch still hard-codes `Firefox.app`.
 - Related, closed: #34088 (`.app` not trimmed), #42445 (Firefox title name with the Fleet-maintained app), and #49682 (Firefox and Firefox ESR in one fleet).

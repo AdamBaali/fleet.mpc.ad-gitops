@@ -1,16 +1,18 @@
-# Negative control, 2026-10-21T10:16:34Z, Fleet main e1cf388cca
+# Negative control, 2026-10-21T10:58:21Z, Fleet main e1cf388cca
 # Copy of sql/ with the checksum's first two fields swapped (s.version, s.source -> s.source, s.version).
-# Expected: C3 and C4 fail. Swapping extension_for and extension_id would prove nothing: both are empty for macOS apps.
+# Expected: the tests that depend on the checksum fail. Swapping extension_for and extension_id would prove nothing: both are empty for macOS apps.
 
-        	Error:      	Not equal: 
         	Messages:   	the pre-4.75 row is recognized
-        	Error:      	Not equal: 
         	Messages:   	Zoom.app merges, Notion.app renames; Slack.app and Firefox.app are left
---- FAIL: TestAppSuffix (4.58s)
-    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.70s)
-    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.68s)
-    --- FAIL: TestAppSuffix/C3_DiagnoseBuckets (0.74s)
-    --- FAIL: TestAppSuffix/C4_CleanupThenIngest (0.67s)
+--- FAIL: TestAppSuffix (8.45s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.96s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.85s)
+    --- FAIL: TestAppSuffix/C3_DiagnoseBuckets (0.93s)
+    --- FAIL: TestAppSuffix/C4_CleanupThenIngest (0.94s)
+    --- FAIL: TestAppSuffix/C5_FleetMaintainedAppRenames (0.87s)
+    --- FAIL: TestAppSuffix/C6_NeverMergeIntoOrphans (0.92s)
+    --- FAIL: TestAppSuffix/C7_BundleFallback (0.85s)
+    --- FAIL: TestAppSuffix/C8_StaleChains (0.92s)
 FAIL
-FAIL	github.com/fleetdm/fleet/v4/server/datastore/mysql	5.649s
+FAIL	github.com/fleetdm/fleet/v4/server/datastore/mysql	9.945s
 FAIL

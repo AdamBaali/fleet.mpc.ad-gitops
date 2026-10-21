@@ -1,0 +1,10 @@
+# fleet: fleet-v4.93.1
+# server: 8.0.44, gtid_mode=OFF, enforce_gtid_consistency=ON, binlog_format=ROW
+# client connection collation: utf8mb4_0900_ai_ci
+0_plan_without_set_names: exit 1
+1_diagnose: exit 0
+2_plan: exit 0
+3_apply_batch_1: exit 0
+3_apply_batch_2: exit 0
+4_titles: exit 0
+5_verify: exit 0
