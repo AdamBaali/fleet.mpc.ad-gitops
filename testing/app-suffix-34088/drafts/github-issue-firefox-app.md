@@ -1,4 +1,4 @@
-<!-- Draft for fleetdm/fleet, bug-report template. Not filed. Adam files it.
+<!-- Filed as https://github.com/fleetdm/fleet/issues/56168 on 2026-10-21. Kept as the source text.
 Labels: bug, :product, customer-ufa, #g-supply-chain, ~software-ingestion
 Title: macOS Firefox is ingested as "Firefox.app" on hosts with fleetd tables, which creates duplicate versions -->
 
