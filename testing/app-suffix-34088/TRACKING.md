@@ -2,7 +2,9 @@
 
 Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an ingestion fix shipped. Nothing tracks the Firefox override, and the open issue for duplicate rows (#52314) does not carry the customer's label.
 
+
 ## The gap
+
 | What needs tracking | Tracked by | State |
 |---|---|---|
 | `macos_firefox` sends `Firefox.app` and `Firefox ESR.app` | Nothing | To file: [drafts/github-issue-firefox-app.md](drafts/github-issue-firefox-app.md) |
@@ -10,7 +12,9 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 | Rows with checksums from before 4.75.0 duplicate (may explain the customer's TeamViewer duplicates) | #52314, open, `bug`, `#g-supply-chain`, no milestone | Add `customer-ufa` and the comment in [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md) |
 | Customer request for the scripts | Internal support ticket, on hold | See `private/` |
 
+
 ## Closed issues in this family
+
 | Issue | Closed | Milestone | `customer-ufa` | What it fixed | Covers stored rows? |
 |---|---|---|---|---|---|
 | #29053 Existing macOS software names aren't fixed on ingestion | 2025-09-26 | 4.73.3 | Yes | Renames on ingestion after the 4.67 name change | No |
@@ -25,7 +29,9 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 | #42445 FMA: Firefox.app name and icon | 2026-07-15 | 4.89.0 | No | Title name when the Firefox Fleet-maintained app is added | Only titles with that installer |
 | #49682 Error when adding Firefox and Firefox ESR to one fleet | 2026-09-02 | 4.91.0 | No | Shared bundle ID for installers | No |
 
+
 ## Related Fleet changes
+
 | Version | Change | Effect here |
 |---|---|---|
 | 4.75.0 | Migration `20251015103505` recomputed macOS app checksums in SQL, with the name | Precedent for renaming name and checksum together |
@@ -34,7 +40,9 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 | 4.90.0 | One-shot title migration for login helper names | Titles only. Picks the shared prefix of sibling names, which can turn `Firefox.app` plus `Firefox` into `Firefox` for titles that had both at upgrade |
 | 4.91.0 | Migration `20260810160000_DedupeSoftwareChecksums` merges duplicate giflib Homebrew rows (#36365) | The model for the merge in `3_apply_batch.sql`. Runs on the customer's upgrade from 4.90.3, with no manual steps |
 
+
 ## Customer's other open software inventory and vulnerability items
+
 | Issue | State | Milestone | Relation to this work |
 |---|---|---|---|
 | #52314 Duplicate entries for software with old checksums (issue says pre-4.76.0, tags show 4.75.0) | Open | none | Same class: two rows for one version. `1_diagnose.sql` CHECK 7 sizes it. Not labeled `customer-ufa` yet |
@@ -50,8 +58,12 @@ Checked 2026-10-21 against the GitHub API. Every `.app` issue was closed when an
 | #41982 Software architecture in the API | Open | none | Low priority for the customer |
 | #38662 Observability alerts for agent health, inventory, vulns | Open | none | Customer testing after GitOps is stable |
 
+
 ## Not related, though linked in the customer channel
+
 - #50077 (Windows names with versions match the wrong title) and #50090 (Firefox CVE false positive on 153.0) are other customers' bugs with different causes. Neither changes Firefox's name.
 
+
 ## Open issues that help spot duplicates
+
 - #18634 Surface `bundle_identifier` in the UI, and #15938 find software by bundle identifier (open, `customer-ufa`).
