@@ -17,3 +17,21 @@
 - One MacBook Air, not a fleet. No presigned URLs, so the URL-then-Fleet fallback isn't exercised (out of scope).
 - Lab network and Fleet server behind the lab's tunnel, not a corporate load balancer.
 - Needs real hardware. A VM doesn't do Power Nap or clamshell sleep.
+
+## Community evidence versus the lab (2026-10-21)
+robbiet480's comment on the issue (2026-10-06) against PN-1 and PN-2:
+
+| Their report | Lab | Match |
+|---|---|---|
+| Clamshell Sleep on battery, orbit runs only in DarkWakes about 16 minutes apart | Clamshell Sleep on battery, DarkWakes 13 to 17 minutes apart (PN-1, PN-2) | Yes |
+| The Mac goes back to sleep 2 to 5 s after a DarkWake starts | Most DarkWakes 2 s, Maintenance wakes 6 to 10 s | Yes |
+| Download starts, then the TCP connection is dead at the next DarkWake | Download starts 14:06:16, `read tcp` error at the next DarkWake 17 minutes later (PN-1) | Yes |
+| orbit logs the download start a few seconds after pmset logs `Entering Sleep state` | Same: sleep 14:06:15, download start 14:06:16 (PN-1) | Yes |
+| Presigned URL first, then the Fleet fallback dies in the same DarkWake | No presigned URLs in the lab. The direct Fleet download fails the same way | Partly: the fallback path is not exercised |
+| Load balancer logs `client_disconnected_after_partial_response` | Not checked on the lab server | Not tested |
+| Small pkgs such as swiftDialog fail too | PN-2 never reached fleetd (FMA update), PN-2b running | Not yet |
+| Every failure was a policy automation | Every lab failure was a policy automation | Yes |
+
+What the lab adds: when a policy runs with the lid closed depends on an osquery check-in in a DarkWake (42 to 60+ minutes after a refetch). The single retry waited for a full wake (PN-6). An FMA version update drops a pending install silently (PN-2). DNS lookups failed in DarkWakes overnight (PN-2). An orbit restart drops a download with no error line (C-1).
+
+Their fixes: (1) defer installs and scripts during DarkWake, (2) hold an `IOPMAssertion` for the download and install, (3) retry the presigned URL with an HTTP `Range` resume. PN-7 (`caffeinate -s` around the install) tests the idea behind (2). None of the fixes is tested.
