@@ -348,9 +348,10 @@ func buildFixture(t *testing.T, ds *Datastore) fixture {
 func testAppSuffixDiagnose(t *testing.T, ds *Datastore) {
 	f := buildFixture(t, ds)
 
-	// A row created before 4.76.0, when the checksum put the name first (fleetdm/fleet#52314),
-	// and the second row a host created for the same app after the upgrade.
-	legacy := md5.Sum([]byte(strings.Join([]string{"Legacy Tool", "1.0", "apps", "", "", "", "", "", ""}, "\x00")))
+	// A macOS app without a bundle ID created before 4.75.0, when the checksum left the name out
+	// for apps (fleet-v4.74.0 ComputeRawChecksum), and the second row a host creates for the same
+	// app after the upgrade (fleetdm/fleet#52314).
+	legacy := md5.Sum([]byte(strings.Join([]string{"1.0", "apps", "", "", "", "", "", ""}, "\x00")))
 	res0, err := ds.primary.Exec(`INSERT INTO software (name, version, source, bundle_identifier, checksum)
 		VALUES ('Legacy Tool', '1.0', 'apps', '', ?)`, legacy[:])
 	require.NoError(t, err)
@@ -359,7 +360,7 @@ func testAppSuffixDiagnose(t *testing.T, ds *Datastore) {
 	_, err = ds.primary.Exec(`INSERT INTO host_software (host_id, software_id) VALUES (?, ?)`, f.off1.ID, legacyID)
 	require.NoError(t, err)
 	report(t, ds, f.plainOn, app("Firefox", "140.0", "org.mozilla.firefox"), app("Legacy Tool", "1.0", ""))
-	require.Len(t, softwareIDs(t, ds, "Legacy Tool", "1.0"), 2, "the pre-4.76 row duplicated")
+	require.Len(t, softwareIDs(t, ds, "Legacy Tool", "1.0"), 2, "the pre-4.75 row duplicated")
 
 	res, err := runSQLFile(t, ds, sqlPath("1_diagnose.sql"), "C3-diagnose")
 	require.NoError(t, err)
@@ -375,10 +376,10 @@ func testAppSuffixDiagnose(t *testing.T, ds *Datastore) {
 		"recurring/firefox=0":    "1", // Slack.app, still linked to legacyon, which is online
 		"recurring/firefox=1":    "1", // Firefox.app, sent today by fleetdon
 	}, buckets)
-	require.Equal(t, "1", res[3][0]["legacy_pre_4_76"], "the pre-4.76 row is recognized")
+	require.Equal(t, "1", res[3][0]["legacy_pre_4_75"], "the pre-4.75 row is recognized")
 	require.Equal(t, "0", res[3][0]["unexplained"], "every other stored checksum matches the formula")
 
-	// res[6] is CHECK 7: the pre-4.76 pair is one duplicate group.
+	// res[6] is CHECK 7: the pre-4.75 pair is one duplicate group.
 	require.Equal(t, []map[string]string{{"source": "apps", "duplicate_groups": "1", "rows_in_groups": "2"}}, res[6])
 }
 

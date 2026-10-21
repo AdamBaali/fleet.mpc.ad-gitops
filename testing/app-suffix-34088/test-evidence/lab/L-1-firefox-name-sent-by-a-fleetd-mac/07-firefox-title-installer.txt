@@ -1,0 +1,5 @@
+# 2026-10-21T10:13:52Z
+$ fleetctl api -F team_id=4 software/titles/2437  (team 4 = Ping Duo Lab)
+
+title: Mozilla Firefox | bundle: org.mozilla.firefox | installer: Firefox 158.0.1.dmg | fleet_maintained_app_id: 479
+[exit 0]

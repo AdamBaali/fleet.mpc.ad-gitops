@@ -19,6 +19,6 @@ duplicate_identity_groups
 
 > SELECT COALESCE(s.bundle_identifier, '') AS bundle_identifier, COUNT(*) AS software_rows
 bundle_identifier | software_rows
-org.mozilla.firefox | 1
-com.tinyspeck.slackmacgap | 1
 com.example.old | 1
+com.tinyspeck.slackmacgap | 1
+org.mozilla.firefox | 1
