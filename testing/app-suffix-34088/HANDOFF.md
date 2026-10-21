@@ -6,19 +6,21 @@
 - Diagnosis done and verified against Fleet source, the GitHub API, and the lab. See README and NOTES.
 - `sql/` written and tested: C1 to C8 and the client smoke test (CL-1) pass on Fleet 4.90.3, 4.93.1, and `main`. N-1 shows a wrong formula fails safe.
 - An independent review of the SQL ran it at 202,000 software rows with `EXPLAIN` and lock tests. Its findings are fixed and covered by C6 to C8 and CL-1.
-- Not run on customer data. No engineering review yet.
-- Nothing posted or sent. Drafts: `drafts/help-customers-post.md`, `drafts/github-issue-firefox-app.md`, `drafts/customer-reply.md`.
+- Not run on customer data.
+- Done 2026-10-21:
+  - The update went to the customer thread.
+  - The Firefox bug was filed as [fleetdm/fleet#56168](https://github.com/fleetdm/fleet/issues/56168).
+  - The review request was posted in #help-customers, with the scripts attached.
+- Waiting on the on-call engineer's review and the customer's 4.93 upgrade.
 
 
 ## Next steps
 
-1. Send `drafts/customer-update-now.md` in the customer thread.
-2. Post `drafts/help-customers-post.md` in #help-customers and tag the on-call engineer. Fold their review into `sql/` and rerun `tests/run-db-tests.sh`.
-3. Done 2026-10-21: the Firefox bug is [fleetdm/fleet#56168](https://github.com/fleetdm/fleet/issues/56168).
-4. No comment on #52314. Use the customer's CHECK 7 numbers to decide whether to raise it with the product team.
-5. After the review, send the customer reply with the five SQL files attached, and store them on the support ticket too. Slack expires attachments.
-6. Read the customer's `1_diagnose.sql` output. Expected: recurring rows are Firefox only, CHECK 4 shows 0 unexplained. Anything else changes the plan.
-7. After Fleet fixes `macos_firefox`, drop `org.mozilla.firefox` from `@exclude_bundle_ids` if the migration does not merge the old rows.
+1. Fold the on-call review into `sql/`, then rerun `tests/run-db-tests.sh` and `tests/run-client-smoke.sh` on 4.93.1 at least.
+2. After the review, send `drafts/customer-reply.md` in the customer thread with the five SQL files attached. Store the files on the support ticket too, because Slack expires attachments.
+3. Once they've upgraded to 4.93, ask them to run `1_diagnose.sql` and send the output. Expected: recurring rows are Firefox only, and CHECK 4 shows 0 unexplained. Anything else changes the plan.
+4. Use their CHECK 7 numbers to decide whether to raise #52314 with the product team. No comment is planned on it otherwise.
+5. Follow #56168. After Fleet fixes `macos_firefox`, drop `org.mozilla.firefox` from `@exclude_bundle_ids` if the fix's migration doesn't merge the old rows.
 
 
 ## Running services
