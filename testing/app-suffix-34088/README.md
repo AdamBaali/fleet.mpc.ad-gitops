@@ -23,6 +23,8 @@ No customer or person names in this folder. Refer to the customer by the `custom
 | 4.90.0 | Product | One-shot migration renames mis-named titles from their sibling rows | Titles only |
 
 ## The database fix (this folder)
+Run after the customer's 4.93 upgrade. The upgrade runs the giflib merge migration (4.91.0), and `1_diagnose.sql` then reports what is left.
+
 Fleet's own repair for duplicate rows, `mergeDuplicateSoftware` in migration `20260810160000_DedupeSoftwareChecksums` (4.91.0), is the model: move host links to the surviving row, delete the duplicate. The scripts apply the same steps to `.app` rows.
 
 1. `sql/1_diagnose.sql`, read only. Splits `.app` rows into recurring, offline only and orphaned, checks for overrides, checks the checksum formula on the customer's data, lists titles, and sizes the #52314 duplicates.

@@ -4,6 +4,8 @@
 
 *Problem:* macOS versions named `Firefox.app` next to `Firefox`, which breaks name matching in their vulnerability pipeline. Self-hosted, production on 4.90.3, upgrading to 4.93. Plain osquery with the fleetd tables extension.
 
+*Timing:* they run the scripts after the 4.93 upgrade. The upgrade runs `20260810160000` (giflib merge), and the scripts pass on the 4.93.1 schema.
+
 *Causes we found*
 • Firefox: `macos_firefox` in `queries.go` hard-codes `Firefox.app` and `Firefox ESR.app` on any host with `parse_ini`. Reproduced on 4.93.0. A cleanup comes back within the hour, so the scripts skip Firefox. Bug draft for a product fix is linked below.
 • Other apps: left from a `software_macos` override removed in Sep 2025 (#33140). These clear when hosts report. Only rows on long-offline hosts stay.
