@@ -1,0 +1,6 @@
+WITH app_paths AS (SELECT path FROM apps WHERE bundle_identifier = 'org.mozilla.firefox'),
+remoting_name AS (SELECT value, path FROM parse_ini WHERE key = 'RemotingName' AND path IN (SELECT CONCAT(path, '/Contents/Resources/application.ini') FROM app_paths))
+SELECT CASE WHEN remoting_name.value = 'firefox-esr' THEN 'Firefox ESR.app' ELSE 'Firefox.app' END AS name,
+  COALESCE(NULLIF(apps.bundle_short_version, ''), apps.bundle_version) AS version, apps.bundle_identifier AS bundle_identifier, apps.path AS installed_path
+FROM apps LEFT JOIN remoting_name ON apps.path = REPLACE(remoting_name.path, '/Contents/Resources/application.ini', '')
+WHERE apps.bundle_identifier = 'org.mozilla.firefox';

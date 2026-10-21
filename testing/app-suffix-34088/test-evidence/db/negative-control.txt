@@ -1,0 +1,17 @@
+# Negative control, 2026-10-21T09:29:16Z
+# Copy of sql/ with the checksum's first two fields swapped (s.version, s.source -> s.source, s.version).
+# Expected: C4 and C5 fail. Swapping extension_for and extension_id was tried first and passed, because both are empty for macOS apps, so it proves nothing.
+
+        	Error:      	Not equal: 
+        	Messages:   	checksum formula matches every stored row
+        	Error:      	Not equal: 
+        	Messages:   	Zoom.app merges, Notion.app renames; Slack.app and Firefox.app are left
+--- FAIL: TestAppSuffix (4.42s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.62s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.54s)
+    --- PASS: TestAppSuffix/C3_HandoffScripts (0.54s)
+    --- FAIL: TestAppSuffix/C4_DiagnoseBuckets (0.59s)
+    --- FAIL: TestAppSuffix/C5_CleanupThenIngest (0.61s)
+FAIL
+FAIL	github.com/fleetdm/fleet/v4/server/datastore/mysql	6.191s
+FAIL

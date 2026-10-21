@@ -1,0 +1,5 @@
+# 2026-10-21T09:19:40Z
+$ fleetctl query --hosts MPC-Adam --exit --query "$(cat testing/app-suffix-34088/tests/main_name.sql)" 2>/dev/null
+
+{"host":"MPC-Adam","rows":[{"apps_table_name":"Firefox.app","bundle_identifier":"org.mozilla.firefox","host_display_name":"MPC-Adam","host_hostname":"MPC-Adam","name":"Firefox","version":"157.0.1"}]}
+[exit 0]

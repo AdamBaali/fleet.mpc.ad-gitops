@@ -1,0 +1,33 @@
+# 1_preview.sql
+
+> DROP TABLE IF EXISTS zz_app_suffix_map  -- 0 rows affected
+
+> CREATE TABLE zz_app_suffix_map (  -- 0 rows affected
+
+> INSERT INTO zz_app_suffix_map  -- 2 rows affected
+
+> UPDATE zz_app_suffix_map m  -- 2 rows affected
+
+> SELECT 'AMBIGUOUS PAIRING - DO NOT PROCEED' AS warning,
+(no rows)
+
+> SELECT
+host_links_to_move | links_merged_into_existing | links_repointed | software_rows | state
+1 | 0 | 1 | 1 | pending
+1 | 0 | 1 | 1 | unpaired
+
+> SELECT
+bundle_identifier | colliding_hosts | stale_hosts | stale_id | stale_name | survivor_hosts | survivor_id | trimmed_name | version
+us.zoom.xos | 0 | 1 | 2 | Zoom.app | 1 | 3 | Zoom | 6.0
+
+> SELECT
+bundle_identifier | stale_hosts | stale_id | stale_name | version
+notion.id | 1 | 1 | Notion.app | 3.0
+
+> SELECT
+action | bundle_identifier | current_name | id | new_name
+rename | notion.id | Notion.app | 1 | Notion
+rename | us.zoom.xos | Zoom.app | 2 | Zoom
+
+> SELECT d.id, d.team_id, d.software_title_id, d.display_name
+(no rows)

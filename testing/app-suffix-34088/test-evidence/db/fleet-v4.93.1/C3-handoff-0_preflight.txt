@@ -1,0 +1,22 @@
+# 0_preflight.sql
+
+> SELECT
+bundle_identifier | hosts_still_reporting | most_recent_report | name | software_id | version
+us.zoom.xos | 1 | 2026-10-21T09:39:06Z | Zoom.app | 1 | 6.0
+notion.id | 1 | 2026-10-21T09:39:06Z | Notion.app | 2 | 3.0
+
+> SELECT
+distinct_bundle_ids | host_software_links_affected | stale_software_rows | stale_titles
+2 | 2 | 2 | 2
+
+> SELECT
+(no rows)
+
+> SELECT
+TABLE_NAME | TABLE_ROWS | size_gb
+software | 3 | 0.00
+software_titles | 2 | 0.00
+software_cve | 0 | 0.00
+software_host_counts | 0 | 0.00
+host_software | 3 | 0.00
+host_software_installed_paths | 0 | 0.00
