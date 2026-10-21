@@ -42,8 +42,14 @@
 - **Finding:** one automatic retry. In the 37 minutes the lid stayed closed after the failure, it did not start in a DarkWake. It ran 50 s after a full wake. Whether it would start in a later DarkWake overnight is not tested.
 - **Evidence:** `test-evidence/mac/PN-6-what-happens-next/`
 
-## PN-2: Small install, lid closed, battery (2026-10-20): in progress
-- **Steps:** swiftDialog deleted by a Fleet script at 13:28:02Z (lid open, battery 74%). Lid closed and refetch at 13:28:33Z.
-- **So far (2026-10-20T15:26:39Z):** first check-in 14:13:04Z (no policy run). Policies ran in a DarkWake at 14:28:36Z, the swiftDialog policy fails and the install is queued. No check-in or install result since 14:28:42Z.
-- **Note:** the refetch took an hour to run policies here and 42 minutes in PN-1. Why some check-ins run policies and others do not is not checked.
+## PN-2: Small install, lid closed, battery (2026-10-20): PARTIAL
+- **Steps:** swiftDialog deleted by a Fleet script at 13:28:02Z (lid open, battery 74%). Lid closed and refetch at 13:28:33Z. Lid opened 08:11:55Z the next day. Logs read through Fleet scripts.
+- **Found (local time, UTC+2):**
+  - 16:28:30 DarkWake (6 s): policies run, the swiftDialog policy fails, install queued at 16:28:36, the same second the Mac sleeps.
+  - 16:45 to 18:53: DarkWakes every 13 to 17 minutes, 2 to 8 s each. fleetd logs no install notification and no error.
+  - 18:53 onward: fleetd logs `lookup fleet.mpc.ad: no such host` in DarkWakes, on and off all night. 76 DarkWakes overnight.
+  - 19:37:36: the swiftDialog Fleet-maintained app updates to 3.1.1. The pending install disappears with no activity, and the title's status counts reset to 0.
+  - Next morning: the policy still fails and nothing is queued again.
+- **Finding:** not answered. The install never reached fleetd, so the small download never started. Rerun needed.
+- **Side finding:** an FMA version update drops a pending install silently. The policy stays failing, so the automation does not queue the install again, and the host stays without the app.
 - **Evidence:** `test-evidence/mac/PN-2-small-install-lid-closed-battery/`

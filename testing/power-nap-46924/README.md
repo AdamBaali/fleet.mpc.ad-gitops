@@ -15,4 +15,4 @@ Tests what fleetd does when a policy automation installs software or runs a scri
 | `scripts/build-pkg.sh` | Builds the fleetd installer for Power Nap Lab (secret read from Fleet) |
 | `scripts/collect.sh` | Saves B-1 and each run's orbit and pmset logs for the same window |
 
-Status (2026-10-20): D-1, B-1, C-1, PN-1 (reproduced) and PN-6 done. PN-2 to PN-5 and PN-7 open.
+Status (2026-10-21): D-1, B-1, C-1, PN-1 (reproduced) and PN-6 done. PN-2 partial, rerun needed. PN-3 to PN-5 and PN-7 open.
