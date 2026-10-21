@@ -84,7 +84,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** PN-2 again: policy automation installs swiftDialog while the laptop sleeps with the lid closed on battery
 - **Expected:** Unknown: may finish inside one DarkWake
 
-**Output:** [01-start.txt](test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/01-start.txt)
+**Output:** [01-start.txt](test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/01-start.txt) · [02-fleet-watch-so-far.txt](test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/02-fleet-watch-so-far.txt)
 
 ---
 

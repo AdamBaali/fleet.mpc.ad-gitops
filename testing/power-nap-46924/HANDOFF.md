@@ -11,7 +11,7 @@ Runs on the MacBook Air started 2026-10-20, see Next steps.
 
 ## Next steps
 Done: B-1, C-1, PN-1 (reproduced), PN-6 (2026-10-20). PN-2 PARTIAL (2026-10-21): the install never reached fleetd, and an FMA update dropped it. Host 20 (MacBook Air) is enrolled in Power Nap Lab. Laptop logs are read through Fleet scripts (root), so nobody needs to be at the laptop except to close or open the lid.
-1. PN-2 rerun: swiftDialog is absent and its policy already fails, so the automation will not queue it again. Reinstall swiftDialog with the lid open (policy passes), then delete it, refetch and close the lid on battery.
+1. PN-2b (rerun of PN-2) is running since 2026-10-21 08:50Z. Install queued 11:25Z in a DarkWake, no result yet. When it ends, open the lid and read the orbit and pmset logs.
 2. PN-3: `touch /var/tmp/fleet-pn-script` by Fleet script, refetch, close the lid on battery. Read `/var/tmp/fleet-pn-script.log` for gaps.
 3. PN-4: PN-1 with the charger connected.
 4. PN-5: `sudo pmset -b powernap 0`, repeat PN-1. Restore to 1 after (B-1).
