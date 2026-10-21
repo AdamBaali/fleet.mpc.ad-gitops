@@ -4,7 +4,8 @@
 ## State
 
 - Diagnosis done and verified against Fleet source, the GitHub API, and the lab. See README and NOTES.
-- `sql/` written and tested: C1 to C4 pass on Fleet 4.90.3, 4.93.1, and `main`. N-1 shows a wrong formula fails safe.
+- `sql/` written and tested: C1 to C8 and the client smoke test (CL-1) pass on Fleet 4.90.3, 4.93.1, and `main`. N-1 shows a wrong formula fails safe.
+- An independent review of the SQL ran it at 202,000 software rows with `EXPLAIN` and lock tests. Its findings are fixed and covered by C6 to C8 and CL-1.
 - Not run on customer data. No engineering review yet.
 - Nothing posted or sent. Drafts: `drafts/help-customers-post.md`, `drafts/github-issue-firefox-app.md`, `drafts/issue-comment-52314.md`, `drafts/customer-reply.md`.
 

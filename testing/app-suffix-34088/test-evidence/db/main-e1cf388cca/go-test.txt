@@ -3,16 +3,28 @@
 === PAUSE TestAppSuffix
 === CONT  TestAppSuffix
 === RUN   TestAppSuffix/C1_SelfHealWhenHostReports
-ts=2026-10-21T10:16:09Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.891583ms
-ts=2026-10-21T10:16:09Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=876.042µs
+ts=2026-10-21T10:57:08Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=2.080417ms
+ts=2026-10-21T10:57:08Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=999.334µs
 === RUN   TestAppSuffix/C2_FirefoxComesBack
 === RUN   TestAppSuffix/C3_DiagnoseBuckets
 === RUN   TestAppSuffix/C4_CleanupThenIngest
-ts=2026-10-21T10:16:11Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=6.496791ms
---- PASS: TestAppSuffix (4.76s)
-    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.88s)
-    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.78s)
-    --- PASS: TestAppSuffix/C3_DiagnoseBuckets (0.91s)
-    --- PASS: TestAppSuffix/C4_CleanupThenIngest (0.94s)
+ts=2026-10-21T10:57:11Z level=debug msg="cleanup orphaned software titles" rows_affected=1 took=7.154208ms
+=== RUN   TestAppSuffix/C5_FleetMaintainedAppRenames
+ts=2026-10-21T10:57:12Z level=info msg="reconciled Fleet-maintained app software names" software_titles_renamed=2 software_renamed=2
+ts=2026-10-21T10:57:12Z level=debug msg="cleanup orphaned software titles" rows_affected=0 took=1.238958ms
+=== RUN   TestAppSuffix/C6_NeverMergeIntoOrphans
+ts=2026-10-21T10:57:13Z level=info msg="reconciled Fleet-maintained app software names" software_titles_renamed=0 software_renamed=2
+=== RUN   TestAppSuffix/C7_BundleFallback
+ts=2026-10-21T10:57:14Z level=debug msg="multiple checksums mapping to same title" title_str="com.postmanlabs.mac.helper\x00apps\x00" new_checksum=ed339762ba62b5e5636a63cc171346ac existing_checksums=[49f149d9fa8eab676266a4164b623fdd] software_name="Postman Helper (Renderer)" software_version=11.0
+=== RUN   TestAppSuffix/C8_StaleChains
+--- PASS: TestAppSuffix (8.90s)
+    --- PASS: TestAppSuffix/C1_SelfHealWhenHostReports (0.90s)
+    --- PASS: TestAppSuffix/C2_FirefoxComesBack (0.87s)
+    --- PASS: TestAppSuffix/C3_DiagnoseBuckets (0.94s)
+    --- PASS: TestAppSuffix/C4_CleanupThenIngest (1.05s)
+    --- PASS: TestAppSuffix/C5_FleetMaintainedAppRenames (1.00s)
+    --- PASS: TestAppSuffix/C6_NeverMergeIntoOrphans (1.03s)
+    --- PASS: TestAppSuffix/C7_BundleFallback (0.88s)
+    --- PASS: TestAppSuffix/C8_StaleChains (0.94s)
 PASS
-ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	6.081s
+ok  	github.com/fleetdm/fleet/v4/server/datastore/mysql	10.374s

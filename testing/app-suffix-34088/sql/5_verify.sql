@@ -11,39 +11,54 @@
 -- job, run that job instead.
 -- =====================================================================
 
--- 1. Plan outcome. Expected: no 'pending'.
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 1. Plan outcome. Expected: no 'pending' and no 'failed'. 'skip_*' rows
+-- were left alone on purpose: see 3_apply_batch.sql for each reason.
 SELECT state, COUNT(*) AS software_rows FROM zz_app_suffix_map GROUP BY state;
 
--- 2. Every renamed row's checksum matches its new name. Expected: 0.
+-- 2. Every renamed row carries the checksum the plan computed for its new
+-- name. Expected: 0. (Compared with the plan rather than recomputed from
+-- the current name, because the Fleet-maintained app job may rename the
+-- row again later and keep the checksum.)
 SELECT COUNT(*) AS renamed_with_wrong_checksum
 FROM zz_app_suffix_map m
 JOIN software s ON s.id = m.stale_id
-WHERE m.state = 'renamed'
-  AND s.checksum <> UNHEX(MD5(CONCAT_WS(CHAR(0),
-        s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
-        s.arch, s.vendor, s.extension_for, s.extension_id, s.name,
-        NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, ''))));
+WHERE m.state = 'renamed' AND s.checksum <> m.target_checksum;
 
--- 3. No host link points at a deleted software row. Expected: 0.
-SELECT COUNT(*) AS links_to_missing_software
-FROM host_software hs
-JOIN zz_app_suffix_bak_host_software b ON b.host_id = hs.host_id
-LEFT JOIN software s ON s.id = hs.software_id
-WHERE s.id IS NULL;
+-- 3. No host link or installed path of the touched hosts points at a
+-- deleted software row. Expected: 0 and 0.
+SELECT
+  (SELECT COUNT(*) FROM host_software hs
+     LEFT JOIN software s ON s.id = hs.software_id
+    WHERE hs.host_id IN (SELECT DISTINCT host_id FROM zz_app_suffix_bak_host_software)
+      AND s.id IS NULL) AS links_to_missing_software,
+  (SELECT COUNT(*) FROM host_software_installed_paths p
+     LEFT JOIN software s ON s.id = p.software_id
+    WHERE p.host_id IN (SELECT DISTINCT host_id FROM zz_app_suffix_bak_host_software)
+      AND s.id IS NULL) AS paths_to_missing_software;
 
--- 4. No duplicate versions: two rows with the same identity. Expected: 0.
-SELECT COUNT(*) AS duplicate_identity_groups FROM (
-  SELECT 1 FROM software
-  WHERE source = 'apps'
-  GROUP BY name, version, COALESCE(bundle_identifier, ''), `release`, arch, vendor,
-           extension_for, extension_id
-  HAVING COUNT(*) > 1
+-- 4. Copies left next to the rows the plan merged into: same name,
+-- version and identity as a survivor, not skipped on purpose. Expected: 0,
+-- unless online hosts still use another copy (old checksums from
+-- fleetdm/fleet#52314, or a copy the Fleet-maintained app job renamed).
+-- 1_diagnose.sql CHECK 7 and CHECK 9 count those.
+SELECT COUNT(*) AS duplicates_in_touched_groups FROM (
+  SELECT 1
+  FROM software s
+  JOIN software v ON v.id IN (SELECT survivor_id FROM zz_app_suffix_map WHERE state = 'merged')
+                 AND v.name = s.name AND v.version = s.version AND v.source = s.source
+                 AND COALESCE(v.bundle_identifier, '') = COALESCE(s.bundle_identifier, '')
+                 AND v.`release` = s.`release` AND v.arch = s.arch AND v.vendor = s.vendor
+                 AND v.extension_for = s.extension_for AND v.extension_id = s.extension_id
+  WHERE s.id <> v.id
+    AND s.id NOT IN (SELECT stale_id FROM zz_app_suffix_map WHERE state LIKE 'skip%')
 ) d;
 
--- 5. What still ends in ".app", by bucket. Re-run 1_diagnose.sql CHECK 2
--- for the full picture. Expected after the cleanup: only 'recurring' rows
--- for excluded bundle IDs, and offline rows for hosts that went offline
--- after the plan.
+-- 5. What still ends in ".app". Re-run 1_diagnose.sql for the full
+-- picture. Expected after the cleanup: rows for excluded bundle IDs
+-- (Firefox), and rows on hosts that came online or went offline after the
+-- plan.
 SELECT COALESCE(s.bundle_identifier, '') AS bundle_identifier, COUNT(*) AS software_rows
 FROM software s
 WHERE s.source = 'apps' AND s.name LIKE '%.app' AND CHAR_LENGTH(s.name) > 4

@@ -1,0 +1,24 @@
+# 5_verify.sql
+
+> SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci  -- 0 rows affected
+
+> SELECT state, COUNT(*) AS software_rows FROM zz_app_suffix_map GROUP BY state
+software_rows | state
+3 | merged
+1 | skip_stale_twin
+
+> SELECT COUNT(*) AS renamed_with_wrong_checksum
+renamed_with_wrong_checksum
+0
+
+> SELECT
+links_to_missing_software | paths_to_missing_software
+0 | 0
+
+> SELECT COUNT(*) AS duplicates_in_touched_groups FROM (
+duplicates_in_touched_groups
+0
+
+> SELECT COALESCE(s.bundle_identifier, '') AS bundle_identifier, COUNT(*) AS software_rows
+bundle_identifier | software_rows
+ | 1

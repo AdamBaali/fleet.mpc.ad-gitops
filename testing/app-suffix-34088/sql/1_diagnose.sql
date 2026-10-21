@@ -2,6 +2,8 @@
 -- 1_diagnose.sql: macOS software names that end in ".app"
 --
 -- READ ONLY. Creates nothing and changes nothing. Safe on a replica.
+-- CHECK 4, 7 and 9 scan every macOS app row. On a large instance, run
+-- them outside busy hours.
 -- Tested on Fleet 4.93 schema (see ../TEST_PLAN.md, D-3).
 --
 -- Answers three questions before anyone changes data:
@@ -11,6 +13,8 @@
 --
 -- Share the output of every CHECK. Names and bundle IDs only, no host data.
 -- =====================================================================
+
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- A host counts as "online" if Fleet saw it within this many hours.
 SET @online_hours = 24;
@@ -112,20 +116,34 @@ LIMIT 50;
 -- own migration 20260810160000_DedupeSoftwareChecksums uses, which
 -- mirrors Software.ComputeRawChecksum (server/fleet/software.go).
 --
---   current         matches today's formula. The cleanup works on these.
---   legacy_pre_4_75 matches the formula from before 4.75.0, which left
---                   the name out for macOS apps. The 4.75.0 migration
---                   recomputed apps with a bundle ID, so expect these only
---                   for apps without one. They can duplicate
---                   (fleetdm/fleet#52314). The cleanup skips them.
---   unexplained     matches neither. Expected: 0. If not, STOP and send
---                   these numbers.
+--   current           matches today's formula. Pass 1 works on these.
+--   legacy_pre_4_75   matches the formula from before 4.75.0, which left
+--                     the name out for macOS apps (fleet-v4.74.0). The
+--                     4.75.0 migration recomputed apps with a bundle ID,
+--                     so expect these only for apps without one. They can
+--                     duplicate (fleetdm/fleet#52314). The cleanup skips
+--                     them.
+--   renamed_by_fma    the name is the Fleet-maintained app catalog name
+--                     for its bundle ID. The hourly Fleet-maintained app
+--                     job renames rows to that name and keeps the
+--                     checksum of the name hosts reported. Expected on
+--                     Fleet Premium. Pass 2 handles their duplicates.
+--   unexplained       none of the above. Expected: 0. If not, STOP and
+--                     send these numbers.
 -- ---------------------------------------------------------------------
 SELECT
-  SUM(cur)                     AS current,
-  SUM(NOT cur AND legacy)      AS legacy_pre_4_75,
-  SUM(NOT cur AND NOT legacy)  AS unexplained
+  SUM(cur)                                AS current,
+  SUM(NOT cur AND legacy)                 AS legacy_pre_4_75,
+  SUM(NOT cur AND NOT legacy AND fma)     AS renamed_by_fma,
+  SUM(NOT cur AND NOT legacy AND NOT fma) AS unexplained
 FROM (
+  SELECT k.cur, k.legacy,
+    -- Looked up only when needed: fleet_maintained_apps has no index on
+    -- unique_identifier.
+    CASE WHEN k.cur OR k.legacy THEN 0 ELSE EXISTS (
+      SELECT 1 FROM fleet_maintained_apps f
+       WHERE f.platform = 'darwin' AND f.unique_identifier = k.bundle_identifier AND f.name = k.name) END AS fma
+  FROM (
   SELECT
     s.checksum = UNHEX(MD5(CONCAT_WS(CHAR(0),
         s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
@@ -133,9 +151,11 @@ FROM (
         NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, '')))) AS cur,
     s.checksum = UNHEX(MD5(CONCAT_WS(CHAR(0),
         s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
-        s.arch, s.vendor, s.extension_for, s.extension_id))) AS legacy
+        s.arch, s.vendor, s.extension_for, s.extension_id))) AS legacy,
+    s.bundle_identifier, s.name
   FROM software s
   WHERE s.source = 'apps'
+  ) k
 ) c;
 
 -- ---------------------------------------------------------------------
@@ -210,3 +230,49 @@ WHERE table_schema = DATABASE()
   AND table_name IN ('software', 'host_software', 'host_software_installed_paths',
                      'software_cve', 'software_host_counts', 'software_titles')
 ORDER BY (data_length + index_length) DESC;
+
+-- ---------------------------------------------------------------------
+-- CHECK 9: same-name duplicate versions of macOS apps (2_plan.sql pass 2)
+--
+-- Two or more macOS app rows with the same name, version and other
+-- identity columns. On Fleet Premium this is where most old ".app" rows
+-- end up, once the Fleet-maintained app job renames them to the catalog
+-- name. stale_offline_only rows are the ones pass 2 merges. Rows linked to
+-- online hosts are left alone.
+-- ---------------------------------------------------------------------
+SELECT COUNT(DISTINCT grp) AS duplicate_groups,
+       COUNT(*)            AS rows_in_groups,
+       SUM(online_links = 0 AND links > 0) AS rows_offline_only,
+       SUM(links = 0)      AS rows_orphaned
+FROM (
+  SELECT s.id, g.grp,
+         (SELECT COUNT(*) FROM host_software hs WHERE hs.software_id = s.id) AS links,
+         (SELECT COUNT(*) FROM host_software hs
+            JOIN host_seen_times hst ON hst.host_id = hs.host_id
+           WHERE hs.software_id = s.id
+             AND hst.seen_time >= NOW() - INTERVAL @online_hours HOUR) AS online_links
+  FROM software s
+  JOIN (
+    SELECT UNHEX(MD5(CONCAT_WS(CHAR(0),
+             version, source, COALESCE(bundle_identifier, ''), `release`, arch, vendor,
+             extension_for, extension_id, name,
+             NULLIF(application_id, ''), NULLIF(upgrade_code, '')))) AS grp
+    FROM software
+    WHERE source = 'apps' AND name NOT LIKE '%.app'
+    GROUP BY grp
+    HAVING COUNT(*) > 1
+  ) g ON g.grp = UNHEX(MD5(CONCAT_WS(CHAR(0),
+             s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`, s.arch, s.vendor,
+             s.extension_for, s.extension_id, s.name,
+             NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, ''))))
+  WHERE s.source = 'apps' AND s.name NOT LIKE '%.app'
+) x;
+
+-- ---------------------------------------------------------------------
+-- CHECK 10: Fleet-maintained app catalog
+--
+-- More than 0 means the hourly Fleet-maintained app job has a catalog and
+-- renames macOS software to catalog names (Fleet Premium). 0 means it
+-- doesn't, and old ".app" rows keep their ".app" names.
+-- ---------------------------------------------------------------------
+SELECT COUNT(*) AS darwin_catalog_apps FROM fleet_maintained_apps WHERE platform = 'darwin';

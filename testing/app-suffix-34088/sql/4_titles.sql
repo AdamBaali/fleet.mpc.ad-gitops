@@ -2,20 +2,24 @@
 -- 4_titles.sql: trim ".app" from software title names
 --
 -- Mutating. Independent of 2_plan.sql and 3_apply_batch.sql, and can run
--- on its own. It does the same as the contributor API call
--- PATCH /api/v1/fleet/software/titles/:id/name, for every title at once.
+-- on its own. It makes the same change as the contributor API call
+-- PATCH /api/v1/fleet/software/titles/:id/name, for every title at once,
+-- with the same limit: only titles with a bundle ID
+-- (UpdateSoftwareTitleName in server/datastore/mysql/software_titles.go).
 --
--- Why titles need this: a title is shared by all versions of an app and
--- ingestion never renames an existing title, so a ".app" title name stays
--- after every version under it is fixed.
+-- Why titles need this: a title is shared by all versions of an app, and
+-- software ingestion never renames an existing title. The Fleet-maintained
+-- app job renames titles of catalog apps, but not Firefox, whose bundle ID
+-- is shared with Firefox ESR.
 --
--- Titles have no checksum, so a rename is a plain UPDATE. The only guard
--- is the unique key: a title with no bundle ID, application ID or upgrade
--- code is identified by its name, and renaming it could clash with an
--- existing title. Those are skipped and listed.
+-- Titles have no checksum, so a rename is a plain UPDATE. Titles without a
+-- bundle ID are left alone and listed: ingestion finds those by name, so a
+-- host that still sends the ".app" name would create a second title.
 --
 -- Admin display names (software_title_display_names) are left alone.
 -- =====================================================================
+
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_titles (
   id   INT UNSIGNED NOT NULL PRIMARY KEY,
@@ -24,27 +28,20 @@ CREATE TABLE IF NOT EXISTS zz_app_suffix_bak_titles (
 
 INSERT IGNORE INTO zz_app_suffix_bak_titles (id, name)
 SELECT id, name FROM software_titles
-WHERE source = 'apps' AND name LIKE '%.app' AND CHAR_LENGTH(name) > 4;
-
--- Titles the guard skips. Expected: empty, or a short list to rename by
--- hand after a look.
-SELECT t.id, t.name AS skipped_title
-FROM software_titles t
-WHERE t.source = 'apps' AND t.name LIKE '%.app' AND CHAR_LENGTH(t.name) > 4
-  AND t.bundle_identifier IS NULL AND t.application_id IS NULL
-  AND NULLIF(t.upgrade_code, '') IS NULL
-  AND EXISTS (SELECT 1 FROM (SELECT unique_identifier, source, extension_for FROM software_titles) x
-              WHERE x.unique_identifier = LEFT(t.name, CHAR_LENGTH(t.name) - 4)
-                AND x.source = t.source AND x.extension_for = t.extension_for);
+WHERE source = 'apps' AND name LIKE '%.app' AND CHAR_LENGTH(name) > 4
+  AND bundle_identifier <> '';
 
 UPDATE software_titles t
 SET t.name = LEFT(t.name, CHAR_LENGTH(t.name) - 4)
 WHERE t.source = 'apps' AND t.name LIKE '%.app' AND CHAR_LENGTH(t.name) > 4
-  AND (t.bundle_identifier IS NOT NULL OR t.application_id IS NOT NULL
-       OR NULLIF(t.upgrade_code, '') IS NOT NULL
-       OR NOT EXISTS (SELECT 1 FROM (SELECT unique_identifier, source, extension_for FROM software_titles) x
-                      WHERE x.unique_identifier = LEFT(t.name, CHAR_LENGTH(t.name) - 4)
-                        AND x.source = t.source AND x.extension_for = t.extension_for));
+  AND t.bundle_identifier <> '';
+
+-- Titles left alone because they have no bundle ID. Expected: empty, or a
+-- short list to look at by hand.
+SELECT t.id, t.name AS title_without_bundle_id
+FROM software_titles t
+WHERE t.source = 'apps' AND t.name LIKE '%.app' AND CHAR_LENGTH(t.name) > 4
+  AND COALESCE(t.bundle_identifier, '') = '';
 
 SELECT COUNT(*) AS titles_still_ending_in_app
 FROM software_titles
