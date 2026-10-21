@@ -1,0 +1,1 @@
+L-1	PASS	L-1-firefox-name-sent-by-a-fleetd-mac	On Fleet 4.93.0 a fleetd Mac sends Firefox.app through macos_firefox, while the main query gives Firefox. The .app name for Firefox is produced today by Fleet, not left over.

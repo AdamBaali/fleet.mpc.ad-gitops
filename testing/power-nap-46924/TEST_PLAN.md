@@ -1,9 +1,9 @@
 # Test plan: macOS Power Nap and policy automations
 
-Issue: https://github.com/fleetdm/fleet/issues/46924 · Story: https://github.com/fleetdm/fleet/issues/48898 · Owner: Adam · Started: 2026-10-19
+Issue: https://github.com/fleetdm/fleet/issues/46924 · Story: https://github.com/fleetdm/fleet/issues/48898 · Started: 2026-10-19
 
 ## Scope
-What fleetd does with a software install or script run from a policy automation while a Mac laptop sleeps with the lid closed. Noah asked for fleetd logs for both installs and scripts (2026-07-07). The issue thread (robbiet480, 2026-10-06) says downloads start in a DarkWake, the Mac sleeps 2 to 5 seconds later, and the connection is dead at the next DarkWake about 16 minutes on.
+What fleetd does with a software install or script run from a policy automation while a Mac laptop sleeps with the lid closed. Product asked for fleetd logs for both installs and scripts (2026-07-07). The issue thread (a community member, 2026-10-06) says downloads start in a DarkWake, the Mac sleeps 2 to 5 seconds later, and the connection is dead at the next DarkWake about 16 minutes on.
 
 Not in scope: changing fleetd. This collects evidence and checks the reported mechanism.
 

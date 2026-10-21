@@ -1,0 +1,5 @@
+# 2026-10-21T09:17:50Z
+$ fleetctl api hosts/12 2>/dev/null | sed -n '/^{/,$p' | python3 -I -c 'import json,sys; h=json.load(sys.stdin)["host"]; print(h["hostname"], h["platform"], h["os_version"], "osquery", h["osquery_version"], "orbit", h["orbit_version"])'
+
+MPC-Adam darwin macOS 15.7.7 osquery 5.24.0 orbit 1.61.0
+[exit 0]

@@ -1,0 +1,5 @@
+# 2026-10-21T09:20:41Z
+$ fleetctl api -F query=firefox software/versions 2>/dev/null | sed -n '/^{/,$p' | python3 -I -c 'import json,sys; [print(v["id"], repr(v["name"]), v["version"], v.get("bundle_identifier")) for v in json.load(sys.stdin)["software"] if v.get("bundle_identifier")]'
+
+4214 'Mozilla Firefox' 157.0.1 org.mozilla.firefox
+[exit 0]

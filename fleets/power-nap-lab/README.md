@@ -1,6 +1,6 @@
 # Power Nap Lab
 
-Purpose: test what fleetd does with policy automations (software installs and scripts) while a Mac laptop sleeps with the lid closed. Issue: https://github.com/fleetdm/fleet/issues/46924. Owner: Adam. Tests and results: `testing/power-nap-46924/`.
+Purpose: test what fleetd does with policy automations (software installs and scripts) while a Mac laptop sleeps with the lid closed. Issue: https://github.com/fleetdm/fleet/issues/46924. Tests and results: `testing/power-nap-46924/`.
 
 Host: one MacBook Air.
 

@@ -9,6 +9,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | PASS | 3 |
 | PARTIAL | 1 |
 | info | 2 |
+| no result recorded | 1 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
@@ -17,6 +18,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | MacBook Air | C-1: Control install lid open on power | PASS | [open](#c-1-control-install-lid-open-on-power) |
 | MacBook Air | PN-1: Large install, lid closed, battery | PASS | [open](#pn-1-large-install-lid-closed-battery) |
 | MacBook Air | PN-2: Small install lid closed battery | PARTIAL | [open](#pn-2-small-install-lid-closed-battery) |
+| MacBook Air | PN-2b: Small install lid closed battery rerun | no result recorded | [open](#pn-2b-small-install-lid-closed-battery-rerun) |
 | MacBook Air | PN-6: What happens next | PASS | [open](#pn-6-what-happens-next) |
 
 ## Desk
@@ -72,6 +74,17 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** Unknown: may finish inside one DarkWake
 
 **Output:** [01-start.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/01-start.txt) · [02-fleet-watch-so-far.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/02-fleet-watch-so-far.txt) · [03-fleet-watch-final.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/03-fleet-watch-final.txt) · [04-orbit-log.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/04-orbit-log.txt) · [05-pmset-sleep-wake.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/05-pmset-sleep-wake.txt) · [06-fma-title-after.txt](test-evidence/mac/PN-2-small-install-lid-closed-battery/06-fma-title-after.txt)
+
+---
+
+### PN-2b: Small install lid closed battery rerun
+
+**Result: no result recorded** · [full notes](test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/result.md)
+
+- **Objective:** PN-2 again: policy automation installs swiftDialog while the laptop sleeps with the lid closed on battery
+- **Expected:** Unknown: may finish inside one DarkWake
+
+**Output:** [01-start.txt](test-evidence/mac/PN-2b-small-install-lid-closed-battery-rerun/01-start.txt)
 
 ---
 
