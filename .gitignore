@@ -3,3 +3,6 @@ __pycache__/
 
 # Internal notes for test projects: customer names, Slack and ticket links
 testing/*/private/
+
+# macOS Finder metadata
+.DS_Store
