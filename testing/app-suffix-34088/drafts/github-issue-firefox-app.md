@@ -55,5 +55,6 @@ These steps:
 
 ### 🕯️ More info _(optional)_
 
+- Related, open: #52314 (rows from before 4.76.0 duplicate). Same symptom, two version rows for one app, different cause.
 - Related, closed: #34088 (`.app` not trimmed), #42445 (Firefox title name with the Fleet-maintained app), #49682 (Firefox and Firefox ESR in one fleet).
 - Customers on osquery with the fleetd tables extension get the split on every Mac that has the extension, so the count is large.

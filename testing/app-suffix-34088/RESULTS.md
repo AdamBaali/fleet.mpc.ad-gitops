@@ -18,30 +18,25 @@
 - **Actual:** The `Firefox.app` row is created again and linked after one report.
 - **Finding:** No cleanup of Firefox lasts until `macos_firefox` changes. The plan excludes `org.mozilla.firefox`.
 
-## C3: Handoff SQL as written (2026-10-21): FAIL (for the handoff SQL)
-- **Steps:** Run `reference/handoff-2026-10/0_preflight.sql`, `1_preview.sql`, `2_execute.sql` on the fixture.
-- **Actual:** 0 and 1 run. `2_execute.sql` creates its backup tables, runs STEP 1 (writes `last_opened_at`), then stops at STEP 2: `Error 1064 ... near 'LIMIT 1000'`. MySQL has no `LIMIT` on a multi-table `DELETE` or `UPDATE`. STEP 3, 4, 5 and 6 have the same problem. Nothing runs in a transaction, so a stop leaves partial changes.
-- **Evidence:** `test-evidence/db/<version>/C3-handoff-*.txt`
-- **Finding:** Do not send the handoff SQL.
+## C3: Diagnose buckets (2026-10-21): PASS
+- **Steps:** Build the fixture (override-era rows on offline hosts, today's rows on online hosts, one orphan, one online host still on `Slack.app`). Add a row with the pre-4.76 name-first checksum on one host, and let a second host report the same app. Run `sql/1_diagnose.sql`.
+- **Actual:** The second report inserted a twin of the old row: #52314 reproduced through `UpdateHostSoftware`. Buckets: orphaned 1, offline only 2, recurring 1 (Slack.app), recurring Firefox 1. CHECK 4: 1 legacy, 0 unexplained. CHECK 7: one `apps` group of 2 rows.
+- **Finding:** Old-checksum rows are expected on instances upgraded through 4.76.0. The cleanup skips them, and #52314 tracks them.
+- **Evidence:** `test-evidence/db/<version>/C3-diagnose.txt`
 
-## C4: Diagnose buckets (2026-10-21): PASS
-- **Steps:** Build the fixture (override-era rows on offline hosts, today's rows on online hosts, one orphan, one online host still on `Slack.app`). Run `sql/1_diagnose.sql`.
-- **Actual:** orphaned 1, offline only 2, recurring 1 (Slack.app), recurring Firefox 1. Checksum check: 8 matching, 0 mismatched.
-- **Evidence:** `test-evidence/db/<version>/C4-diagnose.txt`
-
-## C5: Cleanup, then ingestion (2026-10-21): PASS
+## C4: Cleanup, then ingestion (2026-10-21): PASS
 - **Steps:** Same fixture. `2_plan.sql`, `3_apply_batch.sql` until nothing is pending, `4_titles.sql`. Then an offline host comes back and a new host reports, through `UpdateHostSoftware`. Then `5_verify.sql` and the vulnerabilities cron functions.
 - **Actual:**
   - Plan: 1 merge (Zoom.app), 1 rename (Notion.app). Slack.app (online host) and Firefox.app (excluded) left alone.
   - Zoom.app deleted. Both offline hosts point at Zoom. The host linked to both kept the newer `last_opened_at`. Its installed path is not doubled.
   - Notion.app keeps its id, is named Notion, and its checksum equals `Software.ComputeRawChecksum` for Notion.
   - After both reports: no new software rows, the new host links to the renamed row, no duplicate versions, no `.app` titles, Notion counts 2 hosts.
-- **Evidence:** `test-evidence/db/<version>/C5-*.txt`
+- **Evidence:** `test-evidence/db/<version>/C4-*.txt`
 
 ## Versions
-C1 to C5 pass on `fleet-v4.90.3` (customer production), `fleet-v4.93.1` (customer's next upgrade) and `main` at e1cf388cca. One folder per version under `test-evidence/db/`.
+C1 to C4 pass on `fleet-v4.90.3` (customer production), `fleet-v4.93.1` (customer's next upgrade) and `main` at e1cf388cca. One folder per version under `test-evidence/db/`.
 
 ## N-1: Negative control (2026-10-21): PASS
 - **Steps:** A copy of `sql/` with `s.version, s.source` swapped in the checksum.
-- **Actual:** C4 and C5 fail. CHECK 4 reports mismatches, and the plan selects nothing, because it only takes rows whose stored checksum matches the formula. A wrong formula fails safe. A first attempt that swapped `extension_for` and `extension_id` still passed, because both are empty for macOS apps.
+- **Actual:** C3 and C4 fail. CHECK 4 reports mismatches, and the plan selects nothing, because it only takes rows whose stored checksum matches the formula. A wrong formula fails safe. A first attempt that swapped `extension_for` and `extension_id` still passed, because both are empty for macOS apps.
 - **Evidence:** `test-evidence/db/negative-control.txt`

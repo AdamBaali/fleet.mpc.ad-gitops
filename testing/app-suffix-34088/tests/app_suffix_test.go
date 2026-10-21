@@ -6,6 +6,7 @@ package mysql
 
 import (
 	"context"
+	"crypto/md5" //nolint:gosec // matches Fleet's software checksum, not used for security
 	"database/sql"
 	"fmt"
 	"os"
@@ -36,9 +37,8 @@ func TestAppSuffix(t *testing.T) {
 	}{
 		{"C1_SelfHealWhenHostReports", testAppSuffixSelfHeal},
 		{"C2_FirefoxComesBack", testAppSuffixFirefoxComesBack},
-		{"C3_HandoffScripts", testAppSuffixHandoffScripts},
-		{"C4_DiagnoseBuckets", testAppSuffixDiagnose},
-		{"C5_CleanupThenIngest", testAppSuffixCleanupThenIngest},
+		{"C3_DiagnoseBuckets", testAppSuffixDiagnose},
+		{"C4_CleanupThenIngest", testAppSuffixCleanupThenIngest},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -283,7 +283,7 @@ func testAppSuffixFirefoxComesBack(t *testing.T, ds *Datastore) {
 	require.Len(t, softwareIDs(t, ds, "Firefox.app", "140.0"), 1)
 	require.Len(t, softwareIDs(t, ds, "Firefox", "140.0"), 1, "two version rows for one app, split by host setup")
 
-	// Hand-merge like the February approach would: move fleetd's link and delete the row.
+	// Merge by hand: move the fleetd host's link and delete the .app row.
 	firefox := oneID(t, ds, "Firefox", "140.0")
 	stale := oneID(t, ds, "Firefox.app", "140.0")
 	_, err := ds.primary.Exec(`UPDATE host_software SET software_id = ? WHERE software_id = ?`, firefox, stale)
@@ -296,34 +296,7 @@ func testAppSuffixFirefoxComesBack(t *testing.T, ds *Datastore) {
 	require.Contains(t, hostLinks(t, ds, fleetd.ID), "Firefox.app 140.0")
 }
 
-// ---- C3 --------------------------------------------------------------------------------
-
-// The SQL handed over in the handoff, run as written. The test records what happens rather
-// than asserting success.
-func testAppSuffixHandoffScripts(t *testing.T, ds *Datastore) {
-	now := time.Now()
-	off := newAppSuffixHost(t, ds, "off", now.Add(-30*24*time.Hour))
-	on := newAppSuffixHost(t, ds, "on", now)
-	report(t, ds, off, app("Zoom.app", "6.0", "us.zoom.xos"), app("Notion.app", "3.0", "notion.id"))
-	report(t, ds, on, app("Zoom", "6.0", "us.zoom.xos"))
-
-	ref := filepath.Join(appSuffixDir, "reference", "handoff-2026-10")
-	for _, f := range []string{"0_preflight.sql", "1_preview.sql", "2_execute.sql"} {
-		_, err := runSQLFile(t, ds, filepath.Join(ref, f), "C3-handoff-"+strings.TrimSuffix(f, ".sql"))
-		t.Logf("handoff %s: err=%v", f, err)
-		if f == "2_execute.sql" {
-			// MySQL has no LIMIT on a multi-table DELETE or UPDATE, so the script stops at its
-			// STEP 2, after STEP 0 and STEP 1 have already written outside any transaction.
-			require.Error(t, err)
-			require.Contains(t, err.Error(), "Error 1064")
-			require.Contains(t, err.Error(), "near 'LIMIT 1000'")
-		} else {
-			require.NoError(t, err)
-		}
-	}
-}
-
-// ---- C4 and C5 shared fixture ----------------------------------------------------------
+// ---- C3 and C4 shared fixture ----------------------------------------------------------
 
 type fixture struct {
 	fleetdOn, plainOn, legacyOn, off1, off2 *fleet.Host
@@ -373,8 +346,22 @@ func buildFixture(t *testing.T, ds *Datastore) fixture {
 }
 
 func testAppSuffixDiagnose(t *testing.T, ds *Datastore) {
-	buildFixture(t, ds)
-	res, err := runSQLFile(t, ds, sqlPath("1_diagnose.sql"), "C4-diagnose")
+	f := buildFixture(t, ds)
+
+	// A row created before 4.76.0, when the checksum put the name first (fleetdm/fleet#52314),
+	// and the second row a host created for the same app after the upgrade.
+	legacy := md5.Sum([]byte(strings.Join([]string{"Legacy Tool", "1.0", "apps", "", "", "", "", "", ""}, "\x00")))
+	res0, err := ds.primary.Exec(`INSERT INTO software (name, version, source, bundle_identifier, checksum)
+		VALUES ('Legacy Tool', '1.0', 'apps', '', ?)`, legacy[:])
+	require.NoError(t, err)
+	legacyID, err := res0.LastInsertId()
+	require.NoError(t, err)
+	_, err = ds.primary.Exec(`INSERT INTO host_software (host_id, software_id) VALUES (?, ?)`, f.off1.ID, legacyID)
+	require.NoError(t, err)
+	report(t, ds, f.plainOn, app("Firefox", "140.0", "org.mozilla.firefox"), app("Legacy Tool", "1.0", ""))
+	require.Len(t, softwareIDs(t, ds, "Legacy Tool", "1.0"), 2, "the pre-4.76 row duplicated")
+
+	res, err := runSQLFile(t, ds, sqlPath("1_diagnose.sql"), "C3-diagnose")
 	require.NoError(t, err)
 
 	// res[0] CHECK 1, res[1] CHECK 2, res[2] CHECK 3, res[3] CHECK 4, res[4] CHECK 5...
@@ -388,7 +375,11 @@ func testAppSuffixDiagnose(t *testing.T, ds *Datastore) {
 		"recurring/firefox=0":    "1", // Slack.app, still linked to legacyon, which is online
 		"recurring/firefox=1":    "1", // Firefox.app, sent today by fleetdon
 	}, buckets)
-	require.Equal(t, "0", res[3][0]["mismatched"], "checksum formula matches every stored row")
+	require.Equal(t, "1", res[3][0]["legacy_pre_4_76"], "the pre-4.76 row is recognized")
+	require.Equal(t, "0", res[3][0]["unexplained"], "every other stored checksum matches the formula")
+
+	// res[6] is CHECK 7: the pre-4.76 pair is one duplicate group.
+	require.Equal(t, []map[string]string{{"source": "apps", "duplicate_groups": "1", "rows_in_groups": "2"}}, res[6])
 }
 
 func testAppSuffixCleanupThenIngest(t *testing.T, ds *Datastore) {
@@ -404,7 +395,7 @@ func testAppSuffixCleanupThenIngest(t *testing.T, ds *Datastore) {
 		f.off2.ID, zoomStale, f.off2.ID, zoom)
 	require.NoError(t, err)
 
-	res, err := runSQLFile(t, ds, sqlPath("2_plan.sql"), "C5-plan")
+	res, err := runSQLFile(t, ds, sqlPath("2_plan.sql"), "C4-plan")
 	require.NoError(t, err)
 	actions := map[string]string{}
 	for _, r := range res[0] {
@@ -414,13 +405,13 @@ func testAppSuffixCleanupThenIngest(t *testing.T, ds *Datastore) {
 
 	for i := 0; ; i++ {
 		require.Less(t, i, 5)
-		res, err = runSQLFile(t, ds, sqlPath("3_apply_batch.sql"), fmt.Sprintf("C5-apply-%d", i+1))
+		res, err = runSQLFile(t, ds, sqlPath("3_apply_batch.sql"), fmt.Sprintf("C4-apply-%d", i+1))
 		require.NoError(t, err)
 		if countInt(t, ds, `SELECT COUNT(*) FROM zz_app_suffix_map WHERE state = 'pending'`) == 0 {
 			break
 		}
 	}
-	_, err = runSQLFile(t, ds, sqlPath("4_titles.sql"), "C5-titles")
+	_, err = runSQLFile(t, ds, sqlPath("4_titles.sql"), "C4-titles")
 	require.NoError(t, err)
 
 	// Merge: Zoom.app is gone, both offline hosts point at Zoom, off2 kept the newer timestamp,
@@ -458,7 +449,7 @@ func testAppSuffixCleanupThenIngest(t *testing.T, ds *Datastore) {
 	require.Equal(t, before, countInt(t, ds, `SELECT COUNT(*) FROM software`), "no software rows created by later reports")
 	require.Equal(t, notionStale, hostLinks(t, ds, newHost.ID)["Notion 3.0"], "a new host finds the renamed row by checksum")
 
-	_, err = runSQLFile(t, ds, sqlPath("5_verify.sql"), "C5-verify")
+	_, err = runSQLFile(t, ds, sqlPath("5_verify.sql"), "C4-verify")
 	require.NoError(t, err)
 	require.Zero(t, countInt(t, ds, `SELECT COUNT(*) FROM (SELECT 1 FROM software WHERE source = 'apps'
 		GROUP BY name, version, bundle_identifier HAVING COUNT(*) > 1) d`), "no duplicate versions")

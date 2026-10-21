@@ -108,22 +108,34 @@ LIMIT 50;
 --
 -- The cleanup finds the correctly named row the way Fleet's ingestion
 -- does: by checksum. It computes checksums in SQL, so the formula must
--- give the stored value for existing rows. This mirrors
--- Software.ComputeRawChecksum (server/fleet/software.go) field for field.
+-- give the stored value for existing rows. The formula is the one Fleet's
+-- own migration 20260810160000_DedupeSoftwareChecksums uses, which
+-- mirrors Software.ComputeRawChecksum (server/fleet/software.go).
 --
--- Expected: mismatched = 0. If not, STOP and send these numbers.
+--   current         matches today's formula. The cleanup works on these.
+--   legacy_pre_4_76 matches the formula from before 4.75/4.76 (name
+--                   first). Expected on instances upgraded from then for
+--                   apps without a bundle ID. These can duplicate
+--                   (fleetdm/fleet#52314). The cleanup skips them.
+--   unexplained     matches neither. Expected: 0. If not, STOP and send
+--                   these numbers.
 -- ---------------------------------------------------------------------
 SELECT
-  SUM(s.checksum =  UNHEX(MD5(CONCAT_WS(CHAR(0),
+  SUM(cur)                     AS current,
+  SUM(NOT cur AND legacy)      AS legacy_pre_4_76,
+  SUM(NOT cur AND NOT legacy)  AS unexplained
+FROM (
+  SELECT
+    s.checksum = UNHEX(MD5(CONCAT_WS(CHAR(0),
         s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
         s.arch, s.vendor, s.extension_for, s.extension_id, s.name,
-        NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, ''))))) AS matching,
-  SUM(s.checksum <> UNHEX(MD5(CONCAT_WS(CHAR(0),
-        s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
-        s.arch, s.vendor, s.extension_for, s.extension_id, s.name,
-        NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, ''))))) AS mismatched
-FROM software s
-WHERE s.source = 'apps';
+        NULLIF(s.application_id, ''), NULLIF(s.upgrade_code, '')))) AS cur,
+    s.checksum = UNHEX(MD5(CONCAT_WS(CHAR(0),
+        s.name, s.version, s.source, COALESCE(s.bundle_identifier, ''), s.`release`,
+        s.arch, s.vendor, s.extension_for, s.extension_id))) AS legacy
+  FROM software s
+  WHERE s.source = 'apps'
+) c;
 
 -- ---------------------------------------------------------------------
 -- CHECK 5: does a correctly named twin exist for each ".app" row?
@@ -163,7 +175,32 @@ ORDER BY kind, name
 LIMIT 200;
 
 -- ---------------------------------------------------------------------
--- CHECK 7: table sizes, for planning a window
+-- CHECK 7: duplicate versions across all software (fleetdm/fleet#52314)
+--
+-- Not about ".app". Rows created before 4.76.0 kept an old checksum, so a
+-- host reporting the same software again can create a second row: same
+-- name, version and source, split host counts. Fleet repaired giflib only
+-- (4.91.0). This counts what is left, by source, so the issue can be sized.
+-- Same grouping as the query in #52314. Scans `software`: about 3 to 4
+-- seconds per million rows.
+-- ---------------------------------------------------------------------
+SELECT source,
+       COUNT(*)      AS duplicate_groups,
+       SUM(dup_rows) AS rows_in_groups
+FROM (
+  SELECT ANY_VALUE(source) AS source, COUNT(*) AS dup_rows
+  FROM software
+  GROUP BY UNHEX(MD5(CONCAT_WS(CHAR(0),
+      version, source, COALESCE(bundle_identifier, ''), `release`, arch, vendor,
+      extension_for, extension_id, name,
+      NULLIF(COALESCE(application_id, ''), ''), NULLIF(COALESCE(upgrade_code, ''), ''))))
+  HAVING COUNT(*) > 1
+) d
+GROUP BY source
+ORDER BY rows_in_groups DESC;
+
+-- ---------------------------------------------------------------------
+-- CHECK 8: table sizes, for planning a window
 -- ---------------------------------------------------------------------
 SELECT table_name, table_rows,
        ROUND((data_length + index_length) / POW(1024, 3), 2) AS size_gb
