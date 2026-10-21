@@ -13,7 +13,7 @@ for a in reversed(json.load(sys.stdin)["activities"]):
 - `04-orbit-and-pmset-window.txt`: `python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print("exit", r.get("exit_code")); print(r.get("o`
 - `05-orbit-restart-during-download.txt`: `python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print("exit", r.get("exit_code")); print(r.get("o`
 
-Logs read on the laptop through a Fleet script (root), since orbit.stderr.log is root-only. Lid open the whole time on AC (Adam, and AppleClamshellState = No at 13:03 local).
+Logs read on the laptop through a Fleet script (root), since orbit.stderr.log is root-only. Lid open the whole time on AC (the tester, and AppleClamshellState = No at 13:03 local).
 
 - Chrome: queued 10:31:21Z at enrollment (policy failed on the first check). Download started 12:32:10 local, orbit restarted 12:34:23 (SIGTERM, about 90 s after MDM enrollment at 12:32:55, then read its config from the profile), Fleet re-notified, download restarted 12:35:05, done 12:40:01, install exit 0 at 12:40:09.
 - swiftDialog: download 12:41:10 to 12:41:25, install exit 0 at 12:41:28.

@@ -7,9 +7,9 @@
 ## Steps and evidence
 - `01-start.txt`: `cat <fleet script result> pn4a-start.txt`
 
-Started as PN-4a (idle sleep on AC, lid open) and became PN-1 before the Chrome policy ran again: Adam unplugged the charger and closed the lid at about 2026-10-20T11:07:48Z (reported in chat). Chrome deleted by a Fleet script at 13:04:39 local (11:04:39Z). The last policy check was 10:42:12Z, so the next is due about 11:42Z, inside the lid-closed window.
+Started as PN-4a (idle sleep on AC, lid open) and became PN-1 before the Chrome policy ran again: the tester unplugged the charger and closed the lid at about 2026-10-20T11:07:48Z (reported in chat). Chrome deleted by a Fleet script at 13:04:39 local (11:04:39Z). The last policy check was 10:42:12Z, so the next is due about 11:42Z, inside the lid-closed window.
 
-Refetch requested at 2026-10-20T11:08:00Z (Adam's suggestion), so the policies run at the next check-in instead of about 11:42Z. The check-in itself still has to happen in a DarkWake.
+Refetch requested at 2026-10-20T11:08:00Z (the tester's suggestion), so the policies run at the next check-in instead of about 11:42Z. The check-in itself still has to happen in a DarkWake.
 - `02-fleet-watch-changes.txt`: `awk '{s=$0; sub(/^[^ ]+ /,"",s)} s!=p{print; p=s}' <scratch>`
 - `03-failed-install-result.txt`: `fleetctl api /api/v1/fleet/software/install/9b46eeea-b096-46eb-930d-20838a6d8f9d/results 2>/dev/null | python3`
 - `04-activities.txt`: `fleetctl api /api/v1/fleet/hosts/20/activities 2>/dev/null | python3 -c 'import json,sys

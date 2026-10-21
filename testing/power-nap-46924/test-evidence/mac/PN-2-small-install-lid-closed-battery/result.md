@@ -9,7 +9,7 @@
 
 swiftDialog deleted by a Fleet script at 13:28:02Z (lid open, battery 74%). Lid closed next, then a refetch so the policy runs at the next DarkWake check-in, as in PN-1.
 
-Lid closed and on battery, reported by Adam at about 2026-10-20T13:28:32Z. Refetch requested at 2026-10-20T13:28:33Z.
+Lid closed and on battery, reported by the tester at about 2026-10-20T13:28:32Z. Refetch requested at 2026-10-20T13:28:33Z.
 - `02-fleet-watch-so-far.txt`: `cat fleet-watch-so-far.txt`
 
 In progress at 2026-10-20T15:26:39Z (lid still closed, battery):

@@ -1,9 +1,9 @@
 # Notes (#46924)
 
 ## From the thread
-- Customers: eponym, juliana, abstracta, camelot (labels). abstracta sees "software installation failed" in activities when the lid is closed overnight (GrayW, 2026-06-15).
-- Noah (2026-07-07) wants fleetd logs for installs and script runs, for story #48898. ddribeiro asked Adam to test (2026-07-08).
-- robbiet480 (2026-10-06): Fleet 4.92.3, fleetd 1.61.0, macOS 26 to 27, GCS presigned URLs. About 125 hosts over 10 days, all policy automations. Downloads start in a DarkWake, the Mac sleeps 2 to 5 s later, and the next DarkWake about 16 min on finds the connection reset. The server fallback runs in the same DarkWake and dies the same way. Load balancer: 72% of fallbacks ended `client_disconnected_after_partial_response`.
+- Customers: `customer-eponym`, `customer-juliana`, `customer-abstracta`, `customer-camelot` (labels). `customer-abstracta` sees "software installation failed" in activities when the lid is closed overnight (2026-06-15).
+- Product (2026-07-07) wants fleetd logs for installs and script runs, for story #48898. The solutions team took the testing (2026-07-08).
+- A community member (2026-10-06): Fleet 4.92.3, fleetd 1.61.0, macOS 26 to 27, GCS presigned URLs. About 125 hosts over 10 days, all policy automations. Downloads start in a DarkWake, the Mac sleeps 2 to 5 s later, and the next DarkWake about 16 min on finds the connection reset. The server fallback runs in the same DarkWake and dies the same way. Load balancer: 72% of fallbacks ended `client_disconnected_after_partial_response`.
 - Their proposed fixes: defer installs and scripts during DarkWake, hold an `IOPMAssertion` for the download and install, or retry the presigned URL with an HTTP `Range` resume.
 - Related: #47851 (86 of 220 Chrome patch failures, same error), #52697.
 
