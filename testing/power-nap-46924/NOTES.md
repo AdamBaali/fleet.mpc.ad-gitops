@@ -19,7 +19,7 @@
 - Needs real hardware. A VM doesn't do Power Nap or clamshell sleep.
 
 ## Community evidence versus the lab (2026-10-21)
-robbiet480's comment on the issue (2026-10-06) against PN-1 and PN-2:
+The community member's comment on the issue (2026-10-06) against PN-1 and PN-2:
 
 | Their report | Lab | Match |
 |---|---|---|
