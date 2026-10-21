@@ -2,7 +2,7 @@
 
 Checked 2026-10-21. Every issue below was read in full, with its comments, through the GitHub API. Release facts come from Fleet's release tags and `CHANGELOG.md`.
 
-Every `.app` issue was closed when an ingestion fix shipped or a title rename was done. Nothing tracks the Firefox name, and the open issue for duplicate rows (#52314) doesn't carry the customer's label.
+Every `.app` issue was closed when an ingestion fix shipped or a title rename was done. The Firefox name is now tracked in [#56168](https://github.com/fleetdm/fleet/issues/56168). The open issue for duplicate rows (#52314) doesn't carry the customer's label.
 
 
 ## The gap
@@ -11,7 +11,7 @@ Every `.app` issue was closed when an ingestion fix shipped or a title rename wa
 |---|---|---|
 | `macos_firefox` sends `Firefox.app` and `Firefox ESR.app` | [#56168](https://github.com/fleetdm/fleet/issues/56168), filed 2026-10-21 with `customer-ufa`. [#50077](https://github.com/fleetdm/fleet/issues/50077) and [#50090](https://github.com/fleetdm/fleet/issues/50090) don't change it (see below) | Open |
 | Existing `.app` version rows and titles | Nothing since #34088 closed | Covered by the same draft (migration ask) and the scripts here |
-| Rows with old checksums duplicate (may explain the customer's TeamViewer duplicates) | #52314, open, `bug`, `#g-supply-chain`, no milestone | Add `customer-ufa` and the comment in [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md) |
+| Rows with old checksums duplicate (may explain the customer's TeamViewer duplicates) | #52314, open, `bug`, `#g-supply-chain`, no milestone | No comment planned. The on-call review post asks whether anyone is on it |
 | Customer request for the scripts | Internal support ticket, on hold | See `private/` |
 
 

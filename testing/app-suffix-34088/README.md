@@ -50,7 +50,7 @@ We ran the scripts in Fleet's test database with Fleet's ingestion code and the 
 ## The product fixes needed
 
 1. `macos_firefox` sends `.app` names. Fix the query, and merge existing Firefox rows in a migration. Filed as [fleetdm/fleet#56168](https://github.com/fleetdm/fleet/issues/56168).
-2. Rows with checksums from before 4.75.0 duplicate ([fleetdm/fleet#52314](https://github.com/fleetdm/fleet/issues/52314), open, no milestone). It may explain the customer's report of several software IDs for one version (TeamViewer). CHECK 7 will tell. Fleet repaired giflib only. C3 reproduces it. Draft comment adding the customer: [drafts/issue-comment-52314.md](drafts/issue-comment-52314.md).
+2. Rows with checksums from before 4.75.0 duplicate ([fleetdm/fleet#52314](https://github.com/fleetdm/fleet/issues/52314), open, no milestone). It may explain the customer's report of several software IDs for one version (TeamViewer). CHECK 7 will tell. Fleet repaired giflib only. C3 reproduces it.
 
 
 ## Related customer issues
@@ -73,7 +73,7 @@ See [TRACKING.md](TRACKING.md): every issue in this family, what each fixed, the
 | `tests/run-db-tests.sh` | Runs that test against any Fleet checkout: `tests/run-db-tests.sh ~/path/to/fleet` |
 | `tests/run-client-smoke.sh`, `tests/fixture-client.sql` | Runs every script through the `mysql` client against Fleet's schema, the way the customer will |
 | `tests/macos_firefox.sql`, `tests/main_name.sql` | The two live queries used in L-1 |
-| `drafts/` | The customer update, the #help-customers review request, the GitHub bug, the #52314 comment, and the customer reply. Adam posts them |
+| `drafts/` | The customer update, the #help-customers review request, the GitHub bug as filed, and the customer reply. Adam posts them |
 | `test-evidence/` | Raw output per test |
 
 Status (2026-10-21): all database tests and the client smoke test pass on Fleet 4.90.3, 4.93.1, and `main`. The scripts haven't run on the customer's data, and the engineering review is pending.
