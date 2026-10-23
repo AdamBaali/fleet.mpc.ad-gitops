@@ -37,6 +37,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Project | Purpose |
 | --- | --- |
 | `testing/app-suffix-34088/` | Diagnosis and tested SQL cleanup for macOS software names ending in ".app" (fleetdm/fleet#34088). Runs against Fleet's test database, not the lab Fleet |
+| `testing/byod-ios-okta/` | Research and a checked draft reply on personal phones (iPhone User Enrollment, Android work profile) with Fleet, Auth0 now and Okta later. Lab tests still to run |
 
 
 ## Adding a fleet or a test
