@@ -57,7 +57,7 @@ How it works:
 Good to know:
 • Fleet can block an Okta sign-in when a Fleet policy fails on macOS today. Phones use Okta's own checks instead.
 • On iPhone, Okta marks the whole phone as managed, not only the work side. A personal app on the same phone can pass a "managed phone" rule. Pair the rule with per-app controls in your key apps. Android doesn't have this gap.
-• Users who already have Okta Verify delete it, and Fleet reinstalls it as a managed app. Apple doesn't let MDM take over an app the user installed.
+• On personal iPhones with Account-driven User Enrollment, users who already have Okta Verify delete it, and Fleet reinstalls it as a managed app. Apple doesn't let MDM take over an app the user installed on this enrollment type. On company-owned iPhones, Fleet can take over the installed app after the user accepts a prompt.
 • Okta documents this for managed phones, not specifically for User Enrollment. We'll test it on a personal iPhone in our lab and share the results.
 • On Android, Fleet doesn't yet support secrets in app configuration, so the Okta key is stored in Fleet as plain text.
 
@@ -69,7 +69,8 @@ Fleet links each personal phone to the user's Name ID. If Okta sends the same em
 We'll test this cutover in our lab first.
 
 *7. Personal laptops*
-Fleet supports Account-driven User Enrollment for iPhone and iPad today. Mac support is an open feature request, and we'll keep you posted.
+Fleet supports Account-driven User Enrollment for iPhone and iPad today. Mac support is an open feature request: https://github.com/fleetdm/fleet/issues/53817
+Would you like us to add your team to it? Your CSM can also capture your use case on your next call, so our product team hears it in your words.
 
 *Suggested next steps*
 1. Pilot Android work profiles with 5-10 users now.
