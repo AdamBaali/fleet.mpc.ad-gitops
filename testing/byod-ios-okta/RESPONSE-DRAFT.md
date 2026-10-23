@@ -28,9 +28,10 @@ Guide: https://fleetdm.com/guides/android-byod-mdm-migration
 
 *3. iPhone: what it needs*
 Account-driven User Enrollment has three parts:
-1. *An IdP in Fleet.* Users sign in to Fleet during enrollment. Fleet works with any SAML IdP, including Auth0. Set the SAML _Name ID_ to the user's email. Fleet uses that value as the user's Managed Apple Account, so it has to match exactly. (https://fleetdm.com/guides/setup-experience) You mentioned Auth0 hit limits when you tried it before. Tell us what blocked it, and we'll help work through it.
+1. *An IdP in Fleet.* Users sign in to Fleet during enrollment. Fleet works with any SAML IdP, including Auth0. Set the SAML _Name ID_ to the user's email. Fleet uses that value as the user's Managed Apple Account, so it has to match exactly. Add the IdP in Fleet under _Settings > Integrations > Authentication (SSO) > End users_. (https://fleetdm.com/guides/setup-experience) You mentioned Auth0 hit limits when you tried it before. Tell us what blocked it, and we'll help work through it.
 2. *Managed Apple Accounts.* Verify your email domain in Apple Business and create accounts for your users.
 3. *Federation (optional).* It lets users sign in to their Managed Apple Account with their IdP password instead of a separate Apple password. Apple's federation for custom IdPs needs a feature called Shared Signals. Okta supports it, and we haven't found Auth0 documentation for it. Please check with your IAM team. Until Okta, users may need a separate Apple password.
+Then pick the fleet personal iPhones join: in Fleet, go to _Settings > Integrations > MDM > Apple Business_ and set the _BYOD fleet_ for your token.
 Guide: https://fleetdm.com/guides/enroll-personal-byod-ios-ipad-hosts-with-managed-apple-account
 
 *4. About the notices to users*
@@ -43,8 +44,8 @@ In a previous role, I ran this for roughly 18,000 users at a large enterprise. T
 Apple's details: https://support.apple.com/guide/business/capture-a-domain-axm512ce43c3/web
 
 Two settings to check:
-• In Apple Business, set _Allow Managed Apple Account on_ to _Any device_ or _Managed devices only_. _Supervised devices only_ blocks personal phones, because they're never supervised. We'll confirm _Managed devices only_ in our lab before you rely on it.
-• In Fleet, keep _Allow only Apple Business enrollments_ off. When it's on, personal iPhones can't enroll.
+• In Apple Business, go to _Settings > Access Management > Apple Services_. Set _Allow Managed Apple Account on_ to _Any device_ (the default) or _Managed devices only_. _Supervised devices only_ blocks personal phones, because they're never supervised. We'll confirm _Managed devices only_ in our lab before you rely on it.
+• In Fleet, leave _Allow only Apple Business enrollments_ off. It's off by default, under _Settings > Organization settings > Advanced options_. When it's on, personal iPhones can't enroll.
 
 We recommend one email domain for all users. Fleet has one IdP setting for all platforms, so a separate BYOD-only address can't be limited to iPhones. A separate domain is fine for a small pilot.
 

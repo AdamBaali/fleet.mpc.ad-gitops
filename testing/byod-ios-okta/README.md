@@ -36,6 +36,16 @@ The draft reply is in [RESPONSE-DRAFT.md](RESPONSE-DRAFT.md). Names and internal
 | 10 | Android personal wipe | Hidden in the UI. Allowed in the API, where it removes the work profile only | `ee/server/service/hosts.go:333-337` |
 | 11 | Fleet policy-based Okta conditional access | macOS only | `articles/okta-conditional-access-integration.md`, `server/datastore/mysql/policies.go:3251` |
 
+## Settings named in the draft (checked at `fleet-v4.93.2`, the customer's version)
+
+| Setting | Where | Evidence |
+|---|---|---|
+| _Allow only Apple Business enrollments_ (`only_allow_apple_business_enrollment`), Premium, off by default | _Settings > Organization settings > Advanced options_, _Host lifecycle_ section | `frontend/pages/admin/OrgSettingsPage/cards/Advanced/components/HostLifecycleSection/HostLifecycleSection.tsx:112`, `server/fleet/app.go:296`. At this tag the setting isn't in `yaml-files.md` yet. It's documented on `main` |
+| IdP for end user authentication | _Settings > Integrations > Authentication (SSO) > End users_ | `frontend/pages/admin/IntegrationsPage/cards/Sso/Sso.tsx:314`, `articles/setup-experience.md` |
+| Default fleet for personal iPhones | _Settings > Integrations > MDM > Apple Business_, _BYOD fleet_ column per token | `AppleBusinessManagerTableConfig.tsx:244` |
+| _Allow Managed Apple Account on_ (Apple Business): _Any device_, _Managed devices only_, _Supervised devices only_ | _Settings > Access Management > Apple Services_. Needs iOS 17 or later | [Apple](https://support.apple.com/en-gb/guide/business/axm53xk34bq/web) |
+| Fleet guide links in the draft | All five return HTTP 200 on fleetdm.com | `curl` on 2026-10-23 |
+
 ## Checked in vendor docs
 
 | Claim | Result | Source |
