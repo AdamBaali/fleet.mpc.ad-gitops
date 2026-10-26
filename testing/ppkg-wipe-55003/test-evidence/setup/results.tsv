@@ -4,3 +4,4 @@ S-3	NOT-RUN	S-3-golden-vm-at-the-region-screen	Stopped to switch to the latest W
 S-5	PASS	S-5-build-msi-b-and-msi-n	Both arm64 MSIs built with fleetctl 4.93.2. Only MSI-B carries ORBIT_BYPASS_END_USER_AUTH=true.
 S-3	PARTIAL	S-3-golden-vm-at-the-region-screen	Golden VM stops at the region screen on Windows 11 26H2 Pro (build 26300.9457). No network yet: needs UTM's virtio-net driver from the guest tools.
 S-3b	PASS	S-3b-winre-build-and-hardware-identity	WinRE Enabled (10.0.26100.9444), Windows 11 Pro 10.0.26300, SMBIOS UUID equals the UTM VM UUID, empty serial.
+S-3	PASS	S-3-golden-vm-at-the-region-screen	Golden VM: Windows 11 Pro 26H2 (26300.9457) at the region screen, no user account, network up, reaches Fleet and the mock IdP.

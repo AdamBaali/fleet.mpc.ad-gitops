@@ -32,3 +32,13 @@ Finding: the golden VM has no network at the region screen. Windows has no in-bo
 Golden VM stops at the region screen on Windows 11 26H2 Pro (build 26300.9457). No network yet: needs UTM's virtio-net driver from the guest tools.
 
 _Finished 2026-10-26T17:29:12Z_
+- `08-guest-tools-network.png` (window screenshot: UTM / ppkg-golden-oobe)
+- `09-network-after-guest-tools.txt`: `tools/vm-exec.sh ppkg-golden-oobe 'Get-NetAdapter | Format-Table Name,InterfaceDescription,Status -AutoSize | `
+
+Installed UTM guest tools 0.1.271 (only the .exe, repacked without the tools ISO's own Autounattend.xml) at the region screen. It added the VirtIO network driver and the QEMU guest agent, then restarted back to the region screen. Like an OEM image that ships with its drivers. The Windows and answer ISOs are detached from the golden VM so they can't affect later resets.
+
+## Result: PASS
+
+Golden VM: Windows 11 Pro 26H2 (26300.9457) at the region screen, no user account, network up, reaches Fleet and the mock IdP.
+
+_Finished 2026-10-26T17:45:22Z_
