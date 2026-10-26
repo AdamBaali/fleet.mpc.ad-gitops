@@ -16,7 +16,7 @@ while [ "$(date +%s)" -lt "$end" ]; do
 h=json.load(sys.stdin)["host"]; m=h.get("mdm") or {}
 print(h["status"], "seen", h["seen_time"], "enrolled", h["last_enrolled_at"], "mdm", m.get("enrollment_status"), "conn", m.get("connected_to_fleet"))' 2>/dev/null || echo "host lookup failed")
   echo "$(date -u +%FT%TZ) vm=$(/Applications/UTM.app/Contents/MacOS/utmctl status "$V" 2>/dev/null) agent=$ga | $h | cmd: $r" >> "$LOG"
-  if [ $((n % 6)) -eq 0 ]; then tools/shot.sh "$ID" "t$(date -u +%H%M)" UTM "$V" >/dev/null 2>&1; fi
+  if [ $((n % 2)) -eq 0 ]; then tools/shot.sh "$ID" "t$(date -u +%H%M)" UTM "$V" >/dev/null 2>&1; fi
   n=$((n+1))
   echo "$h" | grep -q "enrolled $first" || { echo "$(date -u +%FT%TZ) last_enrolled_at changed" >> "$LOG"; tools/shot.sh "$ID" "reenrolled" UTM "$V" >/dev/null 2>&1; exit 0; }
   sleep 20

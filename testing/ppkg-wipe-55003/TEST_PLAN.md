@@ -99,6 +99,13 @@ the Render log lines with the host's UUID (`blocking enrollment` or `allowing en
 
 ## Wipe (W): send the wipe from Fleet, then watch the host come back
 
+Scope change (2026-10-26, Adam): only the two reprovisioning wipes proposed in the issue thread,
+`doWipePersistProvisionedData` and `doWipeCloudPersistProvisionedData`. No `doWipe`, `doWipeProtected`, or
+`C:\Recovery\Customizations` staging. The question: after the wipe, does the package bring the host back into Fleet
+when the fleet requires end user authentication, with and without the bypass flag, and what does the end user see?
+Capture every screen the user sees, and the Fleet host page before, during, and after. Remove the USB drive before
+each wipe, so the only package present is the copy Windows kept in `ProgramData\Microsoft\Provisioning`.
+
 Send custom commands with `fleetctl mdm run-command --hosts=<hostname> --payload=<file>`. Payloads in `payloads/`,
 copied from Fleet's MDM command library (`docs/mdm-commands.yml` at the tag). Built-in wipes go through the UI or
 `POST /api/v1/fleet/hosts/:id/wipe` with `windows.wipe_type`.
@@ -119,19 +126,14 @@ Tier 1 (answers the design review):
 | W-1 | after-E1 | `doWipePersistProvisionedData` | Keep | Reset to region screen. Package re-applied, fleetd running at setup, same host checks in before sign-in | fleetd running at the region screen and host checks in before `lab2` exists |
 | W-2 | after-E2b | `doWipePersistProvisionedData` | Keep | fleetd back. Server treats it as a re-enroll (`HostPreviouslyOrbitEnrolled`) and lets it in **without** the IdP | Host checks in with no browser prompt. If it waits for the IdP, the quote in the thread holds. Record which |
 | W-3 | after-E2b | `doWipePersistProvisionedData` | Delete the host in Fleet after the command is acknowledged, before the VM finishes resetting | Server sees a new host. Blocks enrollment. Prompt at setup as in E-2, IdP at the desktop as in E-2b | Behaves like E-2 and E-2b. Sign in as `eua-user-2`. Fleet shows `eua-user-2` |
-| W-4 | after-E1 | Fleet's **Wipe** button (`doWipeProtected`) | Keep | Clean reset. Package and fleetd gone. Host stays "Wiped" in Fleet | No fleetd at the region screen. Negative control: if fleetd survives, the other results need rethinking |
 
 Tier 2 (fills the matrix):
 
 | ID | Start from | Wipe | Fleet record | Expected | Pass when |
 |---|---|---|---|---|---|
 | W-5 | after-E1 | `doWipeCloudPersistProvisionedData` | Keep | Like W-1, after downloading a fresh arm64 image. Record download time and free space needed | Like W-1 |
-| W-6 | after-E1 | API wipe with `wipe_type: doWipe` | Keep | Package and fleetd gone | No fleetd at the region screen |
-| W-7 | after-E1, then copy PKG-B to `C:\Recovery\Customizations` with the ACLs from Microsoft's guide | API `doWipe` | Keep | Push-button reset restores packages in that folder, so fleetd comes back | fleetd running at the region screen |
-| W-8 | after-E1, staged as in W-7 | Fleet's **Wipe** button (`doWipeProtected`) | Keep | The thread says this removes the recovery folder, so fleetd doesn't come back | Record. Confirms or corrects the claim in the thread |
 | W-9 | W-1's host, after it reaches the desktop | `doWipePersistProvisionedData` again | Keep | Second reset works the same. The package survives more than one reset | Same as W-1 |
 
-Fleet-side state after W-4 and W-6: Fleet marks the host "Wiped" and refuses another wipe ("Host is already wiped").
 Record whether re-enrollment clears that state, since a repurposed host needs it cleared.
 
 
@@ -142,7 +144,6 @@ with a local user, and install MSI-B directly (no package).
 
 | ID | Steps | Expected | Pass when |
 |---|---|---|---|
-| P-1 | Fleet script copies PKG-B (unencrypted build, see NOTES) into `C:\Recovery\Customizations` with Microsoft's ACLs. Then API `doWipe` | Same as W-7 | fleetd running at the region screen |
 | P-2 | Fleet script runs `Install-ProvisioningPackage -PackagePath <PKG-B> -QuietInstall -ForceInstall` on the running host. Then `doWipePersistProvisionedData` | A package installed at run time is also persisted, so fleetd comes back | fleetd running at the region screen. If not, only packages applied during setup persist |
 | P-3 | Size and source: how the script gets the `.ppkg` (Fleet software package, or a download URL) | Recorded for the design review | Working method written down |
 
