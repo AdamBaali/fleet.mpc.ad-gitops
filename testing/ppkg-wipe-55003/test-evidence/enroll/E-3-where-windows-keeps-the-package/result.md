@@ -15,3 +15,10 @@ After E-1: the package is kept as C:\ProgramData\Microsoft\Provisioning\fleet-ag
 PKG-B (unencrypted) kept in ProgramData\Microsoft\Provisioning, readable by every user; C:\Recovery empty. PKG-N location still to record after E-2.
 
 _Finished 2026-10-26T18:06:34Z_
+- `03-e2-locations.txt`: `tools/vm-exec.sh e2-nobypass 'Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length`
+
+## Result: PASS
+
+Both packages kept as C:\ProgramData\Microsoft\Provisioning\<name>.ppkg, the folder Microsoft names for doWipePersistProvisionedData. C:\Recovery stays empty. Users and Everyone can read the file, so any signed-in user can extract the MSI and its enroll secret (unencrypted packages; encrypted not tested, see E-1).
+
+_Finished 2026-10-26T18:22:24Z_

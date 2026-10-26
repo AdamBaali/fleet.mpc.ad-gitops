@@ -1,0 +1,8 @@
+# 2026-10-26T18:18:37Z
+$ fleetctl api /api/v1/fleet/hosts/22 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; print({k:h.get(k) for k in ("id","hostname","uuid","team_name","status","last_enrolled_at","orbit_version")}); m=h.get("mdm") or {}; print("mdm:", m.get("enrollment_status")); print("end_users:", json.dumps(h.get("end_users"))[:600]); print("device_mapping:", h.get("device_mapping"))'
+
+{'id': 22, 'hostname': 'DESKTOP-JVO75AD', 'uuid': 'C87CFBCE-C7F3-4A6D-951E-C4A7CD856DDD', 'team_name': 'Windows Reset Lab', 'status': 'online', 'last_enrolled_at': '2026-10-26T18:18:20Z', 'orbit_version': '1.62.1'}
+mdm: On (manual)
+end_users: [{"idp_username": "eua-user-1@example.com", "idp_info_updated_at": null}]
+device_mapping: None
+[exit 0]

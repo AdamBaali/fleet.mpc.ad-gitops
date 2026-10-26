@@ -1,0 +1,13 @@
+# 2026-10-26T18:15:51Z
+$ fleetctl get hosts --team 10 --json 2>/dev/null | wc -l | xargs echo hosts in fleet 10:; tools/vm-exec.sh e2-nobypass 'Get-Content C:\Windows\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log -Tail 300 | Select-String -Pattern "enroll" | Select-Object -Last 8 | ForEach-Object { $_.Line }' 60
+
+hosts in fleet 10: 1
+2026-10-26T11:13:59-07:00 INF added enroll secret to keystore: Credential Manager
+2026-10-26T11:13:59-07:00 INF deleting enroll secret file: C:\Program Files\Orbit\secret.txt
+2026-10-26T11:14:02-07:00 INF orbit node key file not found, enrolling server=https://fleet.mpc.ad
+2026-10-26T11:14:02-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:14:32-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:15:02-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:15:32-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+[exit 0]
+[exit 0]
