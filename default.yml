@@ -14,5 +14,35 @@ org_settings:
     report_cap: 10000
   org_info:
     org_name: Fleet
+  # Mock IdP for end user authentication, used only by fleets that turn it on (Windows Reset Lab, fleetdm/fleet#55003).
+  # It runs on the Mac (testing/ppkg-wipe-55003/idp/), so the metadata is inline: Fleet can't fetch a URL on the Mac.
+  # The certificate is public. The signing key stays in that project's private/ folder.
+  mdm:
+    end_user_authentication:
+      idp_name: Lab IdP
+      entity_id: fleet-mpc-ad-end-users
+      metadata: |
+        <?xml version="1.0"?>
+        <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="http://192.168.64.1:9080/simplesaml/saml2/idp/metadata.php">
+          <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <md:KeyDescriptor use="signing">
+              <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                  <ds:X509Certificate>MIICtDCCAZwCCQDFMtLpfcCNBTANBgkqhkiG9w0BAQsFADAcMRowGAYDVQQDDBFwcGtnLXdpcGUtbGFiLWlkcDAeFw0yNjEwMjYxNTQ1NDRaFw0yNzEwMjYxNTQ1NDRaMBwxGjAYBgNVBAMMEXBwa2ctd2lwZS1sYWItaWRwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxITsexJEuP/MDpmJDt24S+Q/JLTUyCcJ73FSXhTOCuXR5KlXAc66mTOK46TZqvo/tbPy01RSaz+bPN7SgeUKWZ7bqsi9K0QV1TtFtmk5WQNxsKqJLcesRzgXZRmXgVO2fTEifPVZAXjW4d1DmtfKv8S5pLDblxKSsPpAXS9/rnSNfeIFp62dGCsXTmc/HDvxdXvCCUthb/dprwB3zkCpYyDEmG8EKUaFxqFXNuNr7tdrP2krW4hVAtVaMa1Dky+MHGQK6JrhgeUfrmX/aFYdhTKB4xb3YiL4M/ido8Sy0HT9Q8shTQYolW65awvrAIhlRstB6ujSkVDy6ilwGy7e7QIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQC/J4xexMlyb3XwwgAbHMkydi2csAk1x5gnYKNfqVcl7E0aYN69RM3P9cgpmWS3ibnqDb/qQnK3syMIRFBZsy4k0lDL6cwf0SDDbbrVnfOdn47w1xNDzx/ubrIAaOZ54LOY36IOpSWZiDFbDxpiKjavFmQohwauOoK2+ZzfpGHI3pSwgqtf0RTGUFlL5OQ0bHr5G1MDymlopDfS4ow2V4dUCSONq8gWmiAu7vt2rbciaCENtO0hmM33qt1Ngk4LR+8ICCkPkOigvuE5wIecr5FNh1gWTgP6lcLW4evGYiPzffQu4BSuCPOqrqfoWL4g5WBfP/dqywMxG/Rk5ImoQZSj</ds:X509Certificate>
+                </ds:X509Data>
+              </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:KeyDescriptor use="encryption">
+              <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                  <ds:X509Certificate>MIICtDCCAZwCCQDFMtLpfcCNBTANBgkqhkiG9w0BAQsFADAcMRowGAYDVQQDDBFwcGtnLXdpcGUtbGFiLWlkcDAeFw0yNjEwMjYxNTQ1NDRaFw0yNzEwMjYxNTQ1NDRaMBwxGjAYBgNVBAMMEXBwa2ctd2lwZS1sYWItaWRwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxITsexJEuP/MDpmJDt24S+Q/JLTUyCcJ73FSXhTOCuXR5KlXAc66mTOK46TZqvo/tbPy01RSaz+bPN7SgeUKWZ7bqsi9K0QV1TtFtmk5WQNxsKqJLcesRzgXZRmXgVO2fTEifPVZAXjW4d1DmtfKv8S5pLDblxKSsPpAXS9/rnSNfeIFp62dGCsXTmc/HDvxdXvCCUthb/dprwB3zkCpYyDEmG8EKUaFxqFXNuNr7tdrP2krW4hVAtVaMa1Dky+MHGQK6JrhgeUfrmX/aFYdhTKB4xb3YiL4M/ido8Sy0HT9Q8shTQYolW65awvrAIhlRstB6ujSkVDy6ilwGy7e7QIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQC/J4xexMlyb3XwwgAbHMkydi2csAk1x5gnYKNfqVcl7E0aYN69RM3P9cgpmWS3ibnqDb/qQnK3syMIRFBZsy4k0lDL6cwf0SDDbbrVnfOdn47w1xNDzx/ubrIAaOZ54LOY36IOpSWZiDFbDxpiKjavFmQohwauOoK2+ZzfpGHI3pSwgqtf0RTGUFlL5OQ0bHr5G1MDymlopDfS4ow2V4dUCSONq8gWmiAu7vt2rbciaCENtO0hmM33qt1Ngk4LR+8ICCkPkOigvuE5wIecr5FNh1gWTgP6lcLW4evGYiPzffQu4BSuCPOqrqfoWL4g5WBfP/dqywMxG/Rk5ImoQZSj</ds:X509Certificate>
+                </ds:X509Data>
+              </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.64.1:9080/simplesaml/saml2/idp/SingleLogoutService.php"/>
+            <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.64.1:9080/simplesaml/saml2/idp/SSOService.php"/>
+          </md:IDPSSODescriptor>
+        </md:EntityDescriptor>
   secrets:
     - secret: "$FLEET_GLOBAL_ENROLL_SECRET"

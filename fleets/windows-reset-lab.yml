@@ -1,0 +1,13 @@
+# Lab fleet for testing reset with a provisioning package (fleetdm/fleet#55003).
+# End user authentication is on so we see when fleetd waits for the IdP and when it doesn't.
+name: "Windows Reset Lab"
+policies:
+reports:
+agent_options:
+controls:
+  setup_experience:
+    enable_end_user_authentication: true
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_WINDOWS_RESET_LAB_ENROLL_SECRET"
