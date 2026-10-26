@@ -5,7 +5,7 @@ fleetd installed after an MDM wipe, and what the end user sees when the fleet re
 and without `--bypass-end-user-auth`. Input for the design review on Windows wipe for repurposing. Same method as
 `../_framework`.
 
-Status (2026-10-26): setup in progress. S-0 to S-2 pass. Next: the VMs and packages (S-3 to S-7).
+Status (2026-10-26): setup and enrollment tests done; wipe tests blocked by the lab (reset Windows does not boot under UTM on arm64). See RESULTS.md.
 
 | File or folder | What it is |
 | --- | --- |
