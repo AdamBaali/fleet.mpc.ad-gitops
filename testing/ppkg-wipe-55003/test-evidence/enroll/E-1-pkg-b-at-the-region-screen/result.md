@@ -28,3 +28,12 @@ Result: fleetd installed and running at the region screen with no user account (
 Bypass build enrolls at the region screen with no prompt (host 21, 34 s after the package applied), and MDM is On before any user exists. Caveat: unencrypted package opened from Shift+F10; the ICD-encrypted package failed with 0x80070490.
 
 _Finished 2026-10-26T18:06:34Z_
+- `14-local-account-screen.png` (window screenshot: UTM / e1-bypass)
+- `15-after-create-user.png` (window screenshot: UTM / e1-bypass)
+- `16-privacy-2.png` (window screenshot: UTM / e1-bypass)
+- `17-privacy-3.png` (window screenshot: UTM / e1-bypass)
+- `18-privacy-4.png` (window screenshot: UTM / e1-bypass)
+- `19-fleet-host-after-signin.txt`: `fleetctl api /api/v1/fleet/hosts/21 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"];`
+- `20-desktop-lab1.png` (window screenshot: UTM / e1-bypass)
+
+Finished setup with ms-cxh:localonly (local user lab1, no password, privacy options off). Reached the desktop at 18:08 UTC with no browser, no Fleet sign-in page, no Get an app prompt. Fleet: host 21 online, fleetd 1.62.1, MDM On (manual), no end user.
