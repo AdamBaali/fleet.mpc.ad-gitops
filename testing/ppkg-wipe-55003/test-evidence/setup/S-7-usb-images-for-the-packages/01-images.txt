@@ -1,0 +1,16 @@
+# 2026-10-26T17:54:38Z
+$ tools/usb-image.sh out/fleet-agent-b.ppkg out/usb-pkg-b.img; tools/usb-image.sh out/fleet-agent-n.ppkg out/usb-pkg-n.img; ls -l out/*.img
+
+total 46972
+drwx------@ 1 adam  staff     16384 Oct 26 18:54 .
+drwxr-xr-x  5 root  wheel       160 Oct 26 18:54 ..
+-rwx------  1 adam  staff  24032528 Oct 26 18:54 fleet-agent-b.ppkg
+Wrote out/usb-pkg-b.img. Copy it into the VM bundle's Data/ (cp -c) and set it as ImageName on Drive 3 in config.plist with UTM closed, or pick it in the VM's USB drive menu while it runs.
+total 46972
+drwx------@ 1 adam  staff     16384 Oct 26 18:54 .
+drwxr-xr-x  5 root  wheel       160 Oct 26 18:54 ..
+-rwx------  1 adam  staff  24032528 Oct 26 18:54 fleet-agent-n.ppkg
+Wrote out/usb-pkg-n.img. Copy it into the VM bundle's Data/ (cp -c) and set it as ImageName on Drive 3 in config.plist with UTM closed, or pick it in the VM's USB drive menu while it runs.
+-rw-r--r--  1 adam  staff  67108864 Oct 26 18:54 out/usb-pkg-b.img
+-rw-r--r--  1 adam  staff  67108864 Oct 26 18:54 out/usb-pkg-n.img
+[exit 0]

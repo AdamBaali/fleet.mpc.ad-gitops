@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PKG-B for Windows Reset Lab: the settings Fleet's ppkg guide sets in Windows Configuration Designer
+     (Runtime settings > ProvisioningCommands > PrimaryContext > Command "fleetd", Owner IT Admin). Built with ICD.exe. -->
+<WindowsCustomizations>
+  <PackageConfig xmlns="urn:schemas-Microsoft-com:Windows-ICD-Package-Config.v1.0">
+    <ID>{8BD43625-4562-4FFD-934C-5146B22F98CF}</ID>
+    <Name>fleet-agent-b</Name>
+    <Version>1.0</Version>
+    <OwnerType>ITAdmin</OwnerType>
+    <Rank>0</Rank>
+    <Notes></Notes>
+  </PackageConfig>
+  <Settings xmlns="urn:schemas-microsoft-com:windows-provisioning">
+    <Customizations>
+      <Common>
+        <ProvisioningCommands>
+          <PrimaryContext>
+            <Command>
+              <CommandConfig Name="fleetd">
+                <CommandFile>C:\build\b\fleet-osquery-arm64.msi</CommandFile>
+                <CommandLine>msiexec.exe /i fleet-osquery-arm64.msi /qn /norestart</CommandLine>
+                <ContinueInstall>True</ContinueInstall>
+                <RestartRequired>False</RestartRequired>
+                <ReturnCodeRestart>3010</ReturnCodeRestart>
+                <ReturnCodeSuccess>0</ReturnCodeSuccess>
+              </CommandConfig>
+            </Command>
+          </PrimaryContext>
+        </ProvisioningCommands>
+      </Common>
+    </Customizations>
+  </Settings>
+</WindowsCustomizations>

@@ -1,0 +1,15 @@
+# 2026-10-26T17:46:54Z
+$ tools/vm-exec.sh ppkg-builder 'New-Item -ItemType Directory -Force C:\build | Out-Null; Invoke-WebRequest -UseBasicParsing -Uri https://go.microsoft.com/fwlink/?linkid=2289980 -OutFile C:\build\adksetup.exe; (Get-Item C:\build\adksetup.exe).VersionInfo | Format-List ProductVersion,CompanyName | Out-String; $p = Start-Process C:\build\adksetup.exe -ArgumentList "/quiet /norestart /ceip off /features OptionId.ImagingAndConfigurationDesigner OptionId.DeploymentTools" -Wait -PassThru; "adksetup exit: " + $p.ExitCode; Get-ChildItem -Recurse -Filter ICD.exe "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit" | Select-Object -ExpandProperty FullName' 1800
+
+
+
+ProductVersion : 10.1.26100.9457
+CompanyName    : Microsoft Corporation
+
+
+
+
+adksetup exit: 0
+C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Imaging and Configuration Designer\x86\ICD.exe
+[exit 0]
+[exit 0]
