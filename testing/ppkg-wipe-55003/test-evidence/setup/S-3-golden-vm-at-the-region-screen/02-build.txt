@@ -1,0 +1,6 @@
+# 2026-10-26T16:06:41Z
+$ vm/build-golden.sh ppkg-golden-oobe
+
+FE17ACD3-4453-428E-A59F-BDFAA346CC4D
+started
+[exit 0]

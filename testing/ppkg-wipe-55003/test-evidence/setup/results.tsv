@@ -1,0 +1,4 @@
+S-0	PASS	S-0-record-the-lab	Fleet 4.93.0, Premium, Windows MDM on. Bypass setting unset on Render, so true (default).
+S-2	PASS	S-2-idp-and-fleet-applied	IdP 'Lab IdP' with entity ID fleet-mpc-ad-end-users and inline metadata pointing at the mock IdP. Only fleet 10 (Windows Reset Lab) requires end user authentication; the other seven fleets and hosts in no fleet don't.
+S-3	NOT-RUN	S-3-golden-vm-at-the-region-screen	Stopped to switch to the latest Windows 11 arm64 ISO.
+S-5	PASS	S-5-build-msi-b-and-msi-n	Both arm64 MSIs built with fleetctl 4.93.2. Only MSI-B carries ORBIT_BYPASS_END_USER_AUTH=true.

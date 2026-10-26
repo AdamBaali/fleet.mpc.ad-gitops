@@ -1,0 +1,12 @@
+# 2026-10-26T15:57:26Z
+$ fleetctl api /api/v1/fleet/fleets 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(t["id"], t["name"], "enable_end_user_authentication=", t.get("mdm",{}).get("macos_setup",{}).get("enable_end_user_authentication")) for t in d.get("fleets", d.get("teams", []))]'
+
+3 🐧 Flock to Fedora enable_end_user_authentication= None
+4 Ping Duo Lab enable_end_user_authentication= None
+5 Linux LUKS Lab enable_end_user_authentication= None
+6 iOS Google Lab enable_end_user_authentication= None
+7 Windows BitLocker Lab enable_end_user_authentication= None
+8 Power Nap Lab enable_end_user_authentication= None
+9 ServiceNow ITAM Lab enable_end_user_authentication= None
+10 Windows Reset Lab enable_end_user_authentication= None
+[exit 0]

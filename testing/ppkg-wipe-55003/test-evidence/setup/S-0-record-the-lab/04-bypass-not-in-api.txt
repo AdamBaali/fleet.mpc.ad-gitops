@@ -1,0 +1,6 @@
+# 2026-10-26T15:58:07Z
+$ fleetctl get config --include-server-config --yaml 2>/dev/null | grep -c -i allow_orbit_end_user_auth_bypass; echo 'config.go at fleet-v4.93.0: AllowOrbitEndUserAuthBypass has only a yaml tag (server/config/config.go:1129), default true (config.go addConfigBool)'
+
+0
+config.go at fleet-v4.93.0: AllowOrbitEndUserAuthBypass has only a yaml tag (server/config/config.go:1129), default true (config.go addConfigBool)
+[exit 0]

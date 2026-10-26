@@ -1,0 +1,5 @@
+# 2026-10-26T17:08:03Z
+$ fleetctl --version | head -1
+
+fleetctl - version 4.93.2
+[exit 0]

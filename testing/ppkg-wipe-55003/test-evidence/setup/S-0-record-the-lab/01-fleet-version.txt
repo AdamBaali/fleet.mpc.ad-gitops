@@ -1,0 +1,5 @@
+# 2026-10-26T15:57:24Z
+$ fleetctl api /api/v1/fleet/version 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("version"), d.get("revision"))'
+
+4.93.0 92732182750b40cb0f29f0144368d0a43b811dbc
+[exit 0]

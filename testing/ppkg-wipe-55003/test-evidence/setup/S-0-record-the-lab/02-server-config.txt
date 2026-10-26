@@ -1,0 +1,10 @@
+# 2026-10-26T15:57:25Z
+$ fleetctl get config --include-server-config --yaml 2>/dev/null | grep -n -E 'allow_orbit_end_user_auth_bypass|enable_custom_disk_encryption|tier:|windows_enabled_and_configured|enable_turn_on_windows_mdm_manually|idp_name|entity_id|metadata_url'
+
+47:    tier: premium
+99:    enable_turn_on_windows_mdm_manually: false
+102:      entity_id: fleet-mpc-ad-end-users
+103:      idp_name: Lab IdP
+128:      metadata_url: ""
+185:    windows_enabled_and_configured: true
+[exit 0]
