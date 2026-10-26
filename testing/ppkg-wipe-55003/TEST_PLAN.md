@@ -29,7 +29,7 @@ on during the reset, and `doAutomaticRedeployment` (needs Autopilot). See [NOTES
 | Fleet server setting | `mdm.allow_orbit_end_user_auth_bypass`: default `true`. Record the live value in S-0. Don't change it unless a test says so |
 | Fleet code checked | `fleet-v4.93.2` (the latest tag on 2026-10-26). Re-check at the lab's version if it differs |
 | Test fleet | New fleet **Windows Reset Lab**, `fleets/windows-reset-lab.yml` (draft below). End user authentication on |
-| IdP | Okta Integrator Free org, one SAML app for Fleet end user authentication. Steps in [IDP_SETUP.md](IDP_SETUP.md) |
+| IdP | Mock SAML IdP (SimpleSAMLphp, Fleet's dev image) in Docker on the Mac, own signing key, two fake users. [IDP_SETUP.md](IDP_SETUP.md) |
 | Test VM | UTM on the Mac, Windows 11 Pro 26H2 arm64, UEFI, TPM 2.0, 80 GB disk, stopped at the region screen (S-3) |
 | Builder VM | A second Windows VM with Windows Configuration Designer (WCD), for building the packages (S-4) |
 | Lab differences | VM not laptop, arm64 not x64, SMBIOS UUID and serial set by UTM, no Wi-Fi page in setup. See NOTES.md |
@@ -40,7 +40,7 @@ on during the reset, and `doAutomaticRedeployment` (needs Autopilot). See [NOTES
 | ID | Step | Pass when |
 |---|---|---|
 | S-0 | Record the lab: Fleet version (`fleetctl --version`, `fleetctl get config --include-server-config`), the live `allow_orbit_end_user_auth_bypass`, and that no other fleet has `enable_end_user_authentication` on | Values saved to `test-evidence/setup/S-0-*/` |
-| S-1 | IdP: Okta Integrator Free org, SAML app, two test users, metadata URL in repository secret `FLEET_EUA_METADATA_URL` ([IDP_SETUP.md](IDP_SETUP.md)). Adam creates the org and users | Okta's "Preview SAML" shows Name ID = the user's email |
+| S-1 | IdP: `idp/setup.sh`, then `docker compose up -d` ([IDP_SETUP.md](IDP_SETUP.md)) | A test login returns a signed response with Name ID = the user's email, for Fleet's callback. **Done 2026-10-26** |
 | S-2 | Fleet: add `mdm.end_user_authentication` to `default.yml`, add `fleets/windows-reset-lab.yml`, add both secrets to `workflow.yml`. Branch, PR, merge | GitOps run green. **Settings > Integrations > SSO > End users** shows the IdP. Fleet shows "Windows Reset Lab" with end user authentication on. Other fleets unchanged |
 | S-3 | Test VM: install Windows 11 Pro 26H2 arm64 with an answer file that only covers the `windowsPE` pass, so first boot stops at the region screen. Shut down there. APFS-clone the UTM bundle as `ppkg-golden-oobe` (`cp -c`) | Each test starts from a fresh clone and boots to the region screen |
 | S-3b | From a clone at the region screen: Shift+F10, `reagentc /info`, `winver`, `wmic csproduct get uuid,identifyingnumber` | WinRE **Enabled**. Build recorded. UUID and serial recorded (Fleet matches hosts on these) |
@@ -72,9 +72,10 @@ Draft addition to `default.yml` `org_settings` for S-2:
 ```yaml
   mdm:
     end_user_authentication:
-      idp_name: Okta (lab)
+      idp_name: Lab IdP
       entity_id: fleet-mpc-ad-end-users
-      metadata_url: $FLEET_EUA_METADATA_URL
+      metadata: |
+        <contents of idp/metadata.xml>
 ```
 
 Check before merging: `fleetctl gitops --dry-run` with the new keys, and that the `mdm:` block doesn't reset other global
@@ -91,7 +92,7 @@ the Render log lines with the host's UUID (`blocking enrollment` or `allowing en
 |---|---|---|---|---|
 | E-1 | PKG-B | Apply at the region screen. Wait 3 minutes. Check Fleet. Finish setup with local user `lab1` | Enrolls at the setup screen with no prompt. MDM "Off" until `lab1` signs in, then "On". No IdP user on the host | Host in "Windows Reset Lab" before any user exists. No browser or "Get an app" prompt. MDM On after sign-in |
 | E-2 | PKG-N | Same | Server blocks enrollment (no prior record). fleetd tries to open the Fleet sign-in page during setup and Windows shows "Get an app to open this 'https' link" | Not in Fleet during setup. Prompt seen (or not, record which). Render log shows `blocking enrollment` |
-| E-2b | PKG-N | Continue E-2: finish setup as `lab1`, wait at the desktop | fleetd opens the browser to Fleet's sign-in. Okta sign-in as test user 1. Host enrolls and shows the IdP user | Host enrolled with test user 1 under **Device user**. Time from desktop to enrollment recorded |
+| E-2b | PKG-N | Continue E-2: finish setup as `lab1`, wait at the desktop | fleetd opens the browser to Fleet's sign-in. IdP sign-in as `eua-user-1`. Host enrolls and shows the IdP user | Host enrolled with `eua-user-1` under **Device user**. Time from desktop to enrollment recorded |
 | E-3 | both | After E-1 and E-2b, record where Windows kept the package: `Get-ProvisioningPackage -AllInstalledPackages`, `dir C:\ProgramData\Microsoft\Provisioning -s`, `dir C:\Recovery -s -Force`, ACLs on those folders | Microsoft says persisted packages live in `ProgramData\Microsoft\Provisioning`. `C:\Recovery\Customizations` likely empty | Locations and ACLs recorded. Note if a standard user can read the package (it holds the enroll secret) |
 | E-4 | both | Clone each VM at this point (enrolled, MDM On, user signed in) as `after-E1` and `after-E2b` | Starting points for the W tests | Two clones saved |
 
@@ -117,7 +118,7 @@ Tier 1 (answers the design review):
 |---|---|---|---|---|---|
 | W-1 | after-E1 | `doWipePersistProvisionedData` | Keep | Reset to region screen. Package re-applied, fleetd running at setup, same host checks in before sign-in | fleetd running at the region screen and host checks in before `lab2` exists |
 | W-2 | after-E2b | `doWipePersistProvisionedData` | Keep | fleetd back. Server treats it as a re-enroll (`HostPreviouslyOrbitEnrolled`) and lets it in **without** the IdP | Host checks in with no browser prompt. If it waits for the IdP, the quote in the thread holds. Record which |
-| W-3 | after-E2b | `doWipePersistProvisionedData` | Delete the host in Fleet after the command is acknowledged, before the VM finishes resetting | Server sees a new host. Blocks enrollment. Prompt at setup as in E-2, IdP at the desktop as in E-2b | Behaves like E-2 and E-2b. Sign in as test user 2. Fleet shows test user 2 |
+| W-3 | after-E2b | `doWipePersistProvisionedData` | Delete the host in Fleet after the command is acknowledged, before the VM finishes resetting | Server sees a new host. Blocks enrollment. Prompt at setup as in E-2, IdP at the desktop as in E-2b | Behaves like E-2 and E-2b. Sign in as `eua-user-2`. Fleet shows `eua-user-2` |
 | W-4 | after-E1 | Fleet's **Wipe** button (`doWipeProtected`) | Keep | Clean reset. Package and fleetd gone. Host stays "Wiped" in Fleet | No fleetd at the region screen. Negative control: if fleetd survives, the other results need rethinking |
 
 Tier 2 (fills the matrix):
@@ -148,7 +149,7 @@ with a local user, and install MSI-B directly (no package).
 
 ## Order and time
 
-1. S-0 to S-2 (IdP and Fleet, about 1 hour, Adam creates the Okta org and users).
+1. S-0 to S-2 (IdP and Fleet, about 1 hour).
 2. S-3 to S-7 (VMs and packages, about 3 hours, mostly installs).
 3. E-1 to E-4 (about 1.5 hours).
 4. W-1 to W-4, then stop and write up. These answer the design review.
