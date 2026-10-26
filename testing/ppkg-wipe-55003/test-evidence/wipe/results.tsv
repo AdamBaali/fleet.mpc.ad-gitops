@@ -1,0 +1,1 @@
+W-1	BLOCKED	W-1-dowipepersistprovisioneddata-bypass-host	First attempt: host 21 lost its MDM connection to host 22 because the clones share a Windows MDM hardware ID. Rebuilding the golden image with sysprep /generalize and rerunning E-1, E-2, then W-1.
