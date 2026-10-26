@@ -1,0 +1,2 @@
+E-1	PARTIAL	E-1-pkg-b-at-the-region-screen	Bypass build enrolls at the region screen with no prompt (host 21, 34 s after the package applied), and MDM is On before any user exists. Caveat: unencrypted package opened from Shift+F10; the ICD-encrypted package failed with 0x80070490.
+E-3	PARTIAL	E-3-where-windows-keeps-the-package	PKG-B (unencrypted) kept in ProgramData\Microsoft\Provisioning, readable by every user; C:\Recovery empty. PKG-N location still to record after E-2.

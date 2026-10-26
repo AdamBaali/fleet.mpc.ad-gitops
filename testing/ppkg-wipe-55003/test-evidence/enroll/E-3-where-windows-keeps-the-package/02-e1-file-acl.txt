@@ -1,0 +1,28 @@
+# 2026-10-26T18:06:01Z
+$ tools/vm-exec.sh e1-bypass '(Get-Acl C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg).Access | Format-Table IdentityReference,FileSystemRights,AccessControlType -AutoSize | Out-String -Width 200; "--- readable by a standard user token? (icacls)"; icacls C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg' 60
+
+
+IdentityReference                                                                                            FileSystemRights AccessControlType
+-----------------                                                                                            ---------------- -----------------
+BUILTIN\Administrators                                                                                            FullControl             Allow
+NT AUTHORITY\SYSTEM                                                                                               FullControl             Allow
+S-1-15-3-1024-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871                 FullControl             Allow
+NT AUTHORITY\INTERACTIVE                                                                                          FullControl             Allow
+S-1-5-32-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871                      FullControl             Allow
+BUILTIN\Users                                                                                     ReadAndExecute, Synchronize             Allow
+Everyone                                                                                          ReadAndExecute, Synchronize             Allow
+
+
+
+--- readable by a standard user token? (icacls)
+C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg BUILTIN\Administrators:(I)(F)
+                                                               NT AUTHORITY\SYSTEM:(I)(F)
+                                                               S-1-15-3-1024-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               NT AUTHORITY\INTERACTIVE:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               S-1-5-32-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               BUILTIN\Users:(I)(RX)
+                                                               Everyone:(I)(RX)
+
+Successfully processed 1 files; Failed processing 0 files
+[exit 0]
+[exit 0]

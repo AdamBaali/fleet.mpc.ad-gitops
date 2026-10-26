@@ -1,0 +1,46 @@
+# 2026-10-26T18:05:14Z
+$ tools/vm-exec.sh e1-bypass 'Get-Service "Fleet osquery" | Format-Table Name,Status | Out-String; "local users: " + ((Get-LocalUser | Where-Object Enabled).Name -join ", "); Get-ChildItem "C:\Program Files\Orbit" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name; Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Enrollments\* -ErrorAction SilentlyContinue | Where-Object ProviderID | Format-List ProviderID,UPN,EnrollmentType,DiscoveryServiceFullURL | Out-String -Width 200' 120
+
+
+Name           Status
+----           ------
+Fleet osquery Running
+
+
+
+local users: defaultuser0
+bin
+osquery.db
+osquery_log
+staging
+certs.pem
+fleet-desktop.ico
+identifier
+installer_utils.ps1
+osquery.man
+osquery.pid
+resource_windows.syso
+secret-orbit-node-key.txt
+tuf-metadata.json
+updates-metadata.json
+
+
+ProviderID              : Fleet
+UPN                     : 
+EnrollmentType          : 0
+DiscoveryServiceFullURL : https://fleet.mpc.ad/api/mdm/microsoft/discovery
+
+ProviderID     : Deploy Authority
+EnrollmentType : 30
+
+ProviderID     : Cloud Authority
+EnrollmentType : 31
+
+ProviderID     : Local Authority
+EnrollmentType : 28
+
+
+
+
+[exit 0]
+[exit 0]
