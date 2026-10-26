@@ -16,6 +16,7 @@ org_settings:
     org_name: Fleet
   # Mock IdP for end user authentication, used only by fleets that turn it on (Windows Reset Lab, fleetdm/fleet#55003).
   # It runs on the Mac (testing/ppkg-wipe-55003/idp/), so the metadata is inline: Fleet can't fetch a URL on the Mac.
+  # Test VMs reach it as idp.ppkg.test (a hosts file entry pointing at the Mac).
   # The certificate is public. The signing key stays in that project's private/ folder.
   mdm:
     end_user_authentication:
@@ -23,7 +24,7 @@ org_settings:
       entity_id: fleet-mpc-ad-end-users
       metadata: |
         <?xml version="1.0"?>
-        <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="http://192.168.64.1:9080/simplesaml/saml2/idp/metadata.php">
+        <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="http://idp.ppkg.test:9080/simplesaml/saml2/idp/metadata.php">
           <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
             <md:KeyDescriptor use="signing">
               <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -39,9 +40,9 @@ org_settings:
                 </ds:X509Data>
               </ds:KeyInfo>
             </md:KeyDescriptor>
-            <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.64.1:9080/simplesaml/saml2/idp/SingleLogoutService.php"/>
+            <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://idp.ppkg.test:9080/simplesaml/saml2/idp/SingleLogoutService.php"/>
             <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
-            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.64.1:9080/simplesaml/saml2/idp/SSOService.php"/>
+            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://idp.ppkg.test:9080/simplesaml/saml2/idp/SSOService.php"/>
           </md:IDPSSODescriptor>
         </md:EntityDescriptor>
   secrets:

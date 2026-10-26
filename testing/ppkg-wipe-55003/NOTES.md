@@ -63,6 +63,7 @@ dry run in S-2 confirms it.
 - VM with Ethernet. Real laptops often have only Wi-Fi, so they reach Fleet only after the end user picks a network.
 - arm64 VM. Most customer laptops are x64. Run W-1 once on a physical x64 laptop before changing any guide.
 - No BitLocker during the reset. Fleet-managed laptops usually have BitLocker on.
+- One hosts file line in the VM (`idp.ppkg.test`) so it can reach the mock IdP. Real IdPs are public. A reset removes the line, so it is added again at the region screen.
 - UTM keeps the SMBIOS UUID and serial across resets, as real hardware does. Fleet matches hosts on these.
 
 
