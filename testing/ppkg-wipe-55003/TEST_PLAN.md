@@ -2,9 +2,13 @@
 
 Issue: https://github.com/fleetdm/fleet/issues/55003 (thread from comment 6330622182) · Owner: Adam · Started: 2026-10-26 · Status: planned, nothing run
 
-Question: after an MDM wipe, does a Windows host that was set up with Fleet's provisioning package (`.ppkg`) come back
-to the first setup screen with fleetd installed and enroll in Fleet again on its own? And what does the end user see
-when the fleet requires end user authentication, with and without `--bypass-end-user-auth`?
+Question: can Fleet offer a "reset for a new user" (reprovision) option next to today's wipe? After
+`doWipePersistProvisionedData` or `doWipeCloudPersistProvisionedData`, does a Windows host that has Fleet's provisioning
+package come back by itself, ready for the next person:
+1. fleetd reinstalled and the host re-enrolled in the same fleet, with no admin or end user action.
+2. Windows MDM on again, so the fleet's profiles and software apply.
+3. On a fleet that requires end user authentication, the new person signs in and Fleet shows them, not the previous user.
+4. What the end user sees from the reset to the desktop, and what the admin sees on the Fleet host page.
 
 The design review needs three answers:
 1. Which wipe keeps fleetd: `doWipePersistProvisionedData`, `doWipeCloudPersistProvisionedData`, or neither.
