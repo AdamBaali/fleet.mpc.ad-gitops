@@ -1,0 +1,12 @@
+# 2026-10-26T17:08:03Z
+$ tools/build-msis.sh arm64
+
+
+To add hosts to Fleet, install fleetd.
+Learn how: https://fleetdm.com/learn-more-about/enrolling-hosts
+
+To add hosts to Fleet, install fleetd.
+Learn how: https://fleetdm.com/learn-more-about/enrolling-hosts
+-rw-------  1 adam  staff  24022528 Oct 26 18:08 out/msi-b/fleet-osquery-arm64.msi
+-rw-------  1 adam  staff  24022528 Oct 26 18:09 out/msi-n/fleet-osquery-arm64.msi
+[exit 0]

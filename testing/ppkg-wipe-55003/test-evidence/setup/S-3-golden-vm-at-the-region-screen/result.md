@@ -19,3 +19,4 @@ _Finished 2026-10-26T16:07:45Z_
 Rerun 2026-10-26 evening with the current release from microsoft.com/software-download/windows11arm64 (Windows 11 2026 Update, 26H2).
 - `03-iso-26h2.txt`: `ls -l $HOME/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso; shasum -a 256 $HOME/Downloads/win`
 - `04-build-26h2.txt`: `ISO=$HOME/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso vm/build-golden.sh ppkg-golden-oobe`
+- `05-installing.png` (window screenshot: UTM / ppkg-golden-oobe)

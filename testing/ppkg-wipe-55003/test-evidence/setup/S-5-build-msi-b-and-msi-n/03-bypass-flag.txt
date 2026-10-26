@@ -1,0 +1,8 @@
+# 2026-10-26T17:09:56Z
+$ for m in b n; do printf "msi-$m ORBIT_BYPASS_END_USER_AUTH occurrences: "; LC_ALL=C grep -a -c ORBIT_BYPASS_END_USER_AUTH out/msi-$m/fleet-osquery-arm64.msi; done; shasum -a 256 out/msi-*/fleet-osquery-arm64.msi
+
+msi-b ORBIT_BYPASS_END_USER_AUTH occurrences: 1
+msi-n ORBIT_BYPASS_END_USER_AUTH occurrences: 0
+c7315ff03bf56dbeeca8b01c9ca28d47a8c88399e80f183e7260fe542fcd0159  out/msi-b/fleet-osquery-arm64.msi
+704613ae43548c5b73f56a16d8132911886fe5b09a3b8ed3701f55227bbef0dc  out/msi-n/fleet-osquery-arm64.msi
+[exit 0]
