@@ -1,0 +1,28 @@
+# 2026-10-26T19:49:11Z
+$ date -u +%FT%TZ; fleetctl run-script --host 329557D4-1408-4A41-8737-57A85722B6D4 --script-path scripts/stage-ppkg.ps1 2>&1 | grep -v -i -E "version|mismatch"
+
+2026-10-26T19:49:11Z
+
+
+Exit code: 0 (Script ran successfully.)
+
+Output:
+
+-------------------------------------------------------------------------------------
+
+Not resetting system file - C:\Recovery
+C:\Recovery\Customizations\fleet-agent.ppkg 24032479 28A2FA44C35FABD87239B7E94F3E0E48D40F5A66DB797B81251C2A84494F7538
+C:\Recovery BUILTIN\Administrators:(F)
+            BUILTIN\Administrators:(OI)(CI)(F)
+            NT AUTHORITY\SYSTEM:(OI)(CI)(F)
+            BUILTIN\Administrators:(OI)(CI)(IO)(F)
+            NT AUTHORITY\Authenticated Users:(RX)
+            NT AUTHORITY\Authenticated Users:(OI)(CI)(IO)(GR,GE)
+            BUILTIN\Users:(RX)
+            BUILTIN\Users:(OI)(CI)(IO)(GR,GE)
+
+Successfully processed 1 files; Failed processing 0 files
+
+
+-------------------------------------------------------------------------------------
+[exit 0]

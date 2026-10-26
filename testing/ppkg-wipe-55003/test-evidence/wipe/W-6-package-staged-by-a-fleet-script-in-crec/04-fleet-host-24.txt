@@ -1,0 +1,5 @@
+# 2026-10-26T19:49:10Z
+$ fleetctl api /api/v1/fleet/hosts/24 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; m=h.get("mdm") or {}; print({k:h.get(k) for k in ("id","hostname","uuid","status","last_enrolled_at")}, m.get("enrollment_status"), "connected:", m.get("connected_to_fleet"))'
+
+{'id': 24, 'hostname': 'DESKTOP-JVO75AD', 'uuid': '329557D4-1408-4A41-8737-57A85722B6D4', 'status': 'online', 'last_enrolled_at': '2026-10-26T19:48:31Z'} On (manual) connected: True
+[exit 0]

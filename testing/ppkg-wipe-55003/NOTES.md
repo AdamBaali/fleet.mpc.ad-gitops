@@ -42,6 +42,22 @@ GitOps builds the `mdm` map whether or not the YAML has one, and fills the same 
 dry run in S-2 confirms it.
 
 
+**D-7. Omnissa (VMware) built the same pattern for Workspace ONE.**
+github.com/helmlingp/apps_DeviceWipewProvisioning (Phil Helmling; read 2026-10-26, last push 2023-12-07, no license).
+`DeviceWipewProvisioning.ps1`, deployed as a Workspace ONE app, copies the provisioning package to
+`C:\Recovery\Customizations`, an `unattend.xml` to `C:\Recovery\AutoApply`, and optionally the agent MSI to
+`C:\Recovery\OEM`. The admin then sends "Device Wipe with Provisioning Data", which is `doWipePersistProvisionedData`.
+The README says it works for "brownfield" devices that were not set up with a package, and describes the device
+coming back to the same setup flow as a factory-provisioned one. The script sets no ACLs on `C:\Recovery`. The Fleet
+equivalent: a Fleet script (or policy automation) stages Fleet's package in `C:\Recovery\Customizations`, then Fleet
+sends `doWipePersistProvisionedData`. Test W-6.
+
+**D-8. Fleet's MDM command library payloads for Windows don't run as published.**
+`docs/mdm-commands.yml` wraps each Windows command in `<syncml><syncbody>`. `fleetctl mdm run-command` rejects that with
+"You can run only <Exec> command type." (`server/fleet/microsoft_mdm.go`, `ParseWindowsMDMCommand`). The bare
+`<Exec>` element works (`payloads/README.md`). Docs fix to propose.
+
+
 ## Risks for the lab
 
 - **Local account at setup.** Windows 11 26H2 Pro may push a Microsoft account. Options, in order: Shift+F10

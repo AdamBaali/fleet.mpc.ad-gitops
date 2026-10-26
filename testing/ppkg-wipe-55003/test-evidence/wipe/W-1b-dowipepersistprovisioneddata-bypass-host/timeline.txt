@@ -90,3 +90,49 @@
 2026-10-26T19:25:25Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
 2026-10-26T19:25:47Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
 2026-10-26T19:26:10Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:26:32Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:26:54Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:27:16Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:27:38Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:28:00Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:28:23Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:28:45Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:29:07Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:29:29Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:29:51Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:30:13Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:30:36Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:30:58Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:31:20Z vm=stopped agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:31:42Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:32:05Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:32:27Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:32:49Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:33:11Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:33:33Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:33:55Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:34:18Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:34:40Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:35:02Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:41:49Z start; last_enrolled_at=2026-10-26T18:49:06Z
+2026-10-26T19:41:51Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:42:13Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:42:35Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:42:58Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:43:20Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:43:43Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:44:05Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:44:27Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:44:50Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:45:12Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:45:34Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:45:57Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:46:19Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:46:42Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:47:04Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:47:27Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:47:49Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:48:12Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn True | cmd: 70ae2538-f64f-4d5a-a99f-2bd04766562e 2026-10-26T18:52:46Z 200 
+2026-10-26T19:48:34Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn False | cmd: 
+2026-10-26T19:48:56Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn False | cmd: 
+2026-10-26T19:49:19Z vm=started agent=down | offline seen 2026-10-26T18:52:21Z enrolled 2026-10-26T18:49:06Z mdm On (manual) conn False | cmd: 

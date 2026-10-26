@@ -1,0 +1,11 @@
+# 2026-10-26T19:55:45Z
+$ date -u +%FT%TZ; fleetctl mdm run-command --hosts=329557D4-1408-4A41-8737-57A85722B6D4 --payload=payloads/doWipePersistProvisionedData.xml 2>&1 | grep -v -i -E "version|mismatch"
+
+2026-10-26T19:55:45Z
+
+Hosts will run the command the next time they check into Fleet.
+
+Copy and run this command to see results:
+
+fleetctl get mdm-command-results --id=17b97ea7-1d8c-4cd1-849d-e13c343ee542
+[exit 0]
