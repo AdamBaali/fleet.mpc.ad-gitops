@@ -1,0 +1,5 @@
+# 2026-10-26T15:58:28Z
+$ fleetctl api /api/v1/fleet/config 2>/dev/null | python3 -c 'import json,sys; m=json.load(sys.stdin)["mdm"]; print("hosts in no fleet, enable_end_user_authentication=", (m.get("macos_setup") or {}).get("enable_end_user_authentication"))'
+
+hosts in no fleet, enable_end_user_authentication= False
+[exit 0]

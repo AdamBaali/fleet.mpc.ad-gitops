@@ -25,10 +25,10 @@ on during the reset, and `doAutomaticRedeployment` (needs Autopilot). See [NOTES
 
 | Item | Value |
 |---|---|
-| Fleet | `https://fleet.mpc.ad`, version recorded in S-0, Premium, Windows MDM on (`default.yml`) |
-| Fleet server setting | `mdm.allow_orbit_end_user_auth_bypass`: default `true`. Record the live value in S-0. Don't change it unless a test says so |
+| Fleet | `https://fleet.mpc.ad`, 4.93.0 (S-0), Premium, Windows MDM on, automatic Windows MDM turn-on |
+| Fleet server setting | `mdm.allow_orbit_end_user_auth_bypass`: unset on Render, so `true` (S-0). Don't change it unless a test says so |
 | Fleet code checked | `fleet-v4.93.2` (the latest tag on 2026-10-26). Re-check at the lab's version if it differs |
-| Test fleet | New fleet **Windows Reset Lab**, `fleets/windows-reset-lab.yml` (draft below). End user authentication on |
+| Test fleet | **Windows Reset Lab** (fleet 10), `fleets/windows-reset-lab.yml`. End user authentication on |
 | IdP | Mock SAML IdP (SimpleSAMLphp, Fleet's dev image) in Docker on the Mac, own signing key, two fake users. [IDP_SETUP.md](IDP_SETUP.md) |
 | Test VM | UTM on the Mac, Windows 11 Pro 26H2 arm64, UEFI, TPM 2.0, 80 GB disk, stopped at the region screen (S-3) |
 | Builder VM | A second Windows VM with Windows Configuration Designer (WCD), for building the packages (S-4) |

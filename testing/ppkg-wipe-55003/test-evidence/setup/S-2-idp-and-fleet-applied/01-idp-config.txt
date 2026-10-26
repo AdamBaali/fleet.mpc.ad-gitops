@@ -1,0 +1,9 @@
+# 2026-10-26T15:58:08Z
+$ fleetctl api /api/v1/fleet/config 2>/dev/null | python3 -c 'import json,sys; e=json.load(sys.stdin)["mdm"]["end_user_authentication"]; print("idp_name:", e.get("idp_name")); print("entity_id:", e.get("entity_id")); print("metadata_url:", repr(e.get("metadata_url"))); m=e.get("metadata") or ""; print("metadata chars:", len(m)); print("metadata has IdP SSO URL:", "192.168.64.1:9080/simplesaml/saml2/idp/SSOService.php" in m)'
+
+idp_name: Lab IdP
+entity_id: fleet-mpc-ad-end-users
+metadata_url: ''
+metadata chars: 3116
+metadata has IdP SSO URL: True
+[exit 0]

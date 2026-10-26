@@ -1,0 +1,7 @@
+# 2026-10-26T15:58:08Z
+$ cd ../fleet && git diff --stat fleet-v4.93.0 fleet-v4.93.2 -- server/service/orbit.go server/datastore/mysql/hosts.go orbit/cmd/orbit/orbit.go server/config/config.go
+
+ server/datastore/mysql/hosts.go | 7 ++++++-
+ server/service/orbit.go         | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+[exit 0]
