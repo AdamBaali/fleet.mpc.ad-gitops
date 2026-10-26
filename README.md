@@ -30,6 +30,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Windows BitLocker Lab | Test BitLocker PIN with a custom disk encryption profile (fleetdm/fleet#42318) | `fleets/windows-bitlocker-lab.yml` | `fleets/windows-bitlocker-lab/`, `testing/bitlocker-pin-42318/` |
 | Power Nap Lab | Test installs and scripts on a sleeping Mac laptop (fleetdm/fleet#46924) | `fleets/power-nap-lab.yml` | `fleets/power-nap-lab/`, `testing/power-nap-46924/` |
 | ServiceNow ITAM Lab | Test software fields for a ServiceNow ITAM export (fleetdm/fleet#38864) | `fleets/servicenow-itam-lab.yml` | `fleets/servicenow-itam-lab/`, `testing/servicenow-itam-38864/` |
+| Windows Reset Lab | Test resetting a Windows host set up with a provisioning package, with end user authentication on (fleetdm/fleet#55003) | `fleets/windows-reset-lab.yml` | `testing/ppkg-wipe-55003/` |
 
 
 ## Test projects without a fleet

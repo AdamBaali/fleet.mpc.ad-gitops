@@ -14,5 +14,12 @@ org_settings:
     report_cap: 10000
   org_info:
     org_name: Fleet
+  # IdP for end user authentication, used only by fleets that turn it on (Windows Reset Lab, fleetdm/fleet#55003).
+  # The metadata URL is a secret so the lab Okta org's domain stays out of this public repo.
+  mdm:
+    end_user_authentication:
+      idp_name: Okta (lab)
+      entity_id: fleet-mpc-ad-end-users
+      metadata_url: $FLEET_EUA_METADATA_URL
   secrets:
     - secret: "$FLEET_GLOBAL_ENROLL_SECRET"
