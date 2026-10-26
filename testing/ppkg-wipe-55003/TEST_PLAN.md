@@ -106,6 +106,10 @@ when the fleet requires end user authentication, with and without the bypass fla
 Capture every screen the user sees, and the Fleet host page before, during, and after. Remove the USB drive before
 each wipe, so the only package present is the copy Windows kept in `ProgramData\Microsoft\Provisioning`.
 
+Repurposing check (Adam, 2026-10-26): a reset host goes to a new person. For the no-bypass runs, record which IdP user
+Fleet shows after the reset. W-2: does `eua-user-2` get any chance to sign in, or does Fleet keep `eua-user-1`? W-3:
+sign in as `eua-user-2` and confirm Fleet shows only `eua-user-2`. Keeping the old user on a repurposed host is a finding.
+
 Send custom commands with `fleetctl mdm run-command --hosts=<hostname> --payload=<file>`. Payloads in `payloads/`,
 copied from Fleet's MDM command library (`docs/mdm-commands.yml` at the tag). Built-in wipes go through the UI or
 `POST /api/v1/fleet/hosts/:id/wipe` with `windows.wipe_type`.
