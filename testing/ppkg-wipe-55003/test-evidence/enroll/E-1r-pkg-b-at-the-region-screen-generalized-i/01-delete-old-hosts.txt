@@ -1,0 +1,7 @@
+# 2026-10-26T18:29:48Z
+$ fleetctl api -X DELETE /api/v1/fleet/hosts/21 2>&1 | tail -1; fleetctl api -X DELETE /api/v1/fleet/hosts/22 2>&1 | tail -1; fleetctl get hosts --team 10 --json 2>/dev/null | wc -l | xargs echo hosts left in fleet 10:
+
+{}
+{}
+hosts left in fleet 10: 0
+[exit 0]

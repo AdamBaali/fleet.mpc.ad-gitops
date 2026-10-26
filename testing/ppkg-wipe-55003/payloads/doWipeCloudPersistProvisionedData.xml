@@ -1,16 +1,12 @@
-<syncml xmlns="SYNCML:SYNCML1.2">
-  <syncbody>
-    <Exec>
-     <CmdID>d07f227f-74c1-4a0d-8e79-f0a9bcf1ffe2</CmdID>
-     <Item>
-       <Target>
-         <LocURI>./Device/Vendor/MSFT/RemoteWipe/doWipeCloudPersistProvisionedData</LocURI>
-       </Target>
-       <Meta>
-         <Format xmlns="syncml:metinf">chr</Format>
-         <Type>text/plain</Type>
-       </Meta>
-     </Item>
-   </Exec>
-  </syncbody>
-</syncml>
+<Exec>
+    <CmdID>d07f227f-74c1-4a0d-8e79-f0a9bcf1ffe2</CmdID>
+    <Item>
+      <Target>
+        <LocURI>./Device/Vendor/MSFT/RemoteWipe/doWipeCloudPersistProvisionedData</LocURI>
+      </Target>
+      <Meta>
+        <Format xmlns="syncml:metinf">chr</Format>
+        <Type>text/plain</Type>
+      </Meta>
+    </Item>
+</Exec>

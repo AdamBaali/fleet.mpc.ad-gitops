@@ -1,0 +1,5 @@
+# 2026-10-26T18:45:43Z
+$ tools/vm-exec.sh e1b-bypass '"MachineGuid: " + (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Cryptography).MachineGuid; "ComputerName: " + $env:COMPUTERNAME; Get-Service "Fleet osquery" -ErrorAction SilentlyContinue; Get-Content C:\Windows\System32\drivers\etc\hosts | Select-String ppkg; Get-NetAdapter | Format-Table Name,Status | Out-String; Get-Content C:\Windows\System32\Sysprep\Panther\setuperr.log -ErrorAction SilentlyContinue | Select-Object -Last 5' 120
+
+187:323: execution error: UTM got an error: The QEMU guest agent is not running or not installed on the guest. (-2700)
+[exit 1]
