@@ -1,0 +1,16 @@
+<syncml xmlns="SYNCML:SYNCML1.2">
+  <syncbody>
+    <Exec>
+     <CmdID>0d0f7e7b-82b7-4fff-a4d1-101c9edb795d</CmdID>
+     <Item>
+       <Target>
+         <LocURI>./Device/Vendor/MSFT/RemoteWipe/doWipeProtected</LocURI>
+       </Target>
+       <Meta>
+         <Format xmlns="syncml:metinf">chr</Format>
+         <Type>text/plain</Type>
+       </Meta>
+     </Item>
+   </Exec>
+  </syncbody>
+</syncml>

@@ -8,11 +8,20 @@
 - `fleetctl` on the Mac uses an API token (`~/.fleet/config`). The enroll secret is in `private/.env` and in GitHub.
 - S-1 done: mock IdP running in Docker (`ppkg-wipe-idp`, port 9080). Test login checked. Metadata inline in `default.yml`.
 
-## Next steps
-1. Update `fleetctl` to 4.93.0 to match the server before building MSIs.
-2. S-3 to S-7, then E and W tests.
+## Next steps (at home, laptop plugged in)
+1. Start Docker Desktop. Check the IdP: `docker ps --filter name=ppkg-wipe-idp`.
+2. Update `fleetctl` to 4.93.0 (it's root-owned in `/usr/local/bin`, so Adam runs the update).
+3. S-3: `vm/build-golden.sh` (no VM may be running; needs 30 GB free, 128 GB free on 2026-10-26). Windows installs on
+   its own. Screenshot the region screen (`tools/shot.sh S-3 region-screen UTM ppkg-golden-oobe`), then shut down there.
+4. S-3b from a clone (`vm/clone.sh new ppkg-golden-oobe s3b`): Shift+F10, `reagentc /info`, `winver`, UUID and serial.
+   Check that the UUID equals the UTM VM UUID (vm/clone.sh relies on it).
+5. S-4: builder VM. The old UTM VMs were deleted, so build one: `vm/build-golden.sh ppkg-builder`, finish setup with a
+   local account, install Windows Configuration Designer. It must never enroll in Fleet.
+6. S-5: `tools/build-msis.sh` (Docker running). S-6 in the builder VM. S-7: `tools/usb-image.sh`.
+7. Then E-1. Screenshot every prompt with `tools/shot.sh`, commit after each test.
 
 ## Running services (keep them on)
+- Windows ISO: `~/Library/Parallels/Downloads/26100.4349...A64FRE_en-us.iso` (Windows 11 24H2 arm64, not 26H2 as planned).
 - `ppkg-wipe-idp` (Docker, port 9080 on all interfaces). Check: `docker ps --filter name=ppkg-wipe-idp`. Stop: `docker compose -f idp/docker-compose.yml down`.
 
 ## Teardown
