@@ -4,7 +4,7 @@
 # region screen. Then shut it down there and keep the bundle as the golden copy. Usage: vm/build-golden.sh [name]
 set -euo pipefail
 P="$(cd "$(dirname "$0")/.." && pwd)"; NAME="${1:-ppkg-golden-oobe}"
-ISO="${ISO:-$HOME/Library/Parallels/Downloads/26100.4349.250607-1500.ge_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso}"
+ISO="${ISO:?set ISO to the Windows 11 arm64 ISO path}"
 DOCS=~/Library/Containers/com.utmapp.UTM/Data/Documents; B="$DOCS/$NAME.utm"; U=/Applications/UTM.app/Contents/MacOS/utmctl
 [ -f "$ISO" ] || { echo "Windows ISO not found: $ISO"; exit 1; }
 [ -e "$B" ] && { echo "$B exists; move it away first"; exit 1; }
