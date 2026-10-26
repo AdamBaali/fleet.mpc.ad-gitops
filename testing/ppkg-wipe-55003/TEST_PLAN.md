@@ -1,180 +1,122 @@
-# Test plan: reset a Windows host with a provisioning package (fleetdm/fleet#55003)
+# Test plan v2: Windows "reset for a new user" (reprovision) (fleetdm/fleet#55003)
 
-Issue: https://github.com/fleetdm/fleet/issues/55003 (thread from comment 6330622182) · Owner: Adam · Started: 2026-10-26 · Status: planned, nothing run
-
-Question: can Fleet offer a "reset for a new user" (reprovision) option next to today's wipe? After
-`doWipePersistProvisionedData` or `doWipeCloudPersistProvisionedData`, does a Windows host that has Fleet's provisioning
-package come back by itself, ready for the next person:
-1. fleetd reinstalled and the host re-enrolled in the same fleet, with no admin or end user action.
-2. Windows MDM on again, so the fleet's profiles and software apply.
-3. On a fleet that requires end user authentication, the new person signs in and Fleet shows them, not the previous user.
-4. What the end user sees from the reset to the desktop, and what the admin sees on the Fleet host page.
-
-The design review needs three answers:
-1. Which wipe keeps fleetd: `doWipePersistProvisionedData`, `doWipeCloudPersistProvisionedData`, or neither.
-2. Does the host check in during setup, or only after the end user signs in (the quote in the thread says the second).
-3. Can Fleet put the package on a host that was enrolled another way, so admins and end users do nothing extra.
+Owner: Adam · v2 written 2026-10-26 after the first run ([TEST_PLAN-v1.md](TEST_PLAN-v1.md), [RESULTS.md](RESULTS.md)).
+Structure follows Fleet's story test plan (Core flow, Edge cases, then the checks that apply) and the
+[design / QA considerations](https://github.com/fleetdm/fleet/blob/main/docs/Contributing/guides/ui/design-qa-considerations.md) list.
 
 
-## Scope
+## User story
 
-Covers: Windows 11 Pro in a UTM VM, Fleet's ppkg guide as written, two fleetd builds (bypass on and off), four wipe
-types sent from Fleet, and a fleet with end user authentication on, backed by a lab IdP.
+As an IT admin, I want to reset a Windows host for a new user from Fleet, so it comes back to Windows setup, enrolls in
+the same fleet again, and is ready for the next person, without reimaging it and without Microsoft Autopilot.
 
-Doesn't cover: Autopilot and Entra join (Fleet installs fleetd itself there), Windows 10, physical hardware, BitLocker
-on during the reset, and `doAutomaticRedeployment` (needs Autopilot). See [NOTES.md](NOTES.md) for lab versus production.
+Mechanism under test: Fleet's provisioning package (the guide's ppkg with fleetd) is on the host, either from setup or
+staged later by Fleet in `C:\Recovery\Customizations`. Fleet sends `doWipePersistProvisionedData` (or
+`doWipeCloudPersistProvisionedData`). Windows wipes the user and re-applies the package, which reinstalls fleetd.
+
+A test passes only with: VM window screenshots of every screen the end user sees, the Fleet host page (details and
+activity) before, during, and after, and command or API output for every state claim.
 
 
-## Environment
+## Already proven (v1)
 
-| Item | Value |
+| What | Test |
 |---|---|
-| Fleet | `https://fleet.mpc.ad`, 4.93.0 (S-0), Premium, Windows MDM on, automatic Windows MDM turn-on |
-| Fleet server setting | `mdm.allow_orbit_end_user_auth_bypass`: unset on Render, so `true` (S-0). Don't change it unless a test says so |
-| Fleet code checked | `fleet-v4.93.2` (the latest tag on 2026-10-26). Re-check at the lab's version if it differs |
-| Test fleet | **Windows Reset Lab** (fleet 10), `fleets/windows-reset-lab.yml`. End user authentication on |
-| IdP | Mock SAML IdP (SimpleSAMLphp, Fleet's dev image) in Docker on the Mac, own signing key, two fake users. [IDP_SETUP.md](IDP_SETUP.md) |
-| Test VM | UTM on the Mac, Windows 11 Pro 26H2 arm64, UEFI, TPM 2.0, 80 GB disk, stopped at the region screen (S-3) |
-| Builder VM | A second Windows VM with Windows Configuration Designer (WCD), for building the packages (S-4) |
-| Lab differences | VM not laptop, arm64 not x64, SMBIOS UUID and serial set by UTM, no Wi-Fi page in setup. See NOTES.md |
+| Bypass build enrolls during Windows setup with no prompt; MDM On before any user | E-1, E-1b |
+| No-bypass build: Fleet blocks until IdP sign-in; Edge opens on the 26H2 setup screen; host enrolls with the IdP user | E-2 |
+| `doWipePersistProvisionedData` wipes the user and keeps the package in `ProgramData\Microsoft\Provisioning` | W-1b |
+| A Fleet script stages the package in `C:\Recovery\Customizations`; the reset keeps and processes it | W-6 |
+| Not proven: anything after the reset, because the reset Windows never booted in the lab | W-1b, W-6 |
 
 
-## Setup (S)
+## Phase 0: lab readiness (blocks everything below)
 
-| ID | Step | Pass when |
-|---|---|---|
-| S-0 | Record the lab: Fleet version (`fleetctl --version`, `fleetctl get config --include-server-config`), the live `allow_orbit_end_user_auth_bypass`, and that no other fleet has `enable_end_user_authentication` on | Values saved to `test-evidence/setup/S-0-*/` |
-| S-1 | IdP: `idp/setup.sh`, then `docker compose up -d` ([IDP_SETUP.md](IDP_SETUP.md)) | A test login returns a signed response with Name ID = the user's email, for Fleet's callback. **Done 2026-10-26** |
-| S-2 | Fleet: add `mdm.end_user_authentication` to `default.yml`, add `fleets/windows-reset-lab.yml`, add both secrets to `workflow.yml`. Branch, PR, merge | GitOps run green. **Settings > Integrations > SSO > End users** shows the IdP. Fleet shows "Windows Reset Lab" with end user authentication on. Other fleets unchanged |
-| S-3 | Test VM: install Windows 11 Pro 26H2 arm64 with an answer file that only covers the `windowsPE` pass, so first boot stops at the region screen. Shut down there. APFS-clone the UTM bundle as `ppkg-golden-oobe` (`cp -c`) | Each test starts from a fresh clone and boots to the region screen |
-| S-3b | From a clone at the region screen: Shift+F10, `reagentc /info`, `winver`, `wmic csproduct get uuid,identifyingnumber` | WinRE **Enabled**. Build recorded. UUID and serial recorded (Fleet matches hosts on these) |
-| S-4 | Builder VM: install WCD from the Microsoft Store. Reuse an existing Windows VM if one is free. It must never enroll in Fleet | WCD opens **Advanced provisioning** |
-| S-5 | Build two arm64 MSIs for "Windows Reset Lab", secret read from `.env`, never printed (adapt `../bitlocker-pin-42318/tools/build-windows-msi.sh`):<br>**MSI-B** (bypass): `--fleet-desktop --enable-scripts --disable-setup-experience --bypass-end-user-auth`<br>**MSI-N** (no bypass): same without `--bypass-end-user-auth` | Two MSIs. `msiexec /a` extract, or WiX dark, shows `ORBIT_BYPASS_END_USER_AUTH=true` only in MSI-B |
-| S-6 | In WCD, build **PKG-B** and **PKG-N** exactly as the guide says (ProvisioningCommands, Owner IT Admin, encrypted). One MSI per project folder | Two `.ppkg` files. Passwords in `private/`, never in evidence |
-| S-7 | Delivery: one small FAT32 disk image per package, the `.ppkg` at its root, attached to the VM as a UTM removable USB drive | At the region screen Windows offers to install the package. If it doesn't, press Windows five times. Fallback (record it if used): Shift+F10, `Install-ProvisioningPackage` from the drive |
+Two lab faults stopped v1. Fix them first, each with its own pass rule. Don't start Phase 1 until L-3 passes.
 
-Draft fleet file for S-2 (not committed yet):
-
-```yaml
-# Lab fleet for testing reset with a provisioning package (fleetdm/fleet#55003).
-# End user authentication is on so we see when fleetd waits for the IdP and when it doesn't.
-name: "Windows Reset Lab"
-policies:
-reports:
-agent_options:
-controls:
-  setup_experience:
-    enable_end_user_authentication: true
-software:
-settings:
-  secrets:
-    - secret: "$FLEET_WINDOWS_RESET_LAB_ENROLL_SECRET"
-```
-
-Draft addition to `default.yml` `org_settings` for S-2:
-
-```yaml
-  mdm:
-    end_user_authentication:
-      idp_name: Lab IdP
-      entity_id: fleet-mpc-ad-end-users
-      metadata: |
-        <contents of idp/metadata.xml>
-```
-
-Check before merging: `fleetctl gitops --dry-run` with the new keys, and that the `mdm:` block doesn't reset other global
-MDM settings set outside GitOps.
-
-
-## First setup (E): apply the package at the region screen
-
-Run each on a fresh clone. For each: screenshot the UTM window at every prompt, Shift+F10 `sc query "Fleet osquery"`,
-note the time the host appears in Fleet, and collect `C:\Windows\Temp\orbit*.log`, `C:\Program Files\Orbit\` logs, and
-the Render log lines with the host's UUID (`blocking enrollment` or `allowing enrollment without end-user authentication`).
-
-| ID | Package | Steps | Expected | Pass when |
+| ID | Problem | Hypothesis | Steps | Pass when |
 |---|---|---|---|---|
-| E-1 | PKG-B | Apply at the region screen. Wait 3 minutes. Check Fleet. Finish setup with local user `lab1` | Enrolls at the setup screen with no prompt. MDM "Off" until `lab1` signs in, then "On". No IdP user on the host | Host in "Windows Reset Lab" before any user exists. No browser or "Get an app" prompt. MDM On after sign-in |
-| E-2 | PKG-N | Same | Server blocks enrollment (no prior record). fleetd tries to open the Fleet sign-in page during setup and Windows shows "Get an app to open this 'https' link" | Not in Fleet during setup. Prompt seen (or not, record which). Render log shows `blocking enrollment` |
-| E-2b | PKG-N | Continue E-2: finish setup as `lab1`, wait at the desktop | fleetd opens the browser to Fleet's sign-in. IdP sign-in as `eua-user-1`. Host enrolls and shows the IdP user | Host enrolled with `eua-user-1` under **Device user**. Time from desktop to enrollment recorded |
-| E-3 | both | After E-1 and E-2b, record where Windows kept the package: `Get-ProvisioningPackage -AllInstalledPackages`, `dir C:\ProgramData\Microsoft\Provisioning -s`, `dir C:\Recovery -s -Force`, ACLs on those folders | Microsoft says persisted packages live in `ProgramData\Microsoft\Provisioning`. `C:\Recovery\Customizations` likely empty | Locations and ACLs recorded. Note if a standard user can read the package (it holds the enroll secret) |
-| E-4 | both | Clone each VM at this point (enrolled, MDM On, user signed in) as `after-E1` and `after-E2b` | Starting points for the W tests | Two clones saved |
+| L-1 | Clones share a Windows MDM hardware ID, so a second clone took over the first one's MDM record in Fleet (v1 W-1) | Clones of an image that already ran specialize share machine identity. Sysprep `/generalize` gives each clone its own | Generalize the golden image (after L-2), make two clones, enroll both | Fleet shows both hosts with MDM On and `connected_to_fleet` true at the same time |
+| L-2 | First boot after a re-specialize hangs at "Start boot option", then 0xc0000001 (v1 reset and generalize) | H1: a UTM guest-tools driver (display `viogpudo`, `Balloon`, `viomem`, others) breaks that boot. The original ISO install, before the tools, booted fine. Network needs only `NetKVM`; the agent needs `vioserial` | Clone the current golden image, list third-party drivers (`pnputil /enum-drivers`), remove all but `NetKVM` and `vioserial`, uninstall the UTM guest-tools display parts, then `sysprep /generalize /oobe /shutdown`, boot a clone | The clone boots to the region screen. If not, H2 (below) |
+| L-2b | Same, if H1 fails | H2: any guest-tools driver at all. Rebuild golden from the ISO, add only `NetKVM` with `pnputil /add-driver` at the region screen (no tools installer, no agent; drive the VM by keyboard and screenshots) | Generalize, boot a clone | Boots to the region screen. If not: stop, the lab can't do resets; move to a physical x64 laptop |
+| L-3 | Proof that resets work in the lab | Same fix covers push-button reset | On a generalized clone with no Fleet at all: Settings > Recovery > Reset this PC > Remove everything (or `systemreset -factoryreset`) | Reset completes and boots to the region screen |
+
+Lab rules from v1 that stay: detach the USB drive after the package applies; capture windows by ID (off-screen works);
+three-digit screenshot numbers; one host lineage at a time until L-1 passes.
 
 
-## Wipe (W): send the wipe from Fleet, then watch the host come back
+## Phase 1: Core flow
 
-Scope change (2026-10-26, Adam): only the two reprovisioning wipes proposed in the issue thread,
-`doWipePersistProvisionedData` and `doWipeCloudPersistProvisionedData`. No `doWipe`, `doWipeProtected`, or
-`C:\Recovery\Customizations` staging. The question: after the wipe, does the package bring the host back into Fleet
-when the fleet requires end user authentication, with and without the bypass flag, and what does the end user see?
-Capture every screen the user sees, and the Fleet host page before, during, and after. Remove the USB drive before
-each wipe, so the only package present is the copy Windows kept in `ProgramData\Microsoft\Provisioning`.
+Fleet 10 "Windows Reset Lab" requires end user authentication. Each test starts from a fresh generalized clone. "Host
+kept" means the host stays in Fleet through the reset.
 
-Repurposing check (Adam, 2026-10-26): a reset host goes to a new person. For the no-bypass runs, record which IdP user
-Fleet shows after the reset. W-2: does `eua-user-2` get any chance to sign in, or does Fleet keep `eua-user-1`? W-3:
-sign in as `eua-user-2` and confirm Fleet shows only `eua-user-2`. Keeping the old user on a repurposed host is a finding.
-
-Send custom commands with `fleetctl mdm run-command --hosts=<hostname> --payload=<file>`. Payloads in `payloads/`,
-copied from Fleet's MDM command library (`docs/mdm-commands.yml` at the tag). Built-in wipes go through the UI or
-`POST /api/v1/fleet/hosts/:id/wipe` with `windows.wipe_type`.
-
-For each run record:
-1. Command status in Fleet and the time Windows started the reset.
-2. Does the VM reach the region screen? Any prompt for the package password or for trust?
-3. At the region screen: Shift+F10, `sc query "Fleet osquery"`, the package locations from E-3.
-4. Does the host check in during setup (Fleet **Last seen**, Render log), or only after sign-in?
-5. Same host record or a new one. Host ID, wipe status, MDM status, IdP user, activity feed.
-6. After sign-in as `lab2`: MDM On again? Profiles and software from the fleet re-sent?
-7. Total time from command to desktop.
-
-Tier 1 (answers the design review):
-
-| ID | Start from | Wipe | Fleet record | Expected | Pass when |
-|---|---|---|---|---|---|
-| W-1 | after-E1 | `doWipePersistProvisionedData` | Keep | Reset to region screen. Package re-applied, fleetd running at setup, same host checks in before sign-in | fleetd running at the region screen and host checks in before `lab2` exists |
-| W-2 | after-E2b | `doWipePersistProvisionedData` | Keep | fleetd back. Server treats it as a re-enroll (`HostPreviouslyOrbitEnrolled`) and lets it in **without** the IdP | Host checks in with no browser prompt. If it waits for the IdP, the quote in the thread holds. Record which |
-| W-3 | after-E2b | `doWipePersistProvisionedData` | Delete the host in Fleet after the command is acknowledged, before the VM finishes resetting | Server sees a new host. Blocks enrollment. Prompt at setup as in E-2, IdP at the desktop as in E-2b | Behaves like E-2 and E-2b. Sign in as `eua-user-2`. Fleet shows `eua-user-2` |
-
-Tier 2 (fills the matrix):
-
-| ID | Start from | Wipe | Fleet record | Expected | Pass when |
-|---|---|---|---|---|---|
-| W-5 | after-E1 | `doWipeCloudPersistProvisionedData` | Keep | Like W-1, after downloading a fresh arm64 image. Record download time and free space needed | Like W-1 |
-| W-9 | W-1's host, after it reaches the desktop | `doWipePersistProvisionedData` again | Keep | Second reset works the same. The package survives more than one reset | Same as W-1 |
-
-Record whether re-enrollment clears that state, since a repurposed host needs it cleared.
+| ID | Preconditions | Steps | Expected | Pass when |
+|---|---|---|---|---|
+| C-1 | PKG-B (bypass) applied at setup, user `lab1` signed in, MDM On | 1. Fleet page and activity captured. 2. `fleetctl mdm run-command` with `doWipePersistProvisionedData`. 3. Watch the reset to the region screen. 4. Watch Fleet. 5. Finish setup as `lab2` | Device wiped, back at the region screen with fleetd running, host checks in during setup with no prompt, MDM On again | fleetd service Running at the region screen; same Fleet host ID with a newer `last_enrolled_at`; MDM On and `connected_to_fleet` true; no prompt on any screen; `lab1` profile gone |
+| C-2 | PKG-N (no bypass) applied at setup, signed in to the IdP as `eua-user-1`, MDM On | Same as C-1 | Fleet treats it as a re-enroll of a known host (`HostPreviouslyOrbitEnrolled`) and lets it in without the IdP | Same as C-1, and record which IdP user Fleet shows. If Fleet still shows `eua-user-1`, that's the repurposing finding |
+| C-3 | As C-2 | 1–2 as C-1. 3. After the device acknowledges the command, delete the host in Fleet. 4. At the setup screen, sign in as `eua-user-2` | Fleet blocks until sign-in; Edge shows Fleet's sign-in page on the setup screen; host enrolls with `eua-user-2` | New host record with only `eua-user-2` under end users; MDM On. Screens of every step for the user docs |
+| C-4 | Host enrolled with MSI-B only (no package at setup), MDM On | 1. Push the package to `C:\Windows\Temp` (lab shortcut). 2. Fleet script `scripts/stage-ppkg.ps1` stages it in `C:\Recovery\Customizations`. 3. Wipe as C-1 | Same as C-1. This is the brownfield path (Omnissa pattern, NOTES D-7) | Same as C-1 |
+| C-5 | As C-1 | Wipe with `doWipeCloudPersistProvisionedData` | Downloads a fresh image, then as C-1 | Same as C-1; record download time and disk space used |
 
 
-## No package at setup (P): can Fleet add it later?
+## Phase 2: Edge cases
 
-The thread asks whether Fleet can set this up for hosts enrolled another way. Start from a fresh clone, finish setup
-with a local user, and install MSI-B directly (no package).
+From the QA considerations list: wiped host, deleted host, offline host, host transferred between fleets, enroll secret
+changes, fleetd versions, end user authentication on and off, and repeat actions.
 
-| ID | Steps | Expected | Pass when |
-|---|---|---|---|
-| P-2 | Fleet script runs `Install-ProvisioningPackage -PackagePath <PKG-B> -QuietInstall -ForceInstall` on the running host. Then `doWipePersistProvisionedData` | A package installed at run time is also persisted, so fleetd comes back | fleetd running at the region screen. If not, only packages applied during setup persist |
-| P-3 | Size and source: how the script gets the `.ppkg` (Fleet software package, or a download URL) | Recorded for the design review | Working method written down |
+| ID | Case | Steps | Expected | Pass when |
+|---|---|---|---|---|
+| X-1 | Second reset of the same host | Run C-1 again on C-1's host | Same result again | Same as C-1 |
+| X-2 | Host offline when the wipe is sent | Stop the VM, send the wipe, start the VM | Command waits, runs on next check-in, then as C-1 | Command acknowledged after start; then C-1 rules |
+| X-3 | Enroll secret rotated after the package was built | Rotate the fleet 10 secret in GitOps, then C-1 | fleetd comes back but can't enroll | Enrollment fails with an enroll secret error in the orbit log. Finding: the package must be rebuilt or staged again when the secret changes |
+| X-4 | Host moved to another fleet before the reset | Transfer the host to a fleet without end user auth, then C-2 | Package enrolls into the fleet in its secret (fleet 10), not the one the host was in | Record which fleet the host lands in |
+| X-5 | Package older fleetd | Build the package with an older fleetd, C-1 | fleetd comes back old, then updates itself | Record versions before and after |
+| X-6 | End user auth turned off on the fleet | Fleet 10 off, C-2 | Enrolls with no prompt | Same as C-1 |
+| X-7 | Staged package missing | C-4 without step 2 | Reset comes back without fleetd | No fleetd at the region screen; host never checks in. Confirms the staging is what brings it back |
+| X-8 | BitLocker on before the reset | Turn on Fleet disk encryption, then C-1 | Reset still completes; record any recovery key prompt | Record outcome |
+
+
+## UI and activity
+
+| ID | Check | Pass when |
+|---|---|---|
+| U-1 | Host page during the reset: status, MDM status, last seen | Captured at each stage. Record that Fleet shows MDM On and connected while the host is mid-reset (v1 finding) |
+| U-2 | Host page after re-enrollment: same host or new, end user, MDM, profiles, activity | Captured |
+| U-3 | Activity feed: the custom command, MDM turned on again, any enrollment activity | Captured with timestamps |
+| U-4 | Fleet's built-in Wipe action state ("Wiped") vs the custom command (no wipe state) | Recorded for the design (the custom command leaves no "Wiped" status) |
+
+
+## API
+
+| ID | Check | Pass when |
+|---|---|---|
+| A-1 | `fleetctl mdm run-command` with the library payloads | Library form rejected ("You can run only <Exec> command type."); bare `<Exec>` accepted (v1, NOTES D-8) |
+| A-2 | `fleetctl get mdm-command-results` for each wipe | Status 200 recorded with time |
+| A-3 | `POST /api/v1/fleet/hosts/:id/wipe` today accepts only `doWipe` and `doWipeProtected`. Run only against a throwaway host: if Fleet accepted it, the host would be wiped | Request with `wipe_type: doWipePersistProvisionedData` rejected; record the error (input for the API change in the story) |
+
+
+## Permissions
+
+| ID | Check | Pass when |
+|---|---|---|
+| P-1 | Which roles can send the custom wipe and run the staging script (admin, maintainer, fleet-level maintainer, technician, observer) | Recorded per role with an API-only user for each. Not run in v1 |
+
+
+## Out of scope
+
+Autopilot, Entra join, `doAutomaticRedeployment`, Windows 10, Wi-Fi-only devices, encrypted packages from the GUI
+(Configuration Designer GUI not tested; `ICD.exe +Encrypted` packages failed in v1).
 
 
 ## Order and time
 
-1. S-0 to S-2 (IdP and Fleet, about 1 hour).
-2. S-3 to S-7 (VMs and packages, about 3 hours, mostly installs).
-3. E-1 to E-4 (about 1.5 hours).
-4. W-1 to W-4, then stop and write up. These answer the design review.
-5. W-5 to W-9 and P-1 to P-3 if time allows.
-
-Each reset in a VM takes 30 to 60 minutes. Run two clones at once if the Mac has the RAM.
+1. Phase 0: L-2 (about 30 min), then L-1, then L-3 (about 40 min). Stop and report if L-2b fails.
+2. Phase 1: C-1, C-2, C-3, C-4 (about 1 hour each, two in parallel once L-1 passes). C-5 last.
+3. Phase 2 and the UI, API, and Permissions checks alongside, where they reuse Phase 1 hosts.
+4. Write up after each test. Commit after each test.
 
 
-## Done when
+## Confirmation
 
-W-1 to W-4 have results, `RESULTS.md` is written, and `drafts/ISSUE_UPDATE.md` answers the three questions for Adam to post.
-
-
-## Out of scope / not tested
-
-- Autopilot, Entra join, and `doAutomaticRedeployment`: need Microsoft licenses and an Entra tenant.
-- Windows 10 and x64 hardware: run W-1 on one physical x64 laptop before any guide change ships.
-- BitLocker on during the reset: likely matters for real laptops. Follow-up test.
-- Wi-Fi only hosts: the VM uses Ethernet. Real hosts reach Fleet only after the end user picks a network.
+- [ ] Phase 0 passed, with evidence
+- [ ] C-1 to C-4 have results and screenshots of every user-facing screen
+- [ ] RESULTS.md and drafts/ISSUE_UPDATE.md updated for the design review
