@@ -8,7 +8,7 @@
   (both checked through the API).
 - Fleet hosts in fleet 10: 25 (c1, no fleetd after X-7), 26 and 28 (broken VMs), 30 (c4, new host from X-6). 21 to
   24 and 27 are no longer in Fleet. Delete 25, 26, 28 and 30 before the next run.
-- VMs: c1 and c4 are running at the region screen; c2 and c3 don't boot (Automatic Repair); smoke is unused.
+- VMs: c1 and c4 shut down at the region screen; c2 and c3 don't boot (Automatic Repair); smoke is unused.
 - `fleetctl` uses an API token. fleetctl 4.93.2 against Fleet 4.93.0.
 
 ## Next steps
@@ -27,7 +27,7 @@ The QEMU tools and their rules now live in `testing/_framework/vm/` (README ther
 ## Running services (keep them on)
 - UTM VMs: ppkg-golden-oobe (base disk for QEMU; don't start it in UTM while a QEMU VM uses it), ppkg-builder,
   ppkg-golden-v0 (arm B leftover; delete).
-- QEMU VMs in `out/qemu/` (git-ignored): smoke, c1 to c4. c1 and c4 running, the rest shut down. Stop with
+- QEMU VMs in `out/qemu/` (git-ignored): smoke, c1 to c4. all shut down. Stop a running one with
   `tools/qmp.sh <vm> '{"execute":"system_powerdown"}'`; delete the folders to reclaim about 75 GB.
 - Cloudflare tunnel `fleet-lab-scep` (SCEP lab, not this project) now runs from `~/Documents/fleet-lab`.
 - `ppkg-wipe-idp` (Docker, port 9080 on all interfaces). Check: `docker ps --filter name=ppkg-wipe-idp`. Stop: `docker compose -f idp/docker-compose.yml down`.
