@@ -1,0 +1,8 @@
+# 2026-10-27T00:39:08Z
+$ fleetctl mdm run-command --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --payload payloads/local/get-devdetail.xml
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+Error: You can run only <Exec> command type.
+[exit 1]

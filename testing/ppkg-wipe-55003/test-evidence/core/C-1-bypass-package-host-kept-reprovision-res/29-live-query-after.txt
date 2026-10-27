@@ -1,0 +1,10 @@
+# 2026-10-27T00:40:54Z
+$ fleetctl query --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --exit --timeout 90s --query "$(cat queries/after-reset.sql)"
+
+[!] 'fleetctl query' is deprecated; use 'report' instead
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+{"host":"DESKTOP-419DREG","rows":[{"fleetd_service":"RUNNING","host_display_name":"DESKTOP-419DREG","host_hostname":"DESKTOP-419DREG","kept_ppkg":"fleet-agent-b-plain.ppkg","local_users":"Administrator,DefaultAccount,Guest,WDAGUtilityAccount","markers_left":"0","uptime_s":"219"}]}
+ 100% responded (100% online) | 1/1 targeted hosts (1/1 online)
+[exit 0]

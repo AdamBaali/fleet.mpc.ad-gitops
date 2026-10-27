@@ -1,0 +1,8 @@
+# 2026-10-27T00:38:44Z
+$ fleetctl mdm run-command --hosts WIN-6950OA7B9F8 --payload payloads/local/get-devdetail.xml
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+Error: One or more targeted hosts don't exist. Make sure you provide a valid hostname, UUID, or serial number. Learn more about host identifiers: https://fleetdm.com/learn-more-about/host-identifiers
+[exit 1]

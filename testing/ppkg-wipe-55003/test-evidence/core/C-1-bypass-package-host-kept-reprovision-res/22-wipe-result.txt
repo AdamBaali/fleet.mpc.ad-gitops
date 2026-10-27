@@ -1,0 +1,77 @@
+# 2026-10-27T00:38:35Z
+$ fleetctl get mdm-command-results --id=44a24549-fb1b-451a-9b8b-f99eae19263b
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+ID:
+44a24549-fb1b-451a-9b8b-f99eae19263b
+
+TIME:
+2026-10-27T00:25:47Z
+
+TYPE:
+./Device/Vendor/MSFT/RemoteWipe/doWipePersistProvisionedData
+
+STATUS:
+200
+
+HOSTNAME:
+WIN-6950OA7B9F8
+
+PAYLOAD:
+<Exec>
+  <CmdID>44a24549-fb1b-451a-9b8b-f99eae19263b</CmdID>
+  <Item>
+    <Target>
+      <LocURI>./Device/Vendor/MSFT/RemoteWipe/doWipePersistProvisionedData</LocURI>
+    </Target>
+    <Meta>
+      <Format xmlns="syncml:metinf">chr</Format>
+      <Type>text/plain</Type>
+    </Meta>
+  </Item>
+</Exec>
+
+
+RESULTS:
+<SyncML xmlns="SYNCML:SYNCML1.2">
+  <SyncHdr>
+    <VerDTD>1.2</VerDTD>
+    <VerProto>DM/1.2</VerProto>
+    <SessionID>4</SessionID>
+    <MsgID>3</MsgID>
+    <Target>
+      <LocURI>https://fleet.mpc.ad/api/mdm/microsoft/management</LocURI>
+    </Target>
+    <Source>
+      <LocURI>80578CAE77E3DC48A876435F2341F79E</LocURI>
+      <LocName>80578CAE77E3DC48A876435F2341F79E</LocName>
+    </Source>
+    <Cred>
+      <Meta>
+        <Format xmlns="syncml:metinf">b64</Format>
+        <Type xmlns="syncml:metinf">syncml:auth-md5</Type>
+      </Meta>
+      <Data>REDACTED</Data>
+    </Cred>
+  </SyncHdr>
+  <SyncBody>
+    <Status>
+      <CmdID>1</CmdID>
+      <MsgRef>2</MsgRef>
+      <CmdRef>0</CmdRef>
+      <Cmd>SyncHdr</Cmd>
+      <Data>200</Data>
+    </Status>
+    <Status>
+      <CmdID>2</CmdID>
+      <MsgRef>2</MsgRef>
+      <CmdRef>44a24549-fb1b-451a-9b8b-f99eae19263b</CmdRef>
+      <Cmd>Exec</Cmd>
+      <Data>200</Data>
+    </Status>
+    <Final/>
+  </SyncBody>
+</SyncML>
+[exit 0]

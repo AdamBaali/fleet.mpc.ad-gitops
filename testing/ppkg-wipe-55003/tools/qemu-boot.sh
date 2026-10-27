@@ -36,6 +36,10 @@ echo "$mac" > "$dir/mac"
 [ -f "$dir/uuid" ] || uuidgen > "$dir/uuid"
 uuid=$(cat "$dir/uuid")
 
+# USB=<image> attaches a read-only removable drive, like the guide's USB stick with the package.
+usb=()
+[ -n "${USB:-}" ] && usb=(-drive if=none,id=usb0,format=raw,readonly=on,file="$USB" -device usb-storage,drive=usb0,removable=on)
+
 exec qemu-system-aarch64 -name "$name" \
   -smbios type=1,uuid="$uuid",serial="${SERIAL:-$name}" \
   -machine virt,highmem=on -accel hvf -cpu host -smp 4 -m 6144 \
@@ -44,7 +48,7 @@ exec qemu-system-aarch64 -name "$name" \
   -device nvme,drive=d0,serial=${SERIAL:-$name} -drive if=none,id=d0,file="$dir/disk.qcow2" \
   -device ramfb -device qemu-xhci -device usb-kbd -device usb-tablet \
   -nic user,model=virtio-net-pci,mac="$mac" \
-  ${tpm[@]+"${tpm[@]}"} \
+  ${tpm[@]+"${tpm[@]}"} ${usb[@]+"${usb[@]}"} \
   -device virtio-serial-pci -chardev socket,id=qga0,path="$dir/qga.sock",server=on,wait=off \
   -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
   -qmp unix:"$dir/qmp.sock",server,nowait -vnc 127.0.0.1:${VNC:-1} -display none \

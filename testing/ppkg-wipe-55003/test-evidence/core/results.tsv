@@ -1,0 +1,1 @@
+C-1	PASS	C-1-bypass-package-host-kept-reprovision-res	Bypass package + doWipePersistProvisionedData from Fleet: reset in 13 min, fleetd reinstalled itself and the host came back as the same Fleet host 25 at the region screen with no prompt, MDM re-enrolled (mdm_enrolled 00:39:05), lab1 and its data gone, package kept.
