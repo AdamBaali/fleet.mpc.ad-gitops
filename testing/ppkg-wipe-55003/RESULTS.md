@@ -114,9 +114,9 @@ Grouped by who acts on them. Each item names its evidence.
 16. Guide (preinstall fleetd with a ppkg): "No web browser is available while Windows applies the package" and the
    "Get an app to open this 'https' link" troubleshooting are out of date for 26H2. Edge opens during setup, and the
    no-bypass sign-in works there (E-2).
-17. Guide: "Windows MDM turns on after an end user signs in." Here MDM was On during setup, before any user (E-1).
+17. Guide: "Windows MDM turns on after an end user signs in." Here MDM was On during setup, before any user (E-1b).
 18. Setup experience guide: `--bypass-end-user-auth` "only works if" `mdm.allow_orbit_end_user_auth_bypass` is
-   `false`. The code and E-1 show the default `true` is what lets it work (NOTES D-2).
+   `false`. The code and E-1b show the default `true` is what lets it work (NOTES D-2).
 19. MDM command library: the Windows payloads are wrapped in `<syncml>`, which `fleetctl mdm run-command` rejects.
    The bare `<Exec>` works (NOTES D-8).
 

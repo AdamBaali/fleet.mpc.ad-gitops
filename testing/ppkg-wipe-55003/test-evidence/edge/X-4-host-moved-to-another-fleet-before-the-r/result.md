@@ -1,10 +1,10 @@
 # X-4: Host moved to another fleet before the reset
 
-- **Started:** 2026-10-27T07:09:36Z
-- **Objective:** Host 29 (c4 VM, MSI-enrolled, bypass package staged in C:\Recovery\Customizations) is moved to No team, which has no end user authentication, then wiped
-- **Expected:** The package re-enrolls the host into the fleet of its enroll secret (fleet 10), or Fleet keeps it in No team; record which
+**Objective:** Host 29 (c4 VM, MSI-enrolled, bypass package staged in `C:\Recovery\Customizations`) is moved to No team, which has no end user authentication, then wiped  
+**Expected:** The package re-enrolls the host into the fleet of its enroll secret (fleet 10), or Fleet keeps it in No team; record which  
+**Run:** 2026-10-27T07:09:36Z to 2026-10-27T09:02:07Z
 
-## Steps and evidence
+## Evidence
 
 - `06-host-29-before.txt`: `fleetctl api /api/v1/fleet/hosts/29 2>/dev/null | python3 -I tools/fleet-host-line.py`
 - `07-host-29-staged-package.txt`: `fleetctl query --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --exit --timeout 90s --query "$(cat queries/after-`
@@ -16,11 +16,20 @@
 - `12-live-query-after.txt`: `fleetctl query --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --exit --timeout 90s --query "$(cat queries/after-`
 - `014-fleet-host-after.jpg` (Fleet UI, Chrome)
 - `13-code-enroll-orbit-known-host.txt`: `git -C <fleet repo> show fleet-v4.93.0:server/datastore/mysql/hosts.go | sed -n 2612,262`
+- `fleet-poll.log`: the host's state in Fleet every 30 s
+- `watch/`: first and last screen of the reset, and `watch.log`
 
-Timeline (UTC): host 29 moved to No team 08:09:08, wipe sent 08:09:2x, offline 08:11:59, reset done and region screen about 08:30. X-3 ran at the same time with fleet 10's secret replaced, so fleetd could enroll only after the secret was restored at 08:58:06 (11). fleetd enrolled at 08:59:11: same host 29, MDM On, connected, and still in No team (host-29-after, fleet-host-after). The package's secret belongs to fleet 10, but Fleet kept the host in the fleet it was in. At fleet-v4.93.0 EnrollOrbit updates a known host without setting team_id (code-enroll-orbit-known-host); the secret's fleet applies only when Fleet creates a new host. Live query: fleetd RUNNING, staged package still in C:\Recovery\Customizations, built-in users only.
+## What happened
+
+**Timeline (UTC):** host 29 moved to No team 08:09:08, wipe sent 08:09:2x, offline 08:11:59, reset done and region
+screen about 08:30. X-3 ran at the same time with fleet 10's secret replaced, so fleetd could enroll only after the
+secret was restored at 08:58:06 (11). fleetd enrolled at 08:59:11: same host 29, MDM On, connected, and still in No team
+(host-29-after, fleet-host-after). The package's secret belongs to fleet 10, but Fleet kept the host in the fleet it was
+in. At fleet-v4.93.0 `EnrollOrbit` updates a known host without setting team_id (code-enroll-orbit-known-host); the
+secret's fleet applies only when Fleet creates a new host. Live query: fleetd RUNNING, staged package still in
+`C:\Recovery\Customizations`, built-in users only.
 
 ## Result: PASS
 
-A known host comes back in the fleet it was in (No team here), not the fleet of the package's enroll secret; Fleet sets the fleet only for new hosts
-
-_Finished 2026-10-27T09:02:07Z_
+A known host comes back in the fleet it was in (No team here), not the fleet of the package's enroll secret; Fleet sets
+the fleet only for new hosts.
