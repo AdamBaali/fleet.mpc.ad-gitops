@@ -20,6 +20,11 @@ fix"). Evidence per test in `test-evidence/`.
 | If the admin deletes the host during the reset, does the next user get asked to sign in? | Yes, but at the desktop, not on the setup screen. Fleet blocks enrollment after the reset; nothing appears during setup; once the new user reaches the desktop, fleetd opens Fleet's sign-in page. After sign-in Fleet lists a new host with only the new IdP user | C-3 |
 | Does the cloud variant work? | Yes. `doWipeCloudPersistProvisionedData` downloaded an image for about 36 minutes while setup stayed on screen, then reset; same host back with MDM on, 57 minutes in total | C-5 |
 | Does a second reset of the same host work? | Yes, same result and time (13 minutes) | C-3 (X-1) |
+| What if the host is off when the wipe is sent? | Fleet queues it. The host runs it at its next check-in and comes back as in C-1. The activity feed shows the time it was sent, not when it ran | X-2 |
+| What if the enroll secret was rotated after the package was built? | fleetd comes back after the reset but can't enroll ("unauthenticated, or invalid token"), and Fleet shows nothing: the host just stays offline. It enrolled 21 s after the old secret was valid again | X-3 |
+| Which fleet does a reset host come back to? | The fleet it was in, not the fleet of the package's enroll secret. Fleet sets the fleet only when it creates a new host | X-4 |
+| Can the Fleet wipe API send the reprovision wipe? | No. It accepts only `doWipe` and `doWipeProtected`, and rejects the others with a generic 400 | A-3 |
+| Who can send the wipe and stage the package? | Admins, maintainers and GitOps users can send the wipe (same check as the built-in Wipe). Admins, maintainers and technicians can run the staging script | P-1 |
 
 ## Lab blocker, fixed
 

@@ -9,3 +9,4 @@
 - `02-remove-kept-package.txt`: `fleetctl run-script --host ED712DCB-E688-47A9-B129-E983573EE9EE --script-path payloads/local/remove-kept-ppkg.`
 - `03-host-before.txt`: `fleetctl api /api/v1/fleet/hosts/25 2>/dev/null | python3 -I tools/fleet-host-line.py`
 - `04-wipe-command.txt`: `fleetctl mdm run-command --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --payload payloads/doWipePersistProvisio`
+- `06-no-fleetd-at-region-screen.png` (VM screen, Shift+F10 at the region screen, 09:39 UTC)
