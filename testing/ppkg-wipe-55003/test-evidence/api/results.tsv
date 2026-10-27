@@ -1,0 +1,1 @@
+A-3	PASS	A-3-fleet-wipe-api-rejects-the-reprovision-w	The wipe API rejects doWipePersistProvisionedData and doWipeCloudPersistProvisionedData with a generic 400 ("failed to unmarshal request body"); the parser at v4.93.0 knows only doWipe and doWipeProtected

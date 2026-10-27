@@ -14,12 +14,12 @@ end=$(( $(date +%s) + mins * 60 ))
 while [ "$(date +%s)" -lt "$end" ]; do
   kill -0 "$pid" 2>/dev/null || { echo "$(date -u +%FT%TZ) qemu exited" >> "$log"; exit 1; }
   tmp=$out/.cur.png
-  "$qmp.sh" "$name" shot "$tmp" >/dev/null 2>&1
+  "$tools/qmp.sh" "$name" shot "$tmp" >/dev/null 2>&1
   sum=$(md5 -q "$tmp" 2>/dev/null)
   if [ -n "$sum" ] && [ "$sum" != "$last" ]; then
     n=$((n + 1)); cp "$tmp" "$out/$(printf %03d $n)-$(date -u +%H%M%S).png"; last=$sum
   fi
-  host=$("$qga.sh" "$name" 'hostname' 8 2>/dev/null | tr -d '\r\n')
+  host=$("$tools/qga.sh" "$name" 'hostname' 8 2>/dev/null | tr -d '\r\n')
   echo "$(date -u +%FT%TZ) qga=${host:-none} cpu=$(ps -o %cpu= -p "$pid" | tr -d ' ') frame=$n" >> "$log"
   if [ -n "$stop" ] && [ -n "${host:-}" ] && { [[ $stop == !* && $host != "${stop#!}" ]] || [[ $stop != !* && $host =~ $stop ]]; }; then echo "stop matched: $host" >> "$log"; exit 0; fi
   sleep 20

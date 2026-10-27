@@ -1,0 +1,15 @@
+# 2026-10-27T07:08:50Z
+$ python3 -I tools/fleet-post.py /api/v1/fleet/hosts/25/wipe '{"windows":{"wipe_type":"'doWipePersistProvisionedData'"}}'
+
+400 {
+  "message": "Bad request",
+  "errors": [
+    {
+      "name": "base",
+      "reason": "failed to unmarshal request body"
+    }
+  ],
+  "uuid": "b002d491-2dc5-4804-b51f-50473b87d215"
+}
+
+[exit 0]
