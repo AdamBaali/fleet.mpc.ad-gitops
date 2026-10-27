@@ -1,0 +1,5 @@
+# 2026-10-27T08:11:22Z
+$ fleetctl api /api/v1/fleet/hosts/25 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; m=h["mdm"]; print("team",h["team_name"],"mdm",m["enrollment_status"],"server",m.get("server_url"),"connected",m.get("connected_to_fleet"),"end_users",[u.get("idp_username") for u in h.get("end_users") or []])'
+
+team Windows Reset Lab mdm On (manual) server https://fleet.mpc.ad/api/mdm/microsoft/discovery connected True end_users []
+[exit 0]

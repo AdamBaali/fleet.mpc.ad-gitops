@@ -1,0 +1,18 @@
+# 2026-10-27T08:10:01Z
+$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/authz/policy.rego | sed -n 1056,1069p
+
+# Global admins and maintainers can write (execute) MDM commands.
+allow {
+  object.type == "mdm_command"
+  subject.global_role == [admin, maintainer, gitops][_]
+  action == write
+}
+
+# Team admins and maintainers can write (execute) MDM commands on hosts of their teams.
+allow {
+  not is_null(object.team_id)
+  object.type == "mdm_command"
+  team_role(subject, object.team_id) == [admin, maintainer, gitops][_]
+  action == write
+}
+[exit 0]

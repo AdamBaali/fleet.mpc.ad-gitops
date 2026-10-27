@@ -1,0 +1,6 @@
+# 2026-10-27T08:10:50Z
+$ fleetctl query --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --exit --timeout 90s --query "$(cat queries/after-reset.sql)" 2>&1 | sed -n "/^{/,\$p"
+
+{"host":"WIN-T5L8UONNVCV","rows":[{"fleetd_service":"RUNNING","host_display_name":"WIN-T5L8UONNVCV","host_hostname":"WIN-T5L8UONNVCV","kept_ppkg":"fleet-agent-b-plain.ppkg","local_users":"Administrator,DefaultAccount,Guest,WDAGUtilityAccount","markers_left":"0","uptime_s":"378"}]}
+ 100% responded (100% online) | 1/1 targeted hosts (1/1 online)
+[exit 0]
