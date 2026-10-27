@@ -16,6 +16,7 @@
 3. Optional: one run on x64 hardware before any guide change.
 
 ## How to run a VM (QEMU)
+The QEMU tools and their rules now live in `testing/_framework/vm/` (README there); `tools/q*` are links to them.
 - Base disk: the UTM golden image `ppkg-golden-oobe` (has UTM guest tools: guest agent and drivers).
 - `FG=1 tools/qemu-boot.sh <vm> <base.qcow2>` as a long-lived background task. ramfb only (see NOTES lessons).
 - Generalize through the guest agent, hot-plug the package USB at the region screen

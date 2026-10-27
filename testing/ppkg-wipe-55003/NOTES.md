@@ -117,6 +117,8 @@ Limits: upstream QEMU's arm TPM device fails under HVF, so VMs run without a TPM
 QMP `send-key` don't reach a command prompt opened over the setup screen; use the guest agent. The guest agent comes
 from UTM guest tools, which a reset removes.
 
+The tools and these lessons moved to `testing/_framework/vm/` for other projects; `tools/q*` link there.
+
 Lessons from running C-1 to C-4 on QEMU:
 - Display: ramfb only. With virtio-gpu attached, the first boot after sysprep generalize fails with 0xc0000001 and a
   reset sat idle with no picture, and power cycling it mid-reset left Windows unbootable (C-2). ramfb can show stale or
