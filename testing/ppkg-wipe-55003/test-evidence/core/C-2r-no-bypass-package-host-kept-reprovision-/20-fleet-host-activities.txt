@@ -1,0 +1,3 @@
+2026-10-27T02:57:50.373232Z mdm_enrolled actor=- {"host_id": 27, "platform": "windows", "host_serial": "c3", "mdm_platform": "microsoft", "enrollment_id": null, "host_display_name": "DESKTOP-4450MJ2", "installed_from_dep": false}
+2026-10-27T02:43:57.427433Z ran_custom_mdm_command actor=lab-admin {"host_id": 27, "platform": "windows", "host_uuid": "1DE9FF32-F958-451B-A9A3-18E3B7D1860A", "command_uuid": "1c83f9a8-c456-4277-bd37-a4767866e45e", "request_type": "./Device/Vendor/MSFT/RemoteWipe/doW
+2026-10-27T02:43:21.589606Z mdm_enrolled actor=- {"host_id": 27, "platform": "windows", "host_serial": "c3", "mdm_platform": "microsoft", "enrollment_id": null, "host_display_name": "DESKTOP-M8HO67K", "installed_from_dep": false}

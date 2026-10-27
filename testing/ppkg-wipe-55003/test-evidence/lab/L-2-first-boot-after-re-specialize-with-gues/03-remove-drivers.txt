@@ -1,0 +1,5 @@
+# 2026-10-26T21:24:06Z
+$ tools/vm-exec.sh l2-strip '$keep = "netkvm.inf","vioser.inf"; $d = Get-WindowsDriver -Online | Where-Object { $_.ProviderName -eq "Red Hat, Inc." -and ($keep -notcontains $_.OriginalFileName.Split("\\")[-1]) }; foreach ($x in $d) { $o = pnputil /delete-driver $x.Driver /uninstall /force 2>&1 | Out-String; $x.Driver + " (" + $x.OriginalFileName.Split("\\")[-1] + "): " + ($o -replace "\s+"," ") }; foreach ($s in "BalloonService","spice-webdavd") { Stop-Service $s -Force -ErrorAction SilentlyContinue; Set-Service $s -StartupType Disabled -ErrorAction SilentlyContinue }; "--- after"; Get-WindowsDriver -Online | Where-Object ProviderName -eq "Red Hat, Inc." | ForEach-Object { $_.Driver + " " + $_.OriginalFileName.Split("\\")[-1] }; Get-NetAdapter | Format-Table Name,Status | Out-String' 300
+
+363:375: execution error: UTM got an error: Timed out waiting for RPC. (-2700)
+[exit 1]

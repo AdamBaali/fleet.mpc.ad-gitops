@@ -1,0 +1,6 @@
+# 2026-10-26T18:12:05Z
+$ vm/clone.sh new ppkg-golden-oobe e2-nobypass && vm/attach-usb.sh e2-nobypass out/usb-pkg-n-plain.img >/dev/null && /usr/libexec/PlistBuddy -c 'Print :Information:UUID' $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/e2-nobypass.utm/config.plist
+
+Cloned ppkg-golden-oobe -> e2-nobypass (new): /Users/adam/Library/Containers/com.utmapp.UTM/Data/Documents/e2-nobypass.utm
+C87CFBCE-C7F3-4A6D-951E-C4A7CD856DDD
+[exit 0]

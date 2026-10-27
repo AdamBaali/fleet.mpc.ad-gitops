@@ -1,0 +1,4 @@
+# 2026-10-26T23:02:33Z
+$ vm/clone.sh new a-strip a-test >/dev/null && open -g -a UTM $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/a-test.utm && sleep 4 && tools/boot-check.sh L-2A a-test 25
+
+[exit 1]

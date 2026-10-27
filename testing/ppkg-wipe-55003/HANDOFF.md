@@ -1,31 +1,36 @@
 # Handoff: reset with a provisioning package
 
-## State (2026-10-26)
-- Desk research done (NOTES.md D-1 to D-6).
-- S-0 PASS: Fleet 4.93.0, Premium, Windows MDM on. `allow_orbit_end_user_auth_bypass` is unset on Render, so `true`
-  (the default). Left unset on purpose: it is what customers run.
-- S-2 PASS: PR 47 merged and applied. Windows Reset Lab is fleet 10, the only fleet with end user authentication on.
-- `fleetctl` on the Mac uses an API token (`~/.fleet/config`). The enroll secret is in `private/.env` and in GitHub.
-- S-1 done: mock IdP running in Docker (`ppkg-wipe-idp`, port 9080). Test login checked. Metadata inline in `default.yml`.
+## State (2026-10-27, 05:15 UTC)
+- Results: [RESULTS.md](RESULTS.md). Draft issue comment: `drafts/ISSUE_UPDATE.md` (not posted).
+- Lab moved from UTM to Homebrew QEMU 11.1.2 (NOTES, "Lab fix"). Phase 0 and Phase 1 pass: L-2C, L-3, C-1, C-2r, C-3,
+  C-4, C-5. C-2 (first attempt) BLOCKED by a lab display fault.
+- Fleet hosts in fleet 10: 21 to 26 are stale (v1 and the failed C-2); 25 (C-1), 28 (C-3), 29 (C-4, C-5) are VMs now
+  shut down. Delete them before the next run.
+- `fleetctl` uses an API token. fleetctl 4.93.2 against Fleet 4.93.0.
 
-## Next steps (at home, laptop plugged in)
-1. Start Docker Desktop. Check the IdP: `docker ps --filter name=ppkg-wipe-idp`.
-2. Get the latest Windows 11 arm64 ISO (Microsoft's download page, or Windows Insider for 26H2). Done: fleetctl is 4.93.2.
-3. S-3: `ISO=<path to the ISO> vm/build-golden.sh` (no VM may be running; needs 30 GB free, 128 GB free on 2026-10-26). Windows installs on
-   its own. Screenshot the region screen (`tools/shot.sh S-3 region-screen UTM ppkg-golden-oobe`), then shut down there.
-4. S-3b from a clone (`vm/clone.sh new ppkg-golden-oobe s3b`): Shift+F10, `reagentc /info`, `winver`, UUID and serial.
-   Check that the UUID equals the UTM VM UUID (vm/clone.sh relies on it).
-5. S-4: builder VM. The old UTM VMs were deleted, so build one: `vm/build-golden.sh ppkg-builder`, finish setup with a
-   local account, install Windows Configuration Designer. It must never enroll in Fleet.
-6. S-5: `tools/build-msis.sh` (Docker running). S-6 in the builder VM. S-7: `tools/usb-image.sh`.
-7. Then E-1. Screenshot every prompt with `tools/shot.sh`, commit after each test.
+## Next steps
+1. Phase 2 edge cases from TEST_PLAN.md: X-2 (offline host), X-3 (enroll secret rotated), X-4 (host moved to another
+   fleet), X-5 (older fleetd), X-6 (end user auth off), X-7 (staged package missing), X-8 (BitLocker). X-1 is covered
+   by C-3.
+2. UI, API and permissions checks: U-1 to U-4, A-3 (built-in wipe API with a persist type), P-1 (roles).
+3. Optional: one run on x64 hardware before any guide change.
+
+## How to run a VM (QEMU)
+The QEMU tools and their rules now live in `testing/_framework/vm/` (README there); `tools/q*` are links to them.
+- Base disk: the UTM golden image `ppkg-golden-oobe` (has UTM guest tools: guest agent and drivers).
+- `FG=1 tools/qemu-boot.sh <vm> <base.qcow2>` as a long-lived background task. ramfb only (see NOTES lessons).
+- Generalize through the guest agent, hot-plug the package USB at the region screen
+  (`tools/qmp.sh <vm> usb out/usb-pkg-<b|n>-plain.img true`), open it from Shift+F10.
+- Watch resets with `tools/qemu-watch.sh` and `tools/fleet-poll.sh`; check with `queries/after-reset*.sql`.
 
 ## Running services (keep them on)
-- Windows ISO: none yet. Adam wants the latest Windows 11 release, not 24H2 (the 24H2 ISO is in the Trash).
+- UTM VMs: ppkg-golden-oobe (base disk for QEMU; don't start it in UTM while a QEMU VM uses it), ppkg-builder,
+  ppkg-golden-v0 (arm B leftover; delete).
+- QEMU VMs in `out/qemu/` (git-ignored): smoke, c1 to c4. All shut down. Delete the folders to reclaim about 60 GB.
 - `ppkg-wipe-idp` (Docker, port 9080 on all interfaces). Check: `docker ps --filter name=ppkg-wipe-idp`. Stop: `docker compose -f idp/docker-compose.yml down`.
 
 ## Teardown
-- UTM: `ppkg-golden-oobe`, every clone, the builder VM if made for this project, the USB images.
+- UTM: `ppkg-golden-oobe`, `ppkg-golden-v0`, the builder VM, the USB images. QEMU: `out/qemu/`. Homebrew: `qemu`, `swtpm`.
 - Local files: MSIs, WCD project folders, `.ppkg` files (they hold the enroll secret).
 - Fleet: hosts in "Windows Reset Lab", then the fleet file. Rotate its enroll secret if a package left the Mac.
 - Fleet: remove `mdm.end_user_authentication` from `default.yml` unless another lab uses it.

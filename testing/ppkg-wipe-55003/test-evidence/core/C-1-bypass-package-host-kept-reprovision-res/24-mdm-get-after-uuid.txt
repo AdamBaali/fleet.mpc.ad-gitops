@@ -1,0 +1,8 @@
+# 2026-10-27T00:38:49Z
+$ fleetctl mdm run-command --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --payload payloads/local/get-devdetail.xml
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+Error: Can't run the MDM command because one or more hosts have MDM turned off. Run the following command to see a list of hosts with MDM on: fleetctl get hosts --mdm.
+[exit 1]

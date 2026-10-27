@@ -1,0 +1,15 @@
+# 2026-10-26T18:09:23Z
+$ fleetctl api /api/v1/fleet/hosts/21 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; print({k:h.get(k) for k in ("id","hostname","status","seen_time","orbit_version","os_version")}); m=h.get("mdm") or {}; print("mdm:", m.get("enrollment_status"), "profiles:", len(m.get("profiles") or [])); print("end_users:", h.get("end_users"))'; fleetctl api /api/v1/fleet/hosts/21/activities/upcoming 2>/dev/null | head -c 300
+
+{'id': 21, 'hostname': 'DESKTOP-JVO75AD', 'status': 'online', 'seen_time': '2026-10-26T18:08:57Z', 'orbit_version': '1.62.1', 'os_version': 'Windows 11 Pro 26H2 10.0.26300.9457'}
+mdm: On (manual) profiles: 0
+end_users: None
+{
+  "meta": {
+    "has_next_results": false,
+    "has_previous_results": false
+  },
+  "activities": [],
+  "count": 0
+}
+[exit 0]

@@ -1,0 +1,13 @@
+# 2026-10-27T02:43:44Z
+$ fleetctl mdm run-command --hosts 1DE9FF32-F958-451B-A9A3-18E3B7D1860A --payload payloads/doWipePersistProvisionedData.xml
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+
+Hosts will run the command the next time they check into Fleet.
+
+Copy and run this command to see results:
+
+fleetctl get mdm-command-results --id=1c83f9a8-c456-4277-bd37-a4767866e45e
+[exit 0]

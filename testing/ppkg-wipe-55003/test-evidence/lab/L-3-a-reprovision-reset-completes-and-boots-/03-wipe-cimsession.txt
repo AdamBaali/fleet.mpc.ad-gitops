@@ -1,0 +1,11 @@
+# 2026-10-26T23:55:15Z
+$ tools/qga.sh smoke "$(cat payloads/local/wipe-persist-local.ps1)" 60
+
+
+ReturnValue     OutParameters
+-----------     -------------
+ReturnValue = 0 {ReturnValue}
+called
+
+
+[exit 0]

@@ -1,0 +1,23 @@
+# 2026-10-26T18:22:07Z
+$ tools/vm-exec.sh e2-nobypass 'Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length -gt 1000000 | Select-Object FullName,Length | Out-String -Width 300; "--- C:\Recovery"; Get-ChildItem C:\Recovery -Recurse -Force -ErrorAction SilentlyContinue | Select-Object FullName,Length | Out-String -Width 300; icacls C:\ProgramData\Microsoft\Provisioning\fleet-agent-n-plain.ppkg' 120
+
+
+FullName                                                         Length
+--------                                                         ------
+C:\ProgramData\Microsoft\Provisioning\fleet-agent-n-plain.ppkg 24032451
+
+
+
+--- C:\Recovery
+
+C:\ProgramData\Microsoft\Provisioning\fleet-agent-n-plain.ppkg BUILTIN\Administrators:(I)(F)
+                                                               NT AUTHORITY\SYSTEM:(I)(F)
+                                                               S-1-15-3-1024-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               NT AUTHORITY\INTERACTIVE:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               S-1-5-32-989523358-1667815365-316973287-129935811-3358257576-2796868252-2781088163-715581871:(I)(DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA)
+                                                               BUILTIN\Users:(I)(RX)
+                                                               Everyone:(I)(RX)
+
+Successfully processed 1 files; Failed processing 0 files
+[exit 0]
+[exit 0]

@@ -1,0 +1,16 @@
+# 2026-10-26T23:53:46Z
+$ tools/qga.sh smoke 'Get-ItemProperty HKLM:\SYSTEM\Setup | Select SystemSetupInProgress,OOBEInProgress | fl; Get-Content C:\Windows\System32\Sysprep\Panther\setupact.log -Tail 3; "InstallDate: " + (Get-CimInstance Win32_OperatingSystem).InstallDate; hostname'
+
+
+
+SystemSetupInProgress : 0
+OOBEInProgress        : 0
+
+
+
+2026-10-26 16:42:44, Info       [0x0f0076] SYSPRP ProcessShutdown:Successfully called InitiateSystemShutdownEx to reboot the computer
+2026-10-26 16:42:44, Info       [0x0f0052] SYSPRP Shutting down SysPrep log
+2026-10-26 16:42:44, Info       [0x0f004d] SYSPRP The time is now 2026-10-26 16:42:44
+InstallDate: 10/26/2026 16:43:57
+DESKTOP-LO95PVU
+[exit 0]

@@ -13,8 +13,10 @@ $U status "$FROM" 2>/dev/null | grep -q stopped || { echo "$FROM must be stopped
 cp -c -R "$DOCS/$FROM.utm" "$DOCS/$TO.utm"
 /usr/libexec/PlistBuddy -c "Set :Information:Name $TO" "$DOCS/$TO.utm/config.plist"
 case "$MODE" in
-  new)  /usr/libexec/PlistBuddy -c "Set :Information:UUID $(uuidgen)" "$DOCS/$TO.utm/config.plist" ;;
+  new)  # New UUID (a new laptop to Fleet) and a new MAC, so two clones can share UTM's network.
+         mac=$(printf '02:%02X:%02X:%02X:%02X:%02X' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))
+         /usr/libexec/PlistBuddy -c "Set :Information:UUID $(uuidgen)" -c "Set :Network:0:MacAddress $mac" "$DOCS/$TO.utm/config.plist" ;;
   same) echo "Same UUID as $FROM. In UTM, remove $FROM from the list (keep files), then open $TO." ;;
   *) echo "mode must be new or same"; rm -rf "$DOCS/$TO.utm"; exit 1 ;;
 esac
-echo "Cloned $FROM -> $TO ($MODE). Open it in UTM with File > Open: $DOCS/$TO.utm"
+echo "Cloned $FROM -> $TO ($MODE): $DOCS/$TO.utm"

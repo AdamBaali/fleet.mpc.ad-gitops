@@ -1,0 +1,10 @@
+# 2026-10-27T00:39:50Z
+$ fleetctl query --hosts ED712DCB-E688-47A9-B129-E983573EE9EE --exit --timeout 90s --query "SELECT (SELECT group_concat(username) FROM users WHERE type=\x27local\x27) AS local_users, (SELECT count(*) FROM file WHERE path IN (\x27C:\\lab-marker.txt\x27,\x27C:\\Users\\lab1-data\\marker.txt\x27)) AS markers_left, (SELECT status FROM services WHERE name LIKE \x27Fleet osquery%\x27) AS fleetd_service, (SELECT group_concat(path) FROM file WHERE directory=\x27C:\\ProgramData\\Microsoft\\Provisioning\\\x27 AND filename LIKE \x27%.ppkg\x27) AS kept_ppkg, (SELECT total_seconds FROM uptime) AS uptime_s;"
+
+[!] 'fleetctl query' is deprecated; use 'report' instead
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+{"host":"DESKTOP-419DREG","rows":[],"error":"unrecognized token: \"\\\""}
+ 100% responded (100% online) | 1/1 targeted hosts (1/1 online)
+[exit 0]

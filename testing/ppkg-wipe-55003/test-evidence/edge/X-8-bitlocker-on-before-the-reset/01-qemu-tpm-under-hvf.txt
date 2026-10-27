@@ -1,0 +1,8 @@
+# 2026-10-27T08:10:14Z
+$ grep -n -A3 "TPM device fails" ../_framework/vm/qemu-boot.sh
+
+26:# Upstream QEMU's arm TPM device fails under HVF (HV_BAD_ARGUMENT), so the TPM is opt-in.
+27-# An installed Windows boots and resets without one.
+28-tpm=()
+29-if [ "${TPM:-0}" = 1 ]; then
+[exit 0]

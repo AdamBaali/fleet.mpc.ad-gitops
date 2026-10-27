@@ -1,0 +1,6 @@
+# 2026-10-26T18:51:44Z
+$ date -u +%FT%TZ; fleetctl mdm run-command --hosts=AB61C369-9644-4E83-91AC-A43146484151 --payload=payloads/doWipePersistProvisionedData.xml 2>&1 | grep -v -i -E 'version|mismatch'
+
+2026-10-26T18:51:44Z
+Error: You can run only <Exec> command type.
+[exit 0]

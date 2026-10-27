@@ -1,0 +1,19 @@
+started
+1 qga=none cpu=209.1
+2 qga=DESKTOP-LO95PVU cpu=215.6
+3 qga=DESKTOP-LO95PVU cpu=115.5
+4 qga=DESKTOP-LO95PVU cpu=267.0
+5 qga=DESKTOP-LO95PVU cpu= 25.8
+6 qga=DESKTOP-LO95PVU cpu= 13.8
+7 qga=DESKTOP-LO95PVU cpu= 16.0
+8 qga=DESKTOP-LO95PVU cpu= 13.2
+9 qga=DESKTOP-LO95PVU cpu= 27.6
+10 qga=DESKTOP-LO95PVU cpu= 24.1
+11 qga=DESKTOP-LO95PVU cpu= 14.8
+12 qga=DESKTOP-LO95PVU cpu= 28.5
+13 qga=DESKTOP-LO95PVU cpu= 17.6
+14 qga=DESKTOP-LO95PVU cpu= 15.8
+15 qga=DESKTOP-LO95PVU cpu= 20.2
+16 qga=DESKTOP-LO95PVU cpu= 83.6
+
+[exited with code 144]

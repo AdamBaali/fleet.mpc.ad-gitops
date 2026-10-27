@@ -1,0 +1,7 @@
+# 2026-10-27T08:09:08Z
+$ python3 -I tools/fleet-post.py /api/v1/fleet/hosts/transfer '{"team_id":null,"hosts":[29]}' && fleetctl api /api/v1/fleet/hosts/29 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; print("team", h["team_id"], h["team_name"])'
+
+200 {}
+
+team None None
+[exit 0]

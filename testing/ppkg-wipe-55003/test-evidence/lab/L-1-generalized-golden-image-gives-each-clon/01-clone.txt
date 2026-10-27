@@ -1,0 +1,5 @@
+# 2026-10-26T21:48:22Z
+$ vm/clone.sh new ppkg-golden-oobe ppkg-golden-gen2
+
+Cloned ppkg-golden-oobe -> ppkg-golden-gen2 (new): /Users/adam/Library/Containers/com.utmapp.UTM/Data/Documents/ppkg-golden-gen2.utm
+[exit 0]

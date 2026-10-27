@@ -1,0 +1,22 @@
+# 2026-10-26T17:45:05Z
+$ tools/vm-exec.sh ppkg-golden-oobe 'Get-NetAdapter | Format-Table Name,InterfaceDescription,Status -AutoSize | Out-String -Width 200; Get-Service QEMU-GA | Format-Table Name,Status | Out-String; "idp.ppkg.test: " + (Invoke-WebRequest -UseBasicParsing http://idp.ppkg.test:9080/simplesaml/saml2/idp/metadata.php).StatusCode; "fleet.mpc.ad: " + (Invoke-WebRequest -UseBasicParsing https://fleet.mpc.ad/healthz).StatusCode; "user accounts: " + ((Get-LocalUser | Where-Object Enabled).Name -join ", ")' 120
+
+
+Name     InterfaceDescription            Status
+----     --------------------            ------
+Ethernet Red Hat VirtIO Ethernet Adapter Up    
+
+
+
+
+Name     Status
+----     ------
+QEMU-GA Running
+
+
+
+idp.ppkg.test: 200
+fleet.mpc.ad: 200
+user accounts: defaultuser0
+[exit 0]
+[exit 0]

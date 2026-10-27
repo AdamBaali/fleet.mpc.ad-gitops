@@ -1,0 +1,8 @@
+# 2026-10-26T18:05:13Z
+$ fleetctl api /api/v1/fleet/hosts/21 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; print({k:h.get(k) for k in ("id","hostname","uuid","hardware_serial","team_id","team_name","status","last_enrolled_at","seen_time","orbit_version","os_version")}); m=h.get("mdm") or {}; print("mdm:", {k:m.get(k) for k in ("enrollment_status","name","server_url","connected_to_fleet")}); print("end_users:", h.get("end_users")); print("device_mapping:", h.get("device_mapping"))'
+
+{'id': 21, 'hostname': 'DESKTOP-JVO75AD', 'uuid': '6F2E8E70-A9E1-4993-9A2C-24BCD553152A', 'hardware_serial': '', 'team_id': 10, 'team_name': 'Windows Reset Lab', 'status': 'online', 'last_enrolled_at': '2026-10-26T18:04:31Z', 'seen_time': '2026-10-26T18:04:45Z', 'orbit_version': '1.62.1', 'os_version': 'Windows 11 Pro 26H2 10.0.26300.9457'}
+mdm: {'enrollment_status': 'On (manual)', 'name': 'Fleet', 'server_url': 'https://fleet.mpc.ad/api/mdm/microsoft/discovery', 'connected_to_fleet': True}
+end_users: None
+device_mapping: None
+[exit 0]

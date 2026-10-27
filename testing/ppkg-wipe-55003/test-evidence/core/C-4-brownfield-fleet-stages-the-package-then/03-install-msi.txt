@@ -1,0 +1,6 @@
+# 2026-10-27T03:53:48Z
+$ tools/qga.sh c4 "$(cat payloads/local/install-msi.ps1)" 300
+
+msiexec exit 0
+Fleet osquery Running
+[exit 0]

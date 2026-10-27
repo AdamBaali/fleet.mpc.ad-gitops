@@ -1,0 +1,15 @@
+# 2026-10-26T18:24:02Z
+$ tools/vm-exec.sh e1-bypass 'Get-Service "Fleet osquery" | Format-Table Name,Status | Out-String; "users: " + ((Get-LocalUser | Where-Object Enabled).Name -join ", "); Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length -gt 1000000 | ForEach-Object { $_.FullName + " " + $_.Length }; New-Item -ItemType File C:\Users\Public\before-w1.txt -Force | Out-Null; "marker file written"' 60
+
+
+Name           Status
+----           ------
+Fleet osquery Running
+
+
+
+users: lab1
+C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg 24032479
+marker file written
+[exit 0]
+[exit 0]

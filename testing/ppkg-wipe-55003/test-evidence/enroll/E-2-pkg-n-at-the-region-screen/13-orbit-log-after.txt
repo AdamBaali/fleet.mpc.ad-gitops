@@ -1,0 +1,11 @@
+# 2026-10-26T18:18:38Z
+$ tools/vm-exec.sh e2-nobypass 'Get-Content C:\Windows\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log -Tail 400 | Select-String -Pattern "enroll" | Select-Object -Last 5 | ForEach-Object { $_.Line }; "local users: " + ((Get-LocalUser | Where-Object Enabled).Name -join ", ")' 60
+
+2026-10-26T11:16:33-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:17:03-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:17:33-07:00 INF orbit enroll attempt failed error="enroll request: end user authentication required"
+2026-10-26T11:18:07-07:00 INF successfully called RegisterDeviceWithManagement to enroll Windows device
+2026-10-26T11:18:07-07:00 INF start osqueryd cmd="C:\\Program Files\\Orbit\\bin\\osqueryd\\windows-arm64\\stable\\osqueryd.exe --pidfile=C:\\Program Files\\Orbit\\osquery.pid --extensions_socket=\\\\.\\pipe\\orbit-osquery-extension --logger_path=C:\\Program Files\\Orbit\\osquery_log --enroll_secret_env ENROLL_SECRET --tls_hostname=fleet.mpc.ad --enroll_tls_endpoint=/api/v1/osquery/enroll --config_plugin=tls --config_tls_endpoint=/api/v1/osquery/config --config_refresh=60 --disable_distributed=false --distributed_plugin=tls --distributed_tls_max_attempts=10 --distributed_tls_read_endpoint=/api/v1/osquery/distributed/read --distributed_tls_write_endpoint=/api/v1/osquery/distributed/write --logger_plugin=tls,filesystem --logger_tls_endpoint=/api/v1/osquery/log --disable_carver=false --carver_disable_function=false --carver_start_endpoint=/api/v1/osquery/carve/begin --carver_continue_endpoint=/api/v1/osquery/carve/block --carver_block_size=8000000 --tls_accept_gzip=true --tls_server_certs C:\\Program Files\\Orbit\\certs.pem --force --host-identifier uuid --database_path C:\\Program Files\\Orbit\\osquery.db"
+local users: defaultuser0
+[exit 0]
+[exit 0]

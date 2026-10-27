@@ -1,0 +1,2 @@
+X-8	BLOCKED	X-8-bitlocker-on-before-the-reset	Lab VMs have no TPM (QEMU arm TPM crashes under HVF), and Fleet BitLocker needs one; needs x64 hardware
+X-2	PASS	X-2-host-offline-when-the-wipe-is-sent	An offline host runs the queued wipe at its next check-in and comes back as the same host with MDM on; the feed shows only when the command was sent

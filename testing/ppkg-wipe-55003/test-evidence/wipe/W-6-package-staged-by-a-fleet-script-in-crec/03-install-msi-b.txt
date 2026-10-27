@@ -1,0 +1,15 @@
+# 2026-10-26T19:47:36Z
+$ tools/vm-exec.sh w6-stage '$p = Start-Process msiexec.exe -ArgumentList "/i C:\Windows\Temp\fleet-osquery-arm64.msi /qn /norestart" -Wait -PassThru; "msiexec exit: " + $p.ExitCode; Start-Sleep 20; Get-Service "Fleet osquery" | Format-Table Name,Status | Out-String; Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length -gt 1000000 | Select-Object -ExpandProperty Name; "C:\Recovery: " + (Test-Path C:\Recovery\Customizations); (Get-FileHash C:\Windows\Temp\fleet-agent.ppkg).Hash' 300
+
+msiexec exit: 0
+
+Name           Status
+----           ------
+Fleet osquery Running
+
+
+
+C:\Recovery: False
+28A2FA44C35FABD87239B7E94F3E0E48D40F5A66DB797B81251C2A84494F7538
+[exit 0]
+[exit 0]

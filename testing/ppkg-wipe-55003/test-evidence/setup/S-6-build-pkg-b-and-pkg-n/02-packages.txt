@@ -1,0 +1,10 @@
+# 2026-10-26T17:54:37Z
+$ ls -l out/*.ppkg; shasum -a 256 out/*.ppkg out/msi-*/fleet-osquery-arm64.msi
+
+-rw-------  1 adam  staff  24032528 Oct 26 18:53 out/fleet-agent-b.ppkg
+-rw-------  1 adam  staff  24032528 Oct 26 18:54 out/fleet-agent-n.ppkg
+e34ae6064aab63d09ab2aad4955369b382ba96ef70c8b1e9da543e3ab6fc0f13  out/fleet-agent-b.ppkg
+3a93ec61391fd68384db88c9da944f442815d3f858a3c72e40cfc7ccf3d441bf  out/fleet-agent-n.ppkg
+c7315ff03bf56dbeeca8b01c9ca28d47a8c88399e80f183e7260fe542fcd0159  out/msi-b/fleet-osquery-arm64.msi
+704613ae43548c5b73f56a16d8132911886fe5b09a3b8ed3701f55227bbef0dc  out/msi-n/fleet-osquery-arm64.msi
+[exit 0]

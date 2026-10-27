@@ -1,0 +1,4 @@
+2026-10-27T03:56:08Z host=29 name=DESKTOP-4NHCNJG status=online enrolled=2026-10-27T03:54:31Z restarted=2026-10-27T03:51:28.23286Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T03:58:42Z host=29 name=DESKTOP-4NHCNJG status=offline enrolled=2026-10-27T03:54:31Z restarted=2026-10-27T03:51:28.23286Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T04:08:59Z host=29 name=WIN-P3PHT2VPCJN status=online enrolled=2026-10-27T04:08:43Z restarted=2026-10-27T04:05:20.21011Z mdm=Off connected=False orbit=1.62.1 users=[]
+2026-10-27T04:09:30Z host=29 name=WIN-P3PHT2VPCJN status=online enrolled=2026-10-27T04:08:43Z restarted=2026-10-27T04:05:20.21011Z mdm=On (manual) connected=True orbit=1.62.1 users=[]

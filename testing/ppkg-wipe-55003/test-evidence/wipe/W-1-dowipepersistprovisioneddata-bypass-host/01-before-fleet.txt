@@ -1,0 +1,5 @@
+# 2026-10-26T18:24:01Z
+$ fleetctl api /api/v1/fleet/hosts/21 2>/dev/null | python3 -c 'import json,sys; h=json.load(sys.stdin)["host"]; print({k:h.get(k) for k in ("id","hostname","uuid","status","last_enrolled_at","seen_time")}, (h.get("mdm") or {}).get("enrollment_status"))'
+
+{'id': 21, 'hostname': 'DESKTOP-JVO75AD', 'uuid': '6F2E8E70-A9E1-4993-9A2C-24BCD553152A', 'status': 'online', 'last_enrolled_at': '2026-10-26T18:04:31Z', 'seen_time': '2026-10-26T18:24:07Z'} On (manual)
+[exit 0]

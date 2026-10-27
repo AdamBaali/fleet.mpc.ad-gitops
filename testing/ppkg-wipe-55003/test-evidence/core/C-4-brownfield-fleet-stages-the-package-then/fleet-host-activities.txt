@@ -1,0 +1,4 @@
+2026-10-27T04:09:38.877396Z mdm_enrolled actor=- {"host_display_name": "WIN-P3PHT2VPCJN"}
+2026-10-27T03:56:19.770573Z ran_custom_mdm_command actor=lab-admin {"request_type": "./Device/Vendor/MSFT/RemoteWipe/doWipePersistProvisionedData", "host_display_name": "DESKTOP-4NHCNJG"}
+2026-10-27T03:55:35.169043Z ran_script actor=lab-admin {"script_name": "", "host_display_name": "DESKTOP-4NHCNJG"}
+2026-10-27T03:54:30.598959Z mdm_enrolled actor=- {"host_display_name": "DESKTOP-4NHCNJG"}

@@ -1,0 +1,36 @@
+# 2026-10-26T18:05:25Z
+$ tools/vm-exec.sh e1-bypass 'Get-WinEvent -LogName Microsoft-Windows-Provisioning-Diagnostics-Provider/Admin -MaxEvents 30 | Where-Object { $_.TimeCreated -gt (Get-Date).AddMinutes(-30) } | Sort-Object TimeCreated | ForEach-Object { $_.TimeCreated.ToString("HH:mm:ss") + " " + $_.Id + " " + ($_.Message -replace "\s+"," ") } | Out-String -Width 400' 120
+
+10:57:51 90 Settings detail. source = ShellOpen. packageIdToDelete = <Not Present>. packagePathsToAdd = <Not Present>.
+11:03:32 90 Settings detail. source = ShellOpen. packageIdToDelete = <Not Present>. packagePathsToAdd = <Not Present>.
+11:03:58 20 Applying package 'fleet-agent-b-plain.ppkg' ID: {8bd43625-4562-4ffd-934c-5146b22f98cf}.
+11:03:58 91 RegisterForCspAlerts succeeded. EnrollmentId = {8bd43625-4562-4ffd-934c-5146b22f98cf}.
+11:03:58 10 Configuring ProvXML with category 'Content'. ProvXML data: Provisioning/Assets/{8bd43625-4562-4ffd-934c-5146b22f98cf}//ProvisioningCommands/PrimaryContext/Command/0/CommandFile/0_xzFf8Dv1bb7sqLAcnKKNR6jIg5noDxg+cmD+VC.NAVk=\fleet-osquery-arm64.msi
+11:03:58 11 ProvXML category 'Content' completed successfully. Provisioning succeeded
+11:03:58 10 Configuring ProvXML with category 'Scripts'. ProvXML data: ProvisioningCommands/PrimaryContext/$(__PackageID)/0/CommandLine
+11:03:58 11 ProvXML category 'Scripts' completed successfully. Provisioning succeeded
+11:03:58 10 Configuring ProvXML with category 'Scripts'. ProvXML data: ProvisioningCommands/PrimaryContext/$(__PackageID)/0/ContinueInstall
+11:03:58 11 ProvXML category 'Scripts' completed successfully. Provisioning succeeded
+11:03:58 10 Configuring ProvXML with category 'Scripts'. ProvXML data: ProvisioningCommands/PrimaryContext/$(__PackageID)/0/RestartRequired
+11:03:58 11 ProvXML category 'Scripts' completed successfully. Provisioning succeeded
+11:03:58 10 Configuring ProvXML with category 'Scripts'. ProvXML data: ProvisioningCommands/PrimaryContext/$(__PackageID)/0/ReturnCodeRestart
+11:03:58 11 ProvXML category 'Scripts' completed successfully. Provisioning succeeded
+11:03:58 10 Configuring ProvXML with category 'Scripts'. ProvXML data: ProvisioningCommands/PrimaryContext/$(__PackageID)/0/ReturnCodeSuccess
+11:03:58 11 ProvXML category 'Scripts' completed successfully. Provisioning succeeded
+17:18:01 10 Configuring ProvXML with category 'PowerSettings'. ProvXML data: MCSF/Power/Controls/EnergyEstimationEnabled
+17:18:02 11 ProvXML category 'PowerSettings' completed successfully. Provisioning succeeded
+17:18:02 91 RegisterForCspAlerts succeeded. EnrollmentId = {8d196d7f-3eef-48ad-8bea-be749f12d3ad}.
+17:18:02 10 Configuring ProvXML with category 'PowerSettings'. ProvXML data: MCSF/Power/EnergyEstimationEngine/StandbyActivationEnergy/DripsPowerFloorMilliWatts
+17:18:02 11 ProvXML category 'PowerSettings' completed successfully. Provisioning succeeded
+17:18:02 91 RegisterForCspAlerts succeeded. EnrollmentId = {8fb7d64e-70fc-4f9d-89ee-d486817534df}.
+17:18:02 10 Configuring ProvXML with category 'PowerSettings'. ProvXML data: MCSF/Power/EnergyEstimationEngine/EnergyEstimationTelemetry/BatteryDrainMinRate MCSF/Power/EnergyEstimationEngine/EnergyEstimationTelemetry/LongtermTimerInMinutes
+17:18:03 11 ProvXML category 'PowerSettings' completed successfully. Provisioning succeeded
+17:18:03 91 RegisterForCspAlerts succeeded. EnrollmentId = {fc01e91f-914c-45af-9d7c-0b2e5fbedf62}.
+17:18:03 10 Configuring ProvXML with category 'PowerSettings'. ProvXML data: MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/d4140c81-ebba-4e60-8561-6918290359cd/MinPerformance/AcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/d4140c81-ebba-4e60-8561-6918290359cd/MinPerformance/DcValue
+17:18:03 11 ProvXML category 'PowerSettings' completed successfully. Provisioning succeeded
+17:18:03 10 Configuring ProvXML with category 'PowerSettings'. ProvXML data: MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/MinPerformance/AcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/PerfDecreaseThreshold/DcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/PerfEnergyPreference/AcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/PerfEnergyPreference/DcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/PerfIncreasePolicy/DcValue MCSF/Power/Policy/Settings/Processor/SchemePersonality/381b4222-f694-41f0-9685-ff5bb260df2e/0aabb002-a307-447e-9b81-1d819df6c6d0/PerfIncreaseThreshold/DcValue
+17:18:03 11 ProvXML category 'PowerSettings' completed successfully. Provisioning succeeded
+17:19:09 90 Settings detail. source = ProvResetBoot. packageIdToDelete = <Not Present>. packagePathsToAdd = <Not Present>.
+
+[exit 0]
+[exit 0]

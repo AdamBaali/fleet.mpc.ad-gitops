@@ -1,0 +1,15 @@
+# 2026-10-27T07:09:11Z
+$ python3 -I tools/fleet-post.py /api/v1/fleet/hosts/999999/wipe '{"windows":{"wipe_type":"doWipeProtected"}}'
+
+404 {
+  "message": "Resource Not Found",
+  "errors": [
+    {
+      "name": "base",
+      "reason": "Host 999999 was not found in the datastore"
+    }
+  ],
+  "uuid": "e5acf0ef-94ec-4ee5-8cbf-94922f1554d6"
+}
+
+[exit 0]

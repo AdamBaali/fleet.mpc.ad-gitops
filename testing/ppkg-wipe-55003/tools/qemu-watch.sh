@@ -1,0 +1,1 @@
+../../_framework/vm/qemu-watch.sh

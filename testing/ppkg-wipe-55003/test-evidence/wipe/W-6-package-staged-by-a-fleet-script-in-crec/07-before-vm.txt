@@ -1,0 +1,18 @@
+# 2026-10-26T19:55:33Z
+$ tools/vm-exec.sh w6-stage 'Get-Service "Fleet osquery" | Format-Table Name,Status | Out-String; Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length -gt 1000000 | Select-Object -ExpandProperty Name; Get-ChildItem C:\Recovery\Customizations -Force | ForEach-Object { $_.FullName + " " + $_.Length }; reagentc /info | Select-String "status"; Set-Content C:\Users\Public\before-w6.txt marker; "marker written"' 120
+
+
+Name           Status
+----           ------
+Fleet osquery Running
+
+
+
+C:\Recovery\Customizations\fleet-agent.ppkg 24032479
+
+    Windows RE status:         Enabled
+marker written
+
+
+[exit 0]
+[exit 0]

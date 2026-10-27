@@ -1,0 +1,37 @@
+2026-10-26T21:50:16Z start vm=l1-a uuid=784F2141-2D2E-4F21-8982-414D5A1CFCE4
+2026-10-26T21:50:16Z start vm=l1-b uuid=4231E693-111C-49F4-BC0E-4B3D0AECF3A8
+2026-10-26T21:52:36Z hang detected (frame unchanged 90 s, cpu 236%), power-cycling
+2026-10-26T21:53:09Z hang detected (frame unchanged 90 s, cpu 227%), power-cycling
+2026-10-26T21:54:44Z hang detected (frame unchanged 90 s, cpu 99%), power-cycling
+2026-10-26T22:10:56Z start vm=l1-a uuid=784F2141-2D2E-4F21-8982-414D5A1CFCE4
+2026-10-26T22:10:56Z start vm=l1-b uuid=4231E693-111C-49F4-BC0E-4B3D0AECF3A8
+2026-10-26T22:10:56Z l1-b found stopped, starting
+2026-10-26T22:10:56Z l1-a found stopped, starting
+2026-10-26T22:13:11Z l1-b hang detected (frame unchanged 90 s, cpu 229%), power-cycling
+2026-10-26T22:13:12Z l1-a hang detected (frame unchanged 90 s, cpu 223%), power-cycling
+2026-10-26T22:14:58Z l1-a found stopped, starting
+2026-10-26T22:15:29Z l1-b hang detected (frame unchanged 90 s, cpu 227%), power-cycling
+2026-10-26T22:16:44Z l1-b found stopped, starting
+2026-10-26T22:16:56Z l1-a hang detected (frame unchanged 90 s, cpu 211%), power-cycling
+2026-10-26T22:18:26Z l1-a found stopped, starting
+2026-10-26T22:18:57Z l1-b hang detected (frame unchanged 90 s, cpu 230%), power-cycling
+2026-10-26T22:20:11Z l1-b found stopped, starting
+2026-10-26T22:20:39Z l1-a hang detected (frame unchanged 90 s, cpu 227%), power-cycling
+2026-10-26T22:22:08Z l1-b hang detected (frame unchanged 90 s, cpu 231%), power-cycling
+2026-10-26T22:22:40Z l1-a hang detected (frame unchanged 90 s, cpu 99%), power-cycling
+2026-10-26T22:24:10Z l1-b hang detected (frame unchanged 90 s, cpu 99%), power-cycling
+2026-10-26T22:24:10Z l1-a found stopped, starting
+2026-10-26T22:25:40Z l1-b found stopped, starting
+2026-10-26T22:26:23Z l1-a hang detected (frame unchanged 90 s, cpu 234%), power-cycling
+2026-10-26T22:27:52Z l1-b hang detected (frame unchanged 90 s, cpu 229%), power-cycling
+2026-10-26T22:28:25Z l1-a hang detected (frame unchanged 90 s, cpu 232%), power-cycling
+2026-10-26T22:29:07Z l1-b found stopped, starting
+2026-10-26T22:29:39Z l1-a found stopped, starting
+2026-10-26T22:30:48Z l1-b found stopped, starting
+2026-10-26T22:31:36Z l1-a hang detected (frame unchanged 90 s, cpu 228%), power-cycling
+2026-10-26T22:32:44Z l1-b hang detected (frame unchanged 90 s, cpu 230%), power-cycling
+2026-10-26T22:33:37Z l1-a hang detected (frame unchanged 90 s, cpu 99%), power-cycling
+2026-10-26T22:34:14Z l1-b found stopped, starting
+2026-10-26T22:34:52Z l1-a found stopped, starting
+2026-10-26T22:36:11Z l1-b hang detected (frame unchanged 90 s, cpu 237%), power-cycling
+2026-10-26T22:36:49Z l1-a hang detected (frame unchanged 90 s, cpu 222%), power-cycling

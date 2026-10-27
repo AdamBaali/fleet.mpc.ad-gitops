@@ -1,0 +1,1 @@
+P-1	PASS	P-1-which-roles-can-send-the-wipe-and-run-th	From code at fleet-v4.93.0: admins, maintainers and GitOps users can send the wipe (same check as the built-in Wipe); admins, maintainers and technicians can run the staging script

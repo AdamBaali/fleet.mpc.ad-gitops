@@ -1,0 +1,8 @@
+# 2026-10-27T05:13:16Z
+$ fleetctl get mdm-command-results --id=7a972475-5cc1-4cf2-8870-1ac5a13c0de8
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+Error: send request: converting NULL to string is unsupported: converting NULL to string is unsupported (API time: 210ms)
+[exit 1]

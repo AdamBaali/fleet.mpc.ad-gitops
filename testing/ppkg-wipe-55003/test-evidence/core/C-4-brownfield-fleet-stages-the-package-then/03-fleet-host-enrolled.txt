@@ -1,0 +1,1 @@
+host=29 name=DESKTOP-4NHCNJG status=online enrolled=2026-10-27T03:54:31Z restarted=0001-01-01T00:00:00Z mdm=On (manual) connected=True orbit=None users=[]

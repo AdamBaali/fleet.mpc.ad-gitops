@@ -1,0 +1,29 @@
+# 2026-10-27T08:10:01Z
+$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/authz/policy.rego | sed -n 1298,1322p
+
+
+# Global admins, maintainers, and technicians can write (execute) scripts (not
+# gitops as this is not something that relates to fleetctl gitops).
+allow {
+  object.type == "host_script_result"
+  subject.global_role == [admin, maintainer, technician][_]
+  action == write
+}
+
+# Global admins, maintainers, technicians, observer_plus and observers can read script results,
+# including software uninstall results.
+allow {
+  object.type == "host_script_result"
+  subject.global_role == [admin, maintainer, technician, observer, observer_plus][_]
+  action == read
+}
+
+# Team admin, maintainers, and technicians can write (execute) scripts for their
+# teams (not gitops as this is not something that relates to fleetctl gitops).
+allow {
+  object.type == "host_script_result"
+  not is_null(object.team_id)
+  team_role(subject, object.team_id) == [admin, maintainer, technician][_]
+  action == write
+}
+[exit 0]

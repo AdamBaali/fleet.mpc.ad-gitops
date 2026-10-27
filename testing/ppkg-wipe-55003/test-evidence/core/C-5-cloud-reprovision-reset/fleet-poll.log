@@ -1,0 +1,4 @@
+2026-10-27T04:11:13Z host=29 name=WIN-P3PHT2VPCJN status=online enrolled=2026-10-27T04:08:43Z restarted=2026-10-27T04:05:20.21011Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T04:47:23Z host=29 name=WIN-P3PHT2VPCJN status=offline enrolled=2026-10-27T04:08:43Z restarted=2026-10-27T04:05:20.21011Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T05:08:33Z host=29 name=WIN-FBOG8N0NJ6F status=online enrolled=2026-10-27T05:08:18Z restarted=2026-10-27T05:04:51.737372Z mdm=Off connected=False orbit=1.62.1 users=[]
+2026-10-27T05:09:35Z host=29 name=WIN-FBOG8N0NJ6F status=online enrolled=2026-10-27T05:08:18Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]

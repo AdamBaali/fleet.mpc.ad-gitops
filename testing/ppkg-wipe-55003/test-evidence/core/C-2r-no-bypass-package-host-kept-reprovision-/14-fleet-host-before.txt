@@ -1,0 +1,1 @@
+host=27 name=DESKTOP-M8HO67K status=online enrolled=2026-10-27T02:43:23Z restarted=0001-01-01T00:00:00Z mdm=On (manual) connected=True orbit=None users=['eua-user-1@example.com']

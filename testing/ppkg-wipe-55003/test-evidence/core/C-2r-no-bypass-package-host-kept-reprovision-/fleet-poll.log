@@ -1,0 +1,4 @@
+2026-10-27T02:43:51Z host=27 name=DESKTOP-M8HO67K status=online enrolled=2026-10-27T02:43:23Z restarted=2026-10-27T02:38:01.094593Z mdm=On (manual) connected=True orbit=1.62.1 users=['eua-user-1@example.com']
+2026-10-27T02:45:24Z host=27 name=DESKTOP-M8HO67K status=offline enrolled=2026-10-27T02:43:23Z restarted=2026-10-27T02:38:01.094593Z mdm=On (manual) connected=True orbit=1.62.1 users=['eua-user-1@example.com']
+2026-10-27T02:56:45Z host=27 name=WIN-0UBVDJIVSF4 status=online enrolled=2026-10-27T02:56:54Z restarted=2026-10-27T02:38:01.094593Z mdm=On (manual) connected=True orbit=1.62.1 users=['eua-user-1@example.com']
+2026-10-27T02:57:47Z host=27 name=DESKTOP-4450MJ2 status=online enrolled=2026-10-27T02:56:54Z restarted=2026-10-27T02:57:05.82639Z mdm=On (manual) connected=True orbit=1.62.1 users=['eua-user-1@example.com']

@@ -1,0 +1,5 @@
+# 2026-10-27T07:09:38Z
+$ fleetctl api /api/v1/fleet/hosts/28 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; print(h["team_id"], h["team_name"])'
+
+None None
+[exit 0]

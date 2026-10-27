@@ -1,0 +1,5 @@
+# 2026-10-26T17:25:03Z
+$ /usr/libexec/PlistBuddy -c 'Print :Information:UUID' $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/ppkg-golden-oobe.utm/config.plist
+
+B2731972-B7D4-44E8-A27C-E360E8D7C9FE
+[exit 0]

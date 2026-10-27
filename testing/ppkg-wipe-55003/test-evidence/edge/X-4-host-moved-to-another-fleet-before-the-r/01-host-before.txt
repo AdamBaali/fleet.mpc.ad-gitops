@@ -1,0 +1,5 @@
+# 2026-10-27T07:09:36Z
+$ fleetctl api /api/v1/fleet/hosts/28 2>/dev/null | python3 -I tools/fleet-host-line.py
+
+host=28 name=DESKTOP-QMTG3I0 status=offline enrolled=2026-10-27T03:47:46Z restarted=2026-10-27T03:43:52.349352Z mdm=On (manual) connected=True orbit=1.62.1 users=['eua-user-2@example.com']
+[exit 0]

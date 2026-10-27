@@ -20,6 +20,9 @@ Used first for fleetdm/fleet#54654 (PingFederate and Duo guides). Copy this fold
   test-evidence/<group>/<ID>-<slug>/   one folder per test: result.md, NN-label.txt, NN-label.png
 ```
 
+Windows test hosts run on Homebrew QEMU with the tools in `vm/`. Read [vm/README.md](vm/README.md) before building a
+Windows lab: UTM hangs after a reset or generalize, and the README lists the other faults that cost the first lab a day.
+
 
 ## The loop for every test
 

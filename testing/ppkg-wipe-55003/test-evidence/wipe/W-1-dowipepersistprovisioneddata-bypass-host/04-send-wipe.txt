@@ -1,0 +1,9 @@
+# 2026-10-26T18:24:17Z
+$ date -u +%FT%TZ; fleetctl mdm run-command --hosts=6F2E8E70-A9E1-4993-9A2C-24BCD553152A --payload=payloads/doWipePersistProvisionedData.xml
+
+2026-10-26T18:24:17Z
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+Error: Can't run the MDM command because one or more hosts have MDM turned off. Run the following command to see a list of hosts with MDM on: fleetctl get hosts --mdm.
+[exit 1]

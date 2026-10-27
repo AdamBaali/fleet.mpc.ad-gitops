@@ -1,0 +1,13 @@
+{
+ "id": 25,
+ "hostname": "WIN-N21FERVGUUK",
+ "uuid": "ED712DCB-E688-47A9-B129-E983573EE9EE",
+ "team_name": "Windows Reset Lab",
+ "status": "online",
+ "last_enrolled_at": "2026-10-27T00:11:02Z",
+ "seen_time": "2026-10-27T00:14:21Z",
+ "orbit_version": "1.62.1",
+ "mdm_enrollment": "On (manual)",
+ "connected_to_fleet": true,
+ "end_users": null
+}

@@ -1,0 +1,14 @@
+# 2026-10-26T17:55:27Z
+$ vm/clone.sh new ppkg-golden-oobe e1-bypass && vm/attach-usb.sh e1-bypass out/usb-pkg-b.img && /usr/libexec/PlistBuddy -c 'Print :Information:UUID' $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/e1-bypass.utm/config.plist
+
+Cloned ppkg-golden-oobe -> e1-bypass (new): /Users/adam/Library/Containers/com.utmapp.UTM/Data/Documents/e1-bypass.utm
+Dict {
+    Interface = USB
+    Identifier = 9FAF96B1-49B7-4BE6-A530-6DDB41285C0D
+    InterfaceVersion = 1
+    ReadOnly = false
+    ImageName = usb-pkg-b.img
+    ImageType = Disk
+}
+6F2E8E70-A9E1-4993-9A2C-24BCD553152A
+[exit 0]
