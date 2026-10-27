@@ -19,3 +19,16 @@ Attempt 2: host 29 (c4 VM, MSI-enrolled, bypass package staged in C:\Recovery\Cu
 - `08-host-29-to-no-team.txt`: `python3 -I tools/fleet-post.py /api/v1/fleet/hosts/transfer '{"team_id":null,"hosts":[29]}' && fleetctl api /a`
 - `09-wipe-command.txt`: `fleetctl mdm run-command --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --payload payloads/doWipePersistProvisio`
 - `010-fleet-host-mid-reset.jpg` (Fleet UI, Chrome)
+- `11-orbit-log-while-secret-rotated.png` (VM screen; X-3 had fleet 10's secret rotated at this time)
+- `11-host-29-after.txt`: `fleetctl api /api/v1/fleet/hosts/29 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"];`
+- `12-live-query-after.txt`: `fleetctl query --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --exit --timeout 90s --query "$(cat queries/after-`
+- `014-fleet-host-after.jpg` (Fleet UI, Chrome)
+- `13-code-enroll-orbit-known-host.txt`: `git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/datastore/mysql/hosts.go | sed -n 2612,262`
+
+Timeline (UTC): host 29 moved to No team 08:09:08, wipe sent 08:09:2x, offline 08:11:59, reset done and region screen about 08:30. From 08:30 to 08:58 fleet 10's secret was rotated for X-3, so fleetd's enroll failed here too (11). After the GitOps secret was restored at 08:58:06, fleetd enrolled at 08:59:11: same host 29, MDM On, connected, and still in No team (host-29-after, fleet-host-after). The package's secret belongs to fleet 10, but Fleet kept the host in the fleet it was in. At fleet-v4.93.0 EnrollOrbit updates a known host without setting team_id (code-enroll-orbit-known-host); the secret's fleet applies only when Fleet creates a new host. Live query: fleetd RUNNING, staged package still in C:\Recovery\Customizations, built-in users only.
+
+## Result: PASS
+
+A known host comes back in the fleet it was in (No team here), not the fleet of the package's enroll secret; Fleet sets the fleet only for new hosts
+
+_Finished 2026-10-27T09:02:07Z_
