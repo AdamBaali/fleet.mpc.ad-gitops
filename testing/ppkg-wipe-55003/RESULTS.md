@@ -35,46 +35,86 @@ In v1 every Windows rebuilt by a reset or generalize hung at the UEFI "Start boo
 disk boots on Homebrew QEMU 11.1.2 with its edk2 (L-2C), and a reset completes and boots in 11.5 minutes (L-3). The
 lab now runs headless on QEMU with scripts for screens, keys, and guest commands (NOTES, "Lab fix").
 
-## Findings to share
+## Findings
 
-1. Guide (preinstall fleetd with a ppkg): "No web browser is available while Windows applies the package" and the "Get
-   an app to open this 'https' link" troubleshooting are out of date for 26H2. Edge opens during setup, and the
-   no-bypass flow works there.
-2. Guide: "Windows MDM turns on after an end user signs in." Here MDM was On during setup, before any user.
-3. Docs: the setup experience guide says `--bypass-end-user-auth` "only works if" `mdm.allow_orbit_end_user_auth_bypass`
-   is `false`. The code and E-1 show the default `true` is what lets it work (NOTES D-2).
-4. Docs: Fleet's MDM command library Windows payloads are wrapped in `<syncml>`, which `fleetctl mdm run-command`
-   rejects. The bare `<Exec>` works (NOTES D-8).
-5. Security: the package kept in `ProgramData\Microsoft\Provisioning` is readable by Users and Everyone. It holds the
-   MSI with the enroll secret. The v1 staging script left Users with read access to `C:\Recovery`; fixed, and C-4 shows only SYSTEM and
-   Administrators.
-6. Fleet keys Windows MDM enrollments on `mdm_hardware_id`. Clones of one non-generalized image share it, so a second
-   clone took over the first one's MDM record. Lab artifact here, but relevant for cloned VDI images.
-7. After a custom wipe command, Fleet keeps showing the host as MDM On and connected until it checks in again. Right
-   after the reset Fleet briefly refused MDM commands to the host ("MDM turned off") while Windows re-enrolled (C-1).
-8. Lab: packages built with `ICD.exe ... +Encrypted` failed to apply (0x80070490) though the password matched. Tests used
-   unencrypted packages. The guide's Configuration Designer GUI was not tested.
-9. The host page's "Added to Fleet" shows `last_enrolled_at`, so a reset host looks newly added though `created_at`
-   and the host ID are unchanged (C-1).
-10. Nothing in Fleet records that the host was wiped: the activity feed shows the custom command and a new "MDM turned
-   on", and the host has no wipe status (C-1, U-4).
-11. Bug: once the host re-enrolls, `fleetctl get mdm-command-results` for its wipe command fails with "converting NULL to
-   string is unsupported". `GetMDMWindowsCommandResults` (`server/datastore/mysql/microsoft_mdm.go:1840` at
-   fleet-v4.93.0) takes `host_uuid` from the enrollment that ran the command, which re-enrollment or host deletion
-   removes (C-5, all wipe commands in this run).
-12. A known host comes back in the fleet it was in, not the fleet of the package's enroll secret. `EnrollOrbit`
-   (`server/datastore/mysql/hosts.go` at fleet-v4.93.0) sets the fleet only for a new host (X-4). A host moved to another
-   fleet before the reset stays there.
-13. Enroll secret rotation strands reset hosts. With a package built on an old secret, fleetd comes back and retries
-   ("unauthenticated, or invalid token"), and Fleet shows the host as offline with nothing else (X-3). Rebuild and
-   re-stage the package when the secret changes.
-14. The wipe API rejects the reprovision types with a generic "failed to unmarshal request body" (A-3), because
-   `MDMWindowsWipeType` knows only `doWipe` and `doWipeProtected`.
-15. Re-staging the package fails while the host sits at Windows setup after a reset: Windows holds
-   `C:\Recovery\Customizations\fleet-agent.ppkg` open (X-6). Lab case; a host in use is past setup.
-16. The Provisioning failure 0x800700b7 seen in C-1, C-2 and X-6 is error 183, ERROR_ALREADY_EXISTS. Each time a USB
-   drive was in at boot and setup applied the package by itself; in X-6 fleetd was already installed. Likely cause, not
-   proven. Lab case.
+Grouped by who acts on them. Each item names its evidence. Code references are at the fleet-v4.93.0 tag.
+
+### What works
+
+1. A host reset with `doWipePersistProvisionedData` comes back by itself. fleetd reinstalls from the kept
+   package, re-enrolls at the region screen as the same Fleet host, and Windows MDM turns on a minute later. About 13
+   minutes; the local user and files are gone (C-1, C-2r, X-1, X-2).
+2. The cloud variant `doWipeCloudPersistProvisionedData` works the same, in about an hour (C-5).
+3. Brownfield hosts work. A Fleet script stages the package in `C:\Recovery\Customizations` on a host enrolled
+   with only the MSI, and the reset applies it (C-4). Same pattern as Omnissa's Workspace ONE script (NOTES D-7).
+4. The package is what brings the host back. With no package left, the host comes back without fleetd and never
+   checks in (X-7).
+5. A wipe sent while the host is off waits for its next check-in (X-2).
+
+### Product gaps (for the story and the design)
+
+6. Repurposing: a reset host that is still in Fleet re-enrolls without end user authentication, and Fleet keeps
+   the previous IdP user as its end user. The next person is never asked to sign in (C-2r). Fleet lets a known host
+   re-enroll without the IdP.
+7. Getting a new user takes deleting the host once the wipe is acknowledged. Then Fleet blocks enrollment after the
+   reset, and the sign-in page opens at the new user's first desktop, not during Windows setup. After sign-in Fleet
+   lists a new host with only the new user (C-3). With end user authentication off, the deleted host comes back as a
+   new host with no user (X-6).
+8. Fleet doesn't record a reset. Mid-reset the host shows Offline with MDM still On and connected (U-1, C-1). After
+   it, the feed shows the custom command (at the time it was sent, which can be hours earlier, X-2) and "MDM turned on"
+   (U-3). "Added to Fleet" shows the re-enrollment time, so the host looks new though its ID is unchanged (U-2, C-1).
+9. The built-in Wipe can't send it today: the wipe API rejects both reprovision types with a generic "failed to
+   unmarshal request body", because `MDMWindowsWipeType` knows only `doWipe` and `doWipeProtected`
+   (`server/fleet/windows_mdm.go:739`; A-3). If they're added as is, the Wipe status would be cleared when fleetd
+   re-enrolls (`EnrollOrbit` deletes `host_mdm_actions`), so "Wiped" would never show for this reset (U-4).
+10. A reset host comes back in the fleet it was in, not the fleet of the package's enroll secret. `EnrollOrbit`
+   sets the fleet only for a new host (`server/datastore/mysql/hosts.go`; X-4).
+11. Rotating the enroll secret strands every reset host whose package has the old one: fleetd comes back and
+   retries ("unauthenticated, or invalid token"), and Fleet shows only an offline host. The package has to be rebuilt
+   and staged again when the secret changes (X-3).
+12. Permissions: the custom command uses the same check as the built-in Wipe (admin, maintainer, GitOps). Staging
+   needs script permission (admin, maintainer, technician), so a technician can stage but not wipe (P-1, from code).
+
+### Bug
+
+13. Once a host re-enrolls or is deleted, `fleetctl get mdm-command-results` for its wipe command fails with
+   "converting NULL to string is unsupported". `GetMDMWindowsCommandResults`
+   (`server/datastore/mysql/microsoft_mdm.go:1840`) takes `host_uuid` from the MDM enrollment that ran the command,
+   which re-enrollment or deletion removes (C-5, X-2, every wipe in this run).
+
+### Security
+
+14. The package kept in `C:\ProgramData\Microsoft\Provisioning` is readable by Users and Everyone, and it holds the
+   MSI with the enroll secret (E-3).
+15. The staging script now leaves `C:\Recovery` to SYSTEM and Administrators only. v1 left Users with read access
+   (C-4, X-6).
+
+### Docs
+
+16. Guide (preinstall fleetd with a ppkg): "No web browser is available while Windows applies the package" and the
+   "Get an app to open this 'https' link" troubleshooting are out of date for 26H2. Edge opens during setup, and the
+   no-bypass sign-in works there (E-2).
+17. Guide: "Windows MDM turns on after an end user signs in." Here MDM was On during setup, before any user (E-1).
+18. Setup experience guide: `--bypass-end-user-auth` "only works if" `mdm.allow_orbit_end_user_auth_bypass` is
+   `false`. The code and E-1 show the default `true` is what lets it work (NOTES D-2).
+19. MDM command library: the Windows payloads are wrapped in `<syncml>`, which `fleetctl mdm run-command` rejects.
+   The bare `<Exec>` works (NOTES D-8).
+
+### Lab only (not product findings)
+
+20. UTM 4.7.5 hangs at "Start boot option" after a reset or generalize; the lab moved to Homebrew QEMU
+   (L-2C, L-3, `testing/_framework/vm/README.md`).
+21. Clones of one non-generalized image share a Windows MDM hardware ID, and the second took over the first one's
+   MDM record (W-1). Worth knowing for cloned VDI images.
+22. Packages built with `ICD.exe ... +Encrypted` failed to apply (0x80070490). Tests used unencrypted packages.
+23. Re-staging fails while a host sits at Windows setup after a reset: Windows holds the staged package open (X-6).
+24. Provisioning failure 0x800700b7 (error 183, ERROR_ALREADY_EXISTS) appeared each time a USB drive was in at boot
+   and setup applied the package by itself (C-1, C-2, X-6). Likely a second install of fleetd; not proven.
+
+### Not tested
+
+x64 hardware; BitLocker (the lab VMs have no TPM, X-8); Wi-Fi-only hosts; the Configuration Designer GUI; a package
+with an older fleetd (X-5, in progress); permissions with a real user per role (P-1 is from code).
 
 ## Test results
 
@@ -99,7 +139,7 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 | X-2 | PASS | Wipe sent while off runs at the next check-in; same host back |
 | X-3 | PASS | Secret rotated: fleetd back but can't enroll; enrolls 21 s after the secret is valid again |
 | X-4 | PASS | Host moved to No team stays in No team after the reset |
-| X-5 | NOT-RUN | Older fleetd in the package: needs a package rebuild on the builder VM |
+| X-5 | IN PROGRESS | Older fleetd (1.58.0) in the package: MSI built, package not built yet |
 | X-6 | PASS | End user authentication off: deleted host enrolls as a new host, no prompt, no end user |
 | X-7 | PASS | No package left: reset comes back without fleetd, host never checks in |
 | X-8 | BLOCKED | BitLocker needs a TPM; the QEMU arm VMs have none |

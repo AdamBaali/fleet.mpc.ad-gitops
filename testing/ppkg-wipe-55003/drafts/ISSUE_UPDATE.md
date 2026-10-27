@@ -1,45 +1,51 @@
 # Draft comment for the issue (not posted; for review)
 
-Lab results on Windows 11 26H2 arm64 with the provisioning package guide, a fleet that requires end user
-authentication, and `doWipePersistProvisionedData` sent from Fleet as a custom MDM command:
+Lab results: Fleet 4.93.0, Windows 11 26H2 arm64, the provisioning package guide's package, and a fleet that requires
+end user authentication. The wipe is `doWipePersistProvisionedData` sent as a custom MDM command.
 
-- **The host comes back by itself.** About 13 minutes after the wipe, Windows is at the region screen, fleetd has
-  reinstalled from the kept package, and the host is back in Fleet as the same host, with MDM on and no prompt.
-  The local user and their files are gone. Tested with the bypass build, the no-bypass build, and a second reset of
-  the same host. The cloud variant (`doWipeCloudPersistProvisionedData`) works the same, in about an hour.
-- **Brownfield hosts work too.** On a host enrolled with only the MSI, a Fleet script copied the package into
-  `C:\Recovery\Customizations`. After the wipe, the reset applied it and the host came back the same way. This is
-  the pattern Omnissa uses for Workspace ONE.
-- **Repurposing gap.** With the no-bypass build, a reset host that is still in Fleet re-enrolls without end user
-  authentication, and Fleet keeps the previous user as the host's end user. The next person is never asked to sign in.
-- **Deleting the host fixes attribution, with a catch.** If the admin deletes the host once the wipe is acknowledged,
-  Fleet blocks enrollment after the reset. Nothing appears during Windows setup; the sign-in page opens at the new
-  user's first desktop. After sign-in Fleet lists a new host with only the new user.
-- **First setup is different.** When the package is applied at the region screen, fleetd opens the sign-in page in
-  Edge on the setup screen, and the host enrolls before any account exists.
+**It works.**
+- The host comes back by itself. About 13 minutes after the wipe, Windows is at the region screen, fleetd has
+  reinstalled from the kept package, and the host is back in Fleet as the same host with MDM on and no prompt. The
+  local user and their files are gone. Tested with the bypass build, the no-bypass build, a second reset, and a host
+  that was off when the wipe was sent (it runs at the next check-in).
+- `doWipeCloudPersistProvisionedData` works the same, in about an hour.
+- Brownfield hosts work. On a host enrolled with only the MSI, a Fleet script staged the package in
+  `C:\Recovery\Customizations`, and the reset applied it. This is the pattern Omnissa uses for Workspace ONE.
+- The package is what brings the host back: with no package left, the host comes back without fleetd and never checks
+  in.
+- At first setup, the no-bypass build opens Fleet's sign-in page in Edge on the setup screen, and the host enrolls
+  before any account exists.
 
-- **Edge cases.** A wipe sent while the host is off runs at its next check-in. A host moved to another fleet comes back
-  in that fleet, not the fleet of the package's secret (Fleet sets the fleet only for new hosts). With end user
-  authentication off, a deleted host comes back as a new host with no prompt. With no package left, the host comes
-  back without fleetd and never checks in.
-- **Secret rotation strands hosts.** If the enroll secret changes after the package was built, fleetd comes back
-  after the reset but can't enroll, and Fleet only shows the host as offline. The package has to be rebuilt and
-  re-staged when the secret changes.
-- **Permissions.** The custom command uses the same check as the built-in Wipe (admin, maintainer, GitOps). The staging
-  script needs script permission (admin, maintainer, technician).
+**Gaps for the design.**
+1. Repurposing. A reset host that is still in Fleet re-enrolls without end user authentication, and Fleet keeps the
+   previous user as its end user. The next person is never asked to sign in.
+2. To get a new user, the admin deletes the host once the wipe is acknowledged. Then the sign-in page opens at the new
+   user's first desktop, not during Windows setup, and Fleet lists a new host with only the new user.
+3. Fleet doesn't record the reset. Mid-reset the host shows Offline with MDM still On. Afterwards the feed shows the
+   command (when it was sent) and "MDM turned on", and "Added to Fleet" shows the re-enrollment time.
+4. The wipe API rejects both reprovision types with a generic "failed to unmarshal request body". If they're added to
+   the built-in Wipe as is, its status would be cleared when fleetd re-enrolls (`EnrollOrbit` deletes
+   `host_mdm_actions`), so "Wiped" would never show.
+5. A reset host comes back in the fleet it was in, not the fleet of the package's enroll secret.
+6. Rotating the enroll secret strands reset hosts whose package has the old one: fleetd retries and Fleet shows only
+   an offline host. The package has to be rebuilt and staged again.
+7. Permissions: the custom command needs the same role as the built-in Wipe (admin, maintainer, GitOps). Staging needs
+   script permission (admin, maintainer, technician).
 
-Product questions this raises: should a reprovision wipe clear the host's end user (or require sign-in again), and
-should Fleet show that a host was wiped by a custom command? Today the activity feed shows the command and a new
-"MDM turned on", and nothing else.
+Questions: should a reprovision wipe clear the host's end user, or require sign-in again? And how should Fleet show
+that a host was reset?
 
-Bug: after a host re-enrolls, reading its wipe command's result fails ("converting NULL to string is
-unsupported"): the results query gets the host UUID from the old MDM enrollment.
+**Bug.** Once a host re-enrolls or is deleted, `fleetctl get mdm-command-results` for its wipe command fails with
+"converting NULL to string is unsupported". `GetMDMWindowsCommandResults` (`server/datastore/mysql/microsoft_mdm.go`)
+takes the host UUID from the MDM enrollment that ran the command, which re-enrollment removes.
 
-The wipe API rejects the reprovision types with a generic "failed to unmarshal request body". If they're added to the
-built-in Wipe as is, its "Wipe pending" state would be cleared when fleetd re-enrolls, not shown as "Wiped".
+**Security.** The package kept in `C:\ProgramData\Microsoft\Provisioning` is readable by every user and holds the MSI
+with the enroll secret.
 
-Doc fixes found on the way: the guide's "no browser during setup" note, the MDM-after-sign-in note, the bypass setting
-in the setup experience guide (says `false`, should be `true`), and the Windows command library payloads (Fleet only
-accepts the bare `<Exec>`).
+**Docs.** The ppkg guide's "no browser during setup" and "MDM turns on after sign-in" notes are out of date for 26H2.
+The setup experience guide says the bypass needs `allow_orbit_end_user_auth_bypass: false`; the default `true` is what
+makes it work. The MDM command library's Windows payloads are wrapped in `<syncml>`, which `fleetctl mdm run-command`
+rejects; the bare `<Exec>` works.
 
-Not tested: x64 hardware, BitLocker on (the lab VMs have no TPM), Wi-Fi-only hosts, a package with an older fleetd.
+Not tested: x64 hardware, BitLocker (the lab VMs have no TPM), Wi-Fi-only hosts, the Configuration Designer GUI, and a
+package with an older fleetd (in progress).
