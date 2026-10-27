@@ -57,6 +57,11 @@ Start and stop:
 - Shut down with `qga.sh <vm> 'Stop-Computer -Force'` or `qmp.sh <vm> '{"execute":"system_powerdown"}'`. Never
   power cycle a VM in the middle of a reset; it left Windows unbootable.
 - `pgrep -f <vm>` matches its own command line. Check the `pid` file instead.
+- Keep the Mac awake for the whole run (`caffeinate -dims` in a terminal, or the app's keep-awake). An idle sleep
+  pauses every VM, so a reset takes 35 minutes longer and the timings are wrong (ppkg-wipe-55003 X-2).
+- Start `qemu-watch.sh` after QEMU has written its `pid` file; it stops when that process is gone.
+- A VM that shows Automatic Repair is lost; make a new one from the base disk. One went there after its last run
+  with `GPU=virtio` and a Mac sleep during boot; the cause wasn't isolated (ppkg-wipe-55003 X-4, attempt 1).
 
 Display:
 - Use ramfb only (the default). With virtio-gpu attached, the first boot after generalize fails with 0xc0000001 and a

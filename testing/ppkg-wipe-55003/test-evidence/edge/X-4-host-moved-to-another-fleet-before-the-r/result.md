@@ -18,3 +18,4 @@ Attempt 2: host 29 (c4 VM, MSI-enrolled, bypass package staged in C:\Recovery\Cu
 - `07-host-29-staged-package.txt`: `fleetctl query --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --exit --timeout 90s --query "$(cat queries/after-`
 - `08-host-29-to-no-team.txt`: `python3 -I tools/fleet-post.py /api/v1/fleet/hosts/transfer '{"team_id":null,"hosts":[29]}' && fleetctl api /a`
 - `09-wipe-command.txt`: `fleetctl mdm run-command --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --payload payloads/doWipePersistProvisio`
+- `010-fleet-host-mid-reset.jpg` (Fleet UI, Chrome)
