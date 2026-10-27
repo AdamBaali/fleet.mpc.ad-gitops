@@ -1,6 +1,6 @@
 #!/bin/bash
 # Talk to a VM started by tools/qemu-boot.sh.
-# Usage: tools/qmp.sh <name> shot <out.png> | keys <key> [key...] | type '<text>' | click <x> <y> | shell | quit | '<raw json>'
+# Usage: tools/qmp.sh <name> shot <out.png> | keys <key> [key...] | type '<text>' | click <x> <y> | shell | usb <image> [removable] | unusb | quit | '<raw json>'
 # click takes coordinates in the current screenshot's pixels.
 # Keys use QEMU names (ret, shift, f10, a, ...); several keys in one call are pressed together.
 set -euo pipefail
@@ -20,6 +20,7 @@ case $cmd in
   shot) case $1 in /*) ;; *) set -- "$PWD/$1";; esac
         # virtio-gpu when Windows drives it, otherwise ramfb (firmware, reset environment); SCREEN=fb|gpu forces one.
         dev=${SCREEN:-gpu}
+        [ -z "${SCREEN:-}" ] && ! pgrep -qf "name $name .*virtio-gpu-pci" && dev=fb
         send "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$1.ppm\",\"device\":\"$dev\"}}" >/dev/null
         if [ -z "${SCREEN:-}" ] && python3 -I -c 'import sys; d=open(sys.argv[1],"rb").read(); b=d[-200000:]; sys.exit(0 if b.count(0)>len(b)*0.97 else 1)' "$1.ppm"; then
           send "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$1.ppm\",\"device\":\"fb\"}}" >/dev/null
@@ -39,6 +40,11 @@ case $cmd in
         send '{"execute":"input-send-event","arguments":{"events":[{"type":"btn","data":{"down":false,"button":"left"}}]}}' ;;
   shell) # Command prompt over Windows setup. It opens without keyboard focus, so click its title bar.
         "$0" "$name" keys shift f10 >/dev/null; sleep 6; "$0" "$name" click 300 93 >/dev/null; sleep 1 ;;
+  usb)  # Plug in a read-only USB disk image now, like inserting a stick at the region screen. Hot-plugged after
+        # setup starts because a fixed USB disk present during sysprep's reboot gave 0xc0000001 (C-2r).
+        send "{\"execute\":\"blockdev-add\",\"arguments\":{\"node-name\":\"usbimg\",\"driver\":\"raw\",\"read-only\":true,\"file\":{\"driver\":\"file\",\"filename\":\"$1\",\"read-only\":true}}}"
+        send "{\"execute\":\"device_add\",\"arguments\":{\"driver\":\"usb-storage\",\"id\":\"usbstick\",\"drive\":\"usbimg\",\"removable\":${2:-false}}}" ;;
+  unusb) send '{"execute":"device_del","arguments":{"id":"usbstick"}}' ;;
   quit) send '{"execute":"quit"}' ;;
   *)    send "$cmd" ;;
 esac

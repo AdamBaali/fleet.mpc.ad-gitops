@@ -1,6 +1,7 @@
 #!/bin/bash
 # Boot a Windows arm64 disk under Homebrew QEMU and edk2, without UTM.
 # Usage: tools/qemu-boot.sh <name> <base.qcow2> [fresh|<efi_vars.fd>]
+# FG=1 keeps QEMU in the foreground, for a long-lived background task that nothing else reaps.
 #
 # UTM 4.7.5 hangs at "Start boot option" on the first boot after a reset or generalize.
 # This runs the same disk on a newer QEMU and edk2 to tell a UTM fault from a Windows one.
@@ -36,9 +37,10 @@ echo "$mac" > "$dir/mac"
 [ -f "$dir/uuid" ] || uuidgen > "$dir/uuid"
 uuid=$(cat "$dir/uuid")
 
-# Two displays. ramfb under HVF shows stale screens once full Windows is up (only some areas refresh, likely cache
-# coherency on Apple silicon), so Windows uses virtio-gpu through viogpudo from UTM guest tools. The reset
-# environment (WinRE) has no viogpudo and draws on ramfb. tools/qmp.sh shot picks the live one.
+# Display: ramfb. It can show stale screens later in setup under HVF (only some areas refresh), but keystrokes
+# still land. GPU=virtio adds virtio-gpu (viogpudo from UTM guest tools), which draws correctly, but with it
+# present the first boot after sysprep generalize fails with 0xc0000001 and a reset hangs (C-2, C-2r), so use it
+# only on a VM that won't reset.
 # USB=<image> attaches a read-only USB disk. Windows sees it as fixed, as v1 did in UTM, so setup doesn't apply the
 # package by itself; it's opened from Shift+F10. USB_REMOVABLE=on makes setup apply it, which in this lab ends in
 # Provisioning failure 0x800700b7 (C-1, C-2).
@@ -51,10 +53,10 @@ exec qemu-system-aarch64 -name "$name" \
   -drive if=pflash,format=raw,readonly=on,file=$share/edk2-aarch64-code.fd \
   -drive if=pflash,format=raw,file="$dir/vars.fd" \
   -device nvme,drive=d0,serial=${SERIAL:-$name} -drive if=none,id=d0,file="$dir/disk.qcow2" \
-  -device ramfb,id=fb -device virtio-gpu-pci,id=gpu -device qemu-xhci -device usb-kbd -device usb-tablet \
+  -device ramfb,id=fb $( [ "${GPU:-}" = virtio ] && echo -device virtio-gpu-pci,id=gpu ) -device qemu-xhci -device usb-kbd -device usb-tablet \
   -nic user,model=virtio-net-pci,mac="$mac" \
   ${tpm[@]+"${tpm[@]}"} ${usb[@]+"${usb[@]}"} \
   -device virtio-serial-pci -chardev socket,id=qga0,path="$dir/qga.sock",server=on,wait=off \
   -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
   -qmp unix:"$dir/qmp.sock",server,nowait -vnc 127.0.0.1:${VNC:-1} -display none \
-  -serial file:"$dir/serial.log" -pidfile "$dir/pid" -daemonize
+  -serial file:"$dir/serial.log" -pidfile "$dir/pid" $( [ -n "${FG:-}" ] || echo -daemonize )
