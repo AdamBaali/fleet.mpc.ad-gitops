@@ -18,6 +18,7 @@ fix"). Evidence per test in `test-evidence/`.
 | Does the no-bypass host need the IdP again after the reset? | No, if the host is still in Fleet. It came back as the same host in 13 minutes with nobody signing in: Fleet lets a host it already knows re-enroll without end user authentication | C-2r |
 | Does a repurposed host keep the old IdP user? | Yes. After the reset Fleet still shows the previous user (eua-user-1) as the host's end user, and the next person isn't asked to sign in. To get a new user, the host has to be deleted from Fleet | C-2r |
 | If the admin deletes the host during the reset, does the next user get asked to sign in? | Yes, but at the desktop, not on the setup screen. Fleet blocks enrollment after the reset; nothing appears during setup; once the new user reaches the desktop, fleetd opens Fleet's sign-in page. After sign-in Fleet lists a new host with only the new IdP user | C-3 |
+| Does the cloud variant work? | Yes. `doWipeCloudPersistProvisionedData` downloaded an image for about 36 minutes while setup stayed on screen, then reset; same host back with MDM on, 57 minutes in total | C-5 |
 | Does a second reset of the same host work? | Yes, same result and time (13 minutes) | C-3 (X-1) |
 
 ## Lab blocker, fixed
@@ -49,6 +50,10 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
    and the host ID are unchanged (C-1).
 10. Nothing in Fleet records that the host was wiped: the activity feed shows the custom command and a new "MDM turned
    on", and the host has no wipe status (C-1, U-4).
+11. Bug: once the host re-enrolls, `fleetctl get mdm-command-results` for its wipe command fails with "converting NULL to
+   string is unsupported". `GetMDMWindowsCommandResults` (`server/datastore/mysql/microsoft_mdm.go:1840` at
+   fleet-v4.93.0) takes `host_uuid` from the enrollment that ran the command, which re-enrollment or host deletion
+   removes (C-5, all wipe commands in this run).
 
 ## Test results
 
@@ -68,3 +73,4 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 | C-2r | PASS | No-bypass build: same host back in 13 min without the IdP; previous end user still attributed |
 | C-3 | PASS | Host deleted during the reset: new host, sign-in at the new user's desktop, only the new IdP user |
 | C-4 | PASS | Brownfield: Fleet script stages the package in C:\Recovery\Customizations; same host back in 12.5 min, MDM on |
+| C-5 | PASS | Cloud variant: about 36 min download plus 21 min reset, same host back with MDM on |

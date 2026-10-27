@@ -1,0 +1,10 @@
+# 2026-10-27T05:11:59Z
+$ fleetctl query --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --exit --timeout 90s --query "$(cat queries/after-reset-staged.sql)"
+
+[!] 'fleetctl query' is deprecated; use 'report' instead
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+{"host":"WIN-FBOG8N0NJ6F","rows":[{"fleetd_service":"RUNNING","host_display_name":"WIN-FBOG8N0NJ6F","host_hostname":"WIN-FBOG8N0NJ6F","kept_ppkg":"","local_users":"Administrator,DefaultAccount,Guest,WDAGUtilityAccount","markers_left":"0","staged_ppkg":"fleet-agent.ppkg,InstallOrder.ini","uptime_s":"277"}]}
+ 100% responded (100% online) | 1/1 targeted hosts (1/1 online)
+[exit 0]
