@@ -19,3 +19,4 @@ Timeline (UTC): kept package removed by a Fleet script 09:22:00 (0 packages left
 With no package left, the reset comes back without fleetd and the host never checks in; the package is what brings it back
 
 _Finished 2026-10-27T09:40:54Z_
+- `007-fleet-host-25-after.jpg` (Fleet UI, Chrome; about 2 hours after the reset: Offline, MDM status still On (manual), though the host has no fleetd and no MDM)

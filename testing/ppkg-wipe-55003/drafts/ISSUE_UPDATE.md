@@ -48,4 +48,4 @@ makes it work. The MDM command library's Windows payloads are wrapped in `<syncm
 rejects; the bare `<Exec>` works.
 
 Not tested: x64 hardware, BitLocker (the lab VMs have no TPM), Wi-Fi-only hosts, the Configuration Designer GUI, and a
-package with an older fleetd (in progress).
+package with an older fleetd.

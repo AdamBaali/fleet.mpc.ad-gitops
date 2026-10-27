@@ -1,5 +1,5 @@
 # 2026-10-27T09:39:48Z
-$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/datastore/mysql/microsoft_mdm.go | sed -n 3810,3829p
+$ git -C <fleet repo> show fleet-v4.93.0:server/datastore/mysql/microsoft_mdm.go | sed -n 3810,3829p
 
 func (ds *Datastore) WipeHostViaWindowsMDM(ctx context.Context, host *fleet.Host, cmd *fleet.MDMWindowsCommand) error {
 	return ds.withRetryTxx(ctx, func(tx sqlx.ExtContext) error {

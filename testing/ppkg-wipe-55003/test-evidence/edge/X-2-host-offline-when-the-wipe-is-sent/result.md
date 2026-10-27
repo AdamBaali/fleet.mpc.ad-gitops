@@ -15,7 +15,7 @@
 - `008-fleet-activity-after.jpg` (Fleet UI, Chrome)
 - `09-vm-screen-after.png` (VM screen)
 
-Timeline (UTC): VM off, wipe sent 07:09:36 (03); Fleet said hosts run it at next check-in. VM started 07:09:45, host online 07:10:19, and the earlier read of the command result showed it delivered at 07:10:40. The Mac then slept from about 07:17 to 07:52, which paused the VM mid-reset (watch frames show the reset resume at Resetting this PC 29%). fleetd re-enrolled 08:04:59 as the same host 25 with a new hostname, MDM On, in fleet 10, no end user (07-mdm-after). Live query (06): fleetd RUNNING, kept package fleet-agent-b-plain.ppkg, built-in users only, 0 markers. Reading the command result fails with the NULL bug from C-5 (05). About 20 minutes of awake time from delivery to re-enrollment.
+Timeline (UTC): VM off, wipe sent 07:09:36 (03); Fleet said hosts run it at next check-in. VM started 07:09:45, host online 07:10:19, and the earlier read of the command result showed it delivered at 07:10:40. The VM was paused from about 07:17 to 07:52 (host sleep), so the elapsed time below excludes it. fleetd re-enrolled 08:04:59 as the same host 25 with a new hostname, MDM On, in fleet 10, no end user (07-mdm-after). Live query (06): fleetd RUNNING, kept package fleet-agent-b-plain.ppkg, built-in users only, 0 markers. Reading the command result fails with the NULL bug from C-5 (05). About 20 minutes of awake time from delivery to re-enrollment.
 
 Activity feed (008): the custom command shows at the time it was sent ("about 1 hour ago"), not when the host ran it, then "MDM was turned on". Nothing marks the hour the host spent waiting for it, or the reset.
 

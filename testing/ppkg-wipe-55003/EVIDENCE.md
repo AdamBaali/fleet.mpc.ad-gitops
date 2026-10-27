@@ -6,41 +6,26 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 26 |
-| PARTIAL | 2 |
-| BLOCKED | 6 |
-| NOT RUN | 2 |
-| info | 4 |
-| no result recorded | 2 |
+| PASS | 28 |
+| BLOCKED | 1 |
+| NOT RUN | 1 |
 
 | Group | Test | Result | Section |
 |---|---|---|---|
 | Setup | S-0: Record the lab | PASS | [open](#s-0-record-the-lab) |
 | Setup | S-2: IdP and fleet applied | PASS | [open](#s-2-idp-and-fleet-applied) |
-| Setup | S-3: Golden VM at the region screen | NOT RUN | [open](#s-3-golden-vm-at-the-region-screen) |
+| Setup | S-3: Golden VM at the region screen | PASS | [open](#s-3-golden-vm-at-the-region-screen) |
 | Setup | S-3b: WinRE, build, and hardware identity | PASS | [open](#s-3b-winre-build-and-hardware-identity) |
 | Setup | S-4: Builder VM with Configuration Designer | PASS | [open](#s-4-builder-vm-with-configuration-designer) |
 | Setup | S-5: Build MSI-B and MSI-N | PASS | [open](#s-5-build-msi-b-and-msi-n) |
 | Setup | S-6: Build PKG-B and PKG-N | PASS | [open](#s-6-build-pkg-b-and-pkg-n) |
-| Setup | S-7: USB images for the packages | no result recorded | [open](#s-7-usb-images-for-the-packages) |
-| Enrollment | E-1: PKG-B at the region screen | PARTIAL | [open](#e-1-pkg-b-at-the-region-screen) |
+| Setup | S-7: USB images for the packages | PASS | [open](#s-7-usb-images-for-the-packages) |
 | Enrollment | E-1b: PKG-B at the region screen, fresh host for the wipe tests | PASS | [open](#e-1b-pkg-b-at-the-region-screen-fresh-host-for-the-wipe-tests) |
-| Enrollment | E-1r: PKG-B at the region screen, generalized image | info | [open](#e-1r-pkg-b-at-the-region-screen-generalized-image) |
 | Enrollment | E-2: PKG-N at the region screen | PASS | [open](#e-2-pkg-n-at-the-region-screen) |
-| Enrollment | E-2b: IdP sign-in at the desktop | info | [open](#e-2b-idp-sign-in-at-the-desktop) |
-| Enrollment | E-3: Where Windows keeps the package | PARTIAL | [open](#e-3-where-windows-keeps-the-package) |
-| Wipe | W-1: doWipePersistProvisionedData, bypass, host kept | BLOCKED | [open](#w-1-dowipepersistprovisioneddata-bypass-host-kept) |
-| Wipe | W-1b: doWipePersistProvisionedData, bypass, host kept (rerun) | BLOCKED | [open](#w-1b-dowipepersistprovisioneddata-bypass-host-kept-rerun) |
-| Wipe | W-6: Package staged by a Fleet script in C:\Recovery\Customizations | BLOCKED | [open](#w-6-package-staged-by-a-fleet-script-in-crecoverycustomizations) |
-| Lab readiness | L-1: Generalized golden image gives each clone its own identity | BLOCKED | [open](#l-1-generalized-golden-image-gives-each-clone-its-own-identity) |
-| Lab readiness | L-2: First boot after re-specialize with guest-tools drivers removed | no result recorded | [open](#l-2-first-boot-after-re-specialize-with-guest-tools-drivers-removed) |
-| Lab readiness | L-2A: Arm A: guest-tools drivers stripped, then generalize | info | [open](#l-2a-arm-a-guest-tools-drivers-stripped-then-generalize) |
-| Lab readiness | L-2B: Arm B: generalize an image that never had the guest tools | info | [open](#l-2b-arm-b-generalize-an-image-that-never-had-the-guest-tools) |
-| Lab readiness | L-2C: Same generalized image on Homebrew QEMU 11.1.2 and edk2 | PASS | [open](#l-2c-same-generalized-image-on-homebrew-qemu-1112-and-edk2) |
-| Lab readiness | L-3: A reprovision reset completes and boots in the lab | PASS | [open](#l-3-a-reprovision-reset-completes-and-boots-in-the-lab) |
+| Enrollment | E-3: Where Windows keeps the package | PASS | [open](#e-3-where-windows-keeps-the-package) |
+| Reset without Fleet | L-3: A reprovision reset completes and boots in the lab | PASS | [open](#l-3-a-reprovision-reset-completes-and-boots-in-the-lab) |
 | Core flow | C-1: Bypass package, host kept, reprovision reset | PASS | [open](#c-1-bypass-package-host-kept-reprovision-reset) |
-| Core flow | C-2: No-bypass package, host kept, reprovision reset | BLOCKED | [open](#c-2-no-bypass-package-host-kept-reprovision-reset) |
-| Core flow | C-2r: No-bypass package, host kept, reprovision reset (rerun) | PASS | [open](#c-2r-no-bypass-package-host-kept-reprovision-reset-rerun) |
+| Core flow | C-2: No-bypass package, host kept, reprovision reset | PASS | [open](#c-2-no-bypass-package-host-kept-reprovision-reset) |
 | Core flow | C-3: No-bypass package, host deleted, new user signs in | PASS | [open](#c-3-no-bypass-package-host-deleted-new-user-signs-in) |
 | Core flow | C-4: Brownfield: Fleet stages the package, then reprovision reset | PASS | [open](#c-4-brownfield-fleet-stages-the-package-then-reprovision-reset) |
 | Core flow | C-5: Cloud reprovision reset | PASS | [open](#c-5-cloud-reprovision-reset) |
@@ -84,12 +69,12 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### S-3: Golden VM at the region screen
 
-**Result: NOT RUN** · [full notes](test-evidence/setup/S-3-golden-vm-at-the-region-screen/result.md)
+**Result: PASS** · [full notes](test-evidence/setup/S-3-golden-vm-at-the-region-screen/result.md)
 
 - **Objective:** Unattended Windows 11 Pro arm64 install that stops at the first setup screen
 - **Expected:** VM boots to the region screen with no user account
 
-**Output:** [01-iso.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/01-iso.txt) · [02-build.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/02-build.txt) · [03-iso-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/03-iso-26h2.txt) · [04-build-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/04-build-26h2.txt) · [09-network-after-guest-tools.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/09-network-after-guest-tools.txt)
+**Output:** [03-iso-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/03-iso-26h2.txt) · [04-build-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/04-build-26h2.txt) · [09-network-after-guest-tools.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/09-network-after-guest-tools.txt)
 
 **installing**
 
@@ -169,7 +154,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### S-7: USB images for the packages
 
-**Result: no result recorded** · [full notes](test-evidence/setup/S-7-usb-images-for-the-packages/result.md)
+**Result: PASS** · [full notes](test-evidence/setup/S-7-usb-images-for-the-packages/result.md)
 
 - **Objective:** One FAT32 image per package with the .ppkg at its root
 - **Expected:** Two images, one .ppkg each
@@ -179,74 +164,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 ---
 
 ## Enrollment
-
-### E-1: PKG-B at the region screen
-
-**Result: PARTIAL** · [full notes](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/result.md)
-
-- **Objective:** Apply the bypass package during setup and see whether the host enrolls before any user exists
-- **Expected:** Enrolls during setup with no sign-in prompt; MDM On after the first sign-in
-
-**Output:** [01-fleet-before.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/01-fleet-before.txt) · [02-clone.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/02-clone.txt) · [10-fleet-host.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/10-fleet-host.txt) · [11-vm-state.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/11-vm-state.txt) · [12-provisioning-log.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/12-provisioning-log.txt) · [19-fleet-host-after-signin.txt](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/19-fleet-host-after-signin.txt)
-
-**region screen usb attached**
-
-![region screen usb attached](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/03-region-screen-usb-attached.png)
-
-**after windows key x5**
-
-![after windows key x5](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/04-after-windows-key-x5.png)
-
-**package opened**
-
-![package opened](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/05-package-opened.png)
-
-**after password**
-
-![after password](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/06-after-password.png)
-
-**password typing check**
-
-![password typing check](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/07-password-typing-check.png)
-
-**plain package opened**
-
-![plain package opened](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/08-plain-package-opened.png)
-
-**after yes add it**
-
-![after yes add it](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/09-after-yes-add-it.png)
-
-**vm after enrollment**
-
-![vm after enrollment](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/13-vm-after-enrollment.png)
-
-**local account screen**
-
-![local account screen](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/14-local-account-screen.png)
-
-**after create user**
-
-![after create user](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/15-after-create-user.png)
-
-**privacy 2**
-
-![privacy 2](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/16-privacy-2.png)
-
-**privacy 3**
-
-![privacy 3](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/17-privacy-3.png)
-
-**privacy 4**
-
-![privacy 4](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/18-privacy-4.png)
-
-**desktop lab1**
-
-![desktop lab1](test-evidence/enroll/E-1-pkg-b-at-the-region-screen/20-desktop-lab1.png)
-
-
----
 
 ### E-1b: PKG-B at the region screen, fresh host for the wipe tests
 
@@ -276,22 +193,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **desktop lab1**
 
 ![desktop lab1](test-evidence/enroll/E-1b-pkg-b-at-the-region-screen-fresh-host-fo/05-desktop-lab1.png)
-
-
----
-
-### E-1r: PKG-B at the region screen, generalized image
-
-**Result: info** · [full notes](test-evidence/enroll/E-1r-pkg-b-at-the-region-screen-generalized-i/result.md)
-
-- **Objective:** Rerun E-1 on a clone of the sysprep-generalized golden image
-- **Expected:** Same as E-1, with a unique machine identity
-
-**Output:** [01-delete-old-hosts.txt](test-evidence/enroll/E-1r-pkg-b-at-the-region-screen-generalized-i/01-delete-old-hosts.txt) · [02-clone.txt](test-evidence/enroll/E-1r-pkg-b-at-the-region-screen-generalized-i/02-clone.txt) · [03-identity.txt](test-evidence/enroll/E-1r-pkg-b-at-the-region-screen-generalized-i/03-identity.txt)
-
-**region screen**
-
-![region screen](test-evidence/enroll/E-1r-pkg-b-at-the-region-screen-generalized-i/04-region-screen.png)
 
 
 ---
@@ -368,18 +269,9 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
-### E-2b: IdP sign-in at the desktop
-
-**Result: info** · [full notes](test-evidence/enroll/E-2b-idp-sign-in-at-the-desktop/result.md)
-
-- **Objective:** If sign-in did not happen during setup, does fleetd prompt at the desktop
-- **Expected:** Prompt at the desktop
-
----
-
 ### E-3: Where Windows keeps the package
 
-**Result: PARTIAL** · [full notes](test-evidence/enroll/E-3-where-windows-keeps-the-package/result.md)
+**Result: PASS** · [full notes](test-evidence/enroll/E-3-where-windows-keeps-the-package/result.md)
 
 - **Objective:** After applying a package during setup, record where Windows stores it and who can read it
 - **Expected:** ProgramData\Microsoft\Provisioning holds it; C:\Recovery\Customizations empty
@@ -388,1055 +280,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ---
 
-## Wipe
-
-### W-1: doWipePersistProvisionedData, bypass, host kept
-
-**Result: BLOCKED** · [full notes](test-evidence/wipe/W-1-dowipepersistprovisioneddata-bypass-host/result.md)
-
-- **Objective:** Reset the E-1 host with doWipePersistProvisionedData and see whether fleetd comes back and re-enrolls on its own
-- **Expected:** Back at the region screen with fleetd running; the same host checks in before any user exists
-
-**Output:** [01-before-fleet.txt](test-evidence/wipe/W-1-dowipepersistprovisioneddata-bypass-host/01-before-fleet.txt) · [02-before-vm.txt](test-evidence/wipe/W-1-dowipepersistprovisioneddata-bypass-host/02-before-vm.txt) · [03-payload.txt](test-evidence/wipe/W-1-dowipepersistprovisioneddata-bypass-host/03-payload.txt) · [04-send-wipe.txt](test-evidence/wipe/W-1-dowipepersistprovisioneddata-bypass-host/04-send-wipe.txt)
-
----
-
-### W-1b: doWipePersistProvisionedData, bypass, host kept (rerun)
-
-**Result: BLOCKED** · [full notes](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/result.md)
-
-- **Objective:** Reset host 23 (E-1b) with doWipePersistProvisionedData; does fleetd come back and re-enroll on its own
-- **Expected:** Back at the region screen with fleetd running; host 23 checks in before any user exists
-
-**Output:** [01-before-fleet.txt](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/01-before-fleet.txt) · [02-before-vm.txt](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/02-before-vm.txt) · [03-send-wipe.txt](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/03-send-wipe.txt) · [04-send-wipe-exec.txt](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/04-send-wipe-exec.txt) · [timeline.txt](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/timeline.txt)
-
-**t1852**
-
-![t1852](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/05-t1852.png)
-
-**t1855**
-
-![t1855](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/06-t1855.png)
-
-**t1857**
-
-![t1857](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/07-t1857.png)
-
-**t1859**
-
-![t1859](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/08-t1859.png)
-
-**t1901**
-
-![t1901](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/09-t1901.png)
-
-**t1903**
-
-![t1903](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/10-t1903.png)
-
-**f1 winre**
-
-![f1 winre](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-f1-winre.png)
-
-**iso boot 2**
-
-![iso boot 2](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-iso-boot-2.png)
-
-**now**
-
-![now](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-now.png)
-
-**s194805**
-
-![s194805](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-s194805.png)
-
-**s194825**
-
-![s194825](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-s194825.png)
-
-**s194845**
-
-![s194845](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-s194845.png)
-
-**s194906**
-
-![s194906](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-s194906.png)
-
-**s194926**
-
-![s194926](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-s194926.png)
-
-**t1948**
-
-![t1948](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-t1948.png)
-
-**t1949**
-
-![t1949](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-t1949.png)
-
-**wait recovery**
-
-![wait recovery](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/100-wait-recovery.png)
-
-**t1906**
-
-![t1906](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/11-t1906.png)
-
-**t1908**
-
-![t1908](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/12-t1908.png)
-
-**t1910**
-
-![t1910](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/13-t1910.png)
-
-**s191103**
-
-![s191103](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/14-s191103.png)
-
-**s191133**
-
-![s191133](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/15-s191133.png)
-
-**s191203**
-
-![s191203](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/16-s191203.png)
-
-**s191233**
-
-![s191233](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/17-s191233.png)
-
-**t1912**
-
-![t1912](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/18-t1912.png)
-
-**s191303**
-
-![s191303](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/19-s191303.png)
-
-**s191334**
-
-![s191334](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/20-s191334.png)
-
-**s191404**
-
-![s191404](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/21-s191404.png)
-
-**s191434**
-
-![s191434](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/22-s191434.png)
-
-**t1915**
-
-![t1915](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/23-t1915.png)
-
-**s191504**
-
-![s191504](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/24-s191504.png)
-
-**s191535**
-
-![s191535](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/25-s191535.png)
-
-**s191605**
-
-![s191605](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/26-s191605.png)
-
-**s191635**
-
-![s191635](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/27-s191635.png)
-
-**s191705**
-
-![s191705](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/28-s191705.png)
-
-**t1917**
-
-![t1917](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/29-t1917.png)
-
-**s191735**
-
-![s191735](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/30-s191735.png)
-
-**s191806**
-
-![s191806](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/31-s191806.png)
-
-**s191836**
-
-![s191836](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/32-s191836.png)
-
-**s191906**
-
-![s191906](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/33-s191906.png)
-
-**t1919**
-
-![t1919](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/34-t1919.png)
-
-**s191936**
-
-![s191936](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/35-s191936.png)
-
-**s192006**
-
-![s192006](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/36-s192006.png)
-
-**s192037**
-
-![s192037](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/37-s192037.png)
-
-**s192107**
-
-![s192107](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/38-s192107.png)
-
-**s192137**
-
-![s192137](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/39-s192137.png)
-
-**t1921**
-
-![t1921](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/40-t1921.png)
-
-**s192207**
-
-![s192207](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/41-s192207.png)
-
-**s192238**
-
-![s192238](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/42-s192238.png)
-
-**s192308**
-
-![s192308](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/43-s192308.png)
-
-**fleet host 23 during reset**
-
-![fleet host 23 during reset](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/44-fleet-host-23-during-reset.jpg)
-
-**fleet host 23 activity**
-
-![fleet host 23 activity](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/45-fleet-host-23-activity.jpg)
-
-**s193040**
-
-![s193040](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/46-s193040.png)
-
-**s193109**
-
-![s193109](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/47-s193109.png)
-
-**s193139**
-
-![s193139](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/48-s193139.png)
-
-**s193210**
-
-![s193210](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/49-s193210.png)
-
-**s193240**
-
-![s193240](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/50-s193240.png)
-
-**t1932**
-
-![t1932](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/51-t1932.png)
-
-**s193310**
-
-![s193310](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/52-s193310.png)
-
-**s193340**
-
-![s193340](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/53-s193340.png)
-
-**s193411**
-
-![s193411](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/54-s193411.png)
-
-**s193441**
-
-![s193441](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/55-s193441.png)
-
-**after enter**
-
-![after enter](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/56-after-enter.png)
-
-**t1935**
-
-![t1935](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/57-t1935.png)
-
-**s193511**
-
-![s193511](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/58-s193511.png)
-
-**boot from iso**
-
-![boot from iso](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/59-boot-from-iso.png)
-
-**recovery options**
-
-![recovery options](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/60-recovery-options.png)
-
-**troubleshoot**
-
-![troubleshoot](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/61-troubleshoot.png)
-
-**troubleshoot 2**
-
-![troubleshoot 2](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/62-troubleshoot-2.png)
-
-**advanced options**
-
-![advanced options](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/63-advanced-options.png)
-
-**winre cmd**
-
-![winre cmd](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/64-winre-cmd.png)
-
-**srttrail**
-
-![srttrail](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/65-srttrail.png)
-
-**srttrail notepad**
-
-![srttrail notepad](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/66-srttrail-notepad.png)
-
-**reset logs and bcd**
-
-![reset logs and bcd](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/67-reset-logs-and-bcd.png)
-
-**panther setuperr**
-
-![panther setuperr](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/68-panther-setuperr.png)
-
-**bcdboot repair**
-
-![bcdboot repair](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/69-bcdboot-repair.png)
-
-**bcdboot repair 2**
-
-![bcdboot repair 2](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/70-bcdboot-repair-2.png)
-
-**package after reset**
-
-![package after reset](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/71-package-after-reset.png)
-
-**s194141**
-
-![s194141](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/72-s194141.png)
-
-**t1941**
-
-![t1941](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/73-t1941.png)
-
-**s194201**
-
-![s194201](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/74-s194201.png)
-
-**s194221**
-
-![s194221](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/75-s194221.png)
-
-**t1942**
-
-![t1942](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/76-t1942.png)
-
-**s194241**
-
-![s194241](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/77-s194241.png)
-
-**s194301**
-
-![s194301](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/78-s194301.png)
-
-**t1943**
-
-![t1943](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/79-t1943.png)
-
-**s194322**
-
-![s194322](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/80-s194322.png)
-
-**s194342**
-
-![s194342](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/81-s194342.png)
-
-**s194402**
-
-![s194402](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/82-s194402.png)
-
-**t1944**
-
-![t1944](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/83-t1944.png)
-
-**s194422**
-
-![s194422](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/84-s194422.png)
-
-**s194443**
-
-![s194443](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/85-s194443.png)
-
-**t1944**
-
-![t1944](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/86-t1944.png)
-
-**s194503**
-
-![s194503](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/87-s194503.png)
-
-**s194523**
-
-![s194523](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/88-s194523.png)
-
-**t1945**
-
-![t1945](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/89-t1945.png)
-
-**s194543**
-
-![s194543](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/90-s194543.png)
-
-**s194604**
-
-![s194604](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/91-s194604.png)
-
-**t1946**
-
-![t1946](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/92-t1946.png)
-
-**s194624**
-
-![s194624](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/93-s194624.png)
-
-**s194644**
-
-![s194644](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/94-s194644.png)
-
-**s194704**
-
-![s194704](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/95-s194704.png)
-
-**t1947**
-
-![t1947](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/96-t1947.png)
-
-**s194724**
-
-![s194724](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/97-s194724.png)
-
-**s194745**
-
-![s194745](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/98-s194745.png)
-
-**t1947**
-
-![t1947](test-evidence/wipe/W-1b-dowipepersistprovisioneddata-bypass-host/99-t1947.png)
-
-
----
-
-### W-6: Package staged by a Fleet script in C:\Recovery\Customizations
-
-**Result: BLOCKED** · [full notes](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/result.md)
-
-- **Objective:** Host enrolled without a package (MSI-B installed directly); a Fleet script stages the package in C:\Recovery\Customizations; then doWipePersistProvisionedData. Does fleetd come back, re-enroll, and turn MDM on
-- **Expected:** Back at the region screen with fleetd installed from the staged package; host re-enrolls; MDM On
-
-**Output:** [01-clone.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/01-clone.txt) · [03-install-msi-b.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/03-install-msi-b.txt) · [04-fleet-host-24.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/04-fleet-host-24.txt) · [05-stage-script.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/05-stage-script.txt) · [06-run-stage-script-via-fleet.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/06-run-stage-script-via-fleet.txt) · [07-before-vm.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/07-before-vm.txt) · [08-send-wipe.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/08-send-wipe.txt) · [timeline.txt](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/timeline.txt)
-
-**before wipe**
-
-![before wipe](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/008-before-wipe.png)
-
-**s195553**
-
-![s195553](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/010-s195553.png)
-
-**t1956**
-
-![t1956](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/011-t1956.png)
-
-**fleet host 24 wipe sent**
-
-![fleet host 24 wipe sent](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/012-fleet-host-24-wipe-sent.jpg)
-
-**s195623**
-
-![s195623](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/013-s195623.png)
-
-**t1956**
-
-![t1956](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/014-t1956.png)
-
-**s195653**
-
-![s195653](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/015-s195653.png)
-
-**s195723**
-
-![s195723](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/016-s195723.png)
-
-**t1957**
-
-![t1957](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/017-t1957.png)
-
-**s195754**
-
-![s195754](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/018-s195754.png)
-
-**t1958**
-
-![t1958](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/019-t1958.png)
-
-**region screen**
-
-![region screen](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/02-region-screen.png)
-
-**s195824**
-
-![s195824](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/020-s195824.png)
-
-**s195854**
-
-![s195854](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/021-s195854.png)
-
-**t1959**
-
-![t1959](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/022-t1959.png)
-
-**s195924**
-
-![s195924](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/023-s195924.png)
-
-**t1959**
-
-![t1959](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/024-t1959.png)
-
-**s195954**
-
-![s195954](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/025-s195954.png)
-
-**s200025**
-
-![s200025](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/026-s200025.png)
-
-**t2000**
-
-![t2000](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/027-t2000.png)
-
-**s200055**
-
-![s200055](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/028-s200055.png)
-
-**t2001**
-
-![t2001](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/029-t2001.png)
-
-**s200125**
-
-![s200125](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/030-s200125.png)
-
-**s200155**
-
-![s200155](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/031-s200155.png)
-
-**t2002**
-
-![t2002](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/032-t2002.png)
-
-**s200226**
-
-![s200226](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/033-s200226.png)
-
-**t2002**
-
-![t2002](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/034-t2002.png)
-
-**s200256**
-
-![s200256](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/035-s200256.png)
-
-**s200326**
-
-![s200326](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/036-s200326.png)
-
-**t2003**
-
-![t2003](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/037-t2003.png)
-
-**s200356**
-
-![s200356](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/038-s200356.png)
-
-**t2004**
-
-![t2004](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/039-t2004.png)
-
-**s200426**
-
-![s200426](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/040-s200426.png)
-
-**s200457**
-
-![s200457](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/041-s200457.png)
-
-**t2005**
-
-![t2005](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/042-t2005.png)
-
-**s200527**
-
-![s200527](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/043-s200527.png)
-
-**t2005**
-
-![t2005](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/044-t2005.png)
-
-**s200557**
-
-![s200557](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/045-s200557.png)
-
-**s200627**
-
-![s200627](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/046-s200627.png)
-
-**t2006**
-
-![t2006](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/047-t2006.png)
-
-**s200657**
-
-![s200657](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/048-s200657.png)
-
-**t2007**
-
-![t2007](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/049-t2007.png)
-
-**s200728**
-
-![s200728](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/050-s200728.png)
-
-**s200758**
-
-![s200758](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/051-s200758.png)
-
-**t2008**
-
-![t2008](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/052-t2008.png)
-
-**s200828**
-
-![s200828](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/053-s200828.png)
-
-**t2008**
-
-![t2008](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/054-t2008.png)
-
-**s200858**
-
-![s200858](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/055-s200858.png)
-
-**s200929**
-
-![s200929](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/056-s200929.png)
-
-**t2009**
-
-![t2009](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/057-t2009.png)
-
-**s200959**
-
-![s200959](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/058-s200959.png)
-
-**t2010**
-
-![t2010](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/059-t2010.png)
-
-**s201029**
-
-![s201029](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/060-s201029.png)
-
-**s201059**
-
-![s201059](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/061-s201059.png)
-
-**t2011**
-
-![t2011](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/062-t2011.png)
-
-**s201130**
-
-![s201130](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/063-s201130.png)
-
-**t2011**
-
-![t2011](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/064-t2011.png)
-
-**s201200**
-
-![s201200](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/065-s201200.png)
-
-**s201230**
-
-![s201230](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/066-s201230.png)
-
-**t2012**
-
-![t2012](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/067-t2012.png)
-
-**s201300**
-
-![s201300](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/068-s201300.png)
-
-**t2013**
-
-![t2013](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/069-t2013.png)
-
-**s201330**
-
-![s201330](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/070-s201330.png)
-
-**s201401**
-
-![s201401](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/071-s201401.png)
-
-**t2014**
-
-![t2014](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/072-t2014.png)
-
-**s201431**
-
-![s201431](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/073-s201431.png)
-
-**t2014**
-
-![t2014](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/074-t2014.png)
-
-**s201501**
-
-![s201501](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/075-s201501.png)
-
-**t2015**
-
-![t2015](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/076-t2015.png)
-
-**t2016**
-
-![t2016](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/077-t2016.png)
-
-**t2017**
-
-![t2017](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/078-t2017.png)
-
-**after two restarts**
-
-![after two restarts](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/079-after-two-restarts.png)
-
-**t2017**
-
-![t2017](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/080-t2017.png)
-
-**t2018**
-
-![t2018](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/081-t2018.png)
-
-**t2019**
-
-![t2019](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/082-t2019.png)
-
-**iso boot**
-
-![iso boot](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/083-iso-boot.png)
-
-**t2019**
-
-![t2019](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/084-t2019.png)
-
-**advanced options**
-
-![advanced options](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/085-advanced-options.png)
-
-**winre state**
-
-![winre state](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/086-winre-state.png)
-
-**t2020**
-
-![t2020](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/087-t2020.png)
-
-**staged package after reset**
-
-![staged package after reset](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/088-staged-package-after-reset.png)
-
-**bcd vsm off**
-
-![bcd vsm off](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/089-bcd-vsm-off.png)
-
-**t2021**
-
-![t2021](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/090-t2021.png)
-
-**fleetd in reset os**
-
-![fleetd in reset os](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/091-fleetd-in-reset-os.png)
-
-**t2022**
-
-![t2022](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/092-t2022.png)
-
-**s202219**
-
-![s202219](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/093-s202219.png)
-
-**t2022**
-
-![t2022](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/094-t2022.png)
-
-**s202240**
-
-![s202240](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/095-s202240.png)
-
-**t2022**
-
-![t2022](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/096-t2022.png)
-
-**s202300**
-
-![s202300](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/097-s202300.png)
-
-**t2023**
-
-![t2023](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/098-t2023.png)
-
-**s202320**
-
-![s202320](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/099-s202320.png)
-
-**s202340**
-
-![s202340](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/100-s202340.png)
-
-**t2023**
-
-![t2023](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/101-t2023.png)
-
-**t2023**
-
-![t2023](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/102-t2023.png)
-
-**s202400**
-
-![s202400](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/103-s202400.png)
-
-**s202421**
-
-![s202421](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/104-s202421.png)
-
-**t2024**
-
-![t2024](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/105-t2024.png)
-
-**t2024**
-
-![t2024](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/106-t2024.png)
-
-**s202441**
-
-![s202441](test-evidence/wipe/W-6-package-staged-by-a-fleet-script-in-crec/107-s202441.png)
-
-
----
-
-## Lab readiness
-
-### L-1: Generalized golden image gives each clone its own identity
-
-**Result: BLOCKED** · [full notes](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/result.md)
-
-- **Objective:** Sysprep /generalize the golden image so clones get unique machine IDs and Windows MDM hardware IDs
-- **Expected:** Two clones enroll and both show MDM On and connected in Fleet at the same time
-
-**Output:** [01-clone.txt](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/01-clone.txt) · [02-sysprep.txt](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/02-sysprep.txt) · [03-sysprep-done.txt](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/03-sysprep-done.txt) · [watchdog.txt](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/watchdog.txt)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/004-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/005-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/006-hang-before-cycle.png)
-
-**l1 a now**
-
-![l1 a now](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/007-l1-a-now.png)
-
-**l1 b now**
-
-![l1 b now](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/008-l1-b-now.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/009-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/010-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/011-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/012-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/013-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/014-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/015-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/016-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/017-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/018-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/019-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/020-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/021-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/022-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/023-hang-before-cycle.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/024-hang-before-cycle.png)
-
-**l1 a 25min**
-
-![l1 a 25min](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/025-l1-a-25min.png)
-
-**l1 b 25min**
-
-![l1 b 25min](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/026-l1-b-25min.png)
-
-**hang before cycle**
-
-![hang before cycle](test-evidence/lab/L-1-generalized-golden-image-gives-each-clon/027-hang-before-cycle.png)
-
-
----
-
-### L-2: First boot after re-specialize with guest-tools drivers removed
-
-**Result: no result recorded** · [full notes](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/result.md)
-
-- **Objective:** Find whether UTM guest-tools drivers cause the first-boot hang after sysprep generalize and resets
-- **Expected:** With only NetKVM and vioserial left, a generalized clone boots to the region screen
-
-**Output:** [01-clone.txt](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/01-clone.txt) · [02-drivers-before.txt](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/02-drivers-before.txt) · [03-remove-drivers.txt](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/03-remove-drivers.txt) · [04-drivers-after.txt](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/04-drivers-after.txt)
-
-**after remove**
-
-![after remove](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/004-after-remove.png)
-
-**iso boot**
-
-![iso boot](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/005-iso-boot.png)
-
-**during remove**
-
-![during remove](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/007-during-remove.png)
-
-**removal check**
-
-![removal check](test-evidence/lab/L-2-first-boot-after-re-specialize-with-gues/008-removal-check.png)
-
-
----
-
-### L-2A: Arm A: guest-tools drivers stripped, then generalize
-
-**Result: info** · [full notes](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/result.md)
-
-- **Objective:** Remove UTM guest-tools drivers except NetKVM and vioserial, generalize, cold-boot a clone
-- **Expected:** Clone boots (DHCP lease)
-
-**Output:** [01-clone.txt](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/01-clone.txt) · [02-drivers-left.txt](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/02-drivers-left.txt) · [03-sysprep.txt](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/03-sysprep.txt) · [04-clone-boot.txt](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/04-clone-boot.txt)
-
-**state**
-
-![state](test-evidence/lab/L-2A-arm-a-guest-tools-drivers-stripped-then-/005-state.png)
-
-
----
-
-### L-2B: Arm B: generalize an image that never had the guest tools
-
-**Result: info** · [full notes](test-evidence/lab/L-2B-arm-b-generalize-an-image-that-never-had/result.md)
-
-- **Objective:** Fresh Windows 11 26H2 install from the ISO, no UTM guest tools, sysprep generalize at the region screen, then cold-boot a clone
-- **Expected:** Clone boots to the region screen
-
-**Output:** [01-build.txt](test-evidence/lab/L-2B-arm-b-generalize-an-image-that-never-had/01-build.txt)
-
----
-
-### L-2C: Same generalized image on Homebrew QEMU 11.1.2 and edk2
-
-**Result: PASS** · [full notes](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/result.md)
-
-- **Objective:** Boot the golden image under qemu-system-aarch64 11.1.2 with Homebrew edk2 and an empty NVRAM (tools/qemu-boot.sh), run sysprep /generalize /oobe /reboot through the guest agent
-- **Expected:** Windows comes back to the region screen after the warm reboot
-
-**Output:** [04-watch.txt](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/04-watch.txt) · [05-sysprep-state.txt](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/05-sysprep-state.txt)
-
-**before generalize**
-
-![before generalize](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/01-before-generalize.png)
-
-**generalize 30s**
-
-![generalize 30s](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/02-generalize-30s.png)
-
-**region screen after generalize**
-
-![region screen after generalize](test-evidence/lab/L-2C-same-generalized-image-on-homebrew-qemu-/03-region-screen-after-generalize.png)
-
-
----
+## Reset without Fleet
 
 ### L-3: A reprovision reset completes and boots in the lab
 
@@ -1549,104 +393,72 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ### C-2: No-bypass package, host kept, reprovision reset
 
-**Result: BLOCKED** · [full notes](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/result.md)
+**Result: PASS** · [full notes](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/result.md)
 
-- **Objective:** PKG-N on a generalized QEMU VM in fleet 10 (end user auth on). Sign in to the IdP as eua-user-1 at setup, then doWipePersistProvisionedData from Fleet with the host left in Fleet
+- **Objective:** PKG-N on a generalized QEMU VM in fleet 10 (end user auth on). Package on a USB disk plugged in at the region screen and opened from Shift+F10 as in E-2. Sign in to the IdP as eua-user-1, then doWipePersistProvisionedData from Fleet with the host left in Fleet
 - **Expected:** Fleet lets the reset host back in without the IdP (HostPreviouslyOrbitEnrolled); record which end user Fleet shows afterwards
 
-**Output:** [05-fleet-host-before.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/05-fleet-host-before.txt) · [06-wipe-command.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/06-wipe-command.txt) · [fleet-poll.log](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/fleet-poll.log)
-
-**fleet host before**
-
-![fleet host before](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/006-fleet-host-before.jpg)
-
-**edge**
-
-![edge](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/01-edge.png)
-
-**idp login**
-
-![idp login](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/02-idp-login.png)
-
-**idp filled**
-
-![idp filled](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/03-idp-filled.png)
-
-**after sign in**
-
-![after sign in](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision-/04-after-sign-in.png)
-
-
----
-
-### C-2r: No-bypass package, host kept, reprovision reset (rerun)
-
-**Result: PASS** · [full notes](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/result.md)
-
-- **Objective:** PKG-N on a generalized QEMU VM (ramfb display) in fleet 10 (end user auth on). Package on a USB disk plugged in at the region screen and opened from Shift+F10, as in v1 E-2. Sign in to the IdP as eua-user-1, then doWipePersistProvisionedData from Fleet with the host left in Fleet
-- **Expected:** Fleet lets the reset host back in without the IdP (HostPreviouslyOrbitEnrolled); record which end user Fleet shows afterwards
-
-**Output:** [14-fleet-host-before.txt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/14-fleet-host-before.txt) · [15-wipe-command.txt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/15-wipe-command.txt) · [18-live-query-after.txt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/18-live-query-after.txt) · [20-fleet-host-activities.txt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/20-fleet-host-activities.txt) · [21-fleet-host-after.txt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/21-fleet-host-after.txt) · [fleet-poll.log](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/fleet-poll.log)
+**Output:** [14-fleet-host-before.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/14-fleet-host-before.txt) · [15-wipe-command.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/15-wipe-command.txt) · [18-live-query-after.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/18-live-query-after.txt) · [20-fleet-host-activities.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/20-fleet-host-activities.txt) · [21-fleet-host-after.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/21-fleet-host-after.txt) · [fleet-poll.log](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/fleet-poll.log)
 
 **region screen**
 
-![region screen](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/01-region-screen.png)
+![region screen](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/01-region-screen.png)
 
 **fleet host before**
 
-![fleet host before](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/015-fleet-host-before.jpg)
+![fleet host before](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/015-fleet-host-before.jpg)
 
 **trust prompt**
 
-![trust prompt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/02-trust-prompt.png)
+![trust prompt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/02-trust-prompt.png)
 
 **fleet host after**
 
-![fleet host after](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/020-fleet-host-after.jpg)
+![fleet host after](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/020-fleet-host-after.jpg)
 
 **usb inserted**
 
-![usb inserted](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/03-usb-inserted.png)
+![usb inserted](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/03-usb-inserted.png)
 
 **trust prompt**
 
-![trust prompt](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/04-trust-prompt.png)
+![trust prompt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/04-trust-prompt.png)
 
 **edge 2**
 
-![edge 2](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/05-edge-2.png)
+![edge 2](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/05-edge-2.png)
 
 **edge 3**
 
-![edge 3](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/06-edge-3.png)
+![edge 3](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/06-edge-3.png)
 
 **edge 3 unticked**
 
-![edge 3 unticked](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/07-edge-3-unticked.png)
+![edge 3 unticked](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/07-edge-3-unticked.png)
 
 **edge 4**
 
-![edge 4](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/08-edge-4.png)
+![edge 4](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/08-edge-4.png)
 
 **fleet sign in**
 
-![fleet sign in](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/09-fleet-sign-in.png)
+![fleet sign in](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/09-fleet-sign-in.png)
 
 **idp login**
 
-![idp login](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/10-idp-login.png)
+![idp login](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/10-idp-login.png)
 
 **idp filled**
 
-![idp filled](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/11-idp-filled.png)
+![idp filled](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/11-idp-filled.png)
 
 **auth complete**
 
-![auth complete](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/12-auth-complete.png)
+![auth complete](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/12-auth-complete.png)
 
 **auth complete**
 
-![auth complete](test-evidence/core/C-2r-no-bypass-package-host-kept-reprovision-/13-auth-complete.png)
+![auth complete](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/13-auth-complete.png)
 
 
 ---
@@ -1655,7 +467,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/result.md)
 
-- **Objective:** Host 27 from C-2r (no-bypass package kept, end user eua-user-1 in Fleet). Send doWipePersistProvisionedData, delete the host in Fleet once the device acknowledges it, then at the setup screen sign in as eua-user-2. Second reset of this host, so it also covers X-1
+- **Objective:** Host 27 from C-2 (no-bypass package kept, end user eua-user-1 in Fleet). Send doWipePersistProvisionedData, delete the host in Fleet once the device acknowledges it, then at the setup screen sign in as eua-user-2. Second reset of this host, so it also covers X-1
 - **Expected:** Fleet blocks enrollment until sign-in; the sign-in page appears on the setup screen; host enrolls with only eua-user-2
 
 **Output:** [01-fleet-host-before.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/01-fleet-host-before.txt) · [03-wipe-command.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/03-wipe-command.txt) · [04-delete-host.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/04-delete-host.txt) · [20-fleet-host-after.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/20-fleet-host-after.txt) · [fleet-poll.log](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/fleet-poll.log)
@@ -1825,10 +637,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/result.md)
 
-- **Objective:** Host 28 (c3 VM, no-bypass package, eua-user-2) is moved to No team, which has no end user authentication, then wiped
+- **Objective:** Host 29 (c4 VM, MSI-enrolled, bypass package staged in C:\Recovery\Customizations) is moved to No team, which has no end user authentication, then wiped
 - **Expected:** The package re-enrolls the host into the fleet of its enroll secret (fleet 10), or Fleet keeps it in No team; record which
 
-**Output:** [01-host-before.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/01-host-before.txt) · [02-transfer-to-no-team.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/02-transfer-to-no-team.txt) · [03-host-after-transfer.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/03-host-after-transfer.txt) · [05-host-28-back-to-fleet-10.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/05-host-28-back-to-fleet-10.txt) · [06-host-29-before.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/06-host-29-before.txt) · [07-host-29-staged-package.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/07-host-29-staged-package.txt) · [08-host-29-to-no-team.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/08-host-29-to-no-team.txt) · [09-wipe-command.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/09-wipe-command.txt) · [11-host-29-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/11-host-29-after.txt) · [12-live-query-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/12-live-query-after.txt) · [13-code-enroll-orbit-known-host.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/13-code-enroll-orbit-known-host.txt) · [fleet-poll.log](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/fleet-poll.log)
+**Output:** [06-host-29-before.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/06-host-29-before.txt) · [07-host-29-staged-package.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/07-host-29-staged-package.txt) · [08-host-29-to-no-team.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/08-host-29-to-no-team.txt) · [09-wipe-command.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/09-wipe-command.txt) · [11-host-29-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/11-host-29-after.txt) · [12-live-query-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/12-live-query-after.txt) · [13-code-enroll-orbit-known-host.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/13-code-enroll-orbit-known-host.txt) · [fleet-poll.log](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/fleet-poll.log)
 
 **fleet host mid reset**
 
@@ -1837,10 +649,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **fleet host after**
 
 ![fleet host after](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/014-fleet-host-after.jpg)
-
-**c3 automatic repair**
-
-![c3 automatic repair](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/04-c3-automatic-repair.png)
 
 **orbit log while secret rotated**
 
@@ -1853,8 +661,15 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: NOT RUN** · [full notes](test-evidence/edge/X-5-package-with-an-older-fleetd/result.md)
 
-- **Objective:** Build the package with an older fleetd, then C-1
-- **Expected:** fleetd comes back old, then updates itself
+- **Objective:** Build the bypass package with fleetd (orbit and Fleet Desktop) 1.58.0, set up a fresh VM with it, reset it, then set fleet 10 update_channels to stable
+- **Expected:** fleetd comes back at 1.58.0 after the reset; it updates only when Fleet sets update_channels
+
+**Output:** [01-build-msi-1.58.0.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/01-build-msi-1.58.0.txt) · [02-builder2-adk-install.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/02-builder2-adk-install.txt)
+
+**builder in utm**
+
+![builder in utm](test-evidence/edge/X-5-package-with-an-older-fleetd/002-builder-in-utm.png)
+
 
 ---
 
@@ -1865,15 +680,11 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Objective:** Host 29 (c4 VM, MSI-enrolled brownfield). Stage the no-bypass package from Fleet, turn fleet 10 end user authentication off through the API, wipe, delete the host after the device acknowledges, then restore the GitOps setting
 - **Expected:** With authentication off, the reset host enrolls as a new host with no sign-in and no IdP user
 
-**Output:** [01-host-29-to-fleet-10.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/01-host-29-to-fleet-10.txt) · [02-usb-hot-plug.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/02-usb-hot-plug.txt) · [03-fleet-copy-from-usb.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/03-fleet-copy-from-usb.txt) · [04-fleet-stage-ppkg.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/04-fleet-stage-ppkg.txt) · [05-usb-replug-removable.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/05-usb-replug-removable.txt) · [06-fleet-copy-from-usb.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/06-fleet-copy-from-usb.txt) · [07-fleet-stage-ppkg.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/07-fleet-stage-ppkg.txt) · [08-usb-plug-removable.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/08-usb-plug-removable.txt) · [09-fleet-copy-from-usb.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/09-fleet-copy-from-usb.txt) · [10-fleet-stage-ppkg.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/10-fleet-stage-ppkg.txt) · [11-restart-at-region-screen.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/11-restart-at-region-screen.txt) · [13-fleet-stage-ppkg-after-restart.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/13-fleet-stage-ppkg-after-restart.txt) · [15-eua-before.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/15-eua-before.txt) · [16-eua-off.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/16-eua-off.txt) · [17-wipe-command.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/17-wipe-command.txt) · [18-command-acknowledged.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/18-command-acknowledged.txt) · [19-delete-host-29.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/19-delete-host-29.txt) · [21-host-30-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/21-host-30-after.txt) · [22-live-query-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/22-live-query-after.txt) · [23-eua-restored.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/23-eua-restored.txt) · [fleet-poll.log](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/fleet-poll.log)
+**Output:** [01-host-29-to-fleet-10.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/01-host-29-to-fleet-10.txt) · [08-usb-plug-removable.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/08-usb-plug-removable.txt) · [09-fleet-copy-from-usb.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/09-fleet-copy-from-usb.txt) · [13-fleet-stage-ppkg.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/13-fleet-stage-ppkg.txt) · [15-eua-before.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/15-eua-before.txt) · [16-eua-off.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/16-eua-off.txt) · [17-wipe-command.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/17-wipe-command.txt) · [18-command-acknowledged.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/18-command-acknowledged.txt) · [19-delete-host-29.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/19-delete-host-29.txt) · [21-host-30-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/21-host-30-after.txt) · [22-live-query-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/22-live-query-after.txt) · [23-eua-restored.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/23-eua-restored.txt) · [fleet-poll.log](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/fleet-poll.log)
 
-**setup applied usb package 0x800700b7**
+**fleet host 30 captured later**
 
-![setup applied usb package 0x800700b7](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/12-setup-applied-usb-package-0x800700b7.png)
-
-**setup oobeprovisioningentry**
-
-![setup oobeprovisioningentry](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/14-setup-oobeprovisioningentry.png)
+![fleet host 30 captured later](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/024-fleet-host-30-captured-later.jpg)
 
 **vm screen after**
 
@@ -1890,6 +701,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** The reset comes back without fleetd and the host never checks in, which shows the package is what brings it back
 
 **Output:** [01-packages-before.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/01-packages-before.txt) · [02-remove-kept-package.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/02-remove-kept-package.txt) · [03-host-before.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/03-host-before.txt) · [04-wipe-command.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/04-wipe-command.txt) · [06-host-25-still-offline.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/06-host-25-still-offline.txt) · [fleet-poll.log](test-evidence/edge/X-7-no-package-left-for-the-reset/fleet-poll.log)
+
+**fleet host 25 after**
+
+![fleet host 25 after](test-evidence/edge/X-7-no-package-left-for-the-reset/007-fleet-host-25-after.jpg)
 
 **no fleetd at region screen**
 

@@ -1,6 +1,6 @@
 # 2026-10-26T17:05:35Z
 $ ls -l $HOME/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso; shasum -a 256 $HOME/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso
 
--rw-r--r--  1 adam  staff  8528523264 Oct 26 18:04 /Users/adam/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso
-8992f2d2cfd2fa647e579e9eb31fc21f34da8333c29b6170fde17d2ed6623e9c  /Users/adam/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso
+-rw-r--r--  1 adam  staff  8528523264 Oct 26 18:04 ~/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso
+8992f2d2cfd2fa647e579e9eb31fc21f34da8333c29b6170fde17d2ed6623e9c  ~/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso
 [exit 0]

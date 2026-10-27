@@ -24,3 +24,5 @@ After the GitOps secret was restored at 08:58:06, fleetd enrolled at 08:58:27 (2
 With the enroll secret rotated, fleetd comes back after the reset but can't enroll ("unauthenticated, or invalid token"); it enrolls 21 s after the old secret is valid again
 
 _Finished 2026-10-27T09:02:07Z_
+
+No Fleet UI screenshot for X-3: host 25 was reset again for X-7 before one was taken. fleet-poll.log, the orbit log screen (04) and the API outputs show its state.

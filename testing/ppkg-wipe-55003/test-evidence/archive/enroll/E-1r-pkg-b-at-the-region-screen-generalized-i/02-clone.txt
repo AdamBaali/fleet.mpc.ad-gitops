@@ -1,0 +1,6 @@
+# 2026-10-26T18:29:51Z
+$ vm/clone.sh new ppkg-golden-gen e1b-bypass && vm/attach-usb.sh e1b-bypass out/usb-pkg-b-plain.img >/dev/null && /usr/libexec/PlistBuddy -c 'Print :Information:UUID' $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/e1b-bypass.utm/config.plist
+
+Cloned ppkg-golden-gen -> e1b-bypass (new): ~/Library/Containers/com.utmapp.UTM/Data/Documents/e1b-bypass.utm
+36153055-F8AF-407B-B88F-1C1BB311F9B0
+[exit 0]

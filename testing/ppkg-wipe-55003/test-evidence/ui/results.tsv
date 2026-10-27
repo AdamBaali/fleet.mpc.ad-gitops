@@ -1,4 +1,4 @@
-U-4	PASS	U-4-wipe-status-built-in-wipe-versus-the-cus	Custom reprovision wipes leave no wipe state; even the built-in Wipe's state is cleared when fleetd re-enrolls, so a reprovision reset needs its own record
 U-1	PASS	U-1-host-page-during-the-reset	Mid-reset Fleet shows Offline with MDM still On (manual) and connected; nothing marks the reset
 U-2	PASS	U-2-host-page-after-re-enrollment	Same host ID, new hostname, MDM On; Added to Fleet resets to the re-enrollment time
 U-3	PASS	U-3-activity-feed	Two entries per reset: the custom command when sent and MDM turned on; nothing for the reset or re-enrollment
+U-4	PASS	U-4-wipe-status-built-in-wipe-versus-the-cus	Custom reprovision wipes leave no wipe state; even the built-in Wipe's state is cleared when fleetd re-enrolls, so a reprovision reset needs its own record

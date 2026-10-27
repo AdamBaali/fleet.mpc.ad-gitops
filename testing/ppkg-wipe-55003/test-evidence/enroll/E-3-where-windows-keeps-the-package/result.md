@@ -10,11 +10,6 @@
 
 After E-1: the package is kept as C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg (24 MB, contains the MSI with the enroll secret). C:\Recovery is empty, so nothing is staged for push-button reset. File ACL: Users and Everyone read+execute, INTERACTIVE modify. Any signed-in user, standard users included, can copy the package and read the enroll secret. Get-ProvisioningPackage can't load during setup (module load error), so the list comes from the folder.
 
-## Result: PARTIAL
-
-PKG-B (unencrypted) kept in ProgramData\Microsoft\Provisioning, readable by every user; C:\Recovery empty. PKG-N location still to record after E-2.
-
-_Finished 2026-10-26T18:06:34Z_
 - `03-e2-locations.txt`: `tools/vm-exec.sh e2-nobypass 'Get-ChildItem C:\ProgramData\Microsoft\Provisioning -Force | Where-Object Length`
 
 ## Result: PASS
