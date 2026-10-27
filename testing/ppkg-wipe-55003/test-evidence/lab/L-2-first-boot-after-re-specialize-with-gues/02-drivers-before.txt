@@ -1,0 +1,146 @@
+# 2026-10-26T21:23:25Z
+$ tools/vm-exec.sh l2-strip 'pnputil /enum-drivers | Out-String -Width 200; Get-Package -ErrorAction SilentlyContinue | Where-Object { $_.Name -match "UTM|SPICE|QEMU|virtio|Guest" } | Format-Table Name,Version -AutoSize | Out-String -Width 200; Get-Service | Where-Object { $_.Name -match "qemu|spice|vdagent|vio|balloon" } | Format-Table Name,Status,StartType -AutoSize | Out-String' 180
+
+Microsoft PnP Utility
+
+Published Name:     oem2.inf
+Original Name:      balloon.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         System
+Class GUID:         {4d36e97d-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem7.inf
+Original Name:      pvpanic.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         System
+Class GUID:         {4d36e97d-e325-11ce-bfc1-08002be10318}
+Driver Version:     11/14/2022 100.92.104.22900
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem8.inf
+Original Name:      vioinput.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         HIDClass
+Class GUID:         {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem6.inf
+Original Name:      viorng.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         System
+Class GUID:         {4d36e97d-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem4.inf
+Original Name:      vioscsi.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         SCSIAdapter
+Class GUID:         {4d36e97b-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem1.inf
+Original Name:      vioser.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         System
+Class GUID:         {4d36e97d-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem3.inf
+Original Name:      viostor.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         SCSIAdapter
+Class GUID:         {4d36e97b-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem5.inf
+Original Name:      netkvm.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         Net
+Class GUID:         {4d36e972-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem0.inf
+Original Name:      prnms009.inf
+Provider Name:      Microsoft
+Class Name:         Printer
+Class GUID:         {4d36e979-e325-11ce-bfc1-08002be10318}
+Class Version:      4.0
+Driver Version:     06/21/2006 10.0.26100.4484
+Signer Name:        Microsoft Windows
+Attributes:         Legacy
+WHCP Version:       Unknown
+
+Published Name:     oem9.inf
+Original Name:      viogpudo.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         Display
+Class GUID:         {4d36e968-e325-11ce-bfc1-08002be10318}
+Driver Version:     04/18/2025 22.7.38.43
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+Published Name:     oem10.inf
+Original Name:      viomem.inf
+Provider Name:      Red Hat, Inc.
+Class Name:         MTD
+Class GUID:         {4d36e970-e325-11ce-bfc1-08002be10318}
+Driver Version:     01/13/2025 100.100.104.27100
+Signer Name:        Microsoft Windows Hardware Compatibility Publisher
+Attributes:         Universal
+                    Attested
+WHCP Version:       Unknown
+
+
+
+Name                    Version
+----                    -------
+QEMU guest agent        109.1.0
+UTM Guest Tools 0.1.271 0.1.271
+
+
+
+
+Name            Status StartType
+----            ------ ---------
+BalloonService Running Automatic
+QEMU-GA        Running Automatic
+spice-webdavd  Running Automatic
+
+
+
+[exit 0]
+[exit 0]

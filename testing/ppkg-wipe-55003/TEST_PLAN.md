@@ -31,14 +31,14 @@ activity) before, during, and after, and command or API output for every state c
 
 ## Phase 0: lab readiness (blocks everything below)
 
-Two lab faults stopped v1. Fix them first, each with its own pass rule. Don't start Phase 1 until L-3 passes.
+Two lab faults stopped v1. Fix them first, each with its own pass rule. Don't start Phase 1 until L-3 passes. VMs run
+headless on Homebrew QEMU (`tools/qemu-boot.sh`), and every reset runs with `tools/qemu-watch.sh` to keep the screens.
 
 | ID | Problem | Hypothesis | Steps | Pass when |
 |---|---|---|---|---|
 | L-1 | Clones share a Windows MDM hardware ID, so a second clone took over the first one's MDM record in Fleet (v1 W-1) | Clones of an image that already ran specialize share machine identity. Sysprep `/generalize` gives each clone its own | Generalize the golden image (after L-2), make two clones, enroll both | Fleet shows both hosts with MDM On and `connected_to_fleet` true at the same time |
-| L-2 | First boot after a re-specialize hangs at "Start boot option", then 0xc0000001 (v1 reset and generalize) | H1: a UTM guest-tools driver (display `viogpudo`, `Balloon`, `viomem`, others) breaks that boot. The original ISO install, before the tools, booted fine. Network needs only `NetKVM`; the agent needs `vioserial` | Clone the current golden image, list third-party drivers (`pnputil /enum-drivers`), remove all but `NetKVM` and `vioserial`, uninstall the UTM guest-tools display parts, then `sysprep /generalize /oobe /shutdown`, boot a clone | The clone boots to the region screen. If not, H2 (below) |
-| L-2b | Same, if H1 fails | H2: any guest-tools driver at all. Rebuild golden from the ISO, add only `NetKVM` with `pnputil /add-driver` at the region screen (no tools installer, no agent; drive the VM by keyboard and screenshots) | Generalize, boot a clone | Boots to the region screen. If not: stop, the lab can't do resets; move to a physical x64 laptop |
-| L-3 | Proof that resets work in the lab | Same fix covers push-button reset | On a generalized clone with no Fleet at all: Settings > Recovery > Reset this PC > Remove everything (or `systemreset -factoryreset`) | Reset completes and boots to the region screen |
+| L-2 | First boot after a re-specialize hangs at "Start boot option", then 0xc0000001 (v1 reset and generalize) | UTM 4.7.5's QEMU/edk2 (utmapp/UTM#7648 and cold boots too). Power cycling didn't help (L-2, L-2A) | Run the same disk on Homebrew QEMU 11.1.2 and edk2 with `tools/qemu-boot.sh`, generalize, reboot | PASS 2026-10-27: boots to the region screen in about a minute (L-2C). All VMs move to Homebrew QEMU (NOTES, "Lab fix") |
+| L-3 | Proof that resets work in the lab | Same fix covers push-button reset | On a generalized VM with no Fleet at all: call `doWipePersistProvisionedData` locally through the MDM WMI bridge (`payloads/local/wipe-persist-local.ps1`) | PASS 2026-10-27: reset done and back at the region screen in 11.5 minutes (test-evidence/lab/L-3) |
 
 Lab rules from v1 that stay: detach the USB drive after the package applies; capture windows by ID (off-screen works);
 three-digit screenshot numbers; one host lineage at a time until L-1 passes.

@@ -1,0 +1,5 @@
+# 2026-10-26T22:52:23Z
+$ tools/vm-exec.sh a-strip 'Start-Process C:\Windows\System32\Sysprep\sysprep.exe -ArgumentList "/generalize /oobe /shutdown /quiet"; "started"' 60
+
+187:323: execution error: UTM got an error: The QEMU guest agent is not running or not installed on the guest. (-2700)
+[exit 1]

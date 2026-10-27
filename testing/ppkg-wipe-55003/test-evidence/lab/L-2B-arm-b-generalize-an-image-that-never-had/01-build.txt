@@ -1,0 +1,6 @@
+# 2026-10-26T23:25:07Z
+$ ISO=$HOME/Downloads/win11-iso/Windows11_Client_arm64_en-us_26300_9457.iso vm/build-golden.sh ppkg-golden-v0
+
+E75E44F5-5BBE-4AE9-9DC8-7285C9CE5A41
+started
+[exit 0]

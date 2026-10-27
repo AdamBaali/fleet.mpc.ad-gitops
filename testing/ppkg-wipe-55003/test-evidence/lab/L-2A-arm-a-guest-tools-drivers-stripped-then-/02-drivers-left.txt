@@ -1,0 +1,5 @@
+# 2026-10-26T22:52:23Z
+$ tools/vm-exec.sh a-strip 'Get-Content C:\Windows\Temp\rm.log; "--- left"; Get-WindowsDriver -Online | Where-Object ProviderName -eq "Red Hat, Inc." | ForEach-Object { Split-Path $_.OriginalFileName -Leaf }' 120
+
+187:323: execution error: UTM got an error: The QEMU guest agent is not running or not installed on the guest. (-2700)
+[exit 1]

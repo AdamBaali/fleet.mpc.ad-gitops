@@ -1,0 +1,5 @@
+L-1	BLOCKED	L-1-generalized-golden-image-gives-each-clon	Generalized clones never boot (cold boots hang too). Depends on L-2 arms A and B.
+L-2A	INFO	L-2A-arm-a-guest-tools-drivers-stripped-then-	Invalid as designed: removing guest-tools drivers from the running image left it unbootable (Your device ran into a problem and could not be repaired, 005) before sysprep ran. Arm B (image that never had the tools) is the deciding test.
+L-2C	PASS	L-2C-same-generalized-image-on-homebrew-qemu-	Generalized image boots on Homebrew QEMU 11.1.2 with no hang: guest agent answered with a new hostname 60 s after sysprep's reboot, region screen shown. The hang is in UTM 4.7.5's QEMU/edk2, not Windows.
+L-3	PASS	L-3-a-reprovision-reset-completes-and-boots-	doWipePersistProvisionedData, called locally through the MDM WMI bridge, reset the generalized VM and Windows booted back to the region screen in 11.5 minutes on Homebrew QEMU. First post-reset boot in this lab.
+L-2B	INFO	L-2B-arm-b-generalize-an-image-that-never-had	Stopped during the install: superseded by L-2C, which showed the hang is UTM QEMU/edk2, so the guest tools question no longer matters.

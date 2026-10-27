@@ -1,0 +1,6 @@
+# 2026-10-26T21:49:49Z
+$ date -u +%T; /Applications/UTM.app/Contents/MacOS/utmctl status ppkg-golden-gen2
+
+21:49:49
+stopped
+[exit 0]

@@ -92,3 +92,27 @@ sends `doWipePersistProvisionedData`. Test W-6.
 ## Not tested
 
 See "Out of scope" in [TEST_PLAN.md](TEST_PLAN.md).
+
+
+## Lab fix: Homebrew QEMU instead of UTM (2026-10-27)
+
+UTM 4.7.5 hung at "Start boot option" on the first boot after every reset or generalize, warm or cold (L-2). The same
+disk boots on Homebrew `qemu-system-aarch64` 11.1.2 with Homebrew's edk2 and an empty NVRAM: sysprep generalize
+came back to the region screen in about a minute (L-2C). So the hang is in UTM's QEMU/edk2, not Windows.
+
+What the search turned up, for the record:
+- utmapp/UTM#7648: hang at "Start boot option" after a guest restart. Open, still present in UTM 5.0.x betas. Another
+  QEMU-based app shows it too, which points at QEMU or edk2.
+- utmapp/UTM#7884: a Windows 11 arm64 VM hangs after a guest tools driver change; Secure Boot left half-migrated to the
+  2023 CA. Not our cause: our image had no Secure Boot keys enrolled.
+- Broadcom KB 390487 and 400708: sysprep `/generalize` on 24H2 and later can leave bad BCD entries ("Failed to export
+  alterations to firmware") or a black screen on first sign-in. Not hit on QEMU 11.
+- The EFI variable store was not full (242 KB of 256 KB free), so that was not the cause either.
+
+The lab now runs VMs with `tools/qemu-boot.sh` (headless, an overlay on a base disk, a fixed SMBIOS UUID and serial per
+VM), `tools/qmp.sh` (screens, keys, clicks), `tools/qga.sh` (PowerShell through the guest agent), and
+`tools/qemu-watch.sh` (screens kept as evidence while a VM resets). Free, scriptable, and nothing on screen to click.
+
+Limits: upstream QEMU's arm TPM device fails under HVF, so VMs run without a TPM (`TPM=1` tries it). Letters sent with
+QMP `send-key` don't reach a command prompt opened over the setup screen; use the guest agent. The guest agent comes
+from UTM guest tools, which a reset removes.

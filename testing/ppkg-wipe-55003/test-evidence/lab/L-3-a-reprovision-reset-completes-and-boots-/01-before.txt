@@ -1,0 +1,9 @@
+# 2026-10-26T23:53:56Z
+$ tools/qga.sh smoke 'hostname; (Get-CimInstance Win32_OperatingSystem).InstallDate'
+
+DESKTOP-LO95PVU
+
+Monday, October 26, 2026 4:43:57 PM
+
+
+[exit 0]

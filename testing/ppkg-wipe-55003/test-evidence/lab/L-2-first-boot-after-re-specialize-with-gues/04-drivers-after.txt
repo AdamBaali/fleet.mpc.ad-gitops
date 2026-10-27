@@ -1,0 +1,19 @@
+# 2026-10-26T21:30:58Z
+$ tools/vm-exec.sh l2-strip 'Get-WindowsDriver -Online | Where-Object ProviderName -eq "Red Hat, Inc." | ForEach-Object { $_.Driver + " " + $_.OriginalFileName.Split("\\")[-1] }; Get-NetAdapter | Format-Table Name,Status | Out-String; "MachineGuid: " + (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Cryptography).MachineGuid' 120
+
+oem1.inf vioser.inf
+oem5.inf netkvm.inf
+oem6.inf viorng.inf
+oem7.inf pvpanic.inf
+oem8.inf vioinput.inf
+oem9.inf viogpudo.inf
+
+Name     Status
+----     ------
+Ethernet Up    
+
+
+
+MachineGuid: d63a9cda-6eef-4cdb-a131-c3359cb889c3
+[exit 0]
+[exit 0]

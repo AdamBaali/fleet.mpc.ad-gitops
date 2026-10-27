@@ -1,0 +1,7 @@
+# 2026-10-26T21:49:02Z
+$ tools/vm-exec.sh ppkg-golden-gen2 '"MachineGuid before: " + (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Cryptography).MachineGuid; Start-Process C:\Windows\System32\Sysprep\sysprep.exe -ArgumentList "/generalize /oobe /shutdown /quiet"; "sysprep started " + (Get-Date).ToUniversalTime().ToString("HH:mm:ss")' 60
+
+MachineGuid before: d63a9cda-6eef-4cdb-a131-c3359cb889c3
+sysprep started 21:49:16
+[exit 0]
+[exit 0]

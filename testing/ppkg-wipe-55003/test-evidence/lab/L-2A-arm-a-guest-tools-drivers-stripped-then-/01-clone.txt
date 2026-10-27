@@ -1,0 +1,5 @@
+# 2026-10-26T22:38:07Z
+$ vm/clone.sh new ppkg-golden-oobe a-strip
+
+Cloned ppkg-golden-oobe -> a-strip (new): /Users/adam/Library/Containers/com.utmapp.UTM/Data/Documents/a-strip.utm
+[exit 0]
