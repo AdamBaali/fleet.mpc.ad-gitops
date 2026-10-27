@@ -1,1 +1,2 @@
 C-1	PASS	C-1-bypass-package-host-kept-reprovision-res	Bypass package + doWipePersistProvisionedData from Fleet: reset in 13 min, fleetd reinstalled itself and the host came back as the same Fleet host 25 at the region screen with no prompt, MDM re-enrolled (mdm_enrolled 00:39:05), lab1 and its data gone, package kept.
+C-2	BLOCKED	C-2-no-bypass-package-host-kept-reprovision-	Lab fault: the reset ran with only virtio-gpu, which the reset environment cannot draw on; it sat idle for 10 min, and a power cycle mid-reset left Windows unbootable. Rerun as C-2r.

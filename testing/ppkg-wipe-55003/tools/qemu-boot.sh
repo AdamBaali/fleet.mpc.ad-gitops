@@ -36,9 +36,14 @@ echo "$mac" > "$dir/mac"
 [ -f "$dir/uuid" ] || uuidgen > "$dir/uuid"
 uuid=$(cat "$dir/uuid")
 
-# USB=<image> attaches a read-only removable drive, like the guide's USB stick with the package.
+# Two displays. ramfb under HVF shows stale screens once full Windows is up (only some areas refresh, likely cache
+# coherency on Apple silicon), so Windows uses virtio-gpu through viogpudo from UTM guest tools. The reset
+# environment (WinRE) has no viogpudo and draws on ramfb. tools/qmp.sh shot picks the live one.
+# USB=<image> attaches a read-only USB disk. Windows sees it as fixed, as v1 did in UTM, so setup doesn't apply the
+# package by itself; it's opened from Shift+F10. USB_REMOVABLE=on makes setup apply it, which in this lab ends in
+# Provisioning failure 0x800700b7 (C-1, C-2).
 usb=()
-[ -n "${USB:-}" ] && usb=(-drive if=none,id=usb0,format=raw,readonly=on,file="$USB" -device usb-storage,drive=usb0,removable=on)
+[ -n "${USB:-}" ] && usb=(-drive if=none,id=usb0,format=raw,readonly=on,file="$USB" -device usb-storage,drive=usb0,removable=${USB_REMOVABLE:-off})
 
 exec qemu-system-aarch64 -name "$name" \
   -smbios type=1,uuid="$uuid",serial="${SERIAL:-$name}" \
@@ -46,7 +51,7 @@ exec qemu-system-aarch64 -name "$name" \
   -drive if=pflash,format=raw,readonly=on,file=$share/edk2-aarch64-code.fd \
   -drive if=pflash,format=raw,file="$dir/vars.fd" \
   -device nvme,drive=d0,serial=${SERIAL:-$name} -drive if=none,id=d0,file="$dir/disk.qcow2" \
-  -device ramfb -device qemu-xhci -device usb-kbd -device usb-tablet \
+  -device ramfb,id=fb -device virtio-gpu-pci,id=gpu -device qemu-xhci -device usb-kbd -device usb-tablet \
   -nic user,model=virtio-net-pci,mac="$mac" \
   ${tpm[@]+"${tpm[@]}"} ${usb[@]+"${usb[@]}"} \
   -device virtio-serial-pci -chardev socket,id=qga0,path="$dir/qga.sock",server=on,wait=off \
