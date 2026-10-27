@@ -20,7 +20,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Setup | S-5: Build MSI-B and MSI-N | PASS | [open](#s-5-build-msi-b-and-msi-n) |
 | Setup | S-6: Build PKG-B and PKG-N | PASS | [open](#s-6-build-pkg-b-and-pkg-n) |
 | Setup | S-7: USB images for the packages | PASS | [open](#s-7-usb-images-for-the-packages) |
-| Enrollment | E-1b: PKG-B at the region screen, fresh host for the wipe tests | PASS | [open](#e-1b-pkg-b-at-the-region-screen-fresh-host-for-the-wipe-tests) |
+| Enrollment | E-1b: PKG-B at the region screen | PASS | [open](#e-1b-pkg-b-at-the-region-screen) |
 | Enrollment | E-2: PKG-N at the region screen | PASS | [open](#e-2-pkg-n-at-the-region-screen) |
 | Enrollment | E-3: Where Windows keeps the package | PASS | [open](#e-3-where-windows-keeps-the-package) |
 | Reset without Fleet | L-3: A reprovision reset completes and boots in the lab | PASS | [open](#l-3-a-reprovision-reset-completes-and-boots-in-the-lab) |
@@ -49,8 +49,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-0-record-the-lab/result.md)
 
-- **Objective:** Record Fleet version, the end user auth bypass setting, the IdP, and which fleets require end user auth
-- **Expected:** Fleet 4.93.x, bypass true, IdP set, only Windows Reset Lab requires end user auth
 
 **Output:** [01-fleet-version.txt](test-evidence/setup/S-0-record-the-lab/01-fleet-version.txt) · [02-server-config.txt](test-evidence/setup/S-0-record-the-lab/02-server-config.txt) · [03-fleets-eua.txt](test-evidence/setup/S-0-record-the-lab/03-fleets-eua.txt) · [04-bypass-not-in-api.txt](test-evidence/setup/S-0-record-the-lab/04-bypass-not-in-api.txt) · [05-code-diff-4930-4932.txt](test-evidence/setup/S-0-record-the-lab/05-code-diff-4930-4932.txt)
 
@@ -60,8 +58,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-2-idp-and-fleet-applied/result.md)
 
-- **Objective:** PR 47 applied: IdP in org settings, Windows Reset Lab with end user authentication, other fleets unchanged
-- **Expected:** IdP name and entity ID set with inline metadata; only fleet 10 requires end user authentication
 
 **Output:** [01-idp-config.txt](test-evidence/setup/S-2-idp-and-fleet-applied/01-idp-config.txt) · [02-fleets-eua.txt](test-evidence/setup/S-2-idp-and-fleet-applied/02-fleets-eua.txt) · [03-global-eua.txt](test-evidence/setup/S-2-idp-and-fleet-applied/03-global-eua.txt)
 
@@ -71,8 +67,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-3-golden-vm-at-the-region-screen/result.md)
 
-- **Objective:** Unattended Windows 11 Pro arm64 install that stops at the first setup screen
-- **Expected:** VM boots to the region screen with no user account
 
 **Output:** [03-iso-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/03-iso-26h2.txt) · [04-build-26h2.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/04-build-26h2.txt) · [09-network-after-guest-tools.txt](test-evidence/setup/S-3-golden-vm-at-the-region-screen/09-network-after-guest-tools.txt)
 
@@ -99,8 +93,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-3b-winre-build-and-hardware-identity/result.md)
 
-- **Objective:** Recovery environment on, Windows build, and that the SMBIOS UUID equals the UTM VM UUID
-- **Expected:** WinRE Enabled; UUID matches config.plist
 
 **Output:** [01-utm-vm-uuid.txt](test-evidence/setup/S-3b-winre-build-and-hardware-identity/01-utm-vm-uuid.txt)
 
@@ -123,8 +115,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-4-builder-vm-with-configuration-designer/result.md)
 
-- **Objective:** A Windows VM that builds provisioning packages and never enrolls in Fleet
-- **Expected:** ICD.exe (Windows Configuration Designer's command line) installed from Microsoft's ADK
 
 **Output:** [01-adk-install.txt](test-evidence/setup/S-4-builder-vm-with-configuration-designer/01-adk-install.txt)
 
@@ -134,8 +124,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-5-build-msi-b-and-msi-n/result.md)
 
-- **Objective:** Two arm64 fleetd MSIs for Windows Reset Lab, one with --bypass-end-user-auth
-- **Expected:** Both build; only MSI-B carries ORBIT_BYPASS_END_USER_AUTH=true
 
 **Output:** [01-fleetctl-version.txt](test-evidence/setup/S-5-build-msi-b-and-msi-n/01-fleetctl-version.txt) · [02-build.txt](test-evidence/setup/S-5-build-msi-b-and-msi-n/02-build.txt) · [03-bypass-flag.txt](test-evidence/setup/S-5-build-msi-b-and-msi-n/03-bypass-flag.txt)
 
@@ -145,8 +133,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-6-build-pkg-b-and-pkg-n/result.md)
 
-- **Objective:** Encrypted provisioning packages with the guide's ProvisioningCommands settings, one per MSI
-- **Expected:** Two .ppkg files; passwords kept in private/
 
 **Output:** [01-customizations.txt](test-evidence/setup/S-6-build-pkg-b-and-pkg-n/01-customizations.txt) · [02-packages.txt](test-evidence/setup/S-6-build-pkg-b-and-pkg-n/02-packages.txt)
 
@@ -156,8 +142,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/setup/S-7-usb-images-for-the-packages/result.md)
 
-- **Objective:** One FAT32 image per package with the .ppkg at its root
-- **Expected:** Two images, one .ppkg each
 
 **Output:** [01-images.txt](test-evidence/setup/S-7-usb-images-for-the-packages/01-images.txt)
 
@@ -165,12 +149,10 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ## Enrollment
 
-### E-1b: PKG-B at the region screen, fresh host for the wipe tests
+### E-1b: PKG-B at the region screen
 
 **Result: PASS** · [full notes](test-evidence/enroll/E-1b-pkg-b-at-the-region-screen-fresh-host-fo/result.md)
 
-- **Objective:** Repeat E-1 on a new clone so its MDM enrollment is the only one with this hardware ID
-- **Expected:** Enrolls during setup with MDM On; becomes the W-1 host
 
 **Output:** [06-fleet-host.txt](test-evidence/enroll/E-1b-pkg-b-at-the-region-screen-fresh-host-fo/06-fleet-host.txt)
 
@@ -201,8 +183,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/enroll/E-2-pkg-n-at-the-region-screen/result.md)
 
-- **Objective:** Apply the no-bypass package during setup on a fleet that requires end user authentication
-- **Expected:** Fleet blocks enrollment; fleetd tries to open the sign-in page; host not in Fleet during setup
 
 **Output:** [01-clone.txt](test-evidence/enroll/E-2-pkg-n-at-the-region-screen/01-clone.txt) · [05-fleet-and-orbit-log.txt](test-evidence/enroll/E-2-pkg-n-at-the-region-screen/05-fleet-and-orbit-log.txt) · [12-fleet-host-22.txt](test-evidence/enroll/E-2-pkg-n-at-the-region-screen/12-fleet-host-22.txt) · [13-orbit-log-after.txt](test-evidence/enroll/E-2-pkg-n-at-the-region-screen/13-orbit-log-after.txt)
 
@@ -273,8 +253,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/enroll/E-3-where-windows-keeps-the-package/result.md)
 
-- **Objective:** After applying a package during setup, record where Windows stores it and who can read it
-- **Expected:** ProgramData\Microsoft\Provisioning holds it; C:\Recovery\Customizations empty
 
 **Output:** [01-e1-locations.txt](test-evidence/enroll/E-3-where-windows-keeps-the-package/01-e1-locations.txt) · [02-e1-file-acl.txt](test-evidence/enroll/E-3-where-windows-keeps-the-package/02-e1-file-acl.txt) · [03-e2-locations.txt](test-evidence/enroll/E-3-where-windows-keeps-the-package/03-e2-locations.txt)
 
@@ -286,10 +264,8 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/result.md)
 
-- **Objective:** On the generalized QEMU VM with no Fleet, call doWipePersistProvisionedData locally through the MDM WMI bridge (MDM_RemoteWipe) as SYSTEM, then watch
-- **Expected:** Reset completes and Windows boots to the region screen
 
-**Output:** [01-before.txt](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/01-before.txt) · [02-wipe.txt](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/02-wipe.txt) · [03-wipe-cimsession.txt](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/03-wipe-cimsession.txt)
+**Output:** [01-before.txt](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/01-before.txt) · [03-wipe-cimsession.txt](test-evidence/lab/L-3-a-reprovision-reset-completes-and-boots-/03-wipe-cimsession.txt)
 
 ---
 
@@ -299,18 +275,12 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/result.md)
 
-- **Objective:** PKG-B applied at the region screen on a generalized QEMU VM (fleet 10, end user auth on), lab1 signed in, MDM On. Then doWipePersistProvisionedData from Fleet and watch the host come back
-- **Expected:** fleetd running at the region screen after the reset; same Fleet host with a newer last_enrolled_at; MDM On and connected; no prompt; lab1 profile gone
 
-**Output:** [05-fleet-host-before.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/05-fleet-host-before.txt) · [21-wipe-command.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/21-wipe-command.txt) · [22-fleet-host-activities.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/22-fleet-host-activities.txt) · [22-wipe-result.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/22-wipe-result.txt) · [23-fleet-host-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/23-fleet-host-after.txt) · [23-mdm-get-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/23-mdm-get-after.txt) · [24-mdm-get-after-uuid.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/24-mdm-get-after-uuid.txt) · [25-mdm-get-after-retry.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/25-mdm-get-after-retry.txt) · [28-live-query-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/28-live-query-after.txt) · [29-live-query-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/29-live-query-after.txt) · [fleet-poll.log](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/fleet-poll.log)
+**Output:** [05-fleet-host-before.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/05-fleet-host-before.txt) · [21-wipe-command.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/21-wipe-command.txt) · [22-fleet-host-activities.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/22-fleet-host-activities.txt) · [22-wipe-result.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/22-wipe-result.txt) · [23-fleet-host-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/23-fleet-host-after.txt) · [29-live-query-after.txt](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/29-live-query-after.txt) · [fleet-poll.log](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/fleet-poll.log)
 
 **region screen**
 
 ![region screen](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/01-region-screen.png)
-
-**typo backslash**
-
-![typo backslash](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/02-typo-backslash.png)
 
 **fleet host before**
 
@@ -324,70 +294,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 ![fleet host after](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/031-fleet-host-after.jpg)
 
-**after start**
-
-![after start](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/04-after-start.png)
-
-**after ok**
-
-![after ok](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/06-after-ok.png)
-
-**after ok**
-
-![after ok](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/07-after-ok.png)
-
-**try again**
-
-![try again](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/08-try-again.png)
-
-**usb removed**
-
-![usb removed](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/09-usb-removed.png)
-
-**try again no usb**
-
-![try again no usb](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/10-try-again-no-usb.png)
-
-**cancel**
-
-![cancel](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/11-cancel.png)
-
-**cancel click**
-
-![cancel click](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/12-cancel-click.png)
-
-**after restart**
-
-![after restart](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/13-after-restart.png)
-
-**local account**
-
-![local account](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/14-local-account.png)
-
-**local account**
-
-![local account](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/15-local-account.png)
-
-**account**
-
-![account](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/16-account.png)
-
-**next**
-
-![next](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/17-next.png)
-
-**next**
-
-![next](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/18-next.png)
-
-**next**
-
-![next](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/19-next.png)
-
-**localonly**
-
-![localonly](test-evidence/core/C-1-bypass-package-host-kept-reprovision-res/20-localonly.png)
-
 
 ---
 
@@ -395,8 +301,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/result.md)
 
-- **Objective:** PKG-N on a generalized QEMU VM in fleet 10 (end user auth on). Package on a USB disk plugged in at the region screen and opened from Shift+F10 as in E-2. Sign in to the IdP as eua-user-1, then doWipePersistProvisionedData from Fleet with the host left in Fleet
-- **Expected:** Fleet lets the reset host back in without the IdP (HostPreviouslyOrbitEnrolled); record which end user Fleet shows afterwards
 
 **Output:** [14-fleet-host-before.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/14-fleet-host-before.txt) · [15-wipe-command.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/15-wipe-command.txt) · [18-live-query-after.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/18-live-query-after.txt) · [20-fleet-host-activities.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/20-fleet-host-activities.txt) · [21-fleet-host-after.txt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/21-fleet-host-after.txt) · [fleet-poll.log](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/fleet-poll.log)
 
@@ -407,10 +311,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 **fleet host before**
 
 ![fleet host before](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/015-fleet-host-before.jpg)
-
-**trust prompt**
-
-![trust prompt](test-evidence/core/C-2-no-bypass-package-host-kept-reprovision/02-trust-prompt.png)
 
 **fleet host after**
 
@@ -467,8 +367,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/result.md)
 
-- **Objective:** Host 27 from C-2 (no-bypass package kept, end user eua-user-1 in Fleet). Send doWipePersistProvisionedData, delete the host in Fleet once the device acknowledges it, then at the setup screen sign in as eua-user-2. Second reset of this host, so it also covers X-1
-- **Expected:** Fleet blocks enrollment until sign-in; the sign-in page appears on the setup screen; host enrolls with only eua-user-2
 
 **Output:** [01-fleet-host-before.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/01-fleet-host-before.txt) · [03-wipe-command.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/03-wipe-command.txt) · [04-delete-host.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/04-delete-host.txt) · [20-fleet-host-after.txt](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/20-fleet-host-after.txt) · [fleet-poll.log](test-evidence/core/C-3-no-bypass-package-host-deleted-new-user-/fleet-poll.log)
 
@@ -559,8 +457,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/result.md)
 
-- **Objective:** Generalized QEMU VM enrolled with MSI-B only (no package at setup). Push the bypass package to C:\Windows\Temp (lab shortcut), run scripts/stage-ppkg.ps1 from Fleet to put it in C:\Recovery\Customizations, then doWipePersistProvisionedData from Fleet
-- **Expected:** Same as C-1: host comes back to the same Fleet host with MDM on, no prompt; this is the Omnissa pattern (NOTES D-7)
 
 **Output:** [01-before-state.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/01-before-state.txt) · [02-push-msi.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/02-push-msi.txt) · [03-fleet-host-enrolled.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/03-fleet-host-enrolled.txt) · [03-install-msi.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/03-install-msi.txt) · [05-push-ppkg.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/05-push-ppkg.txt) · [06-markers.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/06-markers.txt) · [07-fleet-run-script.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/07-fleet-run-script.txt) · [08-wipe-command.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/08-wipe-command.txt) · [09-live-query-after.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/09-live-query-after.txt) · [fleet-host-activities.txt](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/fleet-host-activities.txt) · [fleet-poll.log](test-evidence/core/C-4-brownfield-fleet-stages-the-package-then/fleet-poll.log)
 
@@ -579,8 +475,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/core/C-5-cloud-reprovision-reset/result.md)
 
-- **Objective:** Host 29 after C-4 (bypass package in C:\Recovery\Customizations, MDM on). Send doWipeCloudPersistProvisionedData from Fleet
-- **Expected:** Windows downloads a fresh image, then as C-1: same host back with MDM on, no prompt. Record download time and disk use
 
 **Output:** [01-fleet-host-before.txt](test-evidence/core/C-5-cloud-reprovision-reset/01-fleet-host-before.txt) · [02-disk-before.txt](test-evidence/core/C-5-cloud-reprovision-reset/02-disk-before.txt) · [03-disk-after.txt](test-evidence/core/C-5-cloud-reprovision-reset/03-disk-after.txt) · [03-wipe-command.txt](test-evidence/core/C-5-cloud-reprovision-reset/03-wipe-command.txt) · [05-wipe-result.txt](test-evidence/core/C-5-cloud-reprovision-reset/05-wipe-result.txt) · [06-live-query-after.txt](test-evidence/core/C-5-cloud-reprovision-reset/06-live-query-after.txt) · [07-wipe-result-retry.txt](test-evidence/core/C-5-cloud-reprovision-reset/07-wipe-result-retry.txt) · [08-c4-wipe-result-compare.txt](test-evidence/core/C-5-cloud-reprovision-reset/08-c4-wipe-result-compare.txt) · [fleet-host-activities.txt](test-evidence/core/C-5-cloud-reprovision-reset/fleet-host-activities.txt) · [fleet-poll.log](test-evidence/core/C-5-cloud-reprovision-reset/fleet-poll.log)
 
@@ -597,8 +491,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/result.md)
 
-- **Objective:** Host 25 (c1 VM, bypass package, reset once in C-1) is shut down. Send doWipePersistProvisionedData, then start the VM
-- **Expected:** Command waits, runs at the next check-in, then the host comes back as in C-1
 
 **Output:** [01-host-before.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/01-host-before.txt) · [02-vm-is-off.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/02-vm-is-off.txt) · [03-wipe-command.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/03-wipe-command.txt) · [04-command-result.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/04-command-result.txt) · [05-live-query-after.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/05-live-query-after.txt) · [06-mdm-after.txt](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/06-mdm-after.txt) · [fleet-poll.log](test-evidence/edge/X-2-host-offline-when-the-wipe-is-sent/fleet-poll.log)
 
@@ -621,8 +513,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/result.md)
 
-- **Objective:** Host 25 (c1 VM, bypass package, fresh from X-2). Replace fleet 10 enroll secret through the API (a stand-in for a GitOps rotation), wipe, then restore the GitOps secret
-- **Expected:** fleetd comes back but cannot enroll until the secret in the package is valid again
 
 **Output:** [01-secret-before.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/01-secret-before.txt) · [02-rotate-secret.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/02-rotate-secret.txt) · [03-wipe-command.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/03-wipe-command.txt) · [05-restore-secret.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/05-restore-secret.txt) · [06-host-25-after.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/06-host-25-after.txt) · [07-live-query-after.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/07-live-query-after.txt) · [08-secret-after.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/08-secret-after.txt) · [09-host-25-mdm-later.txt](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/09-host-25-mdm-later.txt) · [fleet-poll.log](test-evidence/edge/X-3-enroll-secret-rotated-after-the-package-/fleet-poll.log)
 
@@ -637,8 +527,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/result.md)
 
-- **Objective:** Host 29 (c4 VM, MSI-enrolled, bypass package staged in C:\Recovery\Customizations) is moved to No team, which has no end user authentication, then wiped
-- **Expected:** The package re-enrolls the host into the fleet of its enroll secret (fleet 10), or Fleet keeps it in No team; record which
 
 **Output:** [06-host-29-before.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/06-host-29-before.txt) · [07-host-29-staged-package.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/07-host-29-staged-package.txt) · [08-host-29-to-no-team.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/08-host-29-to-no-team.txt) · [09-wipe-command.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/09-wipe-command.txt) · [11-host-29-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/11-host-29-after.txt) · [12-live-query-after.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/12-live-query-after.txt) · [13-code-enroll-orbit-known-host.txt](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/13-code-enroll-orbit-known-host.txt) · [fleet-poll.log](test-evidence/edge/X-4-host-moved-to-another-fleet-before-the-r/fleet-poll.log)
 
@@ -661,15 +549,8 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: NOT RUN** · [full notes](test-evidence/edge/X-5-package-with-an-older-fleetd/result.md)
 
-- **Objective:** Build the bypass package with fleetd (orbit and Fleet Desktop) 1.58.0, set up a fresh VM with it, reset it, then set fleet 10 update_channels to stable
-- **Expected:** fleetd comes back at 1.58.0 after the reset; it updates only when Fleet sets update_channels
 
-**Output:** [01-build-msi-1.58.0.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/01-build-msi-1.58.0.txt) · [02-builder2-adk-install.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/02-builder2-adk-install.txt)
-
-**builder in utm**
-
-![builder in utm](test-evidence/edge/X-5-package-with-an-older-fleetd/002-builder-in-utm.png)
-
+**Output:** [01-build-msi-1.58.0.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/01-build-msi-1.58.0.txt) · [02-builder-adk-install.txt](test-evidence/edge/X-5-package-with-an-older-fleetd/02-builder-adk-install.txt)
 
 ---
 
@@ -677,8 +558,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/result.md)
 
-- **Objective:** Host 29 (c4 VM, MSI-enrolled brownfield). Stage the no-bypass package from Fleet, turn fleet 10 end user authentication off through the API, wipe, delete the host after the device acknowledges, then restore the GitOps setting
-- **Expected:** With authentication off, the reset host enrolls as a new host with no sign-in and no IdP user
 
 **Output:** [01-host-29-to-fleet-10.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/01-host-29-to-fleet-10.txt) · [08-usb-plug-removable.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/08-usb-plug-removable.txt) · [09-fleet-copy-from-usb.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/09-fleet-copy-from-usb.txt) · [13-fleet-stage-ppkg.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/13-fleet-stage-ppkg.txt) · [15-eua-before.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/15-eua-before.txt) · [16-eua-off.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/16-eua-off.txt) · [17-wipe-command.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/17-wipe-command.txt) · [18-command-acknowledged.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/18-command-acknowledged.txt) · [19-delete-host-29.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/19-delete-host-29.txt) · [21-host-30-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/21-host-30-after.txt) · [22-live-query-after.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/22-live-query-after.txt) · [23-eua-restored.txt](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/23-eua-restored.txt) · [fleet-poll.log](test-evidence/edge/X-6-end-user-authentication-off-on-the-fleet/fleet-poll.log)
 
@@ -697,8 +576,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/edge/X-7-no-package-left-for-the-reset/result.md)
 
-- **Objective:** Host 25 (c1 VM, bypass package kept in ProgramData from setup, nothing staged). Remove the kept package with a Fleet script, then wipe. Variant of the plan's X-7 (brownfield without staging): same end state, no package anywhere
-- **Expected:** The reset comes back without fleetd and the host never checks in, which shows the package is what brings it back
 
 **Output:** [01-packages-before.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/01-packages-before.txt) · [02-remove-kept-package.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/02-remove-kept-package.txt) · [03-host-before.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/03-host-before.txt) · [04-wipe-command.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/04-wipe-command.txt) · [06-host-25-still-offline.txt](test-evidence/edge/X-7-no-package-left-for-the-reset/06-host-25-still-offline.txt) · [fleet-poll.log](test-evidence/edge/X-7-no-package-left-for-the-reset/fleet-poll.log)
 
@@ -717,8 +594,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: BLOCKED** · [full notes](test-evidence/edge/X-8-bitlocker-on-before-the-reset/result.md)
 
-- **Objective:** Turn on Fleet disk encryption, then C-1
-- **Expected:** Reset completes; record any recovery key prompt
 
 **Output:** [01-qemu-tpm-under-hvf.txt](test-evidence/edge/X-8-bitlocker-on-before-the-reset/01-qemu-tpm-under-hvf.txt)
 
@@ -730,8 +605,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/ui/U-1-host-page-during-the-reset/result.md)
 
-- **Objective:** Fleet host page while the host resets
-- **Expected:** Captured; record what Fleet shows mid-reset
 
 ---
 
@@ -739,8 +612,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/ui/U-2-host-page-after-re-enrollment/result.md)
 
-- **Objective:** Fleet host page once the host is back
-- **Expected:** Captured
 
 ---
 
@@ -748,8 +619,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/ui/U-3-activity-feed/result.md)
 
-- **Objective:** Host activity after a custom wipe
-- **Expected:** Captured with timestamps
 
 ---
 
@@ -757,8 +626,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/ui/U-4-wipe-status-built-in-wipe-versus-the-cus/result.md)
 
-- **Objective:** Read how Fleet records a Windows wipe at fleet-v4.93.0, and compare with the host pages after custom wipes (X-2, X-4)
-- **Expected:** Recorded for the design
 
 **Output:** [01-built-in-wipe-sets-wipe-ref.txt](test-evidence/ui/U-4-wipe-status-built-in-wipe-versus-the-cus/01-built-in-wipe-sets-wipe-ref.txt) · [02-result-matches-any-remotewipe.txt](test-evidence/ui/U-4-wipe-status-built-in-wipe-versus-the-cus/02-result-matches-any-remotewipe.txt) · [03-result-updates-only-wipe-ref-rows.txt](test-evidence/ui/U-4-wipe-status-built-in-wipe-versus-the-cus/03-result-updates-only-wipe-ref-rows.txt) · [04-re-enrollment-clears-mdm-actions.txt](test-evidence/ui/U-4-wipe-status-built-in-wipe-versus-the-cus/04-re-enrollment-clears-mdm-actions.txt)
 
@@ -770,8 +637,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/api/A-3-fleet-wipe-api-rejects-the-reprovision-w/result.md)
 
-- **Objective:** POST /api/v1/fleet/hosts/25/wipe with windows.wipe_type set to each reprovision type, on a lab host that is offline and would be wiped anyway
-- **Expected:** Rejected; only doWipe and doWipeProtected are accepted today
 
 **Output:** [01-post-doWipePersistProvisionedData.txt](test-evidence/api/A-3-fleet-wipe-api-rejects-the-reprovision-w/01-post-doWipePersistProvisionedData.txt) · [02-post-doWipeCloudPersistProvisionedData.txt](test-evidence/api/A-3-fleet-wipe-api-rejects-the-reprovision-w/02-post-doWipeCloudPersistProvisionedData.txt) · [03-control-valid-type-unknown-host.txt](test-evidence/api/A-3-fleet-wipe-api-rejects-the-reprovision-w/03-control-valid-type-unknown-host.txt) · [04-host-25-no-pending-wipe.txt](test-evidence/api/A-3-fleet-wipe-api-rejects-the-reprovision-w/04-host-25-no-pending-wipe.txt)
 
@@ -783,8 +648,6 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Result: PASS** · [full notes](test-evidence/perm/P-1-which-roles-can-send-the-wipe-and-run-th/result.md)
 
-- **Objective:** Read Fleet's authorization rules at fleet-v4.93.0 for the custom MDM command (fleetctl mdm run-command), the built-in wipe, and scripts
-- **Expected:** Recorded per role
 
 **Output:** [01-rego-mdm-command-write.txt](test-evidence/perm/P-1-which-roles-can-send-the-wipe-and-run-th/01-rego-mdm-command-write.txt) · [02-run-mdm-command-authz.txt](test-evidence/perm/P-1-which-roles-can-send-the-wipe-and-run-th/02-run-mdm-command-authz.txt) · [03-built-in-wipe-authz.txt](test-evidence/perm/P-1-which-roles-can-send-the-wipe-and-run-th/03-built-in-wipe-authz.txt) · [04-rego-script-write.txt](test-evidence/perm/P-1-which-roles-can-send-the-wipe-and-run-th/04-rego-script-write.txt)
 
