@@ -24,6 +24,9 @@ fix"). Evidence per test in `test-evidence/`.
 | What if the enroll secret was rotated after the package was built? | fleetd comes back after the reset but can't enroll ("unauthenticated, or invalid token"), and Fleet shows nothing: the host just stays offline. It enrolled 21 s after the old secret was valid again | X-3 |
 | Which fleet does a reset host come back to? | The fleet it was in, not the fleet of the package's enroll secret. Fleet sets the fleet only when it creates a new host | X-4 |
 | Can the Fleet wipe API send the reprovision wipe? | No. It accepts only `doWipe` and `doWipeProtected`, and rejects the others with a generic 400 | A-3 |
+| What if end user authentication is off and the host was deleted? | The no-bypass build enrolls as a new host with no prompt and no end user, like the bypass build | X-6 |
+| What if there's no package left? | The reset comes back without fleetd, and the host never checks in again. The package is what brings it back | X-7 |
+| Does Fleet show that a host is being reset? | No. Mid-reset it shows Offline with MDM still On. After it, the feed shows the command (when sent) and "MDM turned on". The built-in Wipe's status would also be cleared when fleetd re-enrolls | U-1 to U-4 |
 | Who can send the wipe and stage the package? | Admins, maintainers and GitOps users can send the wipe (same check as the built-in Wipe). Admins, maintainers and technicians can run the staging script | P-1 |
 
 ## Lab blocker, fixed
@@ -59,6 +62,19 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
    string is unsupported". `GetMDMWindowsCommandResults` (`server/datastore/mysql/microsoft_mdm.go:1840` at
    fleet-v4.93.0) takes `host_uuid` from the enrollment that ran the command, which re-enrollment or host deletion
    removes (C-5, all wipe commands in this run).
+12. A known host comes back in the fleet it was in, not the fleet of the package's enroll secret. `EnrollOrbit`
+   (`server/datastore/mysql/hosts.go` at fleet-v4.93.0) sets the fleet only for a new host (X-4). A host moved to another
+   fleet before the reset stays there.
+13. Enroll secret rotation strands reset hosts. With a package built on an old secret, fleetd comes back and retries
+   ("unauthenticated, or invalid token"), and Fleet shows the host as offline with nothing else (X-3). Rebuild and
+   re-stage the package when the secret changes.
+14. The wipe API rejects the reprovision types with a generic "failed to unmarshal request body" (A-3), because
+   `MDMWindowsWipeType` knows only `doWipe` and `doWipeProtected`.
+15. Re-staging the package fails while the host sits at Windows setup after a reset: Windows holds
+   `C:\Recovery\Customizations\fleet-agent.ppkg` open (X-6). Lab case; a host in use is past setup.
+16. The Provisioning failure 0x800700b7 seen in C-1, C-2 and X-6 is error 183, ERROR_ALREADY_EXISTS. Each time a USB
+   drive was in at boot and setup applied the package by itself; in X-6 fleetd was already installed. Likely cause, not
+   proven. Lab case.
 
 ## Test results
 
@@ -79,3 +95,14 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 | C-3 | PASS | Host deleted during the reset: new host, sign-in at the new user's desktop, only the new IdP user |
 | C-4 | PASS | Brownfield: Fleet script stages the package in C:\Recovery\Customizations; same host back in 12.5 min, MDM on |
 | C-5 | PASS | Cloud variant: about 36 min download plus 21 min reset, same host back with MDM on |
+| X-1 | PASS | Second reset of the same host (in C-3) |
+| X-2 | PASS | Wipe sent while off runs at the next check-in; same host back |
+| X-3 | PASS | Secret rotated: fleetd back but can't enroll; enrolls 21 s after the secret is valid again |
+| X-4 | PASS | Host moved to No team stays in No team after the reset |
+| X-5 | NOT-RUN | Older fleetd in the package: needs a package rebuild on the builder VM |
+| X-6 | PASS | End user authentication off: deleted host enrolls as a new host, no prompt, no end user |
+| X-7 | PASS | No package left: reset comes back without fleetd, host never checks in |
+| X-8 | BLOCKED | BitLocker needs a TPM; the QEMU arm VMs have none |
+| U-1 to U-4 | PASS | Host page and feed recorded; no wipe state for the custom command |
+| A-3 | PASS | Wipe API rejects the reprovision types (generic 400) |
+| P-1 | PASS | From code: admins, maintainers, GitOps can wipe; admins, maintainers, technicians can stage |

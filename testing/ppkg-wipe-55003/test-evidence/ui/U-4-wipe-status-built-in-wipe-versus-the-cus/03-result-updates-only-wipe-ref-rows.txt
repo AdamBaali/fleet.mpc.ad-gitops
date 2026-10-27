@@ -1,0 +1,12 @@
+# 2026-10-27T09:39:48Z
+$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/datastore/mysql/microsoft_mdm.go | sed -n 1475,1482p
+
+		// if we received a Wipe command result, update the host's status
+		if wipeCmdUUID != "" {
+			wipeSucceeded := strings.HasPrefix(wipeCmdStatus, "2")
+			rowsAffected, err := updateHostLockWipeStatusFromResultAndHostUUID(ctx, tx, enrolledDevice.HostUUID,
+				"wipe_ref", wipeCmdUUID, wipeSucceeded, false,
+			)
+			if err != nil {
+				return ctxerr.Wrap(ctx, err, "updating wipe command result in host_mdm_actions")
+[exit 0]

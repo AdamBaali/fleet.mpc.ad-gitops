@@ -67,11 +67,11 @@ changes, fleetd versions, end user authentication on and off, and repeat actions
 |---|---|---|---|---|
 | X-1 | Second reset of the same host | Run C-1 again on C-1's host | Same result again | Same as C-1 |
 | X-2 | Host offline when the wipe is sent | Stop the VM, send the wipe, start the VM | Command waits, runs on next check-in, then as C-1 | Command acknowledged after start; then C-1 rules |
-| X-3 | Enroll secret rotated after the package was built | Rotate the fleet 10 secret in GitOps, then C-1 | fleetd comes back but can't enroll | Enrollment fails with an enroll secret error in the orbit log. Finding: the package must be rebuilt or staged again when the secret changes |
+| X-3 | Enroll secret rotated after the package was built | Replace the fleet 10 secret through the API (stand-in for a GitOps rotation), C-1, then restore it | fleetd comes back but can't enroll | Enrollment fails with an enroll secret error in the orbit log. Finding: the package must be rebuilt or staged again when the secret changes |
 | X-4 | Host moved to another fleet before the reset | Transfer the host to a fleet without end user auth, then C-2 | Package enrolls into the fleet in its secret (fleet 10), not the one the host was in | Record which fleet the host lands in |
 | X-5 | Package older fleetd | Build the package with an older fleetd, C-1 | fleetd comes back old, then updates itself | Record versions before and after |
 | X-6 | End user auth turned off on the fleet | Fleet 10 off, C-2 | Enrolls with no prompt | Same as C-1 |
-| X-7 | Staged package missing | C-4 without step 2 | Reset comes back without fleetd | No fleetd at the region screen; host never checks in. Confirms the staging is what brings it back |
+| X-7 | No package left | Remove the kept package with a Fleet script, then wipe (same end state as C-4 without step 2) | Reset comes back without fleetd | No fleetd at the region screen; host never checks in. Confirms the staging is what brings it back |
 | X-8 | BitLocker on before the reset | Turn on Fleet disk encryption, then C-1 | Reset still completes; record any recovery key prompt | Record outcome |
 
 
@@ -119,4 +119,5 @@ Autopilot, Entra join, `doAutomaticRedeployment`, Windows 10, Wi-Fi-only devices
 
 - [x] Phase 0 passed, with evidence (L-2C, L-3; L-1 covered by generalizing each VM: C-1 to C-4 each enrolled as its own host)
 - [x] C-1 to C-4 have results and screenshots of every user-facing screen (C-2 rerun as C-2r)
-- [ ] RESULTS.md and drafts/ISSUE_UPDATE.md updated for the design review
+- [x] Phase 2, UI, API and permissions recorded (X-5 not run, X-8 blocked)
+- [x] RESULTS.md and drafts/ISSUE_UPDATE.md updated for the design review

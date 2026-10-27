@@ -1,0 +1,12 @@
+# 2026-10-27T09:39:48Z
+$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/datastore/mysql/microsoft_mdm.go | sed -n 1446,1452p; git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/mdm/microsoft/syncml/syncml.go | sed -n 177p
+
+			sb.WriteString("(?, ?, ?, ?, ?),")
+
+			// if the command is a Wipe, keep track of it so we can update host_mdm_actions accordingly.
+			if fleet.LocURITargetsReservedNode(cmd.TargetLocURI, syncml.FleetRemoteWipeTargetLocURI) {
+				wipeCmdUUID = cmd.CommandUUID
+				wipeCmdStatus = statusCode
+			}
+	FleetRemoteWipeTargetLocURI = "/Vendor/MSFT/RemoteWipe"
+[exit 0]

@@ -3,3 +3,5 @@ X-2	PASS	X-2-host-offline-when-the-wipe-is-sent	An offline host runs the queued 
 X-4	PASS	X-4-host-moved-to-another-fleet-before-the-r	A known host comes back in the fleet it was in (No team here), not the fleet of the package's enroll secret; Fleet sets the fleet only for new hosts
 X-3	PASS	X-3-enroll-secret-rotated-after-the-package-	With the enroll secret rotated, fleetd comes back after the reset but can't enroll ("unauthenticated, or invalid token"); it enrolls 21 s after the old secret is valid again
 X-6	PASS	X-6-end-user-authentication-off-on-the-fleet	With end user authentication off, the reset no-bypass host enrolled as a new host (host 30) with no prompt and no end user, MDM on, 15.5 minutes after the wipe
+X-5	NOT-RUN	X-5-package-with-an-older-fleetd	Needs a package rebuilt with an older fleetd on the builder VM
+X-7	PASS	X-7-no-package-left-for-the-reset	With no package left, the reset comes back without fleetd and the host never checks in; the package is what brings it back

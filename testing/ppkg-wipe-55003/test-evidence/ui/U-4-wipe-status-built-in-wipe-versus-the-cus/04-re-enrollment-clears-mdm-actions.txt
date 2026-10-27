@@ -1,0 +1,10 @@
+# 2026-10-27T09:39:48Z
+$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/datastore/mysql/hosts.go | sed -n 2645,2650p
+
+			}
+			host.ID = enrolledHostInfo.ID
+
+			// clear any host_mdm_actions following re-enrollment here
+			if _, err := tx.ExecContext(ctx, `DELETE FROM host_mdm_actions WHERE host_id = ?`, enrolledHostInfo.ID); err != nil {
+				return ctxerr.Wrap(ctx, err, "orbit enroll error clearing host_mdm_actions")
+[exit 0]
