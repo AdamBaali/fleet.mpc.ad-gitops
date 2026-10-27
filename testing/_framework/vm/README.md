@@ -78,6 +78,9 @@ USB drives:
   Provisioning failure 0x800700b7 here.
 - A fixed USB disk present during sysprep's reboot gave 0xc0000001.
 - What works: boot without it and hot-plug it at the region screen (`qmp.sh <vm> usb <img> true`).
+- Hot-plug it as removable (`true`). Hot-plugged as fixed, Windows didn't see the disk at all (ppkg-wipe-55003 X-6).
+- After a reset the guest agent is gone. To get a file onto the host then, hot-plug a USB image and copy it with a
+  Fleet script.
 
 Typing and clicking:
 - `qmp.sh <vm> shell` opens a command prompt over Windows setup and clicks its title bar, which gives it focus.

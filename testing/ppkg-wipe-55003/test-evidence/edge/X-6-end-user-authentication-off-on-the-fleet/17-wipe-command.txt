@@ -1,0 +1,10 @@
+# 2026-10-27T09:20:02Z
+$ fleetctl mdm run-command --hosts 1FCA0238-3AEF-4D8E-9574-3E800F01701E --payload payloads/doWipePersistProvisionedData.xml 2>&1 | grep -v -i version
+
+
+Hosts will run the command the next time they check into Fleet.
+
+Copy and run this command to see results:
+
+fleetctl get mdm-command-results --id=89dd5d52-c7b3-4a24-a2ae-e783d37c91b8
+[exit 0]

@@ -1,0 +1,6 @@
+# 2026-10-27T09:03:10Z
+$ python3 -I tools/fleet-post.py /api/v1/fleet/hosts/transfer '{"team_id":10,"hosts":[29]}'
+
+200 {}
+
+[exit 0]

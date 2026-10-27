@@ -1,0 +1,5 @@
+# 2026-10-27T09:20:34Z
+$ fleetctl api -X DELETE /api/v1/fleet/hosts/29 2>&1 | grep -v -i version; fleetctl api /api/v1/fleet/hosts/29 2>&1 | grep -i -o "not found[^\"]*" | head -1
+
+{}
+[exit 0]

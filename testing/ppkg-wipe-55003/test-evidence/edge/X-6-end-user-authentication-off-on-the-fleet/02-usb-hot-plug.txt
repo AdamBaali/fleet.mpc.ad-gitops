@@ -1,0 +1,6 @@
+# 2026-10-27T09:03:10Z
+$ tools/qmp.sh c4 usb /Users/adam/Documents/GitHub/fleet.mpc.ad-gitops/testing/ppkg-wipe-55003/out/usb-pkg-n-plain.img
+
+{}
+{}
+[exit 0]

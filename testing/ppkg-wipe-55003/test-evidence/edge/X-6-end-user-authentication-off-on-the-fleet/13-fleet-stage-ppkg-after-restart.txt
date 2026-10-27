@@ -1,0 +1,24 @@
+# 2026-10-27T09:19:18Z
+$ fleetctl run-script --host 1FCA0238-3AEF-4D8E-9574-3E800F01701E --script-path scripts/stage-ppkg.ps1 2>&1 | grep -v -i version
+
+
+
+Exit code: 0 (Script ran successfully.)
+
+Output:
+
+-------------------------------------------------------------------------------------
+
+Not resetting system file - C:\Recovery
+C:\Recovery\Customizations\fleet-agent.ppkg 24032451 C137DC246230BAF41DF7DB4A6B91793A09835432BB939E13716D935029E8E02A
+C:\Recovery\Customizations\InstallOrder.ini 76 9B8E7C94B477CF9DFF957D02FBFE2B69445F740264F704A5438D7D8902BB3B5C
+C:\Recovery BUILTIN\Administrators:(F)
+            BUILTIN\Administrators:(OI)(CI)(F)
+            NT AUTHORITY\SYSTEM:(OI)(CI)(F)
+            BUILTIN\Administrators:(OI)(CI)(IO)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+
+
+-------------------------------------------------------------------------------------
+[exit 0]
