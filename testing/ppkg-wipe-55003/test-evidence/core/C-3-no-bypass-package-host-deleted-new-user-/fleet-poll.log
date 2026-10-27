@@ -1,2 +1,3 @@
 2026-10-27T03:06:02Z lookup failed
 2026-10-27T03:47:45Z host=28 name=DESKTOP-QMTG3I0 status=online enrolled=2026-10-27T03:47:46Z restarted=0001-01-01T00:00:00Z mdm=On (manual) connected=True orbit=None users=['eua-user-2@example.com']
+2026-10-27T03:50:51Z host=28 name=DESKTOP-QMTG3I0 status=offline enrolled=2026-10-27T03:47:46Z restarted=0001-01-01T00:00:00Z mdm=On (manual) connected=True orbit=None users=['eua-user-2@example.com']

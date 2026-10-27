@@ -1,0 +1,5 @@
+# 2026-10-27T03:53:10Z
+$ tools/qga-push.sh c4 out/msi-b/fleet-osquery-arm64.msi C:/Windows/Temp/fleet-osquery-arm64.msi
+
+C:/Windows/Temp/fleet-osquery-arm64.msi 24022528 C7315FF03BF56DBEECA8B01C9CA28D47A8C88399E80F183E7260FE542FCD0159
+[exit 0]

@@ -117,6 +117,6 @@ Autopilot, Entra join, `doAutomaticRedeployment`, Windows 10, Wi-Fi-only devices
 
 ## Confirmation
 
-- [ ] Phase 0 passed, with evidence
-- [ ] C-1 to C-4 have results and screenshots of every user-facing screen
+- [x] Phase 0 passed, with evidence (L-2C, L-3; L-1 covered by generalizing each VM: C-1 to C-4 each enrolled as its own host)
+- [x] C-1 to C-4 have results and screenshots of every user-facing screen (C-2 rerun as C-2r)
 - [ ] RESULTS.md and drafts/ISSUE_UPDATE.md updated for the design review

@@ -116,3 +116,16 @@ VM), `tools/qmp.sh` (screens, keys, clicks), `tools/qga.sh` (PowerShell through 
 Limits: upstream QEMU's arm TPM device fails under HVF, so VMs run without a TPM (`TPM=1` tries it). Letters sent with
 QMP `send-key` don't reach a command prompt opened over the setup screen; use the guest agent. The guest agent comes
 from UTM guest tools, which a reset removes.
+
+Lessons from running C-1 to C-4 on QEMU:
+- Display: ramfb only. With virtio-gpu attached, the first boot after sysprep generalize fails with 0xc0000001 and a
+  reset sat idle with no picture, and power cycling it mid-reset left Windows unbootable (C-2). ramfb can show stale or
+  black screens on the desktop under HVF; a restart with `GPU=virtio` fixes the picture when no reset follows (C-3).
+- USB: QEMU's removable USB drive makes setup apply the package by itself and then show Provisioning failure
+  0x800700b7 though fleetd installed (C-1, C-2). A fixed USB disk present during sysprep's reboot gave 0xc0000001.
+  What worked: boot without it and hot-plug it as removable at the region screen (`tools/qmp.sh <vm> usb <img> true`),
+  then open the package from Shift+F10 (C-2r).
+- Run QEMU as a long-lived background task (`FG=1`). QEMU started inside a short tool call was killed with it.
+- Put guest PowerShell in files (`payloads/local/`) and pass them with `"$(cat file)"`; nested quoting loses
+  backslashes. Guest paths with forward slashes avoid the problem too.
+- Typed `\` comes out as `#` in the golden image's layout. Use forward slashes (`cd /d C:/Windows/...`).

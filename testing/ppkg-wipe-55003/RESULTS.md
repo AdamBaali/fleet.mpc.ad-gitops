@@ -13,6 +13,7 @@ fix"). Evidence per test in `test-evidence/`.
 | Where does the end user sign in? | On the setup screen. Windows 11 26H2 opens Microsoft Edge there, so fleetd shows Fleet's "Authentication required" page, then the IdP. Host enrolled 28 s after sign-in with the IdP user linked and MDM On, before any account existed | E-2 |
 | Does `doWipePersistProvisionedData` keep the package? | Yes. The package applied at setup stays in `C:\ProgramData\Microsoft\Provisioning`. The device is wiped: user profile and files gone | W-1b |
 | Can Fleet stage the package on a host enrolled another way? | Yes. A Fleet script copied it into `C:\Recovery\Customizations` (exit 0). The reset kept it and processed it (`InstallOrder.ini` written during the reset). Same pattern as Omnissa's Workspace ONE script (NOTES D-7) | W-6 |
+| Does it work for a host that was never set up with a package (brownfield)? | Yes. A Fleet script staged the package in `C:\Recovery\Customizations` on an MSI-enrolled host; after the wipe the reset applied it and the host came back as the same Fleet host in 12.5 minutes with MDM on | C-4 |
 | Does the host come back to Fleet after the reset? | Yes (bypass build). 13 minutes after the wipe, fleetd had reinstalled itself and re-enrolled at the region screen as the same Fleet host, with no prompt. Windows MDM re-enrolled a minute later. The local user and its files were gone; the package was still kept | C-1 |
 | Does the no-bypass host need the IdP again after the reset? | No, if the host is still in Fleet. It came back as the same host in 13 minutes with nobody signing in: Fleet lets a host it already knows re-enroll without end user authentication | C-2r |
 | Does a repurposed host keep the old IdP user? | Yes. After the reset Fleet still shows the previous user (eua-user-1) as the host's end user, and the next person isn't asked to sign in. To get a new user, the host has to be deleted from Fleet | C-2r |
@@ -36,7 +37,8 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 4. Docs: Fleet's MDM command library Windows payloads are wrapped in `<syncml>`, which `fleetctl mdm run-command`
    rejects. The bare `<Exec>` works (NOTES D-8).
 5. Security: the package kept in `ProgramData\Microsoft\Provisioning` is readable by Users and Everyone. It holds the
-   MSI with the enroll secret. The staging script left Users with read access to `C:\Recovery` too (fix in the script).
+   MSI with the enroll secret. The v1 staging script left Users with read access to `C:\Recovery`; fixed, and C-4 shows only SYSTEM and
+   Administrators.
 6. Fleet keys Windows MDM enrollments on `mdm_hardware_id`. Clones of one non-generalized image share it, so a second
    clone took over the first one's MDM record. Lab artifact here, but relevant for cloned VDI images.
 7. After a custom wipe command, Fleet keeps showing the host as MDM On and connected until it checks in again. Right
@@ -65,3 +67,4 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 | C-2 | BLOCKED | Lab display fault mid-reset; rerun as C-2r |
 | C-2r | PASS | No-bypass build: same host back in 13 min without the IdP; previous end user still attributed |
 | C-3 | PASS | Host deleted during the reset: new host, sign-in at the new user's desktop, only the new IdP user |
+| C-4 | PASS | Brownfield: Fleet script stages the package in C:\Recovery\Customizations; same host back in 12.5 min, MDM on |

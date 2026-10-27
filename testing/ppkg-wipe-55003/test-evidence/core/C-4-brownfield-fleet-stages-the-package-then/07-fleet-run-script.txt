@@ -1,0 +1,26 @@
+# 2026-10-27T03:55:00Z
+$ fleetctl run-script --host 1FCA0238-3AEF-4D8E-9574-3E800F01701E --script-path scripts/stage-ppkg.ps1
+
+Warning: Version mismatch.
+Client Version:   4.93.2
+Server Version:  4.93.0
+
+
+Exit code: 0 (Script ran successfully.)
+
+Output:
+
+-------------------------------------------------------------------------------------
+
+Not resetting system file - C:\Recovery
+C:\Recovery\Customizations\fleet-agent.ppkg 24032479 28A2FA44C35FABD87239B7E94F3E0E48D40F5A66DB797B81251C2A84494F7538
+C:\Recovery BUILTIN\Administrators:(F)
+            BUILTIN\Administrators:(OI)(CI)(F)
+            NT AUTHORITY\SYSTEM:(OI)(CI)(F)
+            BUILTIN\Administrators:(OI)(CI)(IO)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+
+
+-------------------------------------------------------------------------------------
+[exit 0]

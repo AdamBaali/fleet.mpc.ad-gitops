@@ -1,0 +1,5 @@
+# 2026-10-27T03:54:50Z
+$ tools/qga-push.sh c4 out/fleet-agent-b-plain.ppkg C:/Windows/Temp/fleet-agent.ppkg
+
+C:/Windows/Temp/fleet-agent.ppkg 24032479 28A2FA44C35FABD87239B7E94F3E0E48D40F5A66DB797B81251C2A84494F7538
+[exit 0]

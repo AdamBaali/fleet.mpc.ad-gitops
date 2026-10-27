@@ -10,6 +10,9 @@ if (-not (Test-Path 'C:\Recovery')) { New-Item -ItemType Directory 'C:\Recovery'
 & icacls C:\Recovery /inheritance:r | Out-Null
 & icacls C:\Recovery /grant:r 'SYSTEM:(OI)(CI)(F)' | Out-Null
 & icacls C:\Recovery /grant:r '*S-1-5-32-544:(OI)(CI)(F)' | Out-Null
+# The package holds the enroll secret. Windows can leave explicit read grants on C:\Recovery that /inheritance:r keeps
+# (v1 W-6), so remove Users, Authenticated Users, and Everyone by name.
+& icacls C:\Recovery /remove:g '*S-1-5-32-545' '*S-1-5-11' '*S-1-1-0' | Out-Null
 & takeown /f C:\Recovery /a | Out-Null
 & attrib +H C:\Recovery
 New-Item -ItemType Directory -Force $dst | Out-Null
