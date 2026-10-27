@@ -15,7 +15,9 @@ fix"). Evidence per test in `test-evidence/`.
 | Can Fleet stage the package on a host enrolled another way? | Yes. A Fleet script copied it into `C:\Recovery\Customizations` (exit 0). The reset kept it and processed it (`InstallOrder.ini` written during the reset). Same pattern as Omnissa's Workspace ONE script (NOTES D-7) | W-6 |
 | Does the host come back to Fleet after the reset? | Yes (bypass build). 13 minutes after the wipe, fleetd had reinstalled itself and re-enrolled at the region screen as the same Fleet host, with no prompt. Windows MDM re-enrolled a minute later. The local user and its files were gone; the package was still kept | C-1 |
 | Does the no-bypass host need the IdP again after the reset? | No, if the host is still in Fleet. It came back as the same host in 13 minutes with nobody signing in: Fleet lets a host it already knows re-enroll without end user authentication | C-2r |
-| Does a repurposed host keep the old IdP user? | Yes. After the reset Fleet still shows the previous user (eua-user-1) as the host's end user, and the next person isn't asked to sign in. To get a new user, the host has to be deleted from Fleet (C-3, next) | C-2r |
+| Does a repurposed host keep the old IdP user? | Yes. After the reset Fleet still shows the previous user (eua-user-1) as the host's end user, and the next person isn't asked to sign in. To get a new user, the host has to be deleted from Fleet | C-2r |
+| If the admin deletes the host during the reset, does the next user get asked to sign in? | Yes, but at the desktop, not on the setup screen. Fleet blocks enrollment after the reset; nothing appears during setup; once the new user reaches the desktop, fleetd opens Fleet's sign-in page. After sign-in Fleet lists a new host with only the new IdP user | C-3 |
+| Does a second reset of the same host work? | Yes, same result and time (13 minutes) | C-3 (X-1) |
 
 ## Lab blocker, fixed
 
@@ -62,3 +64,4 @@ lab now runs headless on QEMU with scripts for screens, keys, and guest commands
 | C-1 | PASS | Bypass build: host reset by doWipePersistProvisionedData from Fleet comes back to the same Fleet host, MDM on, no prompt |
 | C-2 | BLOCKED | Lab display fault mid-reset; rerun as C-2r |
 | C-2r | PASS | No-bypass build: same host back in 13 min without the IdP; previous end user still attributed |
+| C-3 | PASS | Host deleted during the reset: new host, sign-in at the new user's desktop, only the new IdP user |

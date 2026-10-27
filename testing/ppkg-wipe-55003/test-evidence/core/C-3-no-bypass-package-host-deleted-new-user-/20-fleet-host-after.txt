@@ -1,0 +1,18 @@
+{
+ "id": 28,
+ "hostname": "DESKTOP-QMTG3I0",
+ "uuid": "1DE9FF32-F958-451B-A9A3-18E3B7D1860A",
+ "team_name": "Windows Reset Lab",
+ "status": "online",
+ "created_at": "2026-10-27T03:47:39Z",
+ "last_enrolled_at": "2026-10-27T03:47:46Z",
+ "orbit_version": null,
+ "mdm_enrollment": "On (manual)",
+ "connected_to_fleet": true,
+ "end_users": [
+  {
+   "idp_username": "eua-user-2@example.com",
+   "idp_info_updated_at": null
+  }
+ ]
+}
