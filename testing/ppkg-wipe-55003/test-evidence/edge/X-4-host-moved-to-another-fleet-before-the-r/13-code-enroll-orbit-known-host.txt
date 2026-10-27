@@ -1,0 +1,14 @@
+# fleet-v4.93.0 server/datastore/mysql/hosts.go lines 2619-2631, EnrollOrbit, known host
+			sqlUpdate := `
+      UPDATE
+        hosts
+      SET
+        orbit_node_key = ?,
+        uuid = COALESCE(NULLIF(uuid, ''), ?),
+        osquery_host_id = COALESCE(NULLIF(osquery_host_id, ''), ?),
+        hardware_serial = COALESCE(NULLIF(hardware_serial, ''), ?),
+        computer_name = COALESCE(NULLIF(computer_name, ''), ?),
+        hardware_model = COALESCE(NULLIF(hardware_model, ''), ?),
+        refetch_requested = ?
+      WHERE id = ?`
+			args := []any{

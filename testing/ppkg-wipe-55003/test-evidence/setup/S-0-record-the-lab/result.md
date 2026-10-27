@@ -15,6 +15,6 @@ Fleet 4.93.0. Premium. Windows MDM on, automatic Windows MDM turn-on (enable_tur
 
 ## Result: PASS
 
-Version, license, MDM, and fleets recorded. The bypass setting isn't in the API. Adam confirmed FLEET_MDM_ALLOW_ORBIT_END_USER_AUTH_BYPASS isn't set on Render (2026-10-26), so it is the default, true. Left unset on purpose: it is what customers run.
+Version, license, MDM, and fleets recorded. The bypass setting isn't in the API. The lab owner confirmed FLEET_MDM_ALLOW_ORBIT_END_USER_AUTH_BYPASS isn't set on Render (2026-10-26), so it is the default, true. Left unset on purpose: it is what customers run.
 
 _Finished 2026-10-26T15:58:08Z_

@@ -1,0 +1,5 @@
+# 2026-10-27T09:00:30Z
+$ fleetctl api /api/v1/fleet/hosts/25 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; m=h["mdm"]; print("host",h["id"],h["hostname"],"fleet",h["team_id"],h["team_name"],"mdm",m["enrollment_status"],"connected",m.get("connected_to_fleet"),"enrolled",h["last_enrolled_at"])'
+
+host 25 DESKTOP-5JVIVCK fleet 10 Windows Reset Lab mdm Off connected False enrolled 2026-10-27T08:58:27Z
+[exit 0]

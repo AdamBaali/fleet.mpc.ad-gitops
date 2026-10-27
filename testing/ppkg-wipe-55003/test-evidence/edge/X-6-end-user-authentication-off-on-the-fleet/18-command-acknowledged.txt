@@ -1,0 +1,9 @@
+# 2026-10-27T09:20:33Z
+$ fleetctl get mdm-command-results --id=89dd5d52-c7b3-4a24-a2ae-e783d37c91b8 2>&1 | grep -v -i version | sed "s#<Data>[^<]*</Data>#<Data>[redacted]</Data>#" | grep -A1 "TIME\|STATUS"
+
+TIME:
+2026-10-27T09:20:33Z
+--
+STATUS:
+200
+[exit 0]

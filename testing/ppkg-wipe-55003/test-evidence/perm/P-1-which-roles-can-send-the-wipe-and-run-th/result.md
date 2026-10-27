@@ -5,10 +5,10 @@
 - **Expected:** Recorded per role
 
 ## Steps and evidence
-- `01-rego-mdm-command-write.txt`: `git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/authz/policy.rego | sed -n 1056,1069p`
-- `02-run-mdm-command-authz.txt`: `git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/service/mdm.go | sed -n 519,521p`
-- `03-built-in-wipe-authz.txt`: `git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:ee/server/service/hosts.go | sed -n 279,286p`
-- `04-rego-script-write.txt`: `git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/authz/policy.rego | sed -n 1298,1322p`
+- `01-rego-mdm-command-write.txt`: `git -C <fleet repo> show fleet-v4.93.0:server/authz/policy.rego | sed -n 1056,1069p`
+- `02-run-mdm-command-authz.txt`: `git -C <fleet repo> show fleet-v4.93.0:server/service/mdm.go | sed -n 519,521p`
+- `03-built-in-wipe-authz.txt`: `git -C <fleet repo> show fleet-v4.93.0:ee/server/service/hosts.go | sed -n 279,286p`
+- `04-rego-script-write.txt`: `git -C <fleet repo> show fleet-v4.93.0:server/authz/policy.rego | sed -n 1298,1322p`
 
 | Role (global, or fleet-level for hosts in that fleet) | Send the reprovision wipe (custom MDM command) | Built-in Wipe | Run the staging script |
 |---|---|---|---|

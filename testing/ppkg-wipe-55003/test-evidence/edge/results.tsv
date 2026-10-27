@@ -1,2 +1,7 @@
-X-8	BLOCKED	X-8-bitlocker-on-before-the-reset	Lab VMs have no TPM (QEMU arm TPM crashes under HVF), and Fleet BitLocker needs one; needs x64 hardware
 X-2	PASS	X-2-host-offline-when-the-wipe-is-sent	An offline host runs the queued wipe at its next check-in and comes back as the same host with MDM on; the feed shows only when the command was sent
+X-3	PASS	X-3-enroll-secret-rotated-after-the-package-	With the enroll secret rotated, fleetd comes back after the reset but can't enroll ("unauthenticated, or invalid token"); it enrolls 21 s after the old secret is valid again
+X-4	PASS	X-4-host-moved-to-another-fleet-before-the-r	A known host comes back in the fleet it was in (No team here), not the fleet of the package's enroll secret; Fleet sets the fleet only for new hosts
+X-5	NOT-RUN	X-5-package-with-an-older-fleetd	Stopped after building the fleetd 1.58.0 MSI; the package wasn't built. From code, a version-pinned package keeps that fleetd until the fleet sets update_channels
+X-6	PASS	X-6-end-user-authentication-off-on-the-fleet	With end user authentication off, the reset no-bypass host enrolled as a new host (host 30) with no prompt and no end user, MDM on, 15.5 minutes after the wipe
+X-7	PASS	X-7-no-package-left-for-the-reset	With no package left, the reset comes back without fleetd and the host never checks in; the package is what brings it back
+X-8	BLOCKED	X-8-bitlocker-on-before-the-reset	Lab VMs have no TPM (QEMU arm TPM crashes under HVF), and Fleet BitLocker needs one; needs x64 hardware

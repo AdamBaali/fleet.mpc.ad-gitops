@@ -1,0 +1,6 @@
+# 2026-10-27T09:03:10Z
+$ tools/qmp.sh c4 usb out/usb-pkg-n-plain.img
+
+{}
+{}
+[exit 0]

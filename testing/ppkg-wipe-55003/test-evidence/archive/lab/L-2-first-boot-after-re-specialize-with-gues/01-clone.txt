@@ -1,0 +1,5 @@
+# 2026-10-26T21:22:42Z
+$ vm/clone.sh new ppkg-golden-oobe l2-strip
+
+Cloned ppkg-golden-oobe -> l2-strip (new): ~/Library/Containers/com.utmapp.UTM/Data/Documents/l2-strip.utm
+[exit 0]

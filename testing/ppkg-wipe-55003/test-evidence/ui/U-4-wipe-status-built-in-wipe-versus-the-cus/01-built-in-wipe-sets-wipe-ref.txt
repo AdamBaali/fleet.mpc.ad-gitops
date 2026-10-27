@@ -1,0 +1,24 @@
+# 2026-10-27T09:39:48Z
+$ git -C <fleet repo> show fleet-v4.93.0:server/datastore/mysql/microsoft_mdm.go | sed -n 3810,3829p
+
+func (ds *Datastore) WipeHostViaWindowsMDM(ctx context.Context, host *fleet.Host, cmd *fleet.MDMWindowsCommand) error {
+	return ds.withRetryTxx(ctx, func(tx sqlx.ExtContext) error {
+		if err := ds.mdmWindowsInsertCommandForHostsDB(ctx, tx, []string{host.UUID}, cmd); err != nil {
+			return err
+		}
+
+		stmt := `
+			INSERT INTO host_mdm_actions (
+				host_id,
+				wipe_ref,
+				fleet_platform
+			)
+			VALUES (?, ?, ?)
+			ON DUPLICATE KEY UPDATE
+				wipe_ref   = VALUES(wipe_ref)`
+
+		if _, err := tx.ExecContext(ctx, stmt, host.ID, cmd.CommandUUID, host.FleetPlatform()); err != nil {
+			return ctxerr.Wrap(ctx, err, "modifying host_mdm_actions for wipe_ref")
+		}
+
+[exit 0]

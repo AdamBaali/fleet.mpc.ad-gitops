@@ -1,0 +1,6 @@
+# 2026-10-26T16:06:23Z
+$ ls -la $HOME/Library/Parallels/Downloads/26100.4349.250607-1500.ge_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso; shasum -a 256 $HOME/Library/Parallels/Downloads/26100.4349.250607-1500.ge_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso
+
+-rw-r--r--@ 1 adam  staff  5277124608 Jul 30  2025 ~/Library/Parallels/Downloads/26100.4349.250607-1500.ge_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso
+9281b0ba0c5031908399a80835ea9d57b14393f697b3abe33bc1cb579f9291df  ~/Library/Parallels/Downloads/26100.4349.250607-1500.ge_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso
+[exit 0]

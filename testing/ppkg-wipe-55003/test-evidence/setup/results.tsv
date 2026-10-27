@@ -1,9 +1,8 @@
-S-0	PASS	S-0-record-the-lab	Fleet 4.93.0, Premium, Windows MDM on. Bypass setting unset on Render, so true (default).
+S-0	PASS	S-0-record-the-lab	Version, license, MDM, and fleets recorded. The bypass setting isn't in the API. The lab owner confirmed FLEET_MDM_ALLOW_ORBIT_END_USER_AUTH_BYPASS isn't set on Render (2026-10-26), so it is the default, true. Left unset on purpose: it is what customers run.
 S-2	PASS	S-2-idp-and-fleet-applied	IdP 'Lab IdP' with entity ID fleet-mpc-ad-end-users and inline metadata pointing at the mock IdP. Only fleet 10 (Windows Reset Lab) requires end user authentication; the other seven fleets and hosts in no fleet don't.
-S-3	NOT-RUN	S-3-golden-vm-at-the-region-screen	Stopped to switch to the latest Windows 11 arm64 ISO.
-S-5	PASS	S-5-build-msi-b-and-msi-n	Both arm64 MSIs built with fleetctl 4.93.2. Only MSI-B carries ORBIT_BYPASS_END_USER_AUTH=true.
-S-3	PARTIAL	S-3-golden-vm-at-the-region-screen	Golden VM stops at the region screen on Windows 11 26H2 Pro (build 26300.9457). No network yet: needs UTM's virtio-net driver from the guest tools.
-S-3b	PASS	S-3b-winre-build-and-hardware-identity	WinRE Enabled (10.0.26100.9444), Windows 11 Pro 10.0.26300, SMBIOS UUID equals the UTM VM UUID, empty serial.
 S-3	PASS	S-3-golden-vm-at-the-region-screen	Golden VM: Windows 11 Pro 26H2 (26300.9457) at the region screen, no user account, network up, reaches Fleet and the mock IdP.
+S-3b	PASS	S-3b-winre-build-and-hardware-identity	WinRE Enabled (10.0.26100.9444), Windows 11 Pro 10.0.26300, SMBIOS UUID equals the UTM VM UUID, empty serial.
 S-4	PASS	S-4-builder-vm-with-configuration-designer	ADK 10.1.26100.9457 installed in the builder VM with ICD.exe (Configuration Designer command line). The builder has no user account and no fleetd.
+S-5	PASS	S-5-build-msi-b-and-msi-n	Both arm64 MSIs built with fleetctl 4.93.2. Only MSI-B carries ORBIT_BYPASS_END_USER_AUTH=true.
 S-6	PASS	S-6-build-pkg-b-and-pkg-n	PKG-B and PKG-N built, encrypted, Owner IT Admin, CommandLine msiexec.exe /i fleet-osquery-arm64.msi /qn /norestart, as the guide sets them.
+S-7	PASS	S-7-usb-images-for-the-packages	Two 64 MB FAT32 images, one package at the root of each (01). The unencrypted packages used in the tests got images the same way (`out/usb-pkg-b-plain.img`, `out/usb-pkg-n-plain.img`).

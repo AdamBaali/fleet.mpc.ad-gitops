@@ -1,0 +1,7 @@
+# 2026-10-27T10:40:07Z
+$ tools/qga.sh builder2 'New-Item -ItemType Directory -Force C:\build | Out-Null; Invoke-WebRequest -UseBasicParsing -Uri https://go.microsoft.com/fwlink/?linkid=2289980 -OutFile C:\build\adksetup.exe; (Get-Item C:\build\adksetup.exe).VersionInfo.ProductVersion; $p = Start-Process C:\build\adksetup.exe -ArgumentList "/quiet /norestart /ceip off /features OptionId.ImagingAndConfigurationDesigner OptionId.DeploymentTools" -Wait -PassThru; "adksetup exit: " + $p.ExitCode; Get-ChildItem -Recurse -Filter ICD.exe "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit" | Select-Object -ExpandProperty FullName' 1800
+
+10.1.26100.9457
+adksetup exit: 0
+C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Imaging and Configuration Designer\x86\ICD.exe
+[exit 0]

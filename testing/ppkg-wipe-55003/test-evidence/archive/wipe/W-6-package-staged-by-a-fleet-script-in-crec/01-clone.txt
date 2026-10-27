@@ -1,0 +1,6 @@
+# 2026-10-26T19:45:17Z
+$ vm/clone.sh new ppkg-golden-oobe w6-stage && /usr/libexec/PlistBuddy -c 'Print :Information:UUID' $HOME/Library/Containers/com.utmapp.UTM/Data/Documents/w6-stage.utm/config.plist
+
+Cloned ppkg-golden-oobe -> w6-stage (new): ~/Library/Containers/com.utmapp.UTM/Data/Documents/w6-stage.utm
+329557D4-1408-4A41-8737-57A85722B6D4
+[exit 0]

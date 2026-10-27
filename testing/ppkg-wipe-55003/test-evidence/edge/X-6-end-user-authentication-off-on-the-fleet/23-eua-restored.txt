@@ -1,0 +1,6 @@
+# 2026-10-27T09:37:28Z
+$ METHOD=PATCH python3 -I tools/fleet-post.py /api/v1/fleet/setup_experience '{"team_id":10,"enable_end_user_authentication":true}'; fleetctl api /api/v1/fleet/teams/10 2>/dev/null | python3 -c 'import sys,json; print("enable_end_user_authentication", json.load(sys.stdin)["team"]["mdm"]["macos_setup"]["enable_end_user_authentication"])'
+
+204 
+enable_end_user_authentication True
+[exit 0]

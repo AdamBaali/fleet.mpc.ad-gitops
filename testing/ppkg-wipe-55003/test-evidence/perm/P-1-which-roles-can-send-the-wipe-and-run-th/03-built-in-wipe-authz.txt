@@ -1,5 +1,5 @@
 # 2026-10-27T08:10:01Z
-$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:ee/server/service/hosts.go | sed -n 279,286p
+$ git -C <fleet repo> show fleet-v4.93.0:ee/server/service/hosts.go | sed -n 279,286p
 
 	// Authorize again with team loaded now that we have the host's team_id.
 	// Authorize as "execute mdm_command", which is the correct access

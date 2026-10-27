@@ -1,5 +1,5 @@
 # 2026-10-27T08:10:01Z
-$ git -C /Users/adam/Documents/GitHub/fleet show fleet-v4.93.0:server/service/mdm.go | sed -n 519,521p
+$ git -C <fleet repo> show fleet-v4.93.0:server/service/mdm.go | sed -n 519,521p
 
 func (svc *Service) RunMDMCommand(ctx context.Context, rawBase64Cmd string, hostUUIDs []string) (result *fleet.CommandEnqueueResult, err error) {
 	hosts, err := svc.authorizeAllHostsTeams(ctx, hostUUIDs, fleet.ActionWrite, &fleet.MDMCommandAuthz{})

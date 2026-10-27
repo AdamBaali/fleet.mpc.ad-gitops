@@ -1,0 +1,5 @@
+2026-10-27T09:36:04Z
+lookup failed
+host=30 name=WIN-GPRAJ2KO2OH status=online enrolled=2026-10-27T09:36:07Z restarted=2026-10-27T09:32:15.080097Z mdm=Off connected=False orbit=1.62.1 users=[]
+host=30 name=WIN-GPRAJ2KO2OH status=online enrolled=2026-10-27T09:36:07Z restarted=2026-10-27T09:32:15.080097Z mdm=Off connected=False orbit=1.62.1 users=[]
+host=30 name=WIN-GPRAJ2KO2OH status=online enrolled=2026-10-27T09:36:07Z restarted=2026-10-27T09:32:15.080097Z mdm=On (manual) connected=True orbit=1.62.1 users=[]

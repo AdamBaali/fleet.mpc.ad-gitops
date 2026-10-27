@@ -1,0 +1,5 @@
+# 2026-10-27T09:37:16Z
+$ fleetctl api /api/v1/fleet/hosts/30 2>/dev/null | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; m=h["mdm"]; print("host",h["id"],h["hostname"],"created",h["created_at"],"fleet",h["team_name"],"mdm",m["enrollment_status"],"end_users",[u.get("idp_username") for u in h.get("end_users") or []])'
+
+host 30 WIN-GPRAJ2KO2OH created 2026-10-27T09:36:05Z fleet Windows Reset Lab mdm On (manual) end_users []
+[exit 0]

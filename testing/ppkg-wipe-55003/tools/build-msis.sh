@@ -12,6 +12,10 @@ build() { # dir, extra flags
       --enroll-secret="$FLEET_WINDOWS_RESET_LAB_ENROLL_SECRET" --fleet-desktop --enable-scripts \
       --disable-setup-experience $2 --disable-open-folder 2>&1 | grep -v -i secret | tail -3 )
 }
+if [ -n "${OLD:-}" ]; then
+  # X-5: a package with an older fleetd. The channel pins orbit and Fleet Desktop to that version (osqueryd stays stable).
+  build "msi-b-$OLD" "--bypass-end-user-auth --orbit-channel=$OLD --desktop-channel=$OLD"; ls -la out/msi-b-$OLD/*.msi; exit
+fi
 build msi-b "--bypass-end-user-auth"
 build msi-n ""
 ls -la out/msi-b/*.msi out/msi-n/*.msi

@@ -1,0 +1,18 @@
+# 2026-10-27T09:21:38Z
+$ fleetctl run-script --host ED712DCB-E688-47A9-B129-E983573EE9EE --script-path payloads/local/list-packages.ps1 2>&1 | grep -v -i version
+
+
+
+Exit code: 0 (Script ran successfully.)
+
+Output:
+
+-------------------------------------------------------------------------------------
+
+== C:\ProgramData\Microsoft\Provisioning
+C:\ProgramData\Microsoft\Provisioning\fleet-agent-b-plain.ppkg 24032479
+== C:\Recovery\Customizations
+
+
+-------------------------------------------------------------------------------------
+[exit 0]

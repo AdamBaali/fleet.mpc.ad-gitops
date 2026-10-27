@@ -1,0 +1,5 @@
+# 2026-10-27T09:20:00Z
+$ fleetctl api /api/v1/fleet/teams/10 2>/dev/null | python3 -c 'import sys,json; print("enable_end_user_authentication", json.load(sys.stdin)["team"]["mdm"]["macos_setup"]["enable_end_user_authentication"])'
+
+enable_end_user_authentication True
+[exit 0]

@@ -1,2 +1,8 @@
 2026-10-27T08:09:25Z host=29 name=DESKTOP-LRK2EJ7 status=online enrolled=2026-10-27T05:08:18Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
 2026-10-27T08:11:59Z host=29 name=DESKTOP-LRK2EJ7 status=offline enrolled=2026-10-27T05:08:18Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T08:58:29Z host=29 name=DESKTOP-LRK2EJ7 status=offline enrolled=2026-10-27T05:08:18Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T08:58:59Z host=29 name=DESKTOP-1SKPKB4 status=online enrolled=2026-10-27T08:59:11Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T08:59:22Z host=29 name=DESKTOP-1SKPKB4 status=online enrolled=2026-10-27T08:59:11Z restarted=2026-10-27T05:04:51.737372Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T08:59:30Z host=29 name=DESKTOP-1SKPKB4 status=online enrolled=2026-10-27T08:59:11Z restarted=2026-10-27T08:29:34.913497Z mdm=Off connected=False orbit=1.62.1 users=[]
+2026-10-27T09:00:01Z host=29 name=DESKTOP-1SKPKB4 status=online enrolled=2026-10-27T08:59:11Z restarted=2026-10-27T08:29:34.913497Z mdm=On (manual) connected=True orbit=1.62.1 users=[]
+2026-10-27T09:21:03Z lookup failed

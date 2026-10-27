@@ -1,0 +1,5 @@
+# 2026-10-27T09:08:41Z
+$ tools/qmp.sh c4 '{"execute":"system_reset"}'
+
+{}
+[exit 0]
