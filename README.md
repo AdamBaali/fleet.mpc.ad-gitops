@@ -37,6 +37,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 
 | Project | Purpose |
 | --- | --- |
+| `testing/mac-eval-utility/` | Fleet reports that run Apple's Mac Evaluation Utility checks on every Mac. The reports are global, in `default.yml` |
 | `testing/app-suffix-34088/` | Diagnosis and tested SQL cleanup for macOS software names ending in ".app" (fleetdm/fleet#34088). Runs against Fleet's test database, not the lab Fleet |
 
 
