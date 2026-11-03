@@ -2,6 +2,9 @@
 
 policies:
 reports:
+  # Mac readiness checks for every Mac in the lab. Global so they run in any fleet.
+  # Generated; see testing/mac-readiness/.
+  - path: ./lib/macos/reports/mac-readiness.reports.yml
 agent_options:
 controls:
   windows_enabled_and_configured: true
