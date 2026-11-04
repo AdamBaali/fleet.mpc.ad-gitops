@@ -1,0 +1,15 @@
+# Lab fleet for Android PIN at enrollment, option 2 (fleetdm/fleet#57607, customer-antonella).
+# Company-owned hosts enroll here with the password profile already in place, so the profile reaches the
+# host during the setup wizard. Tests whether the PIN prompt in setup is reliable. See testing/android-pin-57607/.
+name: "android-pin-test-block0"
+policies:
+reports:
+agent_options:
+controls:
+  android_settings:
+    configuration_profiles:
+      - path: ../lib/android/configuration-profiles/pin-block-0.json
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_ANDROID_PIN_TEST_BLOCK0_ENROLL_SECRET"
