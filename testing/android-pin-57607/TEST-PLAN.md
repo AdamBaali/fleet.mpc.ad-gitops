@@ -70,7 +70,7 @@ without keeping factory reset protection (see NOTES.md).
 | S-1 | Merge the PR so GitOps creates the four fleets. Record the Fleet version (`run.sh start` writes it) | The four fleets exist. Each Android fleet shows its profile; `android-pin-staging` shows none |
 | S-2 | Confirm Android MDM is on (**Settings > Integrations > MDM**) and the labels exception setting under **Settings > Integrations > Change management** | Android MDM on. If the labels exception is on, the PR dry run fails on `android-pin-label.yml`: drop that file and create the label in the UI |
 | S-3 | Create `private/fleet.env` with `FLEET_URL` and `FLEET_API_TOKEN` (an API-only user with maintainer or admin role). To keep device serials out of the public evidence, add `LAB_DEVICE_SECRET_1=<serial>` lines: the framework masks any value whose name contains `SECRET` | `tools/run.sh start S-3 "setup check" "api works" "version shown"` prints a Fleet version |
-| S-4 | For each fleet, open **Hosts**, pick the fleet, **Add hosts > Android**, and keep the company-owned QR code page open on a laptop | QR code shown for each fleet. Note: the QR's enrollment token lasts 1 hour and is one-time; reload the page for each run |
+| S-4 | For each fleet, open **Hosts**, pick the fleet, **Add hosts > Android > Company-owned (fully-managed)**. That option shows a link, not a QR code (only **Personal (BYOD)** shows one). Open the link in a laptop browser: the enrollment page shows the QR code the wiped device scans ([android-mdm-setup.md#L67](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/articles/android-mdm-setup.md?plain=1#L67)) | Enrollment page with a QR code for each fleet. Open it just before each run: the QR's enrollment token lasts 1 hour and works once |
 | S-5 | Prepare the device: charged, Wi-Fi details at hand, a second phone or camera to film the screen with a clock in view | A test video shows the screen and a clock |
 
 ## What to record per run
@@ -103,7 +103,7 @@ Common run steps (R):
 1. If the device was in a previous run: for the label option, remove the label first (`run.sh move <ID> <serial> --remove-label android-pin-ready`). Manual labels survive a wipe and re-enrollment.
 2. Factory reset the device (Settings > System > Reset options > Erase all data, or **Actions > Wipe** in Fleet).
 3. `tools/run.sh start <ID> "<title>" "<objective>" "<expected>"`, then `tools/run.sh watch <ID> <serial>` in a second terminal.
-4. On the welcome screen, tap 6 times to open the QR reader. Scan the fleet's company-owned QR code. Note T0.
+4. Open the fleet's company-owned enrollment link in a laptop browser (S-4). On the device welcome screen, tap 6 times to open the QR reader and scan the QR code on that page. Note T0.
 5. Go through the wizard at the pace the run asks for. Record every screen and every prompt.
 6. After the home screen (or after giving up on a block), open Chrome, Play Store and Camera.
 7. Set a PIN when asked. Check the profile status in Fleet. `tools/run.sh host <ID> <serial>`.
