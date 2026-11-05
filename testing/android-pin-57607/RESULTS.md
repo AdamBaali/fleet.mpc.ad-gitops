@@ -28,7 +28,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | O2-1 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Normal | 09:37:24 to 09:37:48 | 5:05 to 5:29 (09:42:53) | 5:17 to 5:41 (09:43:05, failed USER_ACTION; pending 5 s before) | "Registering device..." (reconciler 09:42:57) | Yes, "Set a new screen lock" at 09:43:05 | No | n/a | 6:09 to 6:33 (09:43:57) |
 | O2-2 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Normal | about 10:37 (Wi-Fi 10:37:52) | 10:39:43 | 10:40:00 pending, 10:40:05 failed USER_ACTION | "Google services" (reconciler 10:39:59, 16 s after enrollment; registering ended 10:39:52) | No | No block screen in setup; apps blocked at the home screen | Device Policy notification "Unblock your apps" | 10:42:00 |
-| O2-3 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Fast (one 45 s pause on Google services) | about 11:14 (attempt 2; attempt 1 ended in "Can't set up device" before enrollment) | 11:16:00 | 11:16:16 pending, 11:16:39 failed USER_ACTION | "Google services" (applied 11:16:21; registering ended 11:16:14) | No | No block screen in setup; apps blocked at home | Custom block dialog text, then the notification | 11:17:44 |
+| O2-3 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Fast (one 45 s pause on Google services) | about 11:14 | 11:16:00 | 11:16:16 pending, 11:16:39 failed USER_ACTION | "Google services" (applied 11:16:21; registering ended 11:16:14) | No | No block screen in setup; apps blocked at home | Custom block dialog text, then the notification | 11:17:44 |
 | O2-4 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Fast | about 11:26 | 11:28:00 | 11:28:19 pending, 11:28:41 failed USER_ACTION | After registering (applied 11:28:21) | No | No block screen in setup; apps blocked at home | Reworded block dialog text, then the notification | about 11:29 |
 | O2-4 | | | | | | Slow | | | | | | | | |
 | O2-5 | | | | | | Fast | | | | | | | | |
@@ -57,17 +57,6 @@ With `pin-unblock-message.json` in the fleet (O2-3), tapping a blocked app on th
 your organisation's IT administrator for more information." So the end user sees how to unblock without guessing.
 Tested on one Samsung (One UI, Android 16) only. Other makes may lay out the dialog differently, so the message
 shouldn't name Samsung-only steps.
-
-### F-5: "Can't set up device" before enrollment (O2-3 attempt 1)
-
-The first QR attempt in O2-3 ended at "Can't set up device. If you have any questions, contact your IT admin" after
-"Getting ready for work setup...". Google sent Fleet no enrollment, so no Fleet policy was involved. Reset from that
-screen and a new QR worked.
-
-Likely cause: a QR from an older enrollment page. The tester thinks they scanned the wrong QR. The server log shows the
-only enrollment page opened before the attempt (11:08:19) used fleet 14's enroll secret with `fully_managed=true`, the
-correct link, but it doesn't record which QR the phone scanned. A QR from an earlier page (one-time token already used)
-fits the error. Not caused by the PIN profile, and not seen again in the next two attempts.
 
 ### F-3: option 2 depends on where enrollment falls in Fleet's 30-second profile job
 

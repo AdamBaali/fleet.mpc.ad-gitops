@@ -16,7 +16,7 @@ Zero-touch not tested (no zero-touch customer account in the lab).
   and `blockAfterDays: 0` blocks the apps at the home screen until a PIN is set (O2-2 to O2-4).
 - A `shortSupportMessage` profile replaces the text of the blocked-app dialog, so the end user knows to tap the
   "Unblock your apps" notification (O2-3, O2-4).
-- Details: [RESULTS.md](RESULTS.md) (findings F-1 to F-5), [NOTES.md](NOTES.md) (code and API sources),
+- Details: [RESULTS.md](RESULTS.md) (findings F-1 to F-4), [NOTES.md](NOTES.md) (code and API sources),
   [EVIDENCE.md](EVIDENCE.md) (every run, with photos).
 
 ## Files
