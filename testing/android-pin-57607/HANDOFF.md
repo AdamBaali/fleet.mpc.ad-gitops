@@ -12,19 +12,16 @@ The report is in `drafts/FINDINGS-COMMENT.md`, not posted. The test phone is enr
 4. Check the unblock message on a Pixel if one is available.
 
 ## Running services
-None. Fleet on Render still runs with `FLEET_LOGGING_DEBUG=true`.
+None. `FLEET_LOGGING_DEBUG` was removed from Render on 2026-11-05.
 
 ## Teardown
 - Remove `fleets/android-pin-test-block0.yml` and `lib/android/configuration-profiles/pin-*.json` through a PR.
-- Delete the repository secrets `FLEET_ANDROID_PIN_STAGING_ENROLL_SECRET`, `FLEET_ANDROID_PIN_ENFORCED_ENROLL_SECRET` and
-  `FLEET_ANDROID_PIN_LABEL_ENROLL_SECRET` (unused since the option 3 fleets were removed). At full teardown, also
-  `FLEET_ANDROID_PIN_TEST_BLOCK0_ENROLL_SECRET` and its `env` line.
-- Remove `FLEET_LOGGING_DEBUG` from the Render service.
+- Done 2026-11-05: deleted the 3 unused enroll secrets, removed `FLEET_LOGGING_DEBUG` from Render, deleted `private/cam/`.
+- At full teardown: delete `FLEET_ANDROID_PIN_TEST_BLOCK0_ENROLL_SECRET` and its `env` line.
 - Remove the phone from Google Drive's USB devices.
 - Wipe the test devices and delete them from Fleet.
 - Log out of the fleetctl session whose token is in `private/fleet.env`, or revoke the API-only user's token if one replaces it.
 - Remove the zero-touch configurations and the test device registration, if made.
-- Delete `private/cam/` (camera frames, about 700 MB) once the evidence is merged.
 
 ## Rules learned
 - Wipe with `fleetctl mdm wipe`, then delete the host, so each run is a new host.
