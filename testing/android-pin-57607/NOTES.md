@@ -82,6 +82,13 @@ device until you do so."
 
 ## Lab versus production
 
+- **Capturing the setup wizard.** adb can't: a factory reset turns USB debugging off, and the Samsung refused adb
+  commands even before the reset ("error: closed"). Screenshots on the phone can't be copied off either: Fleet's
+  policy doesn't set `deviceConnectivityManagement.usbDataAccess`, and Google's default for company-owned devices is
+  `DISALLOW_USB_FILE_TRANSFER` (the phone shows "controlled by admin"). The lab uses an iPhone camera instead
+  (`tools/cam-log.sh`, one frame a second) and adds no lab-only profile, so the policy matches what the customer's
+  hosts get.
+
 - QR, not zero-touch. Both use the default policy at enrollment, so the race should be the same (Z tests confirm).
 - Test devices and Android versions differ from the customer's. Record both per run.
 - No apps are deployed in the lab fleets. Blocking is checked on built-in apps (Chrome, Play Store, Camera).
