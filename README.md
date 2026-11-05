@@ -31,10 +31,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Power Nap Lab | Test installs and scripts on a sleeping Mac laptop (fleetdm/fleet#46924) | `fleets/power-nap-lab.yml` | `fleets/power-nap-lab/`, `testing/power-nap-46924/` |
 | ServiceNow ITAM Lab | Test software fields for a ServiceNow ITAM export (fleetdm/fleet#38864) | `fleets/servicenow-itam-lab.yml` | `fleets/servicenow-itam-lab/`, `testing/servicenow-itam-38864/` |
 | Windows Reset Lab | Test resetting a Windows host set up with a provisioning package, with end user authentication on (fleetdm/fleet#55003) | `fleets/windows-reset-lab.yml` | `testing/ppkg-wipe-55003/` |
-| android-pin-test-block0 | Android PIN at enrollment, option 2: PIN profile in the enrollment fleet (fleetdm/fleet#57607) | `fleets/android-pin-test-block0.yml` | `testing/android-pin-57607/` |
-| android-pin-staging | Android PIN at enrollment, option 3: enrollment fleet with no PIN profile (fleetdm/fleet#57607) | `fleets/android-pin-staging.yml` | `testing/android-pin-57607/` |
-| android-pin-enforced | Android PIN at enrollment, option 3: PIN fleet that hosts move to after setup (fleetdm/fleet#57607) | `fleets/android-pin-enforced.yml` | `testing/android-pin-57607/` |
-| android-pin-label | Android PIN at enrollment, option 3 with a manual label instead of a fleet move (fleetdm/fleet#57607) | `fleets/android-pin-label.yml` | `testing/android-pin-57607/` |
+| android-pin-test-block0 | Android PIN at enrollment: PIN profile in the enrollment fleet, with an unblock message (fleetdm/fleet#57607) | `fleets/android-pin-test-block0.yml` | `testing/android-pin-57607/` |
 
 
 ## Test projects without a fleet
