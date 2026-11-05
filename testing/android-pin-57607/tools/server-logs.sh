@@ -14,11 +14,20 @@ render logs --resources "$RENDER_SERVICE_ID" --start "$since" --end "$until" --d
   --limit 1000 --output json --confirm \
   | python3 -I -c '
 import json, re, sys
-raw = sys.stdin.read().strip()
-logs = json.loads(raw) if raw else []
-if isinstance(logs, dict):
-    logs = logs.get("logs") or logs.get("items") or []
-keep = re.compile(r"android|enroll|pubsub|policy|policies|profile|clouddpc|amapi|devices/", re.I)
+# The CLI prints one JSON object per log line, back to back, not a JSON array.
+raw = sys.stdin.read()
+dec, pos, logs = json.JSONDecoder(), 0, []
+while True:
+    while pos < len(raw) and raw[pos].isspace():
+        pos += 1
+    if pos >= len(raw):
+        break
+    obj, pos = dec.raw_decode(raw, pos)
+    logs.extend(obj if isinstance(obj, list) else [obj])
+# Android only. "profile" or "policy" alone would also match the Apple and Windows cron jobs.
+keep = re.compile(r"android|pubsub|clouddpc|amapi|enterprises/", re.I)
+# The instance ID repeats on every line and says nothing about the run.
+inst = re.compile(r" instanceID=\"[^\"]*\"")
 # Health checks and static assets fill the window without saying anything about the host.
 drop = re.compile(r"/healthz|/assets/|GET /api/v1/fleet/version", re.I)
 ip = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9a-f]{1,4}:){3,7}[0-9a-f]{1,4}\b", re.I)
@@ -27,7 +36,7 @@ for l in logs:
     msg = l.get("message", "") if isinstance(l, dict) else str(l)
     ts = l.get("timestamp", "") if isinstance(l, dict) else ""
     if keep.search(msg) and not drop.search(msg):
-        print(ts, ip.sub("<ip>", msg))
+        print(ts, ip.sub("<ip>", inst.sub("", msg)))
         n += 1
 print("== %d matching lines of %d in the window (limit 1000)" % (n, len(logs)))
 '
