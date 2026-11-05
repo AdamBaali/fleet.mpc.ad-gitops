@@ -10,10 +10,6 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | Option | Runs | Passed | Result | One line |
 |---|---|---|---|---|
 | 2: profile at enrollment (`android-pin-test-block0`) | 2 | 1 PASS, 1 PARTIAL | PIN enforced in both | Prompt in setup only when Fleet's profile job runs before Device Policy finishes registering (O2-1: 4 s). Otherwise apps are blocked at the home screen until a PIN is set (O2-2: 16 s). Not yet seen: a block during setup |
-| 3: fleet move (`android-pin-staging` -> `android-pin-enforced`) | | | | |
-| 3: label (`android-pin-label` + `android-pin-ready`) | | | | |
-| 1: `blockAfterDays: 1` (optional) | | | | |
-| Variant: `BLOCK_SCOPE_DEVICE` (optional) | | | | |
 | Zero-touch confirmation | | | | |
 
 ## Setup
@@ -35,16 +31,6 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | O2-3 | | | | | | Normal | | | | | | | | |
 | O2-4 | | | | | | Slow | | | | | | | | |
 | O2-5 | | | | | | Fast | | | | | | | | |
-| O3F-1 | | | | | | Normal | | | | | | | | |
-| O3F-2 | | | | | | Normal | | | | | | | | |
-| O3F-3 | | | | | | Normal | | | | | | | | |
-| O3F-4 | | | | | | Move on terms screen | | | | | | | | |
-| O3F-5 | | | | | | Normal, staging QR after enforced | | | | | | | | |
-| O3L-1 | | | | | | Normal | | | | | | | | |
-| O3L-2 | | | | | | Normal | | | | | | | | |
-| O3L-3 | | | | | | Normal, label kept | | | | | | | | |
-| B1-1 | | | | | | Normal | | | | | | | | |
-| V-1 | | | | | | Normal | | | | | | | | |
 | Z-1 | | | | | | Normal | | | | | | | | |
 
 ## Runs: enforcement after setup
@@ -56,19 +42,9 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | O2-3 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-4 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-5 | `android-pin-test-block0` | n/a | | | | | | | | |
-| O3F-1 | `android-pin-staging` | | | | | | | | | |
-| O3F-2 | `android-pin-staging` | | | | | | | | | |
-| O3F-3 | `android-pin-staging` | | | | | | | | | |
-| O3F-4 | `android-pin-staging` | | | | | | | | | |
-| O3F-5 | `android-pin-staging` | n/a | | | | | | | | |
-| O3L-1 | `android-pin-label` | | | | | | | | | |
-| O3L-2 | `android-pin-label` | | | | | | | | | |
-| O3L-3 | `android-pin-label` | label kept | | | | | | | | |
-| B1-1 | `android-pin-test-block0` (block 1) | n/a | | | | | | | | |
-| V-1 | `android-pin-test-block0` (device scope) | n/a | | | | | | | | |
 | Z-1 | zero-touch: | | | | | | | | | |
 
-Add a row to both tables for each extra run (O2-6, V-2, Z-2, and so on).
+Add a row to both tables for each extra run (O2-6, Z-2, and so on).
 
 ## Findings
 
