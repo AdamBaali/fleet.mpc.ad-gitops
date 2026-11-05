@@ -24,7 +24,7 @@ None. Fleet on Render still runs with `FLEET_LOGGING_DEBUG=true`.
 - Wipe the test devices and delete them from Fleet.
 - Log out of the fleetctl session whose token is in `private/fleet.env`, or revoke the API-only user's token if one replaces it.
 - Remove the zero-touch configurations and the test device registration, if made.
-- Delete `private/cam/` (camera frames, several GB) once the evidence is merged.
+- Delete `private/cam/` (camera frames, about 700 MB) once the evidence is merged.
 
 ## Rules learned
 - Wipe with `fleetctl mdm wipe`, then delete the host, so each run is a new host.
