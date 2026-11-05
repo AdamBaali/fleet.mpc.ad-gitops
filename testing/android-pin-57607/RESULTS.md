@@ -60,9 +60,14 @@ shouldn't name Samsung-only steps.
 
 ### F-5: "Can't set up device" before enrollment (O2-3 attempt 1)
 
-After a wipe through Fleet (`fleetctl mdm wipe`), the first QR attempt ended at "Can't set up device. If you have
-any questions, contact your IT admin" after "Getting ready for work setup...". Google sent Fleet no enrollment, so no
-Fleet policy was involved. Reset from that screen and a new QR worked. Cause unknown; one occurrence.
+The first QR attempt in O2-3 ended at "Can't set up device. If you have any questions, contact your IT admin" after
+"Getting ready for work setup...". Google sent Fleet no enrollment, so no Fleet policy was involved. Reset from that
+screen and a new QR worked.
+
+Likely cause: a QR from an older enrollment page. The tester thinks they scanned the wrong QR. The server log shows the
+only enrollment page opened before the attempt (11:08:19) used fleet 14's enroll secret with `fully_managed=true`, the
+correct link, but it doesn't record which QR the phone scanned. A QR from an earlier page (one-time token already used)
+fits the error. Not caused by the PIN profile, and not seen again in the next two attempts.
 
 ### F-3: option 2 depends on where enrollment falls in Fleet's 30-second profile job
 

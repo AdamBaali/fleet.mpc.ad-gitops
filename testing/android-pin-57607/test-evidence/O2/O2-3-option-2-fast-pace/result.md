@@ -23,6 +23,7 @@
   - 11:10:27 **"Can't set up device. If you have any questions, contact your IT admin"** with Reset
   - No PubSub ENROLLMENT reached Fleet, serial lookup 404: provisioning failed before enrollment, so no Fleet policy was involved.
   - Differences from O2-1 and O2-2: the phone was wiped through Fleet (fleetctl mdm wipe, 10:56) instead of reset by hand, and Samsung's "For your review" and "Service provider setup" restart didn't appear. Cause not known.
+  - Later: the tester thinks they scanned a QR from the wrong enrollment page. The only page opened before this attempt (server log, 11:08:19) used fleet 14's enroll secret with fully_managed=true; which QR the phone scanned isn't recorded. A QR from an older page (one-time token already used) fits the error.
 
 - 11:13:50 attempt 2: phone reset from the "Can't set up device" screen, new enrollment page loaded, ready to scan.
 
