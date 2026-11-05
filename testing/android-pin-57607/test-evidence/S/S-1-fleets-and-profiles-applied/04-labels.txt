@@ -1,0 +1,5 @@
+# 2026-11-05T09:04:36Z
+$ tools/setup-check.sh labels
+
+android-pin-ready manual fleet_id=12
+[exit 0]

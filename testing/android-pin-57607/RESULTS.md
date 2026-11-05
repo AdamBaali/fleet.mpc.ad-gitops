@@ -3,7 +3,7 @@
 Plan: [TEST-PLAN.md](TEST-PLAN.md). Evidence per run: `test-evidence/<group>/<ID>-<slug>/` (build `EVIDENCE.md` with
 `testing/_framework/bin/build-evidence-index.py`). Times are UTC. "T+" is minutes and seconds after the QR scan (T0).
 
-Fleet version: _record in S-1_ · Enrollment: QR (zero-touch in Z) · Code references: `fleet-v4.94.0`
+Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `fleet-v4.94.0`
 
 ## Summary
 
@@ -20,9 +20,9 @@ Fleet version: _record in S-1_ · Enrollment: QR (zero-touch in Z) · Code refer
 
 | ID | Date | Result | Notes |
 |---|---|---|---|
-| S-1 | | | Fleet version: |
-| S-2 | | | Labels exception: on / off |
-| S-3 | | | |
+| S-1 | 2026-11-05 | PASS | Fleet version: 4.94.0. Fleets 11-14 created; label fleet scopes pin-block-0 to `android-pin-ready` |
+| S-2 | 2026-11-05 | PASS | Android MDM on. Labels exception: off |
+| S-3 | 2026-11-05 | PASS | API works. Token is an admin fleetctl session token, not an API-only user |
 | S-4 | | | |
 | S-5 | | | |
 

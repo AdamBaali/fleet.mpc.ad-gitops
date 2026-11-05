@@ -1,0 +1,3 @@
+S-1	PASS	S-1-fleets-and-profiles-applied	Fleet 4.94.0. Fleets 11-14 exist; three have pin-block-0, staging has none, the label fleet scopes it to android-pin-ready.
+S-2	PASS	S-2-android-mdm-and-labels-exception	Android MDM on, labels exception off, so android-pin-label.yml stays in GitOps.
+S-3	PASS	S-3-setup-check	API works with the token in private/fleet.env; Fleet 4.94.0.

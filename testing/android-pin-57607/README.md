@@ -4,7 +4,7 @@ Find the best practice, with current Fleet features, to make company-owned (full
 PIN right after they enroll, ideally before the end user reaches the home screen. For `customer-antonella`, who
 enrolls with zero-touch. Background: fleetdm/fleet#57332.
 
-**Status:** plan ready, no runs yet. Start with [TEST-PLAN.md](TEST-PLAN.md).
+**Status:** setup S-1 to S-3 passed on 2026-11-05. Device runs not started. Start with [TEST-PLAN.md](TEST-PLAN.md).
 
 ## What we know before testing
 
@@ -27,6 +27,7 @@ enrolls with zero-touch. Background: fleetdm/fleet#57332.
 | [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `move`, `note`, `verdict`) |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |
 | [tools/move-host.sh](tools/move-host.sh) | Option 3 step: move a host by serial to a fleet, or add or remove a manual label. Dry run unless `--apply` |
+| [tools/setup-check.sh](tools/setup-check.sh) | Read-only checks for S-1 to S-3: version, fleets, profiles, label, Android MDM and labels exception |
 | [tools/host-fields.py](tools/host-fields.py) | Keeps only the host fields the plan records, so evidence holds no IP addresses |
 | `private/` | Internal links and names (git ignores it). `private/fleet.env` holds the API token |
 

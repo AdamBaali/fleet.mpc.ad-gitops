@@ -1,0 +1,6 @@
+# 2026-11-05T09:04:36Z
+$ tools/setup-check.sh config
+
+android_enabled_and_configured: True
+gitops.exceptions: {'labels': False, 'software': False, 'secrets': False}
+[exit 0]

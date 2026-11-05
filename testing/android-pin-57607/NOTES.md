@@ -37,6 +37,17 @@ same lines were checked on `main` (6051ca4). Check the customer's Fleet version 
   If the instance has the labels exception on, any `labels:` key fails the apply; `fleets/android-pin-label.yml` would
   then need the label made in the UI instead.
 
+## Zero-touch in the lab
+
+- **The lab has no zero-touch customer account.** The portal (`enterprise.google.com/android/zero-touch/customers`)
+  returns 403 for the lab Google account. Only a reseller creates a customer account, and the OEM Test Reseller step in
+  Fleet's guide is done from inside an existing account
+  ([android-zero-touch-enrollment.md](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/articles/android-zero-touch-enrollment.md)).
+- **Fleet 4.94.0 can target a fleet.** The zero-touch setup page in the lab has a fleet picker, and the code takes a
+  `fleet_id` when it creates the token ([ee service.go#L82-L95](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/ee/server/mdm/android/service.go#L82-L95)).
+  The guide at that tag still says all zero-touch hosts enroll to Unassigned. Check which fleet a zero-touch host
+  lands in during the Z tests.
+
 ## Google (Android Management API) facts
 
 Sources: the [Policy reference](https://developers.google.com/android/management/reference/rest/v1/enterprises.policies),

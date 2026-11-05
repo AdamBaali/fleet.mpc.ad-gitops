@@ -1,0 +1,8 @@
+# 2026-11-05T09:04:34Z
+$ tools/setup-check.sh profiles
+
+fleet 11: [('pin-block-0', 'android', [])]
+fleet 12: [('pin-block-0', 'android', ['android-pin-ready'])]
+fleet 13: []
+fleet 14: [('pin-block-0', 'android', [])]
+[exit 0]
