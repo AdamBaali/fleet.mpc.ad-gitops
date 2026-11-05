@@ -107,7 +107,8 @@ Common run steps (R):
 5. Go through the wizard at the pace the run asks for. Record every screen and every prompt.
 6. After the home screen (or after giving up on a block), open Chrome, Play Store and Camera.
 7. Set a PIN when asked. Check the profile status in Fleet. `tools/run.sh host <ID> <serial>`.
-8. `tools/run.sh note` for each field, then `tools/run.sh verdict <ID> <result> "<one line>"`. Fill the RESULTS.md row.
+8. `tools/run.sh activity <ID> <serial>` and `tools/run.sh logs <ID>` to save Fleet's activity log and the server logs for the run's window.
+9. `tools/run.sh note` for each field, then `tools/run.sh verdict <ID> <result> "<one line>"`. Fill the RESULTS.md row.
 
 ### Option 2: profile present at enrollment (O2), at least 5 runs
 

@@ -27,6 +27,8 @@ enrolls with zero-touch. Background: fleetdm/fleet#57332.
 | [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `move`, `note`, `verdict`) |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |
 | [tools/move-host.sh](tools/move-host.sh) | Option 3 step: move a host by serial to a fleet, or add or remove a manual label. Dry run unless `--apply` |
+| [tools/fleet-activity.sh](tools/fleet-activity.sh) | Fleet activity log for one host since a run started: host, upcoming, and global activities that name it |
+| [tools/server-logs.sh](tools/server-logs.sh) | Fleet server logs from Render for a run's window, Android lines only, IP addresses masked. Needs `render login` and `RENDER_SERVICE_ID` |
 | [tools/setup-check.sh](tools/setup-check.sh) | Read-only checks for S-1 to S-3: version, fleets, profiles, label, Android MDM and labels exception |
 | [tools/host-fields.py](tools/host-fields.py) | Keeps only the host fields the plan records, so evidence holds no IP addresses |
 | `private/` | Internal links and names (git ignores it). `private/fleet.env` holds the API token |
@@ -53,6 +55,8 @@ a profile in this folder wouldn't reach Fleet until the nightly run.
 tools/run.sh start O2-1 "option 2 normal pace" "PIN prompt in setup" "PIN prompt, no block"
 tools/run.sh watch O2-1 <serial>                                   # second terminal, before the QR scan
 tools/run.sh move  O3F-1 <serial> --fleet android-pin-enforced     # option 3, after the home screen
+tools/run.sh activity O2-1 <serial>                                 # after the run: Fleet activity log
+tools/run.sh logs  O2-1                                            # after the run: server logs from Render
 tools/run.sh note  O2-1 "- **PIN prompt in setup:** yes, screen lock step"
 tools/run.sh verdict O2-1 PASS "PIN asked in setup, no block"
 python3 ../_framework/bin/build-evidence-index.py . "Android PIN at enrollment" \
