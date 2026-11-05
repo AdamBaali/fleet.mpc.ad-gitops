@@ -50,6 +50,25 @@ Add a row to both tables for each extra run (O2-6, Z-2, and so on).
 
 ## Findings
 
+### F-5: apps unblock about 3 seconds after the PIN is set, on the phone
+
+From the runs already recorded (camera at 1 frame a second, so each time is plus or minus 1 s; clocks checked):
+
+| Run | Home screen, apps blocked | PIN confirmed | Google gets compliance | Apps in colour | Fleet shows Verified | PIN to apps open | Time blocked |
+|---|---|---|---|---|---|---|---|
+| O2-2 (no message) | 10:42:00 | 10:45:48 | 10:45:49.3 | 10:45:51 | 10:45:53 | about 3 s | 3 min 51 s |
+| O2-3 (message) | 11:17:44 | 11:18:12 | not logged | 11:18:16 | 11:18:13 | about 4 s | 32 s |
+| O2-4 (message) | 11:29:08 | 11:30:09 | not logged | 11:30:12 | by 11:30:50 | about 3 s | 1 min 4 s |
+
+Android Device Policy lifts the block itself once the screen lock meets the policy. Fleet sends nothing to unblock:
+the apps were open before or within a few seconds of Fleet showing Verified, and Fleet only learns of it from the
+device's status report. So the 30-second profile job doesn't add to the wait.
+
+Time blocked depends on the end user finding the way out. In O2-2, with Samsung's default text ("Contact your
+organisation's IT administrator"), it took almost 4 minutes, and the tester knew to look in the notifications. With
+the `shortSupportMessage` profile it took 32 s and 64 s. These are lab runs by someone who knew the steps, so real end
+users will take longer.
+
 ### F-4: `shortSupportMessage` replaces the text of the blocked-app dialog
 
 With `pin-unblock-message.json` in the fleet (O2-3), tapping a blocked app on the Samsung showed Samsung's title

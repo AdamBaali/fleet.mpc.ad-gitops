@@ -16,7 +16,9 @@ Zero-touch not tested (no zero-touch customer account in the lab).
   and `blockAfterDays: 0` blocks the apps at the home screen until a PIN is set (O2-2 to O2-4).
 - A `shortSupportMessage` profile replaces the text of the blocked-app dialog, so the end user knows to tap the
   "Unblock your apps" notification (O2-3, O2-4).
-- Details: [RESULTS.md](RESULTS.md) (findings F-1 to F-4), [NOTES.md](NOTES.md) (code and API sources),
+- Apps unblock about 3 seconds after the PIN is set. Android Device Policy lifts the block on the phone; Fleet
+  sends nothing (F-5).
+- Details: [RESULTS.md](RESULTS.md) (findings F-1 to F-5), [NOTES.md](NOTES.md) (code and API sources),
   [EVIDENCE.md](EVIDENCE.md) (every run, with photos).
 
 ## Files
@@ -29,6 +31,7 @@ Zero-touch not tested (no zero-touch customer account in the lab).
 | [NOTES.md](NOTES.md) | Fleet and Google facts with sources, product ask, lab versus production |
 | [HANDOFF.md](HANDOFF.md) | State, next steps, teardown |
 | [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Report for fleetdm/fleet#57607. Not posted |
+| [drafts/customer-reply.md](drafts/customer-reply.md) | Reply to the customer on blocked apps, the unblock message, unblock time and the default policy. Not posted |
 | [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `activity`, `logs`, `note`, `verdict`) |
 | [tools/guide.sh](tools/guide.sh) | On-screen steps, a countdown to the QR scan, and a running clock for the person at the phone |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |
