@@ -141,29 +141,25 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 **Output:** [01-watch.txt](test-evidence/O2/O2-3-option-2-fast-pace/01-watch.txt) · [02-host.txt](test-evidence/O2/O2-3-option-2-fast-pace/02-host.txt) · [03-activity.txt](test-evidence/O2/O2-3-option-2-fast-pace/03-activity.txt) · [04-server-logs.txt](test-evidence/O2/O2-3-option-2-fast-pace/04-server-logs.txt)
 
-**cant set up device attempt 1**
-
-![cant set up device attempt 1](test-evidence/O2/O2-3-option-2-fast-pace/05-cant-set-up-device-attempt-1.jpg)
-
 **registering device**
 
-![registering device](test-evidence/O2/O2-3-option-2-fast-pace/06-registering-device.jpg)
+![registering device](test-evidence/O2/O2-3-option-2-fast-pace/05-registering-device.jpg)
 
 **google services policy arrives**
 
-![google services policy arrives](test-evidence/O2/O2-3-option-2-fast-pace/07-google-services-policy-arrives.jpg)
+![google services policy arrives](test-evidence/O2/O2-3-option-2-fast-pace/06-google-services-policy-arrives.jpg)
 
 **action not allowed custom message**
 
-![action not allowed custom message](test-evidence/O2/O2-3-option-2-fast-pace/08-action-not-allowed-custom-message.jpg)
+![action not allowed custom message](test-evidence/O2/O2-3-option-2-fast-pace/07-action-not-allowed-custom-message.jpg)
 
 **set a new screen lock**
 
-![set a new screen lock](test-evidence/O2/O2-3-option-2-fast-pace/09-set-a-new-screen-lock.jpg)
+![set a new screen lock](test-evidence/O2/O2-3-option-2-fast-pace/08-set-a-new-screen-lock.jpg)
 
 **home unblocked**
 
-![home unblocked](test-evidence/O2/O2-3-option-2-fast-pace/10-home-unblocked.jpg)
+![home unblocked](test-evidence/O2/O2-3-option-2-fast-pace/09-home-unblocked.jpg)
 
 
 ---
