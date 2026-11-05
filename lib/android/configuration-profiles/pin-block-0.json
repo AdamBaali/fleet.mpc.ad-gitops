@@ -1,0 +1,21 @@
+{
+  "passwordPolicies": [
+    {
+      "passwordScope": "SCOPE_DEVICE",
+      "passwordQuality": "NUMERIC_COMPLEX",
+      "passwordMinimumLength": 6
+    }
+  ],
+  "policyEnforcementRules": [
+    {
+      "settingName": "passwordPolicies",
+      "blockAction": {
+        "blockAfterDays": 0
+      },
+      "wipeAction": {
+        "wipeAfterDays": 30,
+        "preserveFrp": true
+      }
+    }
+  ]
+}

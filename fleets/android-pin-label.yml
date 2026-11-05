@@ -1,0 +1,24 @@
+# Lab fleet for Android PIN at enrollment, option 3 with a label instead of a fleet move
+# (fleetdm/fleet#57607, customer-antonella). The password profile only targets hosts in the manual label
+# "android-pin-ready", so a host enrolls with no password profile and gets it when it's added to the label.
+# The label has no "hosts:" list on purpose: GitOps keeps manual membership when the list is omitted, so an apply
+# doesn't remove hosts the test script added. Manual labels survive a wipe and re-enrollment, so remove the
+# label before each factory reset. See testing/android-pin-57607/.
+name: "android-pin-label"
+labels:
+  - name: android-pin-ready
+    description: Android hosts in "android-pin-label" that finished setup and get the PIN profile (fleetdm/fleet#57607)
+    label_membership_type: manual
+policies:
+reports:
+agent_options:
+controls:
+  android_settings:
+    configuration_profiles:
+      - path: ../lib/android/configuration-profiles/pin-block-0.json
+        labels_include_any:
+          - android-pin-ready
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_ANDROID_PIN_LABEL_ENROLL_SECRET"
