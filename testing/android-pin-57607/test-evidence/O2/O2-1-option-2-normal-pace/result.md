@@ -57,7 +57,7 @@
 - Watch (corrected): host in Fleet 09:42:55, pin-block-0 pending 09:43:00, failed USER_ACTION 09:43:05, verified 09:43:43.
 - **Policy arrived on:** "Registering device...", before the screen lock step. Android Device Policy then asked for a screen lock as its own setup step.
 - **PIN prompt in setup:** yes, "Set a new screen lock" at 09:43:05. **Blocked by your work policy:** no. **Home screen:** 09:43:57 with a PIN set. Apps not tested blocked: the PIN was set before the home screen.
-- **Activity log:** one global activity, fleet_enrolled at 09:44:13 (80 s after enrollment). NOTES.md says Android has no enrollment activity; this needs a code check before relying on it.
+- **Activity log:** one global activity, fleet_enrolled at 09:44:13 (80 s after MDM enrollment). It comes from the Fleet app's own enrollment: the server log shows POST /api/fleet/orbit/enroll at 09:44:13.742 with the host's UUID, and orbit.go emits fleet_enrolled there. MDM enrollment itself emitted no activity.
 - Device: Samsung SM-A276B, Android 16, security patch 2026-05-05 (Fleet os_version). New host (serial not in Fleet before the run). Samsung's own "Service provider setup" restart came before enrollment.
 
 ## Result: PASS

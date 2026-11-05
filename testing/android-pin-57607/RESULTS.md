@@ -78,11 +78,13 @@ The Mac's clock was 12.07 s behind (sntp against time.apple.com and Fleet's `Dat
 file names and note times use Mac time. RESULTS.md uses server time (Mac + 12 s). Fix before the next run: turn on
 **Set time and date automatically** on the Mac, then re-check with `sntp time.apple.com`.
 
-### F-2: Android hosts get a `fleet_enrolled` activity on 4.94.0
+### F-2: the `fleet_enrolled` activity comes from the Fleet app, not from MDM enrollment
 
-O2-1 logged a global `fleet_enrolled` activity for the Android host at 09:44:13, 80 s after enrollment, with no actor.
-NOTES.md says Fleet emits no enrollment activity for Android (pubsub.go). The activity type is defined in
-`server/fleet/activities.go`; where it's emitted for Android isn't checked yet. If it's reliable, the option 3
-automation could start from an activity webhook instead of polling.
-
-_One section per finding, in the framework's format: steps, expected, actual, evidence, what Fleet or the guide should change._
+O2-1 logged a global `fleet_enrolled` activity for the Android host at 09:44:13, 80 s after MDM enrollment (09:42:53).
+The server log shows `POST /api/fleet/orbit/enroll` at 09:44:13.742 with the host's UUID, then `orbit/config` for the
+host: the Fleet app installed during setup enrolled itself. At `fleet-v4.94.0`, `server/service/orbit.go` emits
+`ActivityTypeFleetEnrolled` in that orbit enrollment path
+([orbit.go#L505-L508](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/service/orbit.go#L505-L508)).
+NOTES.md stays correct for MDM enrollment: Android MDM enrollment itself emits no activity. For the option 3
+automation, this activity could be a trigger only if every host installs the Fleet app, and it fires after setup
+work, not at enrollment.
