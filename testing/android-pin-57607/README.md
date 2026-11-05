@@ -4,25 +4,33 @@ Find the best practice, with current Fleet features, to make company-owned (full
 PIN right after they enroll, ideally before the end user reaches the home screen. For `customer-antonella`, who
 enrolls with zero-touch. Background: fleetdm/fleet#57332.
 
-**Status:** setup S-1 to S-3 passed. O2-1 passed on 2026-11-05 (PIN prompt in setup, no block). Start with [TEST-PLAN.md](TEST-PLAN.md).
+**Status:** done for QR enrollment on one Samsung (2026-11-05). 4 runs of workaround #2: 1 PASS, 3 PARTIAL, PIN
+enforced every time, no block during setup. Report draft: [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md).
+Zero-touch not tested (no zero-touch customer account in the lab).
 
-## What we know before testing
+## What we found
 
 - Fleet sends a host's Android profiles in a per-host policy that a 30-second job assigns after enrollment. The
-  enrollment token itself points at a default policy with no password settings. So with `blockAfterDays: 0`, the block
-  lands on whatever setup screen the end user reached. This likely explains the intermittent "blocked by your work
-  policy". Details and code links: [NOTES.md](NOTES.md).
+  enrollment token points at a default policy with no password settings. If the policy reaches the device while
+  Android Device Policy is still registering it, setup asks for the PIN (O2-1). If it arrives later, setup finishes
+  and `blockAfterDays: 0` blocks the apps at the home screen until a PIN is set (O2-2 to O2-4).
+- A `shortSupportMessage` profile replaces the text of the blocked-app dialog, so the end user knows to tap the
+  "Unblock your apps" notification (O2-3, O2-4).
+- Details: [RESULTS.md](RESULTS.md) (findings F-1 to F-5), [NOTES.md](NOTES.md) (code and API sources),
+  [EVIDENCE.md](EVIDENCE.md) (every run, with photos).
 
 ## Files
 
 | File | What |
 |---|---|
-| [TEST-PLAN.md](TEST-PLAN.md) | Setup, runs for options 2 and 3 with QR enrollment, what to record, later zero-touch runs |
-| [RESULTS.md](RESULTS.md) | Empty results tables that match the plan |
+| [TEST-PLAN.md](TEST-PLAN.md) | Scope, setup, the O2 runs, what to record, later zero-touch runs |
+| [RESULTS.md](RESULTS.md) | Per-run results and findings |
+| [EVIDENCE.md](EVIDENCE.md) | Generated index of every test with its result, photos and raw output |
 | [NOTES.md](NOTES.md) | Fleet and Google facts with sources, product ask, lab versus production |
 | [HANDOFF.md](HANDOFF.md) | State, next steps, teardown |
-| [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Draft comment for fleetdm/fleet#57607 with placeholders. Not posted |
-| [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `move`, `note`, `verdict`) |
+| [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Report for fleetdm/fleet#57607. Not posted |
+| [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `activity`, `logs`, `note`, `verdict`) |
+| [tools/guide.sh](tools/guide.sh) | On-screen steps, a countdown to the QR scan, and a running clock for the person at the phone |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |
 | [tools/fleet-activity.sh](tools/fleet-activity.sh) | Fleet activity log for one host since a run started: host, upcoming, and global activities that name it |
 | [tools/server-logs.sh](tools/server-logs.sh) | Fleet server logs from Render for a run's window, Android lines only, IP addresses masked. Needs `render login` and `RENDER_SERVICE_ID` |
@@ -30,7 +38,7 @@ enrolls with zero-touch. Background: fleetdm/fleet#57332.
 | [tools/cam-preview.sh](tools/cam-preview.sh) | Live preview of the same camera, to line it up on the phone |
 | [tools/setup-check.sh](tools/setup-check.sh) | Read-only checks for S-1 to S-3: version, fleets, profiles, label, Android MDM and labels exception |
 | [tools/host-fields.py](tools/host-fields.py) | Keeps only the host fields the plan records, so evidence holds no IP addresses |
-| `private/` | Internal links and names (git ignores it). `private/fleet.env` holds the API token |
+| `private/` | Internal links and names, camera frames (git ignores it). `private/fleet.env` holds the API token and Render service ID |
 
 GitOps files (outside this folder):
 

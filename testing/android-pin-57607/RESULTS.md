@@ -9,7 +9,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 
 | Option | Runs | Passed | Result | One line |
 |---|---|---|---|---|
-| 2: profile at enrollment (`android-pin-test-block0`) | 3 | 1 PASS, 2 PARTIAL | PIN enforced in all 3 | Prompt in setup only when the policy reaches the phone during Device Policy's registering step (O2-1). Otherwise apps are blocked at home until a PIN is set (O2-2, O2-3). From O2-3, a `shortSupportMessage` profile puts unblock steps in the block dialog. Not yet seen: a block during setup |
+| 2: profile at enrollment (`android-pin-test-block0`) | 4 | 1 PASS, 3 PARTIAL | PIN enforced in all 4 | Prompt in setup only when the policy reaches the phone during Device Policy's registering step (O2-1). Otherwise apps are blocked at home until a PIN is set (O2-2 to O2-4). A `shortSupportMessage` profile puts the unblock steps in the block dialog (O2-3, O2-4). No block during setup in 4 runs |
 | Zero-touch confirmation | | | | |
 
 ## Setup
@@ -29,6 +29,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | O2-1 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Normal | 09:37:24 to 09:37:48 | 5:05 to 5:29 (09:42:53) | 5:17 to 5:41 (09:43:05, failed USER_ACTION; pending 5 s before) | "Registering device..." (reconciler 09:42:57) | Yes, "Set a new screen lock" at 09:43:05 | No | n/a | 6:09 to 6:33 (09:43:57) |
 | O2-2 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Normal | about 10:37 (Wi-Fi 10:37:52) | 10:39:43 | 10:40:00 pending, 10:40:05 failed USER_ACTION | "Google services" (reconciler 10:39:59, 16 s after enrollment; registering ended 10:39:52) | No | No block screen in setup; apps blocked at the home screen | Device Policy notification "Unblock your apps" | 10:42:00 |
 | O2-3 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Fast (one 45 s pause on Google services) | about 11:14 (attempt 2; attempt 1 ended in "Can't set up device" before enrollment) | 11:16:00 | 11:16:16 pending, 11:16:39 failed USER_ACTION | "Google services" (applied 11:16:21; registering ended 11:16:14) | No | No block screen in setup; apps blocked at home | Custom block dialog text, then the notification | 11:17:44 |
+| O2-4 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Fast | about 11:26 | 11:28:00 | 11:28:19 pending, 11:28:41 failed USER_ACTION | After registering (applied 11:28:21) | No | No block screen in setup; apps blocked at home | Reworded block dialog text, then the notification | about 11:29 |
 | O2-4 | | | | | | Slow | | | | | | | | |
 | O2-5 | | | | | | Fast | | | | | | | | |
 | Z-1 | | | | | | Normal | | | | | | | | |
@@ -40,6 +41,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | O2-1 | `android-pin-test-block0` | n/a | Not tested: PIN set before the home screen | n/a | 09:43:05, in setup | 09:43:37 | Verified 09:43:43 | 0 | PASS | [O2-1](test-evidence/O2/O2-1-option-2-normal-pace/result.md) |
 | O2-2 | `android-pin-test-block0` | n/a | 10:42:00 (at the home screen) | All but Phone and Play Store: "Action not allowed... Contact your organisation's IT administrator" | Notification only, no screen | 10:45:48 | Verified 10:45:53 | 0 (blocked until the PIN) | PARTIAL | [O2-2](test-evidence/O2/O2-2-option-2-normal-pace/result.md) |
 | O2-3 | `android-pin-test-block0` + unblock message | n/a | 11:17:44 (at the home screen) | All but Phone and Play Store: "Action not allowed" with the custom unblock text | Notification only, no screen | 11:18:12 | Verified 11:18:13 | 0 (blocked until the PIN) | PARTIAL | [O2-3](test-evidence/O2/O2-3-option-2-fast-pace/result.md) |
+| O2-4 | `android-pin-test-block0` + reworded message | n/a | about 11:29 (at the home screen) | All but Phone and Play Store: "Action not allowed" with the reworded text | Notification only, no screen | 11:30:09 | Verified by 11:30:50 | 0 (blocked until the PIN) | PARTIAL | [O2-4](test-evidence/O2/O2-4-option-2-fast-pace/result.md) |
 | O2-4 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-5 | `android-pin-test-block0` | n/a | | | | | | | | |
 | Z-1 | zero-touch: | | | | | | | | | |

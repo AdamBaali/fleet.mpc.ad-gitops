@@ -1,3 +1,4 @@
 O2-1	PASS	O2-1-option-2-normal-pace	PIN prompt in setup ("Set a new screen lock") 12 s after enrollment, no block, home screen with PIN set; profile Verified.
 O2-2	PARTIAL	O2-2-option-2-normal-pace	No PIN prompt in setup; apps blocked at the home screen until a PIN was set from the notification.
 O2-3	PARTIAL	O2-3-option-2-fast-pace	No PIN prompt in setup (policy on the phone 21 s after enrollment, after registering). Apps blocked at home; the custom unblock message showed in the block dialog; PIN set from the notification.
+O2-4	PARTIAL	O2-4-option-2-fast-pace	No PIN prompt in setup; apps blocked at home; the reworded unblock message showed and led to the PIN in about 1 minute.

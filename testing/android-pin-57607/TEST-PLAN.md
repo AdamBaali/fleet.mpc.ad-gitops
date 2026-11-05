@@ -121,9 +121,9 @@ O2-2), so vary the pace.
 |---|---|---|
 | O2-1 | Normal | Done: PASS (policy 4 s after enrollment, prompt in setup) |
 | O2-2 | Normal | Done: PARTIAL (policy 16 s after enrollment, apps blocked at home) |
-| O2-3 | Fast: tap through every screen as soon as it allows | Most likely to land the policy on a later wizard screen: can it block setup? First run with the unblock message |
-| O2-4 | Fast | Repeat O2-3 |
-| O2-5 | Slow: wait 2 minutes on the first input screen after "Getting your phone ready" | Does waiting make the prompt in setup reliable? A possible end user instruction |
+| O2-3 | Fast: tap through every screen as soon as it allows | Done: PARTIAL. First run with the unblock message; it showed in the block dialog |
+| O2-4 | Fast | Done: PARTIAL. Reworded unblock message showed and led the end user to the PIN |
+| O2-5 | Slow: wait 2 minutes on the first input screen after "Getting your phone ready" | Not run: the prompt in setup depends on Fleet's job timing, not on the end user, so waiting isn't an instruction we'd give |
 | O2-6+ | Repeat whichever pace gives a FAIL, on a second device model if available | |
 
 Between runs: `fleetctl mdm wipe --host <serial>`, wait for Fleet to show the host wiped, then delete the host so the
