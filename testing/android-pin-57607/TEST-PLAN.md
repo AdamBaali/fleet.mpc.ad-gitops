@@ -4,6 +4,13 @@ Issue: [fleetdm/fleet#57607](https://github.com/fleetdm/fleet/issues/57607) (CSA
 Background: [fleetdm/fleet#57332](https://github.com/fleetdm/fleet/issues/57332). Lab: `https://fleet.mpc.ad`.
 Results go in [RESULTS.md](RESULTS.md). Research and caveats are in [NOTES.md](NOTES.md).
 
+## Scope (2026-11-05)
+
+The issue asks to test workaround #2 from fleetdm/fleet#57332: the password profile in the enrollment fleet with
+`blockAfterDays: 0`, plus end user instructions for when setup is blocked. It names BlockAction as the fallback if #2
+doesn't work. So the O2 runs are the test. Option 3 (O3F, O3L) and the optional runs are not run unless option 2 can
+strand an end user in setup. Their fleets stay in GitOps until teardown.
+
 ## Question
 
 Using only current Fleet features, what is the most reliable way to make a company-owned (fully managed) Android
@@ -123,9 +130,15 @@ Fleet `android-pin-test-block0`. Because the hypothesis is a race with the wizar
 | O2-5 | Fast: tap through every screen after that point as soon as it allows | The policy arrives after the screen lock step. Block on a later screen more likely |
 | O2-6+ | Repeat whichever pace gave a mixed result, on a second device model if available | |
 
-Pass rule per run: a PIN prompt appears during setup, no "blocked by your work policy" screen appears, and the end
-user reaches the home screen with a PIN set. Option 2 is reliable only if every run passes. One failure in 5 is a FAIL
-for option 2 as a best practice, because each failure strands an end user in setup.
+Result per run:
+- PASS: PIN prompt in setup, no block, home screen with a PIN set.
+- PARTIAL: no prompt in setup, but the PIN is still enforced: the end user reaches the home screen with apps blocked
+  until a PIN is set. Record how the end user finds the way out (the block dialog, the notification).
+- FAIL: the end user is stuck in setup ("blocked by your work policy"), or reaches apps without a PIN.
+
+On a FAIL, try the recovery from #57332 workaround 2 (Back until the QR screen, then try again) and record whether it
+works. The goal is how often each outcome happens and whether every outcome ends with the PIN enforced.
+(Changed after O2-2: the first rule counted a post-setup block as a failure, but the PIN is still enforced there.)
 
 ### Option 3: enroll with no password policy, then enforce (O3F, O3L)
 

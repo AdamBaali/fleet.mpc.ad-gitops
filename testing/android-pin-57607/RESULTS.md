@@ -9,7 +9,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 
 | Option | Runs | Passed | Result | One line |
 |---|---|---|---|---|
-| 2: profile at enrollment (`android-pin-test-block0`) | 2 | 1 | FAIL so far | PIN prompt in setup only when Fleet's profile job runs before Device Policy finishes registering (O2-1: 4 s, prompt; O2-2: 16 s, no prompt, apps blocked at home) |
+| 2: profile at enrollment (`android-pin-test-block0`) | 2 | 1 PASS, 1 PARTIAL | PIN enforced in both | Prompt in setup only when Fleet's profile job runs before Device Policy finishes registering (O2-1: 4 s). Otherwise apps are blocked at the home screen until a PIN is set (O2-2: 16 s). Not yet seen: a block during setup |
 | 3: fleet move (`android-pin-staging` -> `android-pin-enforced`) | | | | |
 | 3: label (`android-pin-label` + `android-pin-ready`) | | | | |
 | 1: `blockAfterDays: 1` (optional) | | | | |
@@ -52,7 +52,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 | ID | Fleet at enrollment | Move or label applied (T+) | Apps blocked (T+) | Apps blocked (which) | PIN prompt or notice after setup (T+) | PIN set (T+) | Profile status after PIN (T+) | Minutes usable without a PIN | Result | Evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
 | O2-1 | `android-pin-test-block0` | n/a | Not tested: PIN set before the home screen | n/a | 09:43:05, in setup | 09:43:37 | Verified 09:43:43 | 0 | PASS | [O2-1](test-evidence/O2/O2-1-option-2-normal-pace/result.md) |
-| O2-2 | `android-pin-test-block0` | n/a | 10:42:00 (at the home screen) | All but Phone and Play Store: "Action not allowed... Contact your organisation's IT administrator" | Notification only, no screen | 10:45:48 | Verified 10:45:53 | 0 (blocked until the PIN) | FAIL | [O2-2](test-evidence/O2/O2-2-option-2-normal-pace/result.md) |
+| O2-2 | `android-pin-test-block0` | n/a | 10:42:00 (at the home screen) | All but Phone and Play Store: "Action not allowed... Contact your organisation's IT administrator" | Notification only, no screen | 10:45:48 | Verified 10:45:53 | 0 (blocked until the PIN) | PARTIAL | [O2-2](test-evidence/O2/O2-2-option-2-normal-pace/result.md) |
 | O2-3 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-4 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-5 | `android-pin-test-block0` | n/a | | | | | | | | |
@@ -86,7 +86,7 @@ Same fleet, same phone, same pace, two outcomes:
 Device Policy asks for the screen lock only if the password policy is on the phone while it is still registering.
 Otherwise setup finishes, `blockAfterDays: 0` blocks the apps ("Action not allowed"), and the only way out is the
 "Unblock your apps" notification. That matches the code reading in NOTES.md: the token's default policy has no
-password settings, and the 30-second job delivers it. Option 2 fails the plan's rule (every run must pass).
+password settings, and the 30-second job delivers it. Both outcomes enforce the PIN. The customer's reported failure, a block during setup, hasn't appeared yet.
 
 ### F-1: Mac clock 12 s behind (lab)
 

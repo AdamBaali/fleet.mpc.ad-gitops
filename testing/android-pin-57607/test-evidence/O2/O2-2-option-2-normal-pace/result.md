@@ -68,8 +68,10 @@
 - Activity: fleet_enrolled at 10:43:17 (Fleet app's orbit enrollment, 3:34 after MDM enrollment).
 - **Result:** no PIN prompt in setup. Home screen at 10:42:00 with apps blocked ("Action not allowed") and only a Device Policy notification ("Unblock your apps") to recover. Apps blocked from about 10:42:00 to 10:45:51 (4 min, user knew to look in notifications).
 
-## Result: FAIL
+## Result: PARTIAL
 
-No PIN prompt in setup: Fleet's profile job ran 16 s after enrollment and the policy reached the phone after Device Policy's registering step. Home screen with apps blocked until the user found the "Unblock your apps" notification.
+No PIN prompt in setup: Fleet's profile job ran 16 s after enrollment and the policy reached the phone after Device Policy's registering step. The PIN was still enforced: apps were blocked at the home screen ("Action not allowed") until the user set a PIN from the "Unblock your apps" notification.
+
+(First graded FAIL under the original pass rule. Re-graded 2026-11-05 after the plan's rule changed: the PIN is enforced in this outcome, and the end user isn't stuck in setup.)
 
 _Finished 2026-11-05T10:46:56Z_

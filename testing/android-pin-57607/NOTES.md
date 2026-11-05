@@ -68,6 +68,20 @@ the discovery document (`https://androidmanagement.googleapis.com/$discovery/res
   rule has the 10-day wipe.
 - Non-compliance reason `USER_ACTION` is what Fleet shows as Failed until the end user sets a PIN.
 
+## The JSON in the issue's screenshot
+
+The screenshot in fleetdm/fleet#57607 is a suggested policy, not the customer's profile. It sets `passwordRequirements`
+and a `complianceRules` entry with `nonComplianceDetailCondition.nonComplianceReason: PASSWORD_NOT_SET` and a
+`blockAction`. Checked against the discovery document (2026-11-05), it wouldn't work as written:
+
+- `ComplianceRule` has only `apiLevelCondition`, `disableApps`, `nonComplianceDetailCondition` and
+  `packageNamesToDisable`. It has no `blockAction`.
+- `PASSWORD_NOT_SET` isn't a value in the API.
+- `passwordRequirements` is deprecated in favor of `passwordPolicies`.
+
+The working form of the issue's BlockAction fallback is `policyEnforcementRules` with `settingName: passwordPolicies`,
+`blockAction` and `wipeAction`, which is what `pin-block-0.json` uses. So the fallback is already what the O2 runs test.
+
 ## Product ask, if no option is reliable
 
 Put the fleet's profiles in the policy the enrollment token names (a per-fleet policy, or the host policy created

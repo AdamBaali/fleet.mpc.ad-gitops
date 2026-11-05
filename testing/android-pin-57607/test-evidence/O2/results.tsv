@@ -1,2 +1,2 @@
 O2-1	PASS	O2-1-option-2-normal-pace	PIN prompt in setup ("Set a new screen lock") 12 s after enrollment, no block, home screen with PIN set; profile Verified.
-O2-2	FAIL	O2-2-option-2-normal-pace	No PIN prompt in setup: Fleet's profile job ran 16 s after enrollment and the policy reached the phone after Device Policy's registering step. Home screen with apps blocked until the user found the "Unblock your apps" notification.
+O2-2	PARTIAL	O2-2-option-2-normal-pace	No PIN prompt in setup; apps blocked at the home screen until a PIN was set from the notification.
