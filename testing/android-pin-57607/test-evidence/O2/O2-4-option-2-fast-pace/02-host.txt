@@ -1,0 +1,4 @@
+# 2026-11-05T11:31:03Z
+$ curl -sS -H 'Authorization: Bearer $FLEET_API_TOKEN' "$FLEET_URL/api/v1/fleet/hosts/identifier/<redacted>?exclude_software=true" | python3 -I 'tools/host-fields.py'
+
+no host in the response: Authentication required

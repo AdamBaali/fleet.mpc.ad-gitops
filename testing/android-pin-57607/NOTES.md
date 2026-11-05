@@ -37,6 +37,17 @@ same lines were checked on `main` (6051ca4). Check the customer's Fleet version 
   If the instance has the labels exception on, any `labels:` key fails the apply; `fleets/android-pin-label.yml` would
   then need the label made in the UI instead.
 
+## Zero-touch in the lab
+
+- **The lab has no zero-touch customer account.** The portal (`enterprise.google.com/android/zero-touch/customers`)
+  returns 403 for the lab Google account. Only a reseller creates a customer account, and the OEM Test Reseller step in
+  Fleet's guide is done from inside an existing account
+  ([android-zero-touch-enrollment.md](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/articles/android-zero-touch-enrollment.md)).
+- **Fleet 4.94.0 can target a fleet.** The zero-touch setup page in the lab has a fleet picker, and the code takes a
+  `fleet_id` when it creates the token ([ee service.go#L82-L95](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/ee/server/mdm/android/service.go#L82-L95)).
+  The guide at that tag still says all zero-touch hosts enroll to Unassigned. Check which fleet a zero-touch host
+  lands in during the Z tests.
+
 ## Google (Android Management API) facts
 
 Sources: the [Policy reference](https://developers.google.com/android/management/reference/rest/v1/enterprises.policies),
@@ -57,6 +68,20 @@ the discovery document (`https://androidmanagement.googleapis.com/$discovery/res
   rule has the 10-day wipe.
 - Non-compliance reason `USER_ACTION` is what Fleet shows as Failed until the end user sets a PIN.
 
+## The JSON in the issue's screenshot
+
+The screenshot in fleetdm/fleet#57607 is a suggested policy, not the customer's profile. It sets `passwordRequirements`
+and a `complianceRules` entry with `nonComplianceDetailCondition.nonComplianceReason: PASSWORD_NOT_SET` and a
+`blockAction`. Checked against the discovery document (2026-11-05), it wouldn't work as written:
+
+- `ComplianceRule` has only `apiLevelCondition`, `disableApps`, `nonComplianceDetailCondition` and
+  `packageNamesToDisable`. It has no `blockAction`.
+- `PASSWORD_NOT_SET` isn't a value in the API.
+- `passwordRequirements` is deprecated in favor of `passwordPolicies`.
+
+The working form of the issue's BlockAction fallback is `policyEnforcementRules` with `settingName: passwordPolicies`,
+`blockAction` and `wipeAction`, which is what `pin-block-0.json` uses. So the fallback is already what the O2 runs test.
+
 ## Product ask, if no option is reliable
 
 Put the fleet's profiles in the policy the enrollment token names (a per-fleet policy, or the host policy created
@@ -70,6 +95,13 @@ set up, "In a few seconds you should see a screen that will ask you to set a pas
 device until you do so."
 
 ## Lab versus production
+
+- **Capturing the setup wizard.** adb can't: a factory reset turns USB debugging off, and the Samsung refused adb
+  commands even before the reset ("error: closed"). Screenshots on the phone can't be copied off either: Fleet's
+  policy doesn't set `deviceConnectivityManagement.usbDataAccess`, and Google's default for company-owned devices is
+  `DISALLOW_USB_FILE_TRANSFER` (the phone shows "controlled by admin"). The lab uses an iPhone camera instead
+  (`tools/cam-log.sh`, one frame a second) and adds no lab-only profile, so the policy matches what the customer's
+  hosts get.
 
 - QR, not zero-touch. Both use the default policy at enrollment, so the race should be the same (Z tests confirm).
 - Test devices and Android versions differ from the customer's. Record both per run.

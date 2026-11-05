@@ -1,0 +1,196 @@
+# 2026-11-05T11:31:05Z
+$ 'tools/server-logs.sh' '2026-11-05T11:23:36Z'
+
+2026-11-05T11:24:00.411978069Z ts=2026-11-05T11:24:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:24:00.412000031Z ts=2026-11-05T11:24:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:24:00.429317748Z ts=2026-11-05T11:24:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:24:30.428996832Z ts=2026-11-05T11:24:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:24:30.429021944Z ts=2026-11-05T11:24:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:24:30.445755395Z ts=2026-11-05T11:24:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:25:00.445562374Z ts=2026-11-05T11:25:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:25:00.445581366Z ts=2026-11-05T11:25:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:25:00.462269084Z ts=2026-11-05T11:25:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:25:30.468968014Z ts=2026-11-05T11:25:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:25:30.468990756Z ts=2026-11-05T11:25:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:25:30.487394941Z ts=2026-11-05T11:25:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:25:49.610391305Z ts=2026-11-05T11:25:49Z level=debug component=http user=unauthenticated method=GET uri="/api/v1/fleet/android_enterprise/enrollment_token?enroll_secret=sMHApvzbcEGpyjK9DcIybYXoBjHeN3qe&fully_managed=true" took=441.028038ms
+2026-11-05T11:26:00.485989055Z ts=2026-11-05T11:26:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:26:00.486005556Z ts=2026-11-05T11:26:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:26:00.502842464Z ts=2026-11-05T11:26:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:26:30.503317609Z ts=2026-11-05T11:26:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:26:30.503341341Z ts=2026-11-05T11:26:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:26:30.520017939Z ts=2026-11-05T11:26:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:27:00.522718094Z ts=2026-11-05T11:27:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:27:00.522736235Z ts=2026-11-05T11:27:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:27:00.540045012Z ts=2026-11-05T11:27:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:27:30.53824574Z ts=2026-11-05T11:27:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:27:30.538261161Z ts=2026-11-05T11:27:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:27:30.554718926Z ts=2026-11-05T11:27:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:28:00.563435553Z ts=2026-11-05T11:28:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:28:00.563447913Z ts=2026-11-05T11:28:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:28:00.581264963Z ts=2026-11-05T11:28:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:28:00.8712115Z ts=2026-11-05T11:28:00Z level=debug msg="Received PubSub message" notification=ENROLLMENT
+2026-11-05T11:28:00.87558902Z ts=2026-11-05T11:28:00Z level=debug msg="Processing Android memory events" device_id="" total_internal_storage=7171379200 memory_events_count=0
+2026-11-05T11:28:00.875600331Z ts=2026-11-05T11:28:00Z level=debug msg="Android storage measurement not supported" device_id="" total_storage_bytes=7171379200 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:01.458270988Z ts=2026-11-05T11:28:01Z level=debug msg="queued android setup experience job" job_id=52 job_name=software_worker task=run_android_setup_experience
+2026-11-05T11:28:01.465145002Z ts=2026-11-05T11:28:01Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=594.261502ms
+2026-11-05T11:28:09.434097947Z ts=2026-11-05T11:28:09Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:09.441656674Z ts=2026-11-05T11:28:09Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=1
+2026-11-05T11:28:09.441677995Z ts=2026-11-05T11:28:09Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:09.441697736Z ts=2026-11-05T11:28:09Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:09.478898351Z ts=2026-11-05T11:28:09Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=44.955114ms
+2026-11-05T11:28:10.426109569Z ts=2026-11-05T11:28:10Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:10.42936091Z ts=2026-11-05T11:28:10Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=1
+2026-11-05T11:28:10.433434661Z ts=2026-11-05T11:28:10Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=1
+2026-11-05T11:28:10.433444982Z ts=2026-11-05T11:28:10Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:10.433458563Z ts=2026-11-05T11:28:10Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:10.463352027Z ts=2026-11-05T11:28:10Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=37.401968ms
+2026-11-05T11:28:10.863981294Z ts=2026-11-05T11:28:10Z level=debug msg="Received PubSub message" notification=USAGE_LOGS
+2026-11-05T11:28:10.864011166Z ts=2026-11-05T11:28:10Z level=debug msg="Ignoring PubSub notification type" notification=USAGE_LOGS
+2026-11-05T11:28:10.864015676Z ts=2026-11-05T11:28:10Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=148.47µs
+2026-11-05T11:28:21.772346823Z ts=2026-11-05T11:28:21Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:21.77698772Z ts=2026-11-05T11:28:21Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=12 non_compliance_count=1
+2026-11-05T11:28:21.779413529Z ts=2026-11-05T11:28:21Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=12
+2026-11-05T11:28:21.78348309Z ts=2026-11-05T11:28:21Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=1
+2026-11-05T11:28:21.783490651Z ts=2026-11-05T11:28:21Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:21.783495091Z ts=2026-11-05T11:28:21Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:21.808173244Z ts=2026-11-05T11:28:21Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=35.956648ms
+2026-11-05T11:28:30.580896297Z ts=2026-11-05T11:28:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:28:30.580908298Z ts=2026-11-05T11:28:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:28:30.983620565Z ts=2026-11-05T11:28:30Z level=debug msg="android profile reconciler processed hosts" cron=mdm_android_profile_manager host_count=1 profile_count=2
+2026-11-05T11:28:31.001299925Z ts=2026-11-05T11:28:31Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:28:39.462729526Z ts=2026-11-05T11:28:39Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:39.467764857Z ts=2026-11-05T11:28:39Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:39.478823229Z ts=2026-11-05T11:28:39Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:39.483012808Z ts=2026-11-05T11:28:39Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=1
+2026-11-05T11:28:39.483028518Z ts=2026-11-05T11:28:39Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:39.483032729Z ts=2026-11-05T11:28:39Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:39.509860344Z ts=2026-11-05T11:28:39Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=47.271506ms
+2026-11-05T11:28:47.131128438Z ts=2026-11-05T11:28:47Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:47.136387642Z ts=2026-11-05T11:28:47Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:47.14122453Z ts=2026-11-05T11:28:47Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:47.146301824Z ts=2026-11-05T11:28:47Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:47.146312184Z ts=2026-11-05T11:28:47Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:47.146315095Z ts=2026-11-05T11:28:47Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:47.146317905Z ts=2026-11-05T11:28:47Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:47.146320355Z ts=2026-11-05T11:28:47Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:47.146338676Z ts=2026-11-05T11:28:47Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:47.195725783Z ts=2026-11-05T11:28:47Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=194.055573ms
+2026-11-05T11:28:49.590620291Z ts=2026-11-05T11:28:49Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:49.596023614Z ts=2026-11-05T11:28:49Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:49.601375474Z ts=2026-11-05T11:28:49Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:49.606842181Z ts=2026-11-05T11:28:49Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:49.606855452Z ts=2026-11-05T11:28:49Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:49.606858773Z ts=2026-11-05T11:28:49Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:49.606861503Z ts=2026-11-05T11:28:49Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:49.606864173Z ts=2026-11-05T11:28:49Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:49.606867853Z ts=2026-11-05T11:28:49Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:49.660812882Z ts=2026-11-05T11:28:49Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=195.980852ms
+2026-11-05T11:28:51.104958067Z ts=2026-11-05T11:28:51Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:51.113867647Z ts=2026-11-05T11:28:51Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:51.130012663Z ts=2026-11-05T11:28:51Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:51.146060723Z ts=2026-11-05T11:28:51Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:51.146077124Z ts=2026-11-05T11:28:51Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:51.146093925Z ts=2026-11-05T11:28:51Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:51.146096826Z ts=2026-11-05T11:28:51Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:51.146099216Z ts=2026-11-05T11:28:51Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:51.146102226Z ts=2026-11-05T11:28:51Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:51.318695385Z ts=2026-11-05T11:28:51Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=281.247023ms
+2026-11-05T11:28:52.495421001Z ts=2026-11-05T11:28:52Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:52.501474515Z ts=2026-11-05T11:28:52Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:52.506523556Z ts=2026-11-05T11:28:52Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:52.511366095Z ts=2026-11-05T11:28:52Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:52.511384086Z ts=2026-11-05T11:28:52Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:52.511387396Z ts=2026-11-05T11:28:52Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:52.511390016Z ts=2026-11-05T11:28:52Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:52.511392687Z ts=2026-11-05T11:28:52Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:52.511395337Z ts=2026-11-05T11:28:52Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:52.573137616Z ts=2026-11-05T11:28:52Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=203.052408ms
+2026-11-05T11:28:53.68159833Z ts=2026-11-05T11:28:53Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:53.69083101Z ts=2026-11-05T11:28:53Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:53.698159702Z ts=2026-11-05T11:28:53Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:53.703829322Z ts=2026-11-05T11:28:53Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:53.703838383Z ts=2026-11-05T11:28:53Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:53.703841213Z ts=2026-11-05T11:28:53Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:53.703843753Z ts=2026-11-05T11:28:53Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:53.703846223Z ts=2026-11-05T11:28:53Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:53.703849353Z ts=2026-11-05T11:28:53Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:53.77041692Z ts=2026-11-05T11:28:53Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=229.673751ms
+2026-11-05T11:28:55.778404507Z ts=2026-11-05T11:28:55Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:55.785189246Z ts=2026-11-05T11:28:55Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:55.790152342Z ts=2026-11-05T11:28:55Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:55.795989482Z ts=2026-11-05T11:28:55Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:55.796026804Z ts=2026-11-05T11:28:55Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:55.796030404Z ts=2026-11-05T11:28:55Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:55.796033275Z ts=2026-11-05T11:28:55Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:55.796035855Z ts=2026-11-05T11:28:55Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:55.796039835Z ts=2026-11-05T11:28:55Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:55.851879061Z ts=2026-11-05T11:28:55Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=132.190137ms
+2026-11-05T11:28:57.642257151Z ts=2026-11-05T11:28:57Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:28:57.647479843Z ts=2026-11-05T11:28:57Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:28:57.652264738Z ts=2026-11-05T11:28:57Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:28:57.65730677Z ts=2026-11-05T11:28:57Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:28:57.65731483Z ts=2026-11-05T11:28:57Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:28:57.65731778Z ts=2026-11-05T11:28:57Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:28:57.657320321Z ts=2026-11-05T11:28:57Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:28:57.657322841Z ts=2026-11-05T11:28:57Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:28:57.657326001Z ts=2026-11-05T11:28:57Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:28:57.709034221Z ts=2026-11-05T11:28:57Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=487.544443ms
+2026-11-05T11:29:00.598613987Z ts=2026-11-05T11:29:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:29:00.59866712Z ts=2026-11-05T11:29:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:29:00.618524395Z ts=2026-11-05T11:29:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:29:11.69960277Z ts=2026-11-05T11:29:11Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:29:11.7052608Z ts=2026-11-05T11:29:11Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=2
+2026-11-05T11:29:11.710278649Z ts=2026-11-05T11:29:11Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:29:11.715332991Z ts=2026-11-05T11:29:11Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:29:11.715344182Z ts=2026-11-05T11:29:11Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:29:11.715348732Z ts=2026-11-05T11:29:11Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:29:11.715352693Z ts=2026-11-05T11:29:11Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:29:11.715356653Z ts=2026-11-05T11:29:11Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:29:11.715362233Z ts=2026-11-05T11:29:11Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:29:11.772075102Z ts=2026-11-05T11:29:11Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=217.965129ms
+2026-11-05T11:29:30.616297251Z ts=2026-11-05T11:29:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:29:30.616330623Z ts=2026-11-05T11:29:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:29:30.633890957Z ts=2026-11-05T11:29:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:30:00.634058265Z ts=2026-11-05T11:30:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:30:00.634073426Z ts=2026-11-05T11:30:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:30:00.650591406Z ts=2026-11-05T11:30:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:30:10.630953999Z ts=2026-11-05T11:30:10Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:30:10.636919807Z ts=2026-11-05T11:30:10Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=1
+2026-11-05T11:30:10.648621579Z ts=2026-11-05T11:30:10Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:30:10.653779318Z ts=2026-11-05T11:30:10Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:30:10.653793948Z ts=2026-11-05T11:30:10Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:30:10.653797639Z ts=2026-11-05T11:30:10Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:30:10.653800639Z ts=2026-11-05T11:30:10Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:30:10.653803139Z ts=2026-11-05T11:30:10Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:30:10.653806689Z ts=2026-11-05T11:30:10Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:30:10.710097883Z ts=2026-11-05T11:30:10Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=213.008156ms
+2026-11-05T11:30:13.366092237Z ts=2026-11-05T11:30:13Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:30:13.372313261Z ts=2026-11-05T11:30:13Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=1
+2026-11-05T11:30:13.374325995Z ts=2026-11-05T11:30:13Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:30:13.379298122Z ts=2026-11-05T11:30:13Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:30:13.379310403Z ts=2026-11-05T11:30:13Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:30:13.379313343Z ts=2026-11-05T11:30:13Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:30:13.379315943Z ts=2026-11-05T11:30:13Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:30:13.379318603Z ts=2026-11-05T11:30:13Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:30:13.379321813Z ts=2026-11-05T11:30:13Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:30:13.43695159Z ts=2026-11-05T11:30:13Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=296.188389ms
+2026-11-05T11:30:24.275944095Z ts=2026-11-05T11:30:24Z level=info component=http user=unauthenticated method=POST uri=/api/fleet/orbit/enroll took=26.396309ms hardware_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 hardware_serial=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 hostname="" platform=android platform_like="" osquery_identifier="" computer_name="samsung SM-A276B" hardware_model=""
+2026-11-05T11:30:30.651851727Z ts=2026-11-05T11:30:30Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:30:30.651879168Z ts=2026-11-05T11:30:30Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:30:30.669284983Z ts=2026-11-05T11:30:30Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+2026-11-05T11:30:46.808768303Z ts=2026-11-05T11:30:46Z level=debug msg="Received PubSub message" notification=STATUS_REPORT
+2026-11-05T11:30:46.815227562Z ts=2026-11-05T11:30:46Z level=debug msg="Verifying Android device policy" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13 non_compliance_count=1
+2026-11-05T11:30:46.817500822Z ts=2026-11-05T11:30:46Z level=debug msg="Verifying Android device software" host_uuid=d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456 applied_policy_version=13
+2026-11-05T11:30:46.822750856Z ts=2026-11-05T11:30:46Z level=debug msg="Processing Android memory events (update)" device_id="" total_internal_storage=7171379200 memory_events_count=4
+2026-11-05T11:30:46.822766957Z ts=2026-11-05T11:30:46Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:08.799Z
+2026-11-05T11:30:46.822770287Z ts=2026-11-05T11:30:46Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:14.295Z
+2026-11-05T11:30:46.822772948Z ts=2026-11-05T11:30:46Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:19.332Z
+2026-11-05T11:30:46.822775538Z ts=2026-11-05T11:30:46Z level=debug msg="Android memory event (update)" event_type=EXTERNAL_STORAGE_DETECTED byte_count=239087910912 create_time=2026-11-05T11:28:37.804Z
+2026-11-05T11:30:46.822778298Z ts=2026-11-05T11:30:46Z level=debug msg="Android storage measurement not supported (update)" device_id="" total_storage_bytes=246259290112 reason="Only DETECTED events, no MEASURED events"
+2026-11-05T11:30:46.880549514Z ts=2026-11-05T11:30:46Z level=debug component=http user=unauthenticated method=POST uri="/api/v1/fleet/android_enterprise/pubsub?token=<token>" took=137.921543ms
+2026-11-05T11:31:00.669120212Z ts=2026-11-05T11:31:00Z level=info msg=pending cron=mdm_android_profile_manager schedule=mdm_android_profile_manager
+2026-11-05T11:31:00.669141143Z ts=2026-11-05T11:31:00Z level=debug msg=starting cron=mdm_android_profile_manager schedule=mdm_android_profile_manager jobID=manage_android_profiles
+2026-11-05T11:31:00.686625322Z ts=2026-11-05T11:31:00Z level=info msg="run finished" cron=mdm_android_profile_manager schedule=mdm_android_profile_manager status=completed
+== 191 Android lines of 1341 in the window
+[exit 0]

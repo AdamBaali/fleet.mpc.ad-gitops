@@ -1,0 +1,8 @@
+# 2026-11-05T09:04:34Z
+$ tools/setup-check.sh fleets
+
+11 android-pin-enforced
+12 android-pin-label
+13 android-pin-staging
+14 android-pin-test-block0
+[exit 0]

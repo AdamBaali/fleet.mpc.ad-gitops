@@ -1,0 +1,11 @@
+# 2026-11-05T11:19:40Z
+$ 'tools/fleet-activity.sh' '<redacted>' '2026-11-05T11:05:44Z'
+
+host id=33, activities since 2026-11-05T11:05:44Z
+== host activities: 0
+
+== upcoming host activities: 0
+
+== global activities naming the host: 1
+2026-11-05T11:18:51.166831Z fleet_enrolled by - {"host_display_name": "samsung SM-A276B", "host_id": 33, "host_serial": "d0af17ff6477405bdc242052138d34aa68538d568798ac67b3d7aa38e712c456"}
+[exit 0]

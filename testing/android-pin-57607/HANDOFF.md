@@ -1,30 +1,32 @@
 # Handoff: Android PIN at enrollment (fleetdm/fleet#57607)
 
 ## State
-Plan, profiles, fleets, tools and drafts are written on branch `android-pin-57607`. Nothing is applied to the lab
-Fleet yet. No device runs. The scripts were tested against a local mock of the Fleet API only.
+Done for QR enrollment (2026-11-05). S-1 to S-3 PASS. O2-1 PASS, O2-2 to O2-4 PARTIAL: PIN enforced every time, no
+block during setup. Fleet 14 (`android-pin-test-block0`) holds `pin-block-0.json` and `pin-unblock-message.json`.
+The report is in `drafts/FINDINGS-COMMENT.md`, not posted. The test phone is enrolled as host 34 with a PIN set.
 
 ## Next steps
-1. Add four repository secrets and the matching `env` lines in `.github/workflows/workflow.yml`:
-   `FLEET_ANDROID_PIN_TEST_BLOCK0_ENROLL_SECRET`, `FLEET_ANDROID_PIN_STAGING_ENROLL_SECRET`,
-   `FLEET_ANDROID_PIN_ENFORCED_ENROLL_SECRET`, `FLEET_ANDROID_PIN_LABEL_ENROLL_SECRET`.
-2. Open the PR. The CI dry run is the Fleet-side validation of the profiles and the label. If it fails on the label
-   (labels exception on), remove `fleets/android-pin-label.yml` and create the label in the UI.
-3. Merge, then run TEST-PLAN.md S-1 to S-5, O2-1 to O2-5, O3F, O3L.
-4. Fill RESULTS.md, build EVIDENCE.md, fill `drafts/FINDINGS-COMMENT.md`.
-5. Zero-touch runs (Z) with a device registered through OEM Test Reseller.
+1. Adam posts `drafts/FINDINGS-COMMENT.md` on fleetdm/fleet#57607.
+2. Ask the customer for device models, Android versions, their current profile, and a photo of the setup block.
+3. Zero-touch runs (Z) once the lab has a zero-touch customer account.
+4. Check the unblock message on a Pixel if one is available.
 
 ## Running services
-None.
+None. Fleet on Render still runs with `FLEET_LOGGING_DEBUG=true`.
 
 ## Teardown
-- Remove `fleets/android-pin-*.yml` and `lib/android/configuration-profiles/pin-*.json` through a PR. GitOps deletes
-  the fleets and the label.
-- Delete the four repository secrets and their `env` lines.
+- Remove `fleets/android-pin-test-block0.yml` and `lib/android/configuration-profiles/pin-*.json` through a PR.
+- Delete the repository secrets `FLEET_ANDROID_PIN_STAGING_ENROLL_SECRET`, `FLEET_ANDROID_PIN_ENFORCED_ENROLL_SECRET` and
+  `FLEET_ANDROID_PIN_LABEL_ENROLL_SECRET` (unused since the option 3 fleets were removed). At full teardown, also
+  `FLEET_ANDROID_PIN_TEST_BLOCK0_ENROLL_SECRET` and its `env` line.
+- Remove `FLEET_LOGGING_DEBUG` from the Render service.
+- Remove the phone from Google Drive's USB devices.
 - Wipe the test devices and delete them from Fleet.
-- Revoke the API-only user's token in `private/fleet.env`.
+- Log out of the fleetctl session whose token is in `private/fleet.env`, or revoke the API-only user's token if one replaces it.
 - Remove the zero-touch configurations and the test device registration, if made.
+- Delete `private/cam/` (camera frames, about 700 MB) once the evidence is merged.
 
 ## Rules learned
-- Remove the `android-pin-ready` label before wiping a device. It survives re-enrollment.
+- Wipe with `fleetctl mdm wipe`, then delete the host, so each run is a new host.
+- Check the Mac clock before a run (`sntp time.apple.com`).
 - A QR enrollment token lasts 1 hour and works once. Reload the enrollment page for each run.

@@ -1,0 +1,5 @@
+# 2026-11-05T09:04:36Z
+$ tools/setup-check.sh version
+
+4.94.0
+[exit 0]

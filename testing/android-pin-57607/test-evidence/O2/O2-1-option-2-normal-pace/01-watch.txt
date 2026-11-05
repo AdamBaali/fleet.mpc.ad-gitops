@@ -1,0 +1,6 @@
+# 2026-11-05T09:18:06Z
+$ 'tools/watch-host.sh' '<redacted>' '2400' 5
+
+2026-11-05T09:18:07Z +00:01 host not in Fleet yet
+2026-11-05T09:31:36Z +13:30 no JSON from Fleet
+2026-11-05T09:32:10Z +14:04 host not in Fleet yet

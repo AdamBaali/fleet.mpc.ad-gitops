@@ -1,0 +1,9 @@
+# 2026-11-05T09:37:12Z
+$ 'tools/watch-host.sh' '<redacted>' '2700' 5
+
+2026-11-05T09:37:13Z +00:01 host not in Fleet yet
+2026-11-05T09:42:43Z +05:31 id=31 fleet="android-pin-test-block0" mdm=On (automatic) labels=- profiles=[-]
+2026-11-05T09:42:48Z +05:36 id=31 fleet="android-pin-test-block0" mdm=On (automatic) labels=- profiles=[pin-block-0=pending]
+2026-11-05T09:42:53Z +05:41 id=31 fleet="android-pin-test-block0" mdm=On (automatic) labels=- profiles=[pin-block-0=failed ("passwordPolicies" setting couldn't apply to a host.
+Reason: USER_ACTION. Other settings are applied.)]
+2026-11-05T09:43:31Z +06:19 id=31 fleet="android-pin-test-block0" mdm=On (automatic) labels=- profiles=[pin-block-0=verified]
