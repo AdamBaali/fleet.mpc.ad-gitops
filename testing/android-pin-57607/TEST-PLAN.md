@@ -75,8 +75,8 @@ without keeping factory reset protection (see NOTES.md).
 
 ## What to record per run
 
-Start `tools/run.sh watch <ID> <serial>` before scanning the QR code. It saves a line with a UTC time each time the
-host, its fleet, labels or profile status change. Film the device screen. Then fill the RESULTS.md row and add each
+Start `tools/run.sh watch <ID> <serial>` and `tools/cam-log.sh <ID>` before scanning the QR code (`tools/cam-preview.sh` to aim the camera). Check the Mac clock first (`sntp time.apple.com`): Mac times go in the evidence. It saves a line with a UTC time each time the
+host, its fleet, labels or profile status change. Then fill the RESULTS.md row and add each
 field with `tools/run.sh note`.
 
 | Field | How |

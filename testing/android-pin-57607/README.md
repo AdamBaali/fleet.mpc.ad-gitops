@@ -4,7 +4,7 @@ Find the best practice, with current Fleet features, to make company-owned (full
 PIN right after they enroll, ideally before the end user reaches the home screen. For `customer-antonella`, who
 enrolls with zero-touch. Background: fleetdm/fleet#57332.
 
-**Status:** setup S-1 to S-3 passed on 2026-11-05. Device runs not started. Start with [TEST-PLAN.md](TEST-PLAN.md).
+**Status:** setup S-1 to S-3 passed. O2-1 passed on 2026-11-05 (PIN prompt in setup, no block). Start with [TEST-PLAN.md](TEST-PLAN.md).
 
 ## What we know before testing
 
@@ -29,6 +29,8 @@ enrolls with zero-touch. Background: fleetdm/fleet#57332.
 | [tools/move-host.sh](tools/move-host.sh) | Option 3 step: move a host by serial to a fleet, or add or remove a manual label. Dry run unless `--apply` |
 | [tools/fleet-activity.sh](tools/fleet-activity.sh) | Fleet activity log for one host since a run started: host, upcoming, and global activities that name it |
 | [tools/server-logs.sh](tools/server-logs.sh) | Fleet server logs from Render for a run's window, Android lines only, IP addresses masked. Needs `render login` and `RENDER_SERVICE_ID` |
+| [tools/cam-log.sh](tools/cam-log.sh) | One frame a second of the phone screen from the iPhone (Continuity Camera), UTC file names, to `private/cam/<ID>/`. adb can't see the setup wizard |
+| [tools/cam-preview.sh](tools/cam-preview.sh) | Live preview of the same camera, to line it up on the phone |
 | [tools/setup-check.sh](tools/setup-check.sh) | Read-only checks for S-1 to S-3: version, fleets, profiles, label, Android MDM and labels exception |
 | [tools/host-fields.py](tools/host-fields.py) | Keeps only the host fields the plan records, so evidence holds no IP addresses |
 | `private/` | Internal links and names (git ignores it). `private/fleet.env` holds the API token |

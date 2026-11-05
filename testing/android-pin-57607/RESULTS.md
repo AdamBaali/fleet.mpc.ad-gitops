@@ -30,7 +30,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 
 | ID | Date | Device model | Android version | Security patch | New or re-enrolled host | Pace | T0 (UTC) | Host in Fleet (T+) | Profile Pending (T+) | Wizard screen when policy arrived | PIN prompt in setup (screen) | "Blocked by your work policy" (screen) | Way past the block | Home screen (T+) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| O2-1 | | | | | | Normal | | | | | | | | |
+| O2-1 | 2026-11-05 | Samsung SM-A276B | 16 | 2026-05-05 | New | Normal | 09:37:24 to 09:37:48 | 5:05 to 5:29 (09:42:53) | 5:17 to 5:41 (09:43:05, failed USER_ACTION; pending 5 s before) | "Registering device..." (reconciler 09:42:57) | Yes, "Set a new screen lock" at 09:43:05 | No | n/a | 6:09 to 6:33 (09:43:57) |
 | O2-2 | | | | | | Normal | | | | | | | | |
 | O2-3 | | | | | | Normal | | | | | | | | |
 | O2-4 | | | | | | Slow | | | | | | | | |
@@ -51,7 +51,7 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 
 | ID | Fleet at enrollment | Move or label applied (T+) | Apps blocked (T+) | Apps blocked (which) | PIN prompt or notice after setup (T+) | PIN set (T+) | Profile status after PIN (T+) | Minutes usable without a PIN | Result | Evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
-| O2-1 | `android-pin-test-block0` | n/a | | | | | | | | |
+| O2-1 | `android-pin-test-block0` | n/a | Not tested: PIN set before the home screen | n/a | 09:43:05, in setup | 09:43:37 | Verified 09:43:43 | 0 | PASS | [O2-1](test-evidence/O2/O2-1-option-2-normal-pace/result.md) |
 | O2-2 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-3 | `android-pin-test-block0` | n/a | | | | | | | | |
 | O2-4 | `android-pin-test-block0` | n/a | | | | | | | | |
@@ -71,5 +71,18 @@ Fleet version: 4.94.0 · Enrollment: QR (zero-touch in Z) · Code references: `f
 Add a row to both tables for each extra run (O2-6, V-2, Z-2, and so on).
 
 ## Findings
+
+### F-1: Mac clock 12 s behind (lab)
+
+The Mac's clock was 12.07 s behind (sntp against time.apple.com and Fleet's `Date` header) during O2-1. Watch lines, camera
+file names and note times use Mac time. RESULTS.md uses server time (Mac + 12 s). Fix before the next run: turn on
+**Set time and date automatically** on the Mac, then re-check with `sntp time.apple.com`.
+
+### F-2: Android hosts get a `fleet_enrolled` activity on 4.94.0
+
+O2-1 logged a global `fleet_enrolled` activity for the Android host at 09:44:13, 80 s after enrollment, with no actor.
+NOTES.md says Fleet emits no enrollment activity for Android (pubsub.go). The activity type is defined in
+`server/fleet/activities.go`; where it's emitted for Android isn't checked yet. If it's reliable, the option 3
+automation could start from an activity webhook instead of polling.
 
 _One section per finding, in the framework's format: steps, expected, actual, evidence, what Fleet or the guide should change._

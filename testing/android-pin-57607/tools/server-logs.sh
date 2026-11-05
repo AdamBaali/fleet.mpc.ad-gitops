@@ -5,38 +5,63 @@
 #
 # Usage: server-logs.sh SINCE [UNTIL]          UTC times, for example 2026-11-05T09:30:00Z. UNTIL defaults to now.
 # Needs the Render CLI logged in (render login) and RENDER_SERVICE_ID (the srv-... ID of the Fleet service).
-# IP addresses are masked: this repo is public and the evidence doesn't need them.
+#
+# This repo is public, so the output masks the token in Google's Pub/Sub push URL
+# (/api/v1/fleet/android_enterprise/pubsub?token=...): it authenticates Google's calls to the live Fleet. IP addresses
+# and the lab admin's email stay: the lab tenant and test phone are throwaway (owner's call, 2026-11-05).
 set -euo pipefail
 since="${1:?usage: server-logs.sh SINCE [UNTIL]}"; until="${2:-$(date -u +%FT%TZ)}"
 : "${RENDER_SERVICE_ID:?set RENDER_SERVICE_ID in private/fleet.env}"
 
-render logs --resources "$RENDER_SERVICE_ID" --start "$since" --end "$until" --direction forward \
-  --limit 1000 --output json --confirm \
-  | python3 -I -c '
-import json, re, sys
-# The CLI prints one JSON object per log line, back to back, not a JSON array.
-raw = sys.stdin.read()
-dec, pos, logs = json.JSONDecoder(), 0, []
+# Render returns at most 1000 lines per call, and debug logging writes about 250 a minute, so page forward from the
+# last timestamp until the window is covered.
+start="$since"; pages=0
+while :; do
+  page=$(render logs --resources "$RENDER_SERVICE_ID" --start "$start" --end "$until" --direction forward \
+    --limit 1000 --output json --confirm)
+  pages=$((pages + 1))
+  printf '%s\n' "$page"
+  last=$(printf '%s' "$page" | python3 -I -c '
+import json, sys
+raw = sys.stdin.read(); dec = json.JSONDecoder(); pos = 0; n = 0; last = ""
 while True:
     while pos < len(raw) and raw[pos].isspace():
         pos += 1
     if pos >= len(raw):
         break
-    obj, pos = dec.raw_decode(raw, pos)
-    logs.extend(obj if isinstance(obj, list) else [obj])
-# Android only. "profile" or "policy" alone would also match the Apple and Windows cron jobs.
+    o, pos = dec.raw_decode(raw, pos); n += 1; last = o.get("timestamp", last)
+print(n, last)')
+  n=${last%% *}; ts=${last#* }
+  # A short page means the window is done. The 50-page stop guards against a loop if Render repeats a page.
+  [ "$n" -lt 1000 ] || [ -z "$ts" ] || [ "$pages" -ge 50 ] && break
+  start="$ts"
+done | python3 -I -c '
+import json, re, sys
+raw = sys.stdin.read(); dec = json.JSONDecoder(); pos = 0; logs = []; seen = set()
+while True:
+    while pos < len(raw) and raw[pos].isspace():
+        pos += 1
+    if pos >= len(raw):
+        break
+    o, pos = dec.raw_decode(raw, pos)
+    # Pages overlap on the boundary timestamp.
+    if o.get("id") not in seen:
+        seen.add(o.get("id")); logs.append(o)
+# Android lines only. "profile" or "policy" alone would also match the Apple and Windows jobs.
 keep = re.compile(r"android|pubsub|clouddpc|amapi|enterprises/", re.I)
-# The instance ID repeats on every line and says nothing about the run.
-inst = re.compile(r" instanceID=\"[^\"]*\"")
-# Health checks and static assets fill the window without saying anything about the host.
-drop = re.compile(r"/healthz|/assets/|GET /api/v1/fleet/version", re.I)
-ip = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9a-f]{1,4}:){3,7}[0-9a-f]{1,4}\b", re.I)
+# Timer chatter from the Android cron jobs, and the admin UI loading Android settings pages.
+drop = re.compile(r"remaining until next tick|tick received|wait remaining|component=http user=(?!unauthenticated)", re.I)
+masks = [
+    (re.compile(r"(token=)[^&\s\"]+"), r"\1<token>"),
+    (re.compile(r" instanceID=\"[^\"]*\""), ""),
+]
 n = 0
 for l in logs:
-    msg = l.get("message", "") if isinstance(l, dict) else str(l)
-    ts = l.get("timestamp", "") if isinstance(l, dict) else ""
+    msg = l.get("message", "")
     if keep.search(msg) and not drop.search(msg):
-        print(ts, ip.sub("<ip>", inst.sub("", msg)))
+        for rx, rep in masks:
+            msg = rx.sub(rep, msg)
+        print(l.get("timestamp", ""), msg)
         n += 1
-print("== %d matching lines of %d in the window (limit 1000)" % (n, len(logs)))
+print("== %d Android lines of %d in the window" % (n, len(logs)))
 '
