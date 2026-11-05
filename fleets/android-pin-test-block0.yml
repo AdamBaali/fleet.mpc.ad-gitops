@@ -9,6 +9,8 @@ controls:
   android_settings:
     configuration_profiles:
       - path: ../lib/android/configuration-profiles/pin-block-0.json
+      # Shown where the device blocks something, so an end user who misses the PIN step in setup knows how to unblock.
+      - path: ../lib/android/configuration-profiles/pin-unblock-message.json
 software:
 settings:
   secrets:
