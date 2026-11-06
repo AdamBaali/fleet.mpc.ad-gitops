@@ -1,0 +1,18 @@
+{
+  "passwordPolicies": [
+    {
+      "passwordScope": "SCOPE_DEVICE",
+      "passwordQuality": "NUMERIC_COMPLEX",
+      "passwordMinimumLength": 6,
+      "maximumFailedPasswordsForWipe": 6
+    }
+  ],
+  "maximumTimeToLock": "60000",
+  "keyguardDisabledFeatures": [
+    "TRUST_AGENTS",
+    "UNREDACTED_NOTIFICATIONS"
+  ],
+  "deviceOwnerLockScreenInfo": {
+    "defaultMessage": "This system is reserved for authorized use only.\nThe use of this system may be monitored."
+  }
+}

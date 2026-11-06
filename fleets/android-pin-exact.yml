@@ -1,0 +1,17 @@
+# Lab fleet for Android PIN at enrollment (fleetdm/fleet#57607, customer-antonella).
+# Holds an exact copy of the customer's two Android profiles, with their file names, so a lab enrollment gets the
+# same policy their hosts get. Tests whether their extra settings (failed-attempts wipe, lock timeout, keyguard and
+# lock screen text, no preserveFrp) cause the block during setup that pin-block-0.json never caused. See testing/android-pin-57607/.
+name: "android-pin-exact"
+policies:
+reports:
+agent_options:
+controls:
+  android_settings:
+    configuration_profiles:
+      - path: ../lib/android/configuration-profiles/customer-replica/android-passcode.json
+      - path: ../lib/android/configuration-profiles/customer-replica/android-password-enforcement.json
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_ANDROID_PIN_EXACT_ENROLL_SECRET"
