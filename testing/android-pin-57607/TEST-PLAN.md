@@ -139,6 +139,25 @@ On a FAIL, try the recovery from #57332 workaround 2 (Back until the QR screen, 
 works. The goal is how often each outcome happens and whether every outcome ends with the PIN enforced.
 (Changed after O2-2: the first rule counted a post-setup block as a failure, but the PIN is still enforced there.)
 
+### Customer's exact profiles (E)
+
+Fleet `android-pin-exact` holds exact copies of the customer's two profiles
+([`customer-replica/`](../../lib/android/configuration-profiles/customer-replica/)). They differ from `pin-block-0.json`
+in `maximumFailedPasswordsForWipe: 6`, `maximumTimeToLock`, `keyguardDisabledFeatures`, `deviceOwnerLockScreenInfo`,
+and no `preserveFrp`. The E runs check whether those settings cause a block during setup on the Samsung. A FAIL here
+points at the profile; a PASS or PARTIAL points back at the device.
+
+| ID | Pace | Steps | Pass when |
+|---|---|---|---|
+| E-1 | Normal | Common run steps, fleet `android-pin-exact` | Same pattern as O2: prompt in setup or apps blocked at home. No block in setup |
+| E-2 | Fast | As E-1, tapping through every screen | As E-1 |
+| E-3 | Slow | As E-1, but wait 3 minutes on each Google terms screen before accepting (the customer's repro tip) | As E-1 |
+
+Reports from outside the lab, for context (Pixel 10a, a Fleet teammate, same timing split): with `blockAfterDays: 0`
+and `BLOCK_SCOPE_DEVICE`, the PIN prompt came after "Registering device" in two runs, and "Blocked by work policy"
+showed on "I accept" in the third. With `blockAfterDays: 1`, setup showed a notice and nothing was enforced. The
+customer removed `blockScope` and still got the block on a Pixel.
+
 ### Pixel runs (P)
 
 The customer's block happens on Pixels (a Pixel 11 Pro and a Pixel 10a), on the Pixel's "Additional legal terms"

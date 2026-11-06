@@ -9,7 +9,7 @@ The report in `drafts/FINDINGS-COMMENT.md` is posted on the issue. The test phon
 1. Done: the findings comment is posted on fleetdm/fleet#57607.
 2. The customer reproduced the block on Pixels, on "Additional legal terms", with a Google account added in setup.
    Their profiles match ours where it matters. Adam posts the reply in `private/customer-reply.md`.
-3. Pixel runs P-1 to P-3 (TEST-PLAN.md). P-3 needs `android-pin-staging` and `android-pin-enforced` back in GitOps.
+3. Exact-profile runs E-1 to E-3 on the Samsung (fleet `android-pin-exact`, branch `android-pin-57607-exact`). Then Pixel runs P-1 to P-3 (TEST-PLAN.md). P-3 needs `android-pin-staging` and `android-pin-enforced` back in GitOps.
 4. Record the Pixel finding in RESULTS.md, then update `drafts/FINDINGS-COMMENT.md` with it.
 5. Zero-touch runs (Z) once the lab has a zero-touch customer account.
 
