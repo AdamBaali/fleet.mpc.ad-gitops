@@ -3,13 +3,15 @@
 ## State
 Done for QR enrollment (2026-11-05). S-1 to S-3 PASS. O2-1 PASS, O2-2 to O2-4 PARTIAL: PIN enforced every time, no
 block during setup. Fleet 14 (`android-pin-test-block0`) holds `pin-block-0.json` and `pin-unblock-message.json`.
-The report is in `drafts/FINDINGS-COMMENT.md`, not posted. The test phone is enrolled as host 34 with a PIN set.
+The report in `drafts/FINDINGS-COMMENT.md` is posted on the issue. The test phone is enrolled as host 34 with a PIN set.
 
 ## Next steps
-1. Adam posts `drafts/FINDINGS-COMMENT.md` on fleetdm/fleet#57607.
-2. Ask the customer for device models, Android versions, their current profile, and a photo of the setup block.
-3. Zero-touch runs (Z) once the lab has a zero-touch customer account.
-4. Check the unblock message on a Pixel if one is available.
+1. Done: the findings comment is posted on fleetdm/fleet#57607.
+2. The customer reproduced the block on Pixels, on "Additional legal terms", with a Google account added in setup.
+   Their profiles match ours where it matters. Adam posts the reply in `private/customer-reply.md`.
+3. Pixel runs P-1 to P-3 (TEST-PLAN.md). P-3 needs `android-pin-staging` and `android-pin-enforced` back in GitOps.
+4. Record the Pixel finding in RESULTS.md, then update `drafts/FINDINGS-COMMENT.md` with it.
+5. Zero-touch runs (Z) once the lab has a zero-touch customer account.
 
 ## Running services
 None. `FLEET_LOGGING_DEBUG` was removed from Render on 2026-11-05.

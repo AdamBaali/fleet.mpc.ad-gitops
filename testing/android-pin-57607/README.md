@@ -30,8 +30,7 @@ Zero-touch not tested (no zero-touch customer account in the lab).
 | [EVIDENCE.md](EVIDENCE.md) | Generated index of every test with its result, photos and raw output |
 | [NOTES.md](NOTES.md) | Fleet and Google facts with sources, product ask, lab versus production |
 | [HANDOFF.md](HANDOFF.md) | State, next steps, teardown |
-| [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Report for fleetdm/fleet#57607. Not posted |
-| [drafts/customer-reply.md](drafts/customer-reply.md) | Reply to the customer on blocked apps, the unblock message, unblock time and the default policy. Not posted |
+| [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Report for fleetdm/fleet#57607. Posted 2026-11-05; update it after the Pixel runs |
 | [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `activity`, `logs`, `note`, `verdict`) |
 | [tools/guide.sh](tools/guide.sh) | On-screen steps, a countdown to the QR scan, and a running clock for the person at the phone |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |

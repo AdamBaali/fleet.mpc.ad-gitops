@@ -139,6 +139,22 @@ On a FAIL, try the recovery from #57332 workaround 2 (Back until the QR screen, 
 works. The goal is how often each outcome happens and whether every outcome ends with the PIN enforced.
 (Changed after O2-2: the first rule counted a post-setup block as a failure, but the PIN is still enforced there.)
 
+### Pixel runs (P)
+
+The customer's block happens on Pixels (a Pixel 11 Pro and a Pixel 10a), on the Pixel's "Additional legal terms"
+screen. Their tip: wait 3 minutes on that screen so the policy lands first; a fast tap on "I accept" can beat it.
+Their screen also shows a Google account, so an account is added during setup. None of the O2 runs added one. The P
+runs separate the two variables: the device, and the account.
+
+| ID | Fleet | Steps | Pass when |
+|---|---|---|---|
+| P-1 | `android-pin-test-block0` | Sign in to a Google account during setup. Wait 3 minutes on "Additional legal terms", then tap "I accept" | No block in setup (PASS or PARTIAL as in O2). FAIL reproduces the customer's block |
+| P-2 | `android-pin-test-block0` | Same as P-1, but skip the Google account step | As P-1. Compare with P-1: if only P-1 blocks, the account step is the trigger |
+| P-3 | `android-pin-staging` (`pin-block-1.json`), then `android-pin-enforced` (`pin-block-0.json`, unblock message) | Repeat the P-1 steps. After the home screen, move the host with `POST /api/v1/fleet/hosts/transfer` (body `{"fleet_id": <enforced>, "hosts": [<host id>]}`) | No block in setup. After the move, apps are blocked until a PIN is set, and the unblock message shows |
+
+P-3 needs the two fleets back in GitOps (removed in commit 82b293d; see commit 4d69ed3 for the old files). Record
+the wizard screen at each minute of the wait, and which screen shows the block.
+
 ### Zero-touch confirmation (Z), later
 
 Point a zero-touch configuration at `android-pin-test-block0` (Fleet **Settings > Integrations > MDM > Android
