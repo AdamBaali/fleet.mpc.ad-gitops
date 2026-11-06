@@ -82,6 +82,21 @@ and a `complianceRules` entry with `nonComplianceDetailCondition.nonComplianceRe
 The working form of the issue's BlockAction fallback is `policyEnforcementRules` with `settingName: passwordPolicies`,
 `blockAction` and `wipeAction`, which is what `pin-block-0.json` uses. So the fallback is already what the O2 runs test.
 
+## Google's provisioning guidance
+
+- **Google: the policy at enrollment shapes the setup screens.** The provisioning guide says "Policies can impact
+  the generation of the UI during device provisioning", password policies first. For password steps in setup, it
+  suggests keeping the device in quarantine (enrolled with no policy) until the final policy is linked. It recommends
+  naming that policy in the enrollment token (`policyName`). A device left in quarantine for 5 minutes is factory
+  reset ([provision-device](https://developers.google.com/android/management/provision-device), checked 2026-11-06).
+  Fleet names a default policy with no password settings, so setup is built without a PIN step and the PIN settings
+  arrive mid-wizard. This backs the product ask below.
+- **No public reports of the Pixel block.** A search on 2026-11-06 found no Google doc, Reddit thread or vendor forum
+  post about "Blocked by work policy" on a Pixel's "Additional legal terms" screen. Microsoft's Intune guidance for
+  fully managed Android says the same as Google: a password profile assigned before enrollment applies during setup,
+  and one assigned after it doesn't prompt in setup
+  ([Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/assign-password-setting-android-fully-managed)).
+
 ## Product ask, if no option is reliable
 
 Put the fleet's profiles in the policy the enrollment token names (a per-fleet policy, or the host policy created
