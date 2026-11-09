@@ -1,0 +1,7 @@
+# 2026-11-09T15:20:47Z
+$ scripts/vm-query.sh ids1 queries/entra-device-id.sql
+
+[
+  {"cert_not_valid_after":"2109856840","cert_subject":"d6c9dff5-a92c-4f5a-b4cc-0f4ada6466c4","entra_device_id":"d6c9dff5-a92c-4f5a-b4cc-0f4ada6466c4"}
+]
+[exit 0]

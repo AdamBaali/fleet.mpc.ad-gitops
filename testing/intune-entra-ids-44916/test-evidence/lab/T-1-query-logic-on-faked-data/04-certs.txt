@@ -1,0 +1,8 @@
+# 2026-11-09T15:18:52Z
+$ scripts/vm-query.sh ids1 queries/checks/personal-certs.sql
+
+[
+  {"common_name":"MS-Organization-Access","issuer":"net + windows + MS-Organization-Access + 82dbaca4-3e81-46ca-9c73-0950c1eaca97","not_valid_after":"1952003917","sha1":"945209B867BF962F3792D38285FCDFF16EA3726B","store":"Personal","store_location":"LocalMachine","subject":"net + windows + MS-Organization-Access + 82dbaca4-3e81-46ca-9c73-0950c1eaca97"},
+  {"common_name":"2edaad74-0b9c-4449-95c0-42bf93f3dc86","issuer":"net + windows + MS-Organization-Access + 82dbaca4-3e81-46ca-9c73-0950c1eaca97","not_valid_after":"2109856718","sha1":"67741EFB6444B71647F99EC0099A63E3C127DA55","store":"Personal","store_location":"LocalMachine","subject":"2edaad74-0b9c-4449-95c0-42bf93f3dc86"}
+]
+[exit 0]

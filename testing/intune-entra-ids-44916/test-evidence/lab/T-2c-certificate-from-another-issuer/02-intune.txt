@@ -1,0 +1,7 @@
+# 2026-11-09T15:19:56Z
+$ scripts/vm-query.sh ids1 queries/intune-device-id.sql
+
+[
+
+]
+[exit 0]

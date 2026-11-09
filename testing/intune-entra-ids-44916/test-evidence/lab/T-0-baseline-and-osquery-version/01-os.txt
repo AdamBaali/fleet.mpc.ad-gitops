@@ -1,0 +1,8 @@
+# 2026-11-09T15:18:11Z
+$ tools/qga.sh ids1 '(Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, OSArchitecture | Format-List | Out-String).Trim(); & "C:\Program Files\osquery\osqueryi.exe" --version'
+
+Caption        : Microsoft Windows 11 Pro
+Version        : 10.0.26300
+OSArchitecture : ARM 64-bit Processor
+osqueryi.exe version 5.24.1
+[exit 0]
