@@ -1,8 +1,8 @@
 # Handoff: Intune and Entra device IDs
 
 ## State (2026-11-09)
-- Research done ([NOTES.md](NOTES.md)). T-1 and T-2 pass on the lab VM ([RESULTS.md](RESULTS.md)).
-- `fleets/device-ids-lab.yml` ("Device IDs Lab") and `lib/windows/reports/device-ids.reports.yml` are on this branch. The lab dry run passes. Not applied.
+- Research done ([NOTES.md](NOTES.md)). T-1, T-2 and T-3 pass on the lab VM ([RESULTS.md](RESULTS.md)).
+- "Device IDs Lab" is applied (fleet 15, reports 2793 and 2794). Host 35 is `ids1`, with the fakes from `fake-ids.ps1 setup` still in place.
 - T-4 and T-5 are blocked: no Entra or Intune tenant.
 
 ## How to run
@@ -12,16 +12,15 @@
 - Lab API: `testing/android-pin-57607/private/fleet.env` holds the lab URL and token. The default `fleetctl` context points at a different, non-lab Fleet: use a lab-only config with `--config`, never the default.
 
 ## Next steps
-1. Add the GitHub secret `FLEET_DEVICE_IDS_LAB_ENROLL_SECRET`, then merge the PR so "Device IDs Lab" applies.
-2. T-3: install fleetd in `ids1` with that secret, run `fake-ids.ps1 setup`, wait for the reports, then pull them through the API.
-3. T-4: ask the customer to run both queries in their stage Fleet and compare with `dsregcmd /status` and the Intune portal, or ask the engineer who built the #44917 IdP vitals work, who tested on an Entra-joined device.
-4. Raise with product: expose the Entra ID Fleet already collects on `GET /hosts/:id`.
+1. T-3 rerun: `scripts/run-t3.sh ids1 35 2793 2794`, then `scripts/t3-control.sh ids1` (run evidence helpers from bash, not zsh). The enroll secret is in `private/fleet.env`; the fleetd MSI is `out/msi/`.
+2. T-4: ask the customer to run both queries in their stage Fleet and compare with `dsregcmd /status` and the Intune portal, or ask the engineer who built the #44917 IdP vitals work, who tested on an Entra-joined device.
+3. Raise with product: expose the Entra ID Fleet already collects on `GET /hosts/:id`.
 
 ## Running services (keep them on)
 - QEMU VM `ids1` (`out/qemu/ids1/`). Stop: `tools/qga.sh ids1 'Stop-Computer -Force'`.
 
 ## Teardown
-- VM `ids1` and `out/` (about 6 GB, git-ignored). Fakes are already cleared (`fake-ids.ps1 clear`).
+- VM `ids1` and `out/` (git-ignored). Clear fakes first with `fake-ids.ps1 clear` if the VM is kept.
 - Fleet: "Device IDs Lab", its hosts, `fleets/device-ids-lab.yml`, `lib/windows/reports/device-ids.reports.yml`.
 - GitHub: secret `FLEET_DEVICE_IDS_LAB_ENROLL_SECRET` and its `workflow.yml` line.
 

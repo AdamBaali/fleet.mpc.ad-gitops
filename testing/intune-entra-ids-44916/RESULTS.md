@@ -28,8 +28,12 @@
 - **Evidence:** `test-evidence/lab/T-2*/`
 - **Finding:** T-2d shows why the report must not use `LIMIT 1` on the Intune side: two enrollments come back and only the key tells them apart. The lab can't show which one Windows keeps current. That needs T-5.
 
-## T-3: Stored report and API: NOT-RUN
-- `fleets/device-ids-lab.yml` and `lib/windows/reports/device-ids.reports.yml` are ready. The lab dry run passes (`fleetctl gitops --dry-run`, 2026-11-09). Needs the enroll secret in GitHub and a merge to `main`.
+## T-3: Stored report and API (2026-11-09): PASS
+- **Steps:** Applied "Device IDs Lab" through GitOps (reports 2793 Intune, 2794 Entra, every 600 seconds). Enrolled `ids1` with an arm64 fleetd MSI built for that fleet (host 35), with `fake-ids.ps1 setup` in place. Pulled both reports with the calls from the API walkthrough already sent to the customer, then compared with `scripts/compare-t3.py`.
+- **Expected:** One row per host with the faked IDs. `report_clipped` false.
+- **Actual:** Both reports stored within one interval. `/reports/:id/report` (paged and unpaged) and `/hosts/:id/reports/:id` return the faked IDs and the enrollment key. `report_clipped` is false. All nine checks pass. Control: with wrong expected IDs, the four value checks fail (`scripts/t3-control.sh`).
+- **Evidence:** `test-evidence/lab/T-3-stored-report-and-api/`
+- **Environment:** lab Fleet 4.94.0. The customer's Fleet version may differ.
 
 ## T-4, T-5: BLOCKED
 - No Entra or Intune tenant in the lab.

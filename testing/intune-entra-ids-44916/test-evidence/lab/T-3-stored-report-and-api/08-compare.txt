@@ -1,0 +1,14 @@
+# 2026-11-09T15:40:10Z
+$ python3 scripts/compare-t3.py ids1 35 2793 2794
+
+PASS  intune report: one row for host 35: 1 rows
+PASS  intune report: value: got d812b7d6-c324-42a5-9633-f0e5f74a417a, want d812b7d6-c324-42a5-9633-f0e5f74a417a
+PASS  intune report: not clipped: report_clipped=False
+PASS  intune host endpoint: value: 1 rows, got d812b7d6-c324-42a5-9633-f0e5f74a417a
+PASS  entra report: one row for host 35: 1 rows
+PASS  entra report: value: got 92f3f713-13af-440f-b8d9-5c4f82f07c0d, want 92f3f713-13af-440f-b8d9-5c4f82f07c0d
+PASS  entra report: not clipped: report_clipped=False
+PASS  entra host endpoint: value: 1 rows, got 92f3f713-13af-440f-b8d9-5c4f82f07c0d
+PASS  intune report: enrollment key returned: 2769B5E0-4FB6-4297-B7BB-5D55B1CFEE1B
+ALL PASS
+[exit 0]
