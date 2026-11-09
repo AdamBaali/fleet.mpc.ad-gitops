@@ -1,0 +1,7 @@
+# 2026-11-09T15:20:41Z
+$ scripts/vm-query.sh ids1 queries/intune-device-id.sql
+
+[
+  {"enrollment_key":"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Enrollments\\FE635D7C-E387-4BE3-9E96-7E793977E402\\DMClient\\MS DM Server","intune_device_id":"49f9a2de-ab6b-4076-baaf-fd527ac47a5c"}
+]
+[exit 0]

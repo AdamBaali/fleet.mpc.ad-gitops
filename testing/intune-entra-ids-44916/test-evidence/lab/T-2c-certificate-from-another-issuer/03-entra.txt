@@ -1,0 +1,7 @@
+# 2026-11-09T15:20:02Z
+$ scripts/vm-query.sh ids1 queries/entra-device-id.sql
+
+[
+
+]
+[exit 0]
