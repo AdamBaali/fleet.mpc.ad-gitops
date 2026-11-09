@@ -1,0 +1,12 @@
+# Lab fleet for reporting Intune and Entra device IDs on Windows hosts (fleetdm/fleet#44916).
+# Agent-only, like the customer. Nothing else lives here so the 10-minute reports never touch other fleets.
+name: "Device IDs Lab"
+policies:
+reports:
+  - path: ../lib/windows/reports/device-ids.reports.yml
+agent_options:
+controls:
+software:
+settings:
+  secrets:
+    - secret: "$FLEET_DEVICE_IDS_LAB_ENROLL_SECRET"

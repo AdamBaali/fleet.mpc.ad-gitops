@@ -1,0 +1,43 @@
+# Intune and Entra device IDs per Windows host, as a stable join key to Intune and Entra records
+# (fleetdm/fleet#44916). Same SQL as testing/intune-entra-ids-44916/queries/, which explains each choice.
+# Stored results, so the API returns them per host. Every 10 minutes for the lab test only.
+
+- name: Intune device ID
+  automations_enabled: false
+  description: |
+    EntDMID from each Intune enrollment key. Returns every match with its key, because a stale
+    enrollment can survive a re-image and LIMIT 1 would hide which ID is current.
+  discard_data: false
+  interval: 600
+  logging: snapshot
+  observer_can_run: false
+  platform: windows
+  query: |
+    SELECT data AS intune_device_id,
+           key AS enrollment_key
+    FROM registry
+    WHERE path LIKE 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Enrollments\%\DMClient\MS DM Server\%'
+      AND name = 'EntDMID';
+
+- name: Entra device ID
+  automations_enabled: false
+  description: |
+    Subject of the Entra device certificate that the CloudDomainJoin\JoinInfo subkey names by
+    thumbprint. There is no DeviceId registry value. Newest certificate wins.
+  discard_data: false
+  interval: 600
+  logging: snapshot
+  observer_can_run: false
+  platform: windows
+  query: |
+    SELECT c.common_name AS entra_device_id,
+           c.subject AS cert_subject,
+           c.not_valid_after AS cert_not_valid_after
+    FROM registry r
+    CROSS JOIN certificates c
+      ON UPPER(c.sha1) = UPPER(SUBSTR(r.key, LENGTH('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\JoinInfo\') + 1))
+    WHERE r.key LIKE 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\JoinInfo\%'
+      AND c.issuer LIKE 'net + windows + MS-Organization-Access%'
+    GROUP BY r.key
+    ORDER BY MAX(c.not_valid_after) DESC
+    LIMIT 1;

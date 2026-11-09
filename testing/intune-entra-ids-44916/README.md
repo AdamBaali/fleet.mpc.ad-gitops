@@ -3,7 +3,7 @@
 `customer-cisneros-w` runs fleetd agent-only on Windows, next to Intune. Serial, hostname and hardware UUID collide over time, so they want the Intune device ID and the Entra device ID per host as a stable join key.
 Product folded the request into fleetdm/fleet#43723, which lifted the report row cap in 4.93. This project checks that a stored report gives both IDs per host through the API.
 
-Status (2026-11-09): research done, no tests run. No Entra or Intune tenant is available, so the real-host check is blocked. See [HANDOFF.md](HANDOFF.md).
+Status (2026-11-09): research done. Query logic and five negative controls pass on a lab VM with faked IDs (T-1, T-2). The stored report test (T-3) waits for the lab fleet. No Entra or Intune tenant is available, so the real-host check is blocked. See [HANDOFF.md](HANDOFF.md).
 
 | File | What it is |
 | --- | --- |
@@ -12,7 +12,11 @@ Status (2026-11-09): research done, no tests run. No Entra or Intune tenant is a
 | [RESULTS.md](RESULTS.md) | One entry per test |
 | [HANDOFF.md](HANDOFF.md) | State, next steps, teardown |
 | [ISSUE_UPDATE.md](ISSUE_UPDATE.md) | Draft update for the issue. Adam posts it |
-| `queries/` | The candidate report SQL. Not tested yet: don't send to the customer |
+| `queries/` | The report SQL. Tested on faked data only: don't send to the customer before T-4 |
+| `scripts/fake-ids.ps1` | Writes and removes fake Intune and Entra keys and certificates on the VM |
+| `scripts/run-t1-t2.sh`, `vm-query.sh` | Run T-1 and T-2 with evidence |
+| `test-evidence/lab/` | Outputs, one folder per test |
+| `../../fleets/device-ids-lab.yml` | The lab fleet with both reports (`lib/windows/reports/device-ids.reports.yml`) |
 
 ## Findings so far
 

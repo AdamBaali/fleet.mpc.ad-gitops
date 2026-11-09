@@ -31,7 +31,7 @@ Researched 2026-11-09. Fleet code is cited at the `fleet-v4.93.1` tag. Microsoft
 
 - Stale enrollments. [Microsoft: diagnose MDM enrollment](https://learn.microsoft.com/windows/client-management/mdm-diagnose-enrollment) says old keys under `Enrollments` can stay after unenrollment. A query with `LIMIT 1` could return an old ID after a re-image. The candidate query returns every match plus its key, so a stale one shows up.
 - Wrong subkey. [call4cloud](https://call4cloud.nl/2024/04/keeping-up-with-the-emmdeviceid-and-configrefresh-bug/) found Windows itself reading a `ConfigRefresh` subkey under `DMClient` instead of `MS DM Server`. The query names `MS DM Server` directly, so it isn't affected.
-- Subject format. Fleet stores `subject` as the ID. Whether osquery on Windows renders it as the bare GUID or with `CN=` is unconfirmed. The query returns both `subject` and `common_name`.
+- Subject format. On the lab VM, osquery 5.24.1 renders a `CN=<GUID>` certificate's `subject` and `common_name` as the bare GUID (T-1). A real Entra certificate could carry more subject fields, which would change `subject` but not `common_name`, so the report uses `common_name`. Confirm in T-4.
 
 ## Lab versus production
 
