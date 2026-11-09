@@ -5,3 +5,4 @@ T-2b	PASS	T-2b-joininfo-without-its-certificate	JoinInfo subkey with no matching
 T-2c	PASS	T-2c-certificate-from-another-issuer	Matching subkey and certificate from a non-Entra issuer: no Entra row.
 T-2d	PASS	T-2d-stale-second-enrollment	Two Intune rows, each with its enrollment key, so a stale enrollment is visible. One Entra row.
 T-2e	PASS	T-2e-two-entra-joins	Two Entra joins with matching certificates: one row, the newer certificate's ID.
+T-3	PASS	T-3-stored-report-and-api	Host 35 in Device IDs Lab (Fleet 4.94.0, fleetd osquery 5.24.1): both stored reports return the faked IDs through /reports/:id/report (paged and unpaged) and /hosts/:id/reports/:id; report_clipped false; enrollment key returned. With wrong expected IDs the comparison fails on all four value checks.

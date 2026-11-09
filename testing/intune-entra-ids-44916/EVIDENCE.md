@@ -6,7 +6,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 
 | Result | Tests |
 |---|---|
-| PASS | 6 |
+| PASS | 7 |
 | info | 1 |
 
 | Group | Test | Result | Section |
@@ -18,6 +18,7 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 | Lab | T-2c: Certificate from another issuer | PASS | [open](#t-2c-certificate-from-another-issuer) |
 | Lab | T-2d: Stale second enrollment | PASS | [open](#t-2d-stale-second-enrollment) |
 | Lab | T-2e: Two Entra joins | PASS | [open](#t-2e-two-entra-joins) |
+| Lab | T-3: Stored report and API | PASS | [open](#t-3-stored-report-and-api) |
 
 ## Lab
 
@@ -95,5 +96,16 @@ Every test below shows its result, the pictures and links to the raw output. Gen
 - **Expected:** One Entra row with the newer certificate's ID
 
 **Output:** [01-fake-twojoins.txt](test-evidence/lab/T-2e-two-entra-joins/01-fake-twojoins.txt) · [02-intune.txt](test-evidence/lab/T-2e-two-entra-joins/02-intune.txt) · [03-entra.txt](test-evidence/lab/T-2e-two-entra-joins/03-entra.txt) · [04-fake-clear.txt](test-evidence/lab/T-2e-two-entra-joins/04-fake-clear.txt)
+
+---
+
+### T-3: Stored report and API
+
+**Result: PASS** · [full notes](test-evidence/lab/T-3-stored-report-and-api/result.md)
+
+- **Objective:** Both reports store one row per host and return it through the report and host endpoints
+- **Expected:** Rows match the faked IDs; report_clipped is false
+
+**Output:** [01-expected.txt](test-evidence/lab/T-3-stored-report-and-api/01-expected.txt) · [02-host.txt](test-evidence/lab/T-3-stored-report-and-api/02-host.txt) · [03-intune-all-paged.txt](test-evidence/lab/T-3-stored-report-and-api/03-intune-all-paged.txt) · [04-entra-all-paged.txt](test-evidence/lab/T-3-stored-report-and-api/04-entra-all-paged.txt) · [05-intune-all-export.txt](test-evidence/lab/T-3-stored-report-and-api/05-intune-all-export.txt) · [06-intune-host.txt](test-evidence/lab/T-3-stored-report-and-api/06-intune-host.txt) · [07-entra-host.txt](test-evidence/lab/T-3-stored-report-and-api/07-entra-host.txt) · [08-compare.txt](test-evidence/lab/T-3-stored-report-and-api/08-compare.txt) · [09-control-wrong-expected.txt](test-evidence/lab/T-3-stored-report-and-api/09-control-wrong-expected.txt)
 
 ---

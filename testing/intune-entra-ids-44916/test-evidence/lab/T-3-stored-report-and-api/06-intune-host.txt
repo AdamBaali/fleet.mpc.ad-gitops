@@ -1,0 +1,20 @@
+# 2026-11-09T15:40:09Z
+$ scripts/fleet-api.sh '/api/v1/fleet/hosts/35/reports/2793' | python3 -m json.tool
+
+{
+    "query_id": 2793,
+    "host_id": 35,
+    "host_name": "DESKTOP-JVO75AD",
+    "last_fetched": "2026-11-09T15:33:23Z",
+    "report_clipped": false,
+    "results": [
+        {
+            "columns": {
+                "enrollment_key": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Enrollments\\2769B5E0-4FB6-4297-B7BB-5D55B1CFEE1B\\DMClient\\MS DM Server",
+                "intune_device_id": "d812b7d6-c324-42a5-9633-f0e5f74a417a"
+            }
+        }
+    ],
+    "report_id": 2793
+}
+[exit 0]
