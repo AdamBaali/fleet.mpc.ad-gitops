@@ -96,6 +96,18 @@ The working form of the issue's BlockAction fallback is `policyEnforcementRules`
   fully managed Android says the same as Google: a password profile assigned before enrollment applies during setup,
   and one assigned after it doesn't prompt in setup
   ([Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/assign-password-setting-android-fully-managed)).
+- **Fleet leaves Google sign-in to the enterprise.** At `fleet-v4.94.0`, QR and zero-touch tokens set `allowPersonalUsage`,
+  `policyName` (`policies/1`), `oneTimeOnly` and `additionalData`, and no `googleAuthenticationOptions`
+  ([service.go#L679-L698](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/mdm/android/service/service.go#L679-L698),
+  [ee service.go#L128-L134](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/ee/server/mdm/android/service.go#L128-L134)).
+  So the enterprise's `googleAuthenticationSettings.googleAuthenticationRequired` decides whether setup asks for a
+  Google account. Google: it "can be set only via the Google Admin Console" (Policy API discovery document, revision
+  20261112). For a managed Google domain, that's the "Authenticate Using Google" toggle under Android EMM. A Google
+  account step is the one setup difference between the customer's Pixel and our Samsung runs.
+- **Setup controls Fleet can't use today.** `setupActions` is rejected in profiles
+  ([android.go#L62](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/fleet/android.go#L62)). The install type
+  `REQUIRED_FOR_SETUP` ("will prevent setup from completion until installation is complete") isn't sent by Fleet. Both
+  sit in the per-host policy, so they would arrive late too.
 
 ## Product ask, if no option is reliable
 
