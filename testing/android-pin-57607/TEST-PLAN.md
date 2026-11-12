@@ -158,6 +158,17 @@ and `BLOCK_SCOPE_DEVICE`, the PIN prompt came after "Registering device" in two 
 showed on "I accept" in the third. With `blockAfterDays: 1`, setup showed a notice and nothing was enforced. The
 customer removed `blockScope` and still got the block on a Pixel.
 
+### Trigger runs (T)
+
+Fleet `android-pin-test-block0`. Start `tools/trigger-loop.sh` before the QR scan, so the profile job runs every 2 s
+(NOTES.md, "a faster delivery path"). Tests whether an early policy, and so the PIN prompt in setup, can be made
+reliable with current Fleet.
+
+| ID | Device | Pace | Pass when |
+|---|---|---|---|
+| T-1 to T-4 | Samsung | Normal, normal, fast, fast | PIN prompt in setup in all 4 (O2 without the loop: 1 of 4). Record seconds from enrollment to "policy sent" |
+| T-5+ | Pixel | Normal, then a 3-minute wait on "Additional legal terms" | PIN prompt in setup, no "Blocked by work policy" |
+
 ### Pixel runs (P)
 
 The customer's block happens on Pixels (a Pixel 11 Pro and a Pixel 10a), on the Pixel's "Additional legal terms"

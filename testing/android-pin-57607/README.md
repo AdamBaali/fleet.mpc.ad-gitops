@@ -33,6 +33,7 @@ Zero-touch not tested (no zero-touch customer account in the lab).
 | [drafts/FINDINGS-COMMENT.md](drafts/FINDINGS-COMMENT.md) | Report for fleetdm/fleet#57607. Posted 2026-11-05; update it after the Pixel runs |
 | [tools/run.sh](tools/run.sh) | One test run with the framework helpers (`start`, `watch`, `host`, `activity`, `logs`, `note`, `verdict`) |
 | [tools/guide.sh](tools/guide.sh) | On-screen steps, a countdown to the QR scan, and a running clock for the person at the phone |
+| [tools/trigger-loop.sh](tools/trigger-loop.sh) | Runs Fleet's Android profile job every 2 s during a run, so the policy reaches the phone early (T runs) |
 | [tools/watch-host.sh](tools/watch-host.sh) | Read-only timeline of one host: fleet, labels, profile status |
 | [tools/fleet-activity.sh](tools/fleet-activity.sh) | Fleet activity log for one host since a run started: host, upcoming, and global activities that name it |
 | [tools/server-logs.sh](tools/server-logs.sh) | Fleet server logs from Render for a run's window, Android lines only, IP addresses masked. Needs `render login` and `RENDER_SERVICE_ID` |

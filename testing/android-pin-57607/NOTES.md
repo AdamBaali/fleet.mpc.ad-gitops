@@ -109,6 +109,37 @@ The working form of the issue's BlockAction fallback is `policyEnforcementRules`
   `REQUIRED_FOR_SETUP` ("will prevent setup from completion until installation is complete") isn't sent by Fleet. Both
   sit in the per-host policy, so they would arrive late too.
 
+## What the block is, and a faster delivery path (2026-11-12)
+
+- **"Blocked by work policy" is Android's dialog for an app the admin suspended.** The title is the Settings string
+  `disabled_by_policy_title`, and the body is the policy's `shortSupportMessage`. Android shows it when something
+  starts an activity in a package that the device owner suspended
+  ([ActivityStartInterceptor.java, `interceptSuspendedByAdminPackage`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/wm/ActivityStartInterceptor.java#335)).
+  It is the same dialog as Samsung's "Action not allowed" in O2-2 to O2-4. So on the Pixel, "I accept" starts the
+  next setup step, that step lives in a suspended package, and Android stops it. A screen that is already open
+  keeps working, which is why the terms screen itself shows.
+- **Android never suspends** the device owner app, the default launcher, the default dialer, the package installer,
+  uninstaller and verifier, and the permission controller
+  ([SuspendPackageHelper.java, `canSuspendPackageForUser`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/pm/SuspendPackageHelper.java#504)).
+  That matches O2-2: everything blocked but Phone and Play Store. Setup wizard packages aren't on that list.
+- **Which Pixel package is suspended is unknown.** No public source names it. To find it: allow developer settings on
+  a test Pixel (`advancedSecurityOverrides.developerSettings: DEVELOPER_SETTINGS_ALLOWED`), reproduce the block,
+  escape to the home screen, then read `adb logcat -d` for the `START u0` line at the time of the tap.
+- **No app can be exempted.** Fleet adds only Play Store apps, and the setup wizard packages aren't in the Play Store
+  (checked 2026-11-12: `com.google.android.setupwizard`, `com.google.android.pixel.setupwizard`, 404).
+- **The profile job can be run on demand.** `POST /api/latest/fleet/trigger?name=mdm_android_profile_manager` (global
+  admin) starts the job at once
+  ([handler.go#L337](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/service/handler.go#L337),
+  [schedule.go, `Trigger`](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/service/schedule/schedule.go#L484)).
+  It only declines while a run is pending. The lab Fleet returned HTTP 200 to 4 calls 3 s apart. Whether each call
+  ran the job isn't confirmed: the response has no body, so check the server logs.
+- **Why that matters.** The PIN prompt in setup needs the policy on the phone before "Registering device..." ends,
+  9 to 14 s after enrollment in O2-2 and O2-3. O2-1 got it because the job happened to run 4 s after enrollment. A
+  loop that triggers the job every 2 s (`tools/trigger-loop.sh`) should make every enrollment an early one. Untested.
+- **Smaller product change than a policy in the token:** run the reconcile for the host when the enrollment event
+  arrives. Fleet already does this for Windows (`ReconcileProfilesForEnrollingHost` in
+  [microsoft_mdm.go](https://github.com/fleetdm/fleet/blob/fleet-v4.94.0/server/service/microsoft_mdm.go#L4164)).
+
 ## Product ask, if no option is reliable
 
 Put the fleet's profiles in the policy the enrollment token names (a per-fleet policy, or the host policy created
