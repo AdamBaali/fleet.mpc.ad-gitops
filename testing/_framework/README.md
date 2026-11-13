@@ -13,6 +13,7 @@ Used first for fleetdm/fleet#54654 (PingFederate and Duo guides). Copy this fold
   RESULTS.md            running log, one section per test (templates/RESULTS.md)
   EVIDENCE.md           generated: every test, its result, pictures and links to raw output
   NOTES.md              untested items, lab-versus-production caveats, ideas
+  STATUS.md             what the project uses right now, for other sessions (templates/STATUS.md)
   HANDOFF.md            where we are, what's running, what to do next (templates/HANDOFF.md)
   ISSUE_UPDATE.md       the short update Adam posts (templates/ISSUE_UPDATE.md). Never auto-posted
   drafts/               messages, bug reports, and customer replies for Adam to post. Never auto-posted
@@ -20,8 +21,34 @@ Used first for fleetdm/fleet#54654 (PingFederate and Duo guides). Copy this fold
   test-evidence/<group>/<ID>-<slug>/   one folder per test: result.md, NN-label.txt, NN-label.png
 ```
 
-Windows test hosts run on Homebrew QEMU with the tools in `vm/`. Read [vm/README.md](vm/README.md) before building a
-Windows lab: UTM hangs after a reset or generalize, and the README lists the other faults that cost the first lab a day.
+Start a project with `bin/new-project.sh <topic>-<issue number> "<title>"`. It copies the templates and creates the
+folders.
+
+
+## What is in this folder
+
+| Path | What |
+|---|---|
+| `guides/windows-hosts.md` | Build, drive, enroll, and reset Windows 11 arm64 hosts. BitLocker and TPM notes |
+| `guides/linux-hosts.md` | Docker sandboxes, UTM VMs, fleetd packages, ground truth, LUKS tricks |
+| `guides/macos-hosts.md` | fleetd pkg, sleep and wake evidence, software ground truth, Terminal screenshots |
+| `guides/phones-and-video.md` | iPhone as a camera with a UTC clock, iPhone Mirroring, Android enrollment runs |
+| `guides/fleet-and-packages.md` | `private/fleet.env`, enroll secrets, `fleetctl package`, wiping between runs |
+| `vm/` | Homebrew QEMU tools for Windows VMs. [vm/README.md](vm/README.md) |
+| `hosts/host-facts.sh`, `hosts/host-facts.ps1` | Run on a host: OS, versions, fleetd, time. The first evidence item of a test |
+| `bin/ev.sh` | Evidence helpers: `ev_init`, `ev_cmd`, `ev_shot`, `ev_note`, `ev_verdict` |
+| `bin/build-evidence-index.py` | Builds `EVIDENCE.md` |
+| `bin/new-project.sh` | Starts a project from `templates/` |
+| `bin/fleet-api.sh` | Read-only Fleet API: `version`, `host`, `wait-host`, `activity` |
+| `bin/clock-check.sh` | Clock offset against the Fleet server. Run before timed tests |
+| `bin/status.sh` | What other sessions use on the shared Mac |
+| `bin/redact.py` | Masks secrets in output |
+| `tools/phone-cam.sh` | Film a phone screen with an iPhone camera and a UTC clock |
+| `tools/macterm.sh`, `winid.swift`, `maskbox.swift` | Window-only screenshots and masking (macOS) |
+| `templates/` | README, TEST_PLAN, RESULTS, NOTES, STATUS, HANDOFF, ISSUE_UPDATE |
+
+The repo's Claude Code skills in `.claude/skills/` wrap this method: `fleet-test-project`, `fleet-test-windows-host`,
+`fleet-test-linux-host`, `fleet-test-macos-host`, and `fleet-test-phone-video`. `fleet-gitops` covers the fleet YAML.
 
 
 ## The loop for every test
@@ -32,6 +59,7 @@ Windows lab: UTM hangs after a reset or generalize, and the README lists the oth
    (helpers in `bin/ev.sh`).
 3. Record failures before fixing them. A failure is a finding. Write it down, then fix, then re-run and keep both.
 4. Build the page: `bin/build-evidence-index.py <project> "<title>" <group>:<Name> ...` writes `EVIDENCE.md`.
+   Host-side recipes are in `guides/`. Run `bin/clock-check.sh` before any timed test.
 5. Write the update from `RESULTS.md` in plain language. Adam reviews and posts it.
 
 

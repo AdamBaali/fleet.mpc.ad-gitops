@@ -14,7 +14,8 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | `lib/<platform>/...` | Shared building blocks the fleet files point to: policies, reports, scripts, profiles, software |
 | `testing/<project>/` | One folder per test project: plan, results, generated `EVIDENCE.md`, raw evidence, lab setup |
 | `testing/<project>/private/` | Internal notes for that project (customer names, Slack and ticket links). Git ignores it |
-| `testing/_framework/` | The reusable testing method: templates, helpers, the evidence index builder |
+| `testing/_framework/` | The reusable testing method: templates, helpers, host guides (Windows, Linux, macOS, phones), the evidence index builder |
+| `.claude/skills/` | Claude Code skills: `fleet-gitops` and the `fleet-test-*` skills for the testing method |
 | `extensions/` | The Windows YellowKey osquery extension source |
 | `.github/workflows/` | `workflow.yml` applies the configuration. `duo-sync*.yml` sync Fleet hosts to Duo for the Ping Duo Lab |
 
