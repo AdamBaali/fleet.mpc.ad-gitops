@@ -18,6 +18,9 @@ Test a Fleet feature or guide, and leave evidence anyone can review: commands, t
 
 ## Start a test
 
+In Claude Code: `/test-issue <issue link>`. It writes a brief for you to review, then runs the tests after you approve.
+By hand:
+
 ```bash
 testing/_framework/bin/new-project.sh <topic>-<issue number> "<title>"   # copies the templates
 export EV=$PWD/testing/<project>/test-evidence/<group> SECRETS_ENV=$PWD/testing/<project>/private/fleet.env
@@ -47,16 +50,16 @@ Record a failure before fixing it. Keep both runs. One `## Result:` line per tes
 
 | Path | What |
 |---|---|
-| `bin/` | `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
+| `bin/` | `issue.sh` (saves an issue with comments to `private/`), `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
 | `hosts/host-facts.sh`, `host-facts.ps1` | Run on a host: OS, fleetd, time. The first evidence item |
 | `tools/phone-cam.sh` | Record a phone screen with a UTC clock and a live view |
 | `tools/macterm.sh`, `winid.swift`, `maskbox.swift` | Window-only screenshots and masking (macOS) |
 | `vm/` | QEMU tools for Windows VMs ([vm/README.md](vm/README.md)). `screen.sh` and `ocr.py` read, wait on, and click screen text locally |
 | `claude/settings.example.json` | Allow rules for unattended runs. Copy what you need into `.claude/settings.local.json` |
 | `guides/` | One page per host type |
-| `templates/` | README, TEST_PLAN, RESULTS, NOTES, STATUS, HANDOFF, ISSUE_UPDATE |
+| `templates/` | BRIEF, QUEUE, README, TEST_PLAN, RESULTS, NOTES, STATUS, HANDOFF, ISSUE_UPDATE |
 
-Skills in `.claude/skills/`: `fleet-test-project` (start here), `fleet-test-windows-host`, `fleet-test-linux-host`,
+Skills in `.claude/skills/`: `test-issue` (start here), `fleet-test-project`, `fleet-test-windows-host`, `fleet-test-linux-host`,
 `fleet-test-macos-host`, `fleet-test-phone-video`, `fleet-test-overnight`, `fleet-gitops`.
 
 One-time setup on a Mac:

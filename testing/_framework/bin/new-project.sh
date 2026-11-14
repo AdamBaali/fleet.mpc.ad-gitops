@@ -8,7 +8,7 @@ slug="${1:?usage: new-project.sh <slug> \"<title>\"}"; title="${2:?usage: new-pr
 case "$slug" in *[!a-z0-9-]*|"") echo "slug uses lowercase letters, digits and dashes only" >&2; exit 2 ;; esac
 F="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; P="$F/../$slug"
 mkdir -p "$P"/{test-evidence,drafts,private}
-for t in README TEST_PLAN RESULTS NOTES HANDOFF STATUS ISSUE_UPDATE; do
+for t in BRIEF README TEST_PLAN RESULTS NOTES HANDOFF STATUS ISSUE_UPDATE; do
   src="$F/templates/$t.md"
   dst="$P/$t.md"
   [ -e "$dst" ] || sed "s|<project>|$slug|g; s|<Title>|$title|g; s|<feature or issue>|$title|g" "$src" > "$dst"
