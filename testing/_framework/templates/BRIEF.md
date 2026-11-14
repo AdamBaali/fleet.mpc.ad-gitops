@@ -1,6 +1,10 @@
 # Brief: <title>
 
-Issue: <issue number> · Customer: <GitHub label> · Fleet version to test: <customer's version> · Written: <date>
+Issue: <issue number> (parent: <number or none>) · Customer: <GitHub label> · Fleet version to test: <customer's version> · Written: <date>
+
+## Background
+<What led here, without names: the parent issue, earlier tickets, what the customer tried, any deadline.
+Full story with names: private/CONTEXT.md.>
 
 ## The ask
 <Two or three sentences in plain words: what the customer or team wants to know.>
