@@ -26,7 +26,8 @@ export EV=$PWD/testing/<project>/test-evidence/<group> SECRETS_ENV=$PWD/testing/
 
 Then write `TEST_PLAN.md` and pick a host guide:
 [Windows](guides/windows-hosts.md) · [Linux](guides/linux-hosts.md) · [macOS](guides/macos-hosts.md) ·
-[phones and video](guides/phones-and-video.md) · [Fleet and packages](guides/fleet-and-packages.md).
+[phones and video](guides/phones-and-video.md) · [Fleet and packages](guides/fleet-and-packages.md) ·
+[overnight runs](guides/overnight.md).
 
 
 ## Record evidence
@@ -46,20 +47,22 @@ Record a failure before fixing it. Keep both runs. One `## Result:` line per tes
 
 | Path | What |
 |---|---|
-| `bin/` | `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py` |
+| `bin/` | `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
 | `hosts/host-facts.sh`, `host-facts.ps1` | Run on a host: OS, fleetd, time. The first evidence item |
 | `tools/phone-cam.sh` | Record a phone screen with a UTC clock and a live view |
 | `tools/macterm.sh`, `winid.swift`, `maskbox.swift` | Window-only screenshots and masking (macOS) |
-| `vm/` | QEMU tools for Windows VMs ([vm/README.md](vm/README.md)) |
+| `vm/` | QEMU tools for Windows VMs ([vm/README.md](vm/README.md)). `screen.sh` and `ocr.py` read, wait on, and click screen text locally |
+| `claude/settings.example.json` | Allow rules for unattended runs. Copy what you need into `.claude/settings.local.json` |
 | `guides/` | One page per host type |
 | `templates/` | README, TEST_PLAN, RESULTS, NOTES, STATUS, HANDOFF, ISSUE_UPDATE |
 
 Skills in `.claude/skills/`: `fleet-test-project` (start here), `fleet-test-windows-host`, `fleet-test-linux-host`,
-`fleet-test-macos-host`, `fleet-test-phone-video`, `fleet-gitops`.
+`fleet-test-macos-host`, `fleet-test-phone-video`, `fleet-test-overnight`, `fleet-gitops`.
 
 One-time setup on a Mac:
 ```bash
 swiftc -O -o /usr/local/bin/winid   testing/_framework/tools/winid.swift
 swiftc -O -o /usr/local/bin/maskbox testing/_framework/tools/maskbox.swift
-brew install ffmpeg qemu swtpm
+brew install ffmpeg qemu swtpm tesseract
+python3 -m pip install --user pillow
 ```

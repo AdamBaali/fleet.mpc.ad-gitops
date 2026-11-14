@@ -6,3 +6,6 @@ testing/*/private/
 
 # macOS Finder metadata
 .DS_Store
+
+# VM disks, screenshots, and overnight run logs (testing/_framework/vm, bin/overnight.py)
+out/

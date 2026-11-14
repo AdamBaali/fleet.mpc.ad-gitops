@@ -14,6 +14,8 @@ vm/qga.sh <vm> "$(cat script.ps1)"                 # PowerShell as SYSTEM
 vm/qga-push.sh <vm> ./file.msi 'C:\Windows\Temp\file.msi'
 vm/qmp.sh <vm> shot out.png                        # also keys, type, click x y, shell, usb
 vm/qemu-watch.sh <dir> <vm> <minutes>              # keeps every new screen while a VM resets
+vm/screen.sh <vm> wait 'region' 900                # waits for text on screen, local OCR, no tokens
+vm/screen.sh <vm> click 'Next'                     # clicks a button by its label
 vm/qga.sh <vm> "$(cat testing/_framework/hosts/host-facts.ps1)"   # first evidence item
 ```
 After a reset the guest agent is gone: use Fleet scripts and live queries, or a hot-plugged USB image.

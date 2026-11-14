@@ -33,6 +33,7 @@ git-ignored). Run them from the project folder, or link them into the project's 
 | `qga.sh <vm> '<powershell>'` | Runs PowerShell as SYSTEM through the guest agent and prints its output |
 | `qga-push.sh <vm> <file> <guest path>` | Copies a file into the VM and prints its SHA-256 |
 | `qemu-watch.sh <dir> <vm> <minutes> [stop]` | Keeps every new screen as evidence while a VM resets, with a log |
+| `screen.sh <vm> text\|find\|click\|wait\|still\|look` | Reads the screen with local OCR (`ocr.py`): wait for text, click a label, small picture for Claude |
 
 Socket files per VM: `qmp.sock` (QEMU control), `qga.sock` (guest agent). VNC listens on `127.0.0.1:590$VNC` for a person.
 
