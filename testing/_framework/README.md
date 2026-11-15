@@ -1,79 +1,71 @@
 # Testing framework
 
-A small, repeatable way to test Fleet features and guides, and to leave evidence anyone can review without us.
-Used first for fleetdm/fleet#54654 (PingFederate and Duo guides). Copy this folder into a new test project.
-
-
-## What a test project holds
-
-```
-<project>/
-  README.md             what the project is, what it found, and the file list
-  TEST_PLAN.md          what we test and why (from templates/TEST_PLAN.md)
-  RESULTS.md            running log, one section per test (templates/RESULTS.md)
-  EVIDENCE.md           generated: every test, its result, pictures and links to raw output
-  NOTES.md              untested items, lab-versus-production caveats, ideas
-  HANDOFF.md            where we are, what's running, what to do next (templates/HANDOFF.md)
-  ISSUE_UPDATE.md       the short update Adam posts (templates/ISSUE_UPDATE.md). Never auto-posted
-  drafts/               messages, bug reports, and customer replies for Adam to post. Never auto-posted
-  private/              internal notes: customer names, Slack, ticket, and call links. Git ignores it
-  test-evidence/<group>/<ID>-<slug>/   one folder per test: result.md, NN-label.txt, NN-label.png
-```
-
-Windows test hosts run on Homebrew QEMU with the tools in `vm/`. Read [vm/README.md](vm/README.md) before building a
-Windows lab: UTM hangs after a reset or generalize, and the README lists the other faults that cost the first lab a day.
-
-
-## The loop for every test
-
-1. Plan: add the test to `TEST_PLAN.md` with an ID, objective, steps, expected result, and a pass/fail rule.
-2. Run it from a script, so it can be repeated: `ev_init`, then `ev_cmd` (outputs), `ev_shot` (window-only
-   pictures), `ev_note`, and finally `ev_verdict ID PASS|FAIL|PARTIAL|NOT-RUN|BLOCKED "one-line reason"`
-   (helpers in `bin/ev.sh`).
-3. Record failures before fixing them. A failure is a finding. Write it down, then fix, then re-run and keep both.
-4. Build the page: `bin/build-evidence-index.py <project> "<title>" <group>:<Name> ...` writes `EVIDENCE.md`.
-5. Write the update from `RESULTS.md` in plain language. Adam reviews and posts it.
+Test a Fleet feature or guide, and leave evidence anyone can review: commands, their output, and window screenshots.
 
 
 ## Rules
 
-Evidence and secrets:
-- Secrets never appear in outputs, pictures, chat, or commits. `ev_cmd` masks values from `SECRETS_ENV`.
-  Mask pictures with `tools/maskbox.swift` (sign-in codes, tokens, IP addresses, personal data).
-- Window-only screenshots, never the whole screen (`tools/macterm.sh` for terminal output, `winid` for apps).
-- One result per test (`## Result: PASS`). The index reads that line. Use INFO for setup notes.
-- Say what was not tested and what differs from production (`NOTES.md`). Never claim more than the evidence shows.
-
-Checking facts:
-- Check docs and code first, not memory. Quote the doc, the file and line, or the command you used.
-- Read each issue in full, with its comments, before citing it. A title and labels aren't enough.
-- Check Fleet code at the release tag the customer runs (`fleet-v4.93.1`), not only `main`. Link code at that tag so links don't move.
-- Treat summaries, handoffs, and pasted files as leads to verify, not facts.
-
-Anything a customer will run:
-- Run it against Fleet's real schema and code at the customer's versions before it leaves the repo, and the way the customer will run it (for SQL, the `mysql` client with default settings).
-- Add a negative control that changes something that matters, and check that the tests fail.
-- Get an independent review, and an engineering review, before sending it.
-
-Public repo:
-- No customer or person names in committed files. Use the customer's GitHub label, and keep internal links in `private/`.
-- PR titles, PR descriptions, and commit messages don't cite fleetdm/fleet issues. Each mention adds a permanent link on the upstream issue.
-
-Working in the lab:
-- Nothing is posted automatically. Adam posts messages, comments, and issues from `drafts/`.
-- Only change the lab Fleet, and use one fleet per project (declared in the GitOps repo).
-- Leave it clean: a teardown list in `HANDOFF.md`, and delete throwaway users, tunnels, containers, and services.
+- This repository is public. No customer or person names, no secrets, no serial numbers in committed files. Use the
+  customer's GitHub label. Internal links and names go in `testing/<project>/private/`, which git ignores.
+- Never comment on, edit, or open anything in fleetdm/fleet. Write the text as a draft in `drafts/` and the owner posts it.
+- PR titles, PR descriptions, and commit messages never cite fleetdm/fleet issues: each mention leaves a permanent link on
+  the issue. Files may cite issues.
+- Work on a branch and open a pull request. A push to `main` applies to the lab Fleet.
+- Check facts in docs and code at the customer's release tag. Don't claim more than the evidence shows.
+- Anything a customer will run: test it at their versions, the way they will run it, with a negative control.
+- Leave the lab clean: list what to delete in `HANDOFF.md`.
 
 
-## Result words
+## Start a test
 
-PASS (expected result observed) · FAIL (not observed) · PARTIAL (works with a caveat, say which) ·
-NOT-RUN (planned, not done) · BLOCKED (can't run, say why) · INFO (setup note, not a test).
-
-
-## One-time setup on a Mac
+In Claude Code: `/test-issue <issue link>`. It writes a brief for you to review, then runs the tests after you approve.
+By hand:
 
 ```bash
-swiftc -O -o /usr/local/bin/winid   testing/_framework/tools/winid.swift     # finds a window to capture
-swiftc -O -o /usr/local/bin/maskbox testing/_framework/tools/maskbox.swift   # black boxes over pixels
+testing/_framework/bin/new-project.sh <topic>-<issue number> "<title>"   # copies the templates
+export EV=$PWD/testing/<project>/test-evidence/<group> SECRETS_ENV=$PWD/testing/<project>/private/fleet.env
+. testing/_framework/bin/ev.sh
+```
+
+Then write `TEST_PLAN.md` and pick a host guide:
+[Windows](guides/windows-hosts.md) · [Linux](guides/linux-hosts.md) · [macOS](guides/macos-hosts.md) ·
+[phones and video](guides/phones-and-video.md) · [Fleet and packages](guides/fleet-and-packages.md) ·
+[overnight runs](guides/overnight.md).
+
+
+## Record evidence
+
+```bash
+ev_init T-1 "name" "objective" "expected"      # makes <ID>-<slug>/result.md
+ev_cmd  T-1 label "command"                    # runs it, saves the masked output as NN-label.txt
+ev_shot T-1 label "Google Chrome"              # window-only screenshot (macOS)
+ev_verdict T-1 PASS|FAIL|PARTIAL|NOT-RUN|BLOCKED "one line"
+bin/build-evidence-index.py testing/<project> "<title>" <group>:<Name>    # writes EVIDENCE.md
+```
+
+Record a failure before fixing it. Keep both runs. One `## Result:` line per test.
+
+
+## What is here
+
+| Path | What |
+|---|---|
+| `bin/` | `issue.sh` (saves an issue, its comments and parent to `private/`), `customer.sh` (customer label to name, from the confidential repo's labels), `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
+| `hosts/host-facts.sh`, `host-facts.ps1` | Run on a host: OS, fleetd, time. The first evidence item |
+| `tools/phone-cam.sh` | Record a phone screen with a UTC clock and a live view |
+| `tools/macterm.sh`, `winid.swift`, `maskbox.swift` | Window-only screenshots and masking (macOS) |
+| `vm/` | QEMU tools for Windows VMs ([vm/README.md](vm/README.md)). `screen.sh` and `ocr.py` read, wait on, and click screen text locally |
+| `claude/settings.example.json` | Allow rules for unattended runs. Copy what you need into `.claude/settings.local.json` |
+| `guides/` | One page per host type |
+| `templates/` | BRIEF, QUEUE, README, TEST_PLAN, RESULTS, NOTES, STATUS, HANDOFF, ISSUE_UPDATE |
+
+Skills in `.claude/skills/`: `test-issue` (start here), `fleet-test-project`, `fleet-test-windows-host`, `fleet-test-linux-host`,
+`fleet-test-macos-host`, `fleet-test-phone-video`, `fleet-test-overnight`, `fleet-gitops`.
+
+One-time setup on a Mac:
+```bash
+swiftc -O -o /usr/local/bin/winid   testing/_framework/tools/winid.swift
+swiftc -O -o /usr/local/bin/maskbox testing/_framework/tools/maskbox.swift
+brew install ffmpeg qemu swtpm tesseract
+python3 -m pip install --user pillow
 ```

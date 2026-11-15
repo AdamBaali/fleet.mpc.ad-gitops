@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit(testing/**)",
+      "Write(testing/**)",
+      "Bash(testing/_framework/vm/* *)",
+      "Bash(testing/_framework/bin/* *)",
+      "Bash(testing/_framework/hosts/* *)",
+      "Bash(testing/_framework/tools/* *)",
+      "Bash(testing/*/tools/* *)",
+      "Bash(testing/*/scripts/* *)",
+      "Bash(python3 -I testing/* *)",
+      "Bash(bash testing/* *)",
+      "Bash(fleetctl get *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(tesseract *)"
+    ]
+  }
+}
