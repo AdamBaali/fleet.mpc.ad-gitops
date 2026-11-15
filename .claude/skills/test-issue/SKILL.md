@@ -24,9 +24,10 @@ Get the full story before planning. Everything that names a customer or a person
    comments too. Read linked issues and PRs the same way when they change the ask.
 2. **Project.** `testing/_framework/bin/new-project.sh <topic>-<issue number> "<title>"`, then move the saved issue into
    its `private/`.
-3. **Who the customer is.** Take the `customer-*` label from the issue or its parent. Look it up in fleetdm/confidential:
-   the label's description (`gh api repos/fleetdm/confidential/labels/<label>`), then a code search for the label name
-   if that is empty. If neither names the customer, ask the user. The real name goes only in `private/CONTEXT.md`.
+3. **Who the customer is.** Take the `customer-*` label from the issue or its parent, and run
+   `testing/_framework/bin/customer.sh <label>`. It reads the GitHub labels of fleetdm/confidential, where each
+   customer label's entry holds the customer's name. If nothing matches, ask the user. The name goes only in
+   `private/CONTEXT.md`.
 4. **Customer history,** searched by the real name and by the label:
    - Pylon: the account (`search_accounts`), then its tickets on this topic (`search_issues`, `get_issue_messages`).
    - Slack: `slack_search_public_and_private` for the name, the label, and the issue number. Read the threads in full.

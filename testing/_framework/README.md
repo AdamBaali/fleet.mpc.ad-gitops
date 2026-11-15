@@ -50,7 +50,7 @@ Record a failure before fixing it. Keep both runs. One `## Result:` line per tes
 
 | Path | What |
 |---|---|
-| `bin/` | `issue.sh` (saves an issue with comments to `private/`), `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
+| `bin/` | `issue.sh` (saves an issue, its comments and parent to `private/`), `customer.sh` (customer label to name, from the confidential repo's labels), `ev.sh`, `build-evidence-index.py`, `new-project.sh`, `fleet-api.sh` (read-only), `clock-check.sh`, `status.sh`, `redact.py`, `overnight.py` |
 | `hosts/host-facts.sh`, `host-facts.ps1` | Run on a host: OS, fleetd, time. The first evidence item |
 | `tools/phone-cam.sh` | Record a phone screen with a UTC clock and a live view |
 | `tools/macterm.sh`, `winid.swift`, `maskbox.swift` | Window-only screenshots and masking (macOS) |
