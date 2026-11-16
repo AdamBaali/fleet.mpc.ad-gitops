@@ -10,6 +10,8 @@ policies:
   - path: ../lib/windows/policies/duo-desktop-installed.policies.yml
 reports:
   - path: ../lib/windows/reports/windows-machine-guid.reports.yml
+  # The lab Mac shares the home Wi-Fi and is the control for the Home Wi-Fi reports.
+  - path: ../lib/macos/reports/home-wifi.reports.yml
 agent_options:
 controls:
   apple_settings:
