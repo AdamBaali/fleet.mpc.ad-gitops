@@ -20,6 +20,9 @@ controls:
   windows_settings:
     configuration_profiles:
       - path: ../lib/windows/configuration-profiles/lab-ca-root-trust.xml
+  # The lab Mac shares the home Wi-Fi, so it collects the same network logs as Home devices.
+  scripts:
+    - path: ../lib/macos/scripts/network-unified-logs.sh
 software:
   fleet_maintained_apps:
     - slug: duo-desktop/darwin
