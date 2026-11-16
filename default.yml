@@ -8,6 +8,11 @@ reports:
 agent_options:
 controls:
   windows_enabled_and_configured: true
+  # Applies to hosts in no fleet. The office Wi-Fi drops HTTP/3 (QUIC) intermittently: Chrome stalls on
+  # pages until it falls back, while Safari recovers. Turning QUIC off makes Chrome use HTTP/2 over TCP.
+  apple_settings:
+    configuration_profiles:
+      - path: ./lib/macos/configuration-profiles/chrome-quic-off.mobileconfig
 org_settings:
   # No certificate_authorities: the #54654 lab CA (LAB_CA) is retired. GitOps deletes CAs that are not listed.
   server_settings:
