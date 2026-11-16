@@ -43,16 +43,47 @@ Pages loaded normally before the Deco changes, so those changes weren't the fix.
 
 ## Monitoring
 
-A local scheduled task on the lab Mac (`~/.claude/scheduled-tasks/home-wifi-quic-check/`) runs hourly and only reads. It checks:
+### Saved reports
 
-- Host 36 is in this fleet with the profile verified and `QuicAllowed` 0.
-- Whether Chrome on host 36 has relaunched since 17:23, which makes the policy active.
-- The lab Mac's Chrome QUIC failure count, against a baseline of 373 hosts and 4772 failures.
+`lib/macos/reports/home-wifi.reports.yml` runs in this fleet and in Ping Duo Lab. The lab Mac shares the home Wi-Fi and serves as the control.
+No live queries are needed. Read the results in Fleet under **Reports**, or with `fleetctl api /api/v1/fleet/queries/<id>/report`.
 
+| Report | Every | Answers |
+| --- | --- | --- |
+| Home Wi-Fi - Chrome HTTP/3 policy | 1 h | Is `QuicAllowed` 0 on the Mac? |
+| Home Wi-Fi - Browser and Claude app processes | 15 min | Has Chrome relaunched since the profile arrived, which makes the policy active? |
+| Home Wi-Fi - Wi-Fi link | 15 min | Signal, noise, channel and rate at the time of a stall |
+| Home Wi-Fi - Web reachability | 15 min | HTTPS response and round trip to small endpoints |
+| Home Wi-Fi - IPv6 and default routes | 1 h | Did IPv6 come back half set up? |
+| Home Wi-Fi - DNS resolvers | 1 h | Which resolvers are in use |
+| Home Wi-Fi - VPN and proxy software | 1 h | VPN apps and Chrome extensions that can set a proxy |
+
+The reports keep the latest result per host. History comes from the hourly check below.
+
+### Hourly check
+
+A local scheduled task on the lab Mac (`~/.claude/scheduled-tasks/home-wifi-quic-check/`) runs hourly and only reads. It reads the saved report results above, plus the lab Mac's own Chrome QUIC failure count, against a baseline of 373 hosts and 4772 failures.
 It appends one line per run to `~/Library/Logs/home-wifi-quic-check.log`. A flat failure count means the network has settled.
+
+## Is it the Deco or the ISP?
+
+Chrome on the lab Mac keeps counting QUIC failures. Run each test for a day and compare the count:
+
+1. **Lab Mac wired to a Deco LAN port.** If the failures stop, the Wi-Fi or mesh is the cause. Look at the Deco: HomeShield Security, Fast Roaming, the wireless backhaul between units.
+2. **Lab Mac wired straight to the ISP's fibre box (ONT)**, with the Deco unplugged. If the failures continue here, the ISP is the cause.
+3. If the failures stop in test 2 but not in test 1, the Deco's routing (NAT) is the cause.
+
+### ISP report, if test 2 still fails
+
+> Our connection breaks HTTP/3 (QUIC, UDP port 443) intermittently. Browsers that use it stall on page loads, while the same pages load over TCP.
+> We tested with a computer connected straight to the ONT, with no router of our own, so the fault is upstream of our equipment.
+> Public IP 109.111.108.140 (DHCP, one-hour lease). Over <N> days, Chrome recorded HTTP/3 failures to <N> sites, including Google, Cloudflare and Microsoft.
+> Do you rate-limit, filter, or shorten NAT timeouts for UDP 443 traffic, or run carrier-grade NAT on this line? A traceroute shows 10.10.5.214 at hop 3.
+
+Fill in the counts from the hourly check log before sending.
 
 ## Open items
 
 - Relaunch Chrome on host 36 so the policy applies.
-- QUIC off fixes Chrome only. The Claude desktop app runs on Chromium and has no policy for this. If it still stalls, the Wi-Fi isn't fixed. Next suspects: Deco HomeShield Security, and the ISP's handling of UDP 443.
+- QUIC off fixes Chrome only. The Claude desktop app runs on Chromium and has no policy for this. If it still stalls, the Wi-Fi isn't fixed. Run the Deco or ISP tests above.
 - The NordVPN Chrome extension is unused and can be removed.

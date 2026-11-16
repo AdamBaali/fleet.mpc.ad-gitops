@@ -1,0 +1,118 @@
+# Home Wi-Fi HTTP/3 (QUIC) problem: Chrome stalls on some pages on the home Deco X10 Wi-Fi
+# while Safari loads them. These reports replace ad hoc live queries, so the evidence
+# collects itself on the home Mac and on the lab Mac on the same Wi-Fi, which is the control.
+# See fleets/home-devices/README.md.
+#
+# The osquery curl table can't parse large response headers (YouTube, X, Gmail) and reports
+# them as failures, so the reachability report only uses small endpoints.
+
+- name: Home Wi-Fi - Chrome HTTP/3 policy
+  automations_enabled: false
+  description: |
+    Chrome policies the Mac has received. QuicAllowed 0 means the HTTP/3-off profile is in place.
+    Chrome applies it only after a relaunch; see the browser processes report.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT domain, name, value, username FROM managed_policies WHERE domain = 'com.google.Chrome';
+
+- name: Home Wi-Fi - Browser and Claude app processes
+  automations_enabled: false
+  description: |
+    Start time of Chrome, Safari and the Claude app. A Chrome start after the HTTP/3-off
+    profile arrived means the policy is active.
+  discard_data: false
+  interval: 900
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT name, pid, datetime(start_time, 'unixepoch') AS started_utc
+    FROM processes
+    WHERE name IN ('Google Chrome', 'Safari', 'Claude') AND parent NOT IN (
+      SELECT pid FROM processes WHERE name IN ('Google Chrome', 'Safari', 'Claude'));
+
+- name: Home Wi-Fi - Wi-Fi link
+  automations_enabled: false
+  description: |
+    Network, channel, signal, noise and transmit rate. A drop in signal or a channel change
+    next to a stall points at the Wi-Fi, not the internet connection.
+  discard_data: false
+  interval: 900
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT network_name, bssid, channel, channel_band, channel_width, rssi, noise,
+      transmit_rate, security_type
+    FROM wifi_status;
+
+- name: Home Wi-Fi - Web reachability
+  automations_enabled: false
+  description: |
+    HTTPS response and round trip time (microseconds) to small endpoints. A missing response
+    code means the request failed. Only small endpoints, because this table misreads sites
+    with large headers.
+  discard_data: false
+  interval: 900
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT url, response_code, round_trip_time
+    FROM curl
+    WHERE url IN (
+      'https://www.gstatic.com/generate_204',
+      'https://www.cloudflare.com/cdn-cgi/trace',
+      'https://captive.apple.com/hotspot-detect.html',
+      'https://github.com',
+      'https://fleet.mpc.ad/healthz');
+
+- name: Home Wi-Fi - IPv6 and default routes
+  automations_enabled: false
+  description: |
+    Wi-Fi addresses and default routes. An fdf3 address with an IPv6 default route but no
+    global (2xxx) address is the half set up IPv6 that the Deco had before IPv6 was turned off.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT 'address' AS kind, address AS value, interface FROM interface_addresses
+    WHERE interface = 'en0'
+    UNION ALL
+    SELECT 'default_route' AS kind, gateway AS value, interface FROM routes
+    WHERE destination IN ('0.0.0.0', '::') AND interface = 'en0';
+
+- name: Home Wi-Fi - DNS resolvers
+  automations_enabled: false
+  description: Resolvers in use. The Deco hands out 1.1.1.1 and 8.8.8.8.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT id, type, address FROM dns_resolvers;
+
+- name: Home Wi-Fi - VPN and proxy software
+  automations_enabled: false
+  description: |
+    VPN apps and Chrome extensions that can set a proxy. Either can change how only Chrome
+    or only some apps reach the internet.
+  discard_data: false
+  interval: 3600
+  logging: snapshot
+  observer_can_run: true
+  platform: darwin
+  query: |
+    SELECT 'app' AS kind, name, bundle_short_version AS version, path AS detail FROM apps
+    WHERE name LIKE '%VPN%' OR name LIKE '%Nord%' OR name LIKE '%Proxy%'
+    UNION ALL
+    SELECT 'chrome_extension' AS kind, e.name, e.version, e.profile || ' state=' || e.state AS detail
+    FROM users u CROSS JOIN chrome_extensions e USING (uid)
+    WHERE e.browser_type = 'chrome' AND e.permissions LIKE '%proxy%';

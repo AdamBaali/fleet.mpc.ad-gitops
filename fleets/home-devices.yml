@@ -3,6 +3,7 @@
 name: "Home devices"
 policies:
 reports:
+  - path: ../lib/macos/reports/home-wifi.reports.yml
 agent_options:
 controls:
   # The home Wi-Fi (Deco X10 mesh) drops HTTP/3 (QUIC) intermittently: Chrome stalls on
