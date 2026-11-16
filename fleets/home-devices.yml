@@ -1,0 +1,15 @@
+# Home devices: family Macs managed from the lab Fleet. Kept out of the lab fleets so
+# lab tests never change them, and so their fixes don't leak into lab results.
+name: "Home devices"
+policies:
+reports:
+agent_options:
+controls:
+  # The home Wi-Fi (Deco X10 mesh) drops HTTP/3 (QUIC) intermittently: Chrome stalls on
+  # pages until it falls back, while Safari recovers. QUIC off makes Chrome use HTTP/2 over TCP.
+  apple_settings:
+    configuration_profiles:
+      - path: ../lib/macos/configuration-profiles/chrome-quic-off.mobileconfig
+  scripts:
+    - path: ../lib/macos/scripts/network-unified-logs.sh
+software:
