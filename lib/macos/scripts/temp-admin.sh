@@ -3,12 +3,13 @@
 #
 # The user runs it from Fleet Desktop self-service, or IT support runs it as a saved script.
 #
-# One grant per Mac per cooldown. Each grant writes a marker file. The script refuses
-# while the marker is newer than the cooldown, and a dynamic label on the same marker
-# hides the self-service item meanwhile. Labels refresh about hourly, so after writing
-# the marker the script asks Fleet to refetch the host, which runs the label queries on
-# the next check-in. The script's own check still enforces the limit if the refetch
-# fails. IT support clears the marker with temp-admin-reset.sh to allow another grant early.
+# One grant per Mac until IT support resets it, like a policy that runs once per computer
+# and gets flushed. Each grant writes a marker file. The script refuses while the marker
+# exists, and a dynamic label on the same marker hides the self-service item. Labels
+# refresh about hourly, so after writing the marker the script asks Fleet to refetch the
+# host, which runs the label queries on the next check-in. The script's own check still
+# enforces the limit if the refetch fails. IT support deletes the marker with
+# temp-admin-reset.sh to allow another grant.
 #
 # The demotion runs from a LaunchDaemon that checks an expiry time every minute. A timer
 # that sleeps for 20 minutes would stop counting while the Mac sleeps and would be lost
@@ -16,7 +17,6 @@
 # time passes, including right after a restart.
 
 DURATION_MINUTES=20
-COOLDOWN_HOURS=24
 
 # Kept outside STATE_DIR, which the demotion deletes, so the marker outlives the grant.
 MARKER="/Library/Application Support/Fleet/temp-admin-last-run"
@@ -81,12 +81,8 @@ if /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>&1
 fi
 
 if [ -f "$MARKER" ]; then
-  last_run=$(/usr/bin/stat -f %m "$MARKER")
-  next_allowed=$(( last_run + COOLDOWN_HOURS * 3600 ))
-  if [ "$(date +%s)" -lt "$next_allowed" ]; then
-    log "Admin rights were already used on this Mac. Next available at $(date -r "$next_allowed" '+%Y-%m-%d %H:%M %Z'). Ask IT support if you need them sooner."
-    exit 1
-  fi
+  log "Admin rights were already used on this Mac on $(date -r "$(/usr/bin/stat -f %m "$MARKER")" '+%Y-%m-%d %H:%M %Z'). Ask IT support to reset it."
+  exit 1
 fi
 
 # Reached during an active grant only after IT support cleared the marker.

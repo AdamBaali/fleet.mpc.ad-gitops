@@ -1,6 +1,6 @@
 #!/bin/bash
-# Lets a Mac take temporary admin rights again before its cooldown ends.
-# IT support runs this saved script when a user needs a second grant the same day.
+# Lets a Mac take temporary admin rights one more time. It's the flush step: IT support
+# runs this saved script when a user who already used their grant needs another.
 # It clears the marker that temp-admin.sh writes, and doesn't change anyone's rights.
 # It then asks Fleet to refetch the host so the self-service item comes back on the next
 # check-in instead of at the hourly label refresh.
@@ -27,9 +27,9 @@ request_refetch() {
 
 if [ -f "$MARKER" ]; then
   /bin/rm -f "$MARKER"
-  echo "Cooldown cleared. The user can take admin rights again."
+  echo "Reset done. The user can take admin rights once more."
   request_refetch
 else
-  echo "No cooldown on this Mac. Nothing changed."
+  echo "This Mac hasn't used its grant. Nothing changed."
 fi
 exit 0
