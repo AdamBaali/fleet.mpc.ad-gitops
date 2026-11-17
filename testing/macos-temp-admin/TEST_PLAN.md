@@ -12,12 +12,19 @@ the same flow in Fleet with `lib/macos/scripts/temp-admin.sh`, offered two ways:
 - Self-service: the same script as a script-only package, visible only to hosts in the manual label
   "Temp admin approved". IT support adds or removes the host (Technicians can, line 53). The user runs it from Fleet Desktop.
 
-It doesn't cover SAP Privileges for engineers, which the customer keeps.
+Option 2 uses SAP Privileges, which the customer already runs for engineers, in the `Privileges Lab` fleet
+(`fleets/privileges-lab.yml`). Every Mac gets Privileges (Fleet-maintained app `privileges/darwin`, 2.6.0) and a base
+profile. Macs outside the manual label "Privileges approved" get `EnforcePrivileges` = `user`, so the app can't grant
+admin. When IT support adds the Mac to the label, Fleet swaps that profile for one with `ExpirationInterval` = 20,
+`AllowPrivilegeRenewal` = false, `ReasonRequired` = true and `RevokePrivilegesAtLogin` = true. Keys are from SAP's
+Managing Privileges wiki and the ProfileManifests `corp.sap.privileges` manifest.
+
+The two options run in separate fleets so they never act on one Mac.
 
 ## Environment
 | Item | Value |
 |---|---|
-| Fleet | fleet.mpc.ad, 4.94.0, Premium. Fleet `Temp Admin Lab` (`fleets/temp-admin-lab.yml`) |
+| Fleet | fleet.mpc.ad, 4.94.0, Premium. Option 1: `Temp Admin Lab` (`fleets/temp-admin-lab.yml`). Option 2: `Privileges Lab` (`fleets/privileges-lab.yml`) |
 | Hosts | One lab Mac with a standard user signed in, and an admin account for checks |
 | Other systems | none |
 | Lab differences from production | GitOps mode is off in the lab. With GitOps mode on, the UI blocks label edits, so T-8 checks whether a Technician can still add a host to the manual label |
@@ -35,8 +42,21 @@ It doesn't cover SAP Privileges for engineers, which the customer keeps.
 | T-8 | Technician workflow | Sign in as a Technician. Add the host to the label and run the saved script. Try to edit the script | Label change and run work, edit is blocked | UI shows each outcome |
 | T-9 | Self-service rerun | After T-7 expires, run the item again from Fleet Desktop | It runs again without IT support resetting anything | Second promotion logged |
 
+### Option 2: SAP Privileges
+
+| ID | Test | Steps | Expected | Pass when |
+|---|---|---|---|---|
+| P-1 | Locked by default | Move the Mac to Privileges Lab. Install Privileges from self-service. Open it as the standard user | Locked profile installed. The app shows it's managed and doesn't grant admin | User stays standard, `defaults read /Library/Managed\ Preferences/corp.sap.privileges` shows `EnforcePrivileges = user` |
+| P-2 | IT support approves | Add the Mac to "Privileges approved" | Fleet removes the locked profile and installs the 20-minute one | Host's profile list shows the swap, managed preferences show `ExpirationInterval = 20` |
+| P-3 | User takes 20 minutes | Open Privileges, enter a reason, request admin | User is an admin, the reason is logged | checkmember says yes, the reason appears in the unified log for `corp.sap.privileges` |
+| P-4 | Expires at 20 minutes, no renewal | Wait 21 minutes | No renewal button. User is standard | checkmember says no at minute 21 |
+| P-5 | IT support revokes mid-grant | Request admin, then remove the Mac from the label at minute 5 | Locked profile returns and demotes the user | checkmember says no within a few minutes of the profile landing |
+| P-6 | Restart ends a grant | Request admin, restart, sign in | Admin removed at login | checkmember says no after login |
+| P-7 | Profiles never overlap | During P-2 and P-5, list installed profiles | Only one of the locked and 20-minute profiles is installed at a time | `profiles list` never shows both |
+
 ## Out of scope / not tested
-- Demoting the user when the label is removed during an active grant. The grant still ends at its expiry.
+- Option 1: demoting the user when the label is removed during an active grant. The grant still ends at its expiry. Option 2 covers this in P-5.
 - macOS versions other than the lab Mac's.
+- Privileges `RemoteLogging` to the customer's log server or webhook. We don't know their endpoint.
 - A user removing the LaunchDaemon while they're an admin. Any admin can do this. Fleet can catch it with a policy
   (later work).

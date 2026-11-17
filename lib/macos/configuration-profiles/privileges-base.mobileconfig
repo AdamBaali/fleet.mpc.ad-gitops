@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Lets SAP Privileges run its agent and daemon without asking the user, and show its
+  expiry notifications. It holds no Privileges settings, so it never conflicts with the
+  locked or 20-minute profile. Based on SAP's Example_ApprovePrivileges.mobileconfig.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadDisplayName</key>
+      <string>Privileges background items</string>
+      <key>PayloadIdentifier</key>
+      <string>com.fleetdm.lab.privileges.base.servicemanagement</string>
+      <key>PayloadType</key>
+      <string>com.apple.servicemanagement</string>
+      <key>PayloadUUID</key>
+      <string>A0D1C0F1-23F8-4BED-A163-3B2D122B4269</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>Rules</key>
+      <array>
+        <dict>
+          <key>Comment</key>
+          <string>SAP Privileges agent and daemon</string>
+          <key>RuleType</key>
+          <string>TeamIdentifier</string>
+          <key>RuleValue</key>
+          <string>7R5ZEU67FQ</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>PayloadDisplayName</key>
+      <string>Privileges notifications</string>
+      <key>PayloadIdentifier</key>
+      <string>com.fleetdm.lab.privileges.base.notifications</string>
+      <key>PayloadType</key>
+      <string>com.apple.notificationsettings</string>
+      <key>PayloadUUID</key>
+      <string>CD1B4737-1A39-44F1-9A96-4C4E5163E83F</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>NotificationSettings</key>
+      <array>
+        <dict>
+          <key>AlertType</key>
+          <integer>1</integer>
+          <key>BadgesEnabled</key>
+          <false/>
+          <key>BundleIdentifier</key>
+          <string>corp.sap.privileges.agent</string>
+          <key>NotificationsEnabled</key>
+          <true/>
+          <key>ShowInLockScreen</key>
+          <false/>
+          <key>ShowInNotificationCenter</key>
+          <true/>
+          <key>SoundsEnabled</key>
+          <false/>
+        </dict>
+      </array>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>SAP Privileges base</string>
+  <key>PayloadIdentifier</key>
+  <string>com.fleetdm.lab.privileges.base</string>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>FB064040-D284-4E8D-8E1B-0A71981B1E44</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
