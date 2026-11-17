@@ -27,7 +27,7 @@ The two options run in separate fleets so they never act on one Mac.
 | Fleet | fleet.mpc.ad, 4.94.0, Premium. Option 1: `Temp Admin Lab` (`fleets/temp-admin-lab.yml`). Option 2: `Privileges Lab` (`fleets/privileges-lab.yml`) |
 | Hosts | One lab Mac with a standard user signed in, and an admin account for checks |
 | Other systems | none |
-| Lab differences from production | GitOps mode is off in the lab. With GitOps mode on, the UI blocks label edits, so T-8 checks whether a Technician can still add a host to the manual label |
+| Lab differences from production | GitOps mode is off in the lab. With GitOps mode on, the UI blocks label edits, so IT support adds hosts through the API (`POST /api/v1/fleet/hosts/:id/labels`). The lab doesn't run GitOps on a schedule. P-8 runs it by hand to stand in for the 6am run |
 
 ## Tests
 | ID | Test | Steps | Expected | Pass when |
@@ -53,6 +53,7 @@ The two options run in separate fleets so they never act on one Mac.
 | P-5 | IT support revokes mid-grant | Request admin, then remove the Mac from the label at minute 5 | Locked profile returns and demotes the user | checkmember says no within a few minutes of the profile landing |
 | P-6 | Restart ends a grant | Request admin, restart, sign in | Admin removed at login | checkmember says no after login |
 | P-7 | Profiles never overlap | During P-2 and P-5, list installed profiles | Only one of the locked and 20-minute profiles is installed at a time | `profiles list` never shows both |
+| P-8 | Daily clear | Add the Mac to "Privileges approved" with `POST /api/v1/fleet/hosts/:id/labels`, then run GitOps (the label has `hosts: []`) | The label is empty after the run and the locked profile returns | `fleetctl get labels` and the host's profile list show the Mac out of the label and locked |
 
 ## Out of scope / not tested
 - Option 1: demoting the user when the label is removed during an active grant. The grant still ends at its expiry. Option 2 covers this in P-5.
