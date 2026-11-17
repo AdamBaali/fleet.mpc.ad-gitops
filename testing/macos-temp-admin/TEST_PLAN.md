@@ -7,7 +7,9 @@ A customer gives non-engineers admin rights for 20 minutes from their old MDM. W
 their Mac to a static group. A policy scoped to that group runs once per computer: its script promotes the user, and a
 LaunchDaemon demotes them after 20 minutes. IT support flushes the policy run to allow another grant.
 
-The Fleet version, in `fleets/temp-admin-lab.yml`:
+Two options, each in its own lab fleet so they never act on one Mac.
+
+### Option 1: Fleet scripts (`fleets/temp-admin-lab.yml`)
 - IT support approves a Mac by running the saved script `lib/macos/scripts/temp-admin-approve.sh` from its page. It writes
   `/Library/Application Support/Fleet/temp-admin-approved`. That's adding the Mac to the static group.
 - A dynamic label, "Temp admin approved", matches Macs where that file exists (`file.path`, a macOS column in Fleet's schema
@@ -39,9 +41,28 @@ Checked without a Mac (2026-11-17):
 - The same label query shape, run in osqueryi 5.18.1 against a stand-in file, matches when the file exists and not when
   it's missing.
 
-Why not SAP Privileges for this: its 2.6.0 release (the latest, and Fleet's maintained version) has no setting for one grant
-per approval. `AdminBudget` limits admin minutes per day, but SAP's wiki marks it Privileges 2.7.0+, which isn't released.
-`PostChangeExecutablePath` runs as the user's `PrivilegesAgent`, not root, so it can't end an approval on its own.
+### Option 2: SAP Privileges (`fleets/privileges-lab.yml`)
+- Every Mac gets Privileges 2.6.0 (Fleet-maintained app `privileges/darwin`, also SAP's latest release) and one profile,
+  `lib/macos/configuration-profiles/privileges-temp-admin.mobileconfig`. It sets `LimitToGroup` to the local group
+  `fleet-temp-admin`, `ExpirationInterval` to 20, `AllowPrivilegeRenewal` to false, `ReasonRequired` and
+  `RevokePrivilegesAtLogin` to true, and approves the Privileges background items and notifications like SAP's
+  `Example_ApprovePrivileges.mobileconfig`. Keys are from SAP's Managing Privileges wiki.
+- IT support approves by running the saved script `lib/macos/scripts/privileges-approve.sh`. It adds the signed-in user to
+  `fleet-temp-admin` and loads a watcher LaunchDaemon.
+- The user opens Privileges, gives a reason, and gets 20 minutes.
+- The watcher checks every 15 seconds. It records when it sees the user as an admin, and once they're standard again it
+  removes them from `fleet-temp-admin` and removes itself. So each approval is good for one grant. It waits for the grant to
+  end because SAP's docs don't say whether leaving the `LimitToGroup` group ends a running grant.
+- Privileges 2.6.0 has no setting for one grant per approval. `AdminBudget` limits admin minutes per day, but SAP's wiki
+  marks it 2.7.0+, which isn't released (latest release 2.6.0, 2026-09-17; no newer tag or pre-release on 2026-11-17).
+  `PostChangeExecutablePath` runs as the user's `PrivilegesAgent`, not root, so it can't end an approval on its own. That's
+  why option 2 needs the watcher.
+- Checked without a Mac (2026-11-17): `scripts/privileges-harness.sh` runs the approve script and its watcher against stubs
+  for `dseditgroup`, `dscl`, `launchctl` and the console user, and simulates Privileges by adding the user to the fake admin
+  group. 14 of 14 checks pass: approve, repeat approve, unused approval kept, approval kept during the grant, used up after
+  the grant, a new approval, IT support removing an approval by hand, a second user replacing the first, the watcher
+  failing to load, a permanent admin, and nobody signed in. With the "seen as admin" check removed from the watcher,
+  3 checks fail. `plutil -lint` passes on the profile.
 
 An earlier version of this lab tried a manual label with a daily clear, and SAP Privileges with label-switched profiles.
 Both needed the API to approve under GitOps mode, so they were dropped.
@@ -68,6 +89,18 @@ Both needed the API to approve under GitOps mode, so they were dropped.
 | T-9 | Nobody signed in (negative control) | Approve, run `temp-admin.sh` at the login window | Nothing changes | Exit 1, output says "No user is signed in", approval kept |
 | T-10 | A new approval allows one more grant | After T-5, approve again and run the item | Second grant, item disappears again | Second promotion and demotion logged |
 
+### Option 2 tests
+| ID | Test | Steps | Expected | Pass when |
+|---|---|---|---|---|
+| P-1 | Locked until approved | Move the Mac to Privileges Lab, install Privileges from self-service, open it as the standard user | Profile installed, Privileges refuses | Managed preferences show `LimitToGroup`, the app doesn't grant admin |
+| P-2 | IT support approves | Run `privileges-approve.sh` from the host page | User in `fleet-temp-admin`, watcher loaded | `dseditgroup -o checkmember -m <user> fleet-temp-admin` says yes, `launchctl print system/com.fleetdm.privileges-once` works |
+| P-3 | Local group works with LimitToGroup | After P-2, open Privileges, enter a reason, request admin | 20 minutes of admin | checkmember on `admin` says yes, Privileges shows the expiry |
+| P-4 | Leaving the group mid-grant | Approve, request admin, remove the user from `fleet-temp-admin` by hand at minute 2 | Record what Privileges does: keeps or ends the grant | Outcome written in RESULTS.md. Decides whether the watcher must wait for the grant to end |
+| P-5 | Approval used up | Wait for the grant to end | Watcher removes the user from the group and removes itself, Privileges refuses again | checkmember on `fleet-temp-admin` says no, watcher gone, the app refuses |
+| P-6 | Restart during a grant | Approve, request admin, restart, sign in | Privileges revokes at login, watcher still uses up the approval | User standard after login, out of the group within 15 seconds |
+| P-7 | Technician with GitOps mode on | As a Technician with GitOps mode on, run `privileges-approve.sh` | Run works | Activity log names the Technician |
+| P-8 | Reason logged | After P-3, read the Privileges log | The reason is there | `log show --predicate 'subsystem == "corp.sap.privileges"'` includes the reason |
+
 ## Out of scope / not tested
 - Approvals don't expire. An unused approval stays until the user runs the item, like a Mac left in a static group.
 - Ending a grant early. It runs to its expiry.
@@ -75,3 +108,5 @@ Both needed the API to approve under GitOps mode, so they were dropped.
   can do this, the same as with the old MDM's script. A Fleet policy on the `users`, `groups` and `user_groups` tables
   could catch leftover admins (later work).
 - macOS versions other than the lab Mac's.
+- Option 2: Privileges `RemoteLogging` to the customer's log platform. We don't know their endpoint.
+- Option 2: an admin user during their grant adding themselves back to `fleet-temp-admin`. Any admin can do this.

@@ -1,0 +1,23 @@
+# Lab fleet for option 2 of temporary admin on macOS: SAP Privileges, approved by IT support.
+# Every Mac gets Privileges and one profile that locks it to the local group fleet-temp-admin.
+# IT support runs privileges-approve.sh to add the signed-in user to that group. The user
+# opens Privileges, gives a reason, and gets 20 minutes. A watcher takes them out of the
+# group after the grant ends, so each approval is good for one use.
+# Kept apart from Temp Admin Lab (option 1) so the two never act on one Mac.
+name: "Privileges Lab"
+policies:
+reports:
+agent_options:
+controls:
+  apple_settings:
+    configuration_profiles:
+      - path: ../lib/macos/configuration-profiles/privileges-temp-admin.mobileconfig
+  scripts:
+    - path: ../lib/macos/scripts/privileges-approve.sh
+software:
+  fleet_maintained_apps:
+    - slug: privileges/darwin
+      # Self-service in the lab so we choose when it installs. The profile keeps it locked
+      # until IT support approves, so in production it can install on every Mac.
+      self_service: true
+settings:
