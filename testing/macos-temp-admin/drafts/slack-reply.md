@@ -1,14 +1,14 @@
-Thanks for the details! Yes, and in Fleet it's simpler than the Jamf setup: one script, no static group, no flush. I'm testing it in our lab now and will confirm once it works end to end.
+Thanks for the details! Yes, and in Fleet it's simpler than the Jamf setup: users help themselves, and nobody has to remember to flush anything. I'm testing it in our lab now and will confirm once it works end to end.
 
 *How it works*
-• It's your MakeMeAdmin idea: the script adds the signed-in user to `admin` and loads a LaunchDaemon that removes them after 20 minutes.
-• Add it once in your GitOps repo for the non-Engineering fleet, as a self-service item ("Admin rights for 20 minutes") and as a saved script. Both point to the same file.
-• *The user runs it when they need it:* Fleet Desktop > Self-service > *Run*. Afterwards the button says *Rerun*, so they can take another 20 minutes later without IT support resetting anything.
-• *IT support can run it for them* from the Mac's page in Fleet, for example during a support call. The *Technician* role can run saved scripts but can't edit them, and GitOps mode doesn't block running scripts.
+• *The user runs it when they need it:* Fleet Desktop > Self-service > "Admin rights for 20 minutes". It's your MakeMeAdmin idea: the script makes them an admin and a LaunchDaemon makes them standard again after 20 minutes.
+• *Once per Mac per 24 hours:* each run leaves a timestamp on the Mac. The script refuses a second run within 24 hours and tells the user when they can use it again. A dynamic label on that timestamp hides the item from self-service in the meantime, and it comes back on its own after 24 hours.
+• *IT support handles exceptions:* if someone needs a second grant the same day, IT support runs a small reset script from the Mac's page in Fleet. That's your flush. IT support can also run the grant for the user, for example on a call.
 
-*Visibility and safety*
-• Every run is in Fleet's activity log: which Mac, when, and whether the user or IT support ran it. The output shows when the rights expire.
-• It stores the expiry time and checks it every minute, so the demotion still happens after sleep or a restart. It never demotes someone who was already an admin.
-• The trade-off: anyone on that fleet can take 20 minutes whenever they like. If some people shouldn't, you can hide the item from them with a label.
+*Why it fits IT support and GitOps*
+• Everything is in your GitOps repo: two scripts, one dynamic label, one self-service item. Nothing has to be added to or removed from a group by hand.
+• The *Technician* role can run saved scripts but can't edit them, and GitOps mode doesn't block running scripts.
+• Every run is in Fleet's activity log: which Mac, when, and whether the user or IT support ran it.
+• The demotion still happens after sleep or a restart, and the script never demotes someone who was already an admin.
 
-Your engineers keep SAP Privileges as they have it today.
+Your engineers keep SAP Privileges as they have it today. If you'd like a different window than 24 hours, it's one number in the script and one in the label.

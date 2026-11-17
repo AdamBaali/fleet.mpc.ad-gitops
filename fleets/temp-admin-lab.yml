@@ -1,16 +1,27 @@
 # Lab fleet for testing temporary admin rights on macOS.
-# One script, offered two ways from the same file:
-# - Self-service: the user clicks Run in Fleet Desktop when they need admin. Fleet shows
-#   script packages as Run, then Rerun, so each click is one 20-minute grant.
-# - Saved script: IT support runs it from the host page, for a user who can't.
-# No label or profile, so there's nothing for IT support to approve or clear.
+# The user clicks Run in Fleet Desktop self-service when they need admin. Each run is one
+# 20-minute grant, then a 24-hour cooldown on that Mac. IT support can run the same script
+# from the host page, and can clear the cooldown with temp-admin-reset.sh.
 name: "Temp Admin Lab"
+labels:
+  # Matches Macs that took admin rights in the last 24 hours, from the marker temp-admin.sh
+  # writes. It hides the self-service item meanwhile. The script enforces the same limit,
+  # since label membership only refreshes about hourly.
+  - name: "Temp admin used in last 24 hours"
+    description: "Macs that took temporary admin rights in the last 24 hours. Hides the self-service item."
+    label_membership_type: dynamic
+    platform: darwin
+    query: >-
+      SELECT 1 FROM file
+      WHERE path = '/Library/Application Support/Fleet/temp-admin-last-run'
+      AND mtime > (SELECT unix_time - 86400 FROM time);
 policies:
 reports:
 agent_options:
 controls:
   scripts:
     - path: ../lib/macos/scripts/temp-admin.sh
+    - path: ../lib/macos/scripts/temp-admin-reset.sh
 software:
   packages:
     - path: ../lib/macos/scripts/temp-admin.sh
@@ -18,4 +29,6 @@ software:
       self_service: true
       categories:
         - "🛟 Support"
+      labels_exclude_any:
+        - "Temp admin used in last 24 hours"
 settings:
