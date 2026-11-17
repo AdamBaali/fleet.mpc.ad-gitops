@@ -1,0 +1,26 @@
+# Lab fleet for testing temporary admin rights on macOS, run by IT support.
+# It offers the same script two ways: a saved script IT support runs from the host page,
+# and a self-service item that only hosts in a manual label can see.
+name: "Temp Admin Lab"
+labels:
+  # hosts is left out on purpose. Fleet then keeps the hosts IT support adds in the UI
+  # instead of resetting membership on every apply.
+  - name: "Temp admin approved"
+    description: "Macs whose user may take admin rights for 20 minutes from self-service. IT support adds and removes hosts."
+    label_membership_type: manual
+policies:
+reports:
+agent_options:
+controls:
+  scripts:
+    - path: ../lib/macos/scripts/temp-admin.sh
+software:
+  packages:
+    - path: ../lib/macos/scripts/temp-admin.sh
+      display_name: "Admin rights for 20 minutes"
+      self_service: true
+      categories:
+        - "🛟 Support"
+      labels_include_any:
+        - "Temp admin approved"
+settings:
