@@ -34,6 +34,7 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | Windows Reset Lab | Test resetting a Windows host set up with a provisioning package, with end user authentication on (fleetdm/fleet#55003) | `fleets/windows-reset-lab.yml` | `testing/ppkg-wipe-55003/` |
 | android-pin-test-block0 | Android PIN at enrollment: PIN profile in the enrollment fleet, with an unblock message (fleetdm/fleet#57607) | `fleets/android-pin-test-block0.yml` | `testing/android-pin-57607/` |
 | Temp Admin Lab | Test 20-minute admin rights on macOS, run by IT support (saved script and label-scoped self-service) | `fleets/temp-admin-lab.yml` | `testing/macos-temp-admin/` |
+| Privileges Lab | Test SAP Privileges as IT-approved 20-minute admin on macOS, switched by a manual label | `fleets/privileges-lab.yml` | `testing/macos-temp-admin/` |
 | Home devices | Family Macs, kept apart from the lab fleets. Chrome HTTP/3 off and a unified log script for Wi-Fi trouble | `fleets/home-devices.yml` | `fleets/home-devices/` |
 | Device IDs Lab | Report Intune and Entra device IDs on Windows hosts (fleetdm/fleet#44916) | `fleets/device-ids-lab.yml` | `testing/intune-entra-ids-44916/` |
 
