@@ -1,15 +1,8 @@
 # Lab fleet for testing temporary admin rights on macOS, run by IT support.
-# It offers the same script two ways: a saved script IT support runs from the host page,
-# and a self-service item that only hosts in a manual label can see.
+# IT support runs the saved script from the host page. The Technician role can run
+# saved scripts but can't edit them, and GitOps mode doesn't block running them.
+# No label, profile, or app: each run is one 20-minute grant, so nothing needs clearing.
 name: "Temp Admin Lab"
-labels:
-  # An empty hosts list removes every host on each GitOps run. Run GitOps on a daily
-  # schedule (for example 6am) and approvals end each morning. IT support adds hosts
-  # during the day through the API, or in the UI when GitOps mode is off.
-  - name: "Temp admin approved"
-    description: "Macs whose user may take admin rights for 20 minutes from self-service. IT support adds and removes hosts."
-    label_membership_type: manual
-    hosts: []
 policies:
 reports:
 agent_options:
@@ -17,12 +10,4 @@ controls:
   scripts:
     - path: ../lib/macos/scripts/temp-admin.sh
 software:
-  packages:
-    - path: ../lib/macos/scripts/temp-admin.sh
-      display_name: "Admin rights for 20 minutes"
-      self_service: true
-      categories:
-        - "🛟 Support"
-      labels_include_any:
-        - "Temp admin approved"
 settings:
