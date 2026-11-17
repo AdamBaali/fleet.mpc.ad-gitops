@@ -13,11 +13,14 @@ the same flow in Fleet with `lib/macos/scripts/temp-admin.sh`, offered two ways:
   "Temp admin approved". IT support adds or removes the host (Technicians can, line 53). The user runs it from Fleet Desktop.
 
 Option 2 uses SAP Privileges, which the customer already runs for engineers, in the `Privileges Lab` fleet
-(`fleets/privileges-lab.yml`). Every Mac gets Privileges (Fleet-maintained app `privileges/darwin`, 2.6.0) and a base
-profile. Macs outside the manual label "Privileges approved" get `EnforcePrivileges` = `user`, so the app can't grant
-admin. When IT support adds the Mac to the label, Fleet swaps that profile for one with `ExpirationInterval` = 20,
-`AllowPrivilegeRenewal` = false, `ReasonRequired` = true and `RevokePrivilegesAtLogin` = true. Keys are from SAP's
-Managing Privileges wiki and the ProfileManifests `corp.sap.privileges` manifest.
+(`fleets/privileges-lab.yml`). IT support adds the Mac to the manual label "Privileges approved". The label does two things:
+the user sees Privileges (Fleet-maintained app `privileges/darwin`, 2.6.0) in self-service, and the Mac gets a profile with
+`ExpirationInterval` = 20, `AllowPrivilegeRenewal` = false, `ReasonRequired` = true and `RevokePrivilegesAtLogin` = true.
+Macs outside the label get `EnforcePrivileges` = `user`. That also covers a Mac that leaves the label with Privileges still
+installed, because Fleet doesn't uninstall software that goes out of scope. Every Mac gets a base profile that approves the
+Privileges background items and notifications. Keys are from SAP's Managing Privileges wiki and the ProfileManifests
+`corp.sap.privileges` manifest. The payload format matches SAP's Privileges MDM Configurator
+(`com.apple.ManagedClient.preferences`).
 
 The two options run in separate fleets so they never act on one Mac.
 
@@ -46,11 +49,11 @@ The two options run in separate fleets so they never act on one Mac.
 
 | ID | Test | Steps | Expected | Pass when |
 |---|---|---|---|---|
-| P-1 | Locked by default | Move the Mac to Privileges Lab. Install Privileges from self-service. Open it as the standard user | Locked profile installed. The app shows it's managed and doesn't grant admin | User stays standard, `defaults read /Library/Managed\ Preferences/corp.sap.privileges` shows `EnforcePrivileges = user` |
-| P-2 | IT support approves | Add the Mac to "Privileges approved" | Fleet removes the locked profile and installs the 20-minute one | Host's profile list shows the swap, managed preferences show `ExpirationInterval = 20` |
+| P-1 | Not approved | Move the Mac to Privileges Lab. Open Fleet Desktop as the standard user | Privileges isn't in self-service. Locked profile installed | Self-service list has no Privileges, `defaults read /Library/Managed\ Preferences/corp.sap.privileges` shows `EnforcePrivileges = user` |
+| P-2 | IT support approves | Add the Mac to "Privileges approved". User installs Privileges from self-service | Privileges shows in self-service and installs. Fleet removes the locked profile and installs the 20-minute one | Install succeeds, the host's profile list shows the swap, managed preferences show `ExpirationInterval = 20` |
 | P-3 | User takes 20 minutes | Open Privileges, enter a reason, request admin | User is an admin, the reason is logged | checkmember says yes, the reason appears in the unified log for `corp.sap.privileges` |
 | P-4 | Expires at 20 minutes, no renewal | Wait 21 minutes | No renewal button. User is standard | checkmember says no at minute 21 |
-| P-5 | IT support revokes mid-grant | Request admin, then remove the Mac from the label at minute 5 | Locked profile returns and demotes the user | checkmember says no within a few minutes of the profile landing |
+| P-5 | IT support revokes mid-grant | Request admin, then remove the Mac from the label at minute 5 | Privileges leaves self-service but stays installed. Locked profile returns and demotes the user | Self-service list has no Privileges, checkmember says no within a few minutes of the profile landing, the app can't grant admin again |
 | P-6 | Restart ends a grant | Request admin, restart, sign in | Admin removed at login | checkmember says no after login |
 | P-7 | Profiles never overlap | During P-2 and P-5, list installed profiles | Only one of the locked and 20-minute profiles is installed at a time | `profiles list` never shows both |
 | P-8 | Daily clear | Add the Mac to "Privileges approved" with `POST /api/v1/fleet/hosts/:id/labels`, then run GitOps (the label has `hosts: []`) | The label is empty after the run and the locked profile returns | `fleetctl get labels` and the host's profile list show the Mac out of the label and locked |

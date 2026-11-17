@@ -1,6 +1,7 @@
 # Lab fleet for testing SAP Privileges as IT-approved temporary admin on macOS.
-# Every Mac gets Privileges, locked to standard. When IT support adds the Mac to the
-# label, the locked profile is swapped for one that allows 20 minutes of admin rights.
+# When IT support adds a Mac to the label, the user sees Privileges in self-service and
+# the Mac gets the profile that allows 20 minutes of admin rights. Other Macs get the
+# locked profile, which also covers a Mac that leaves the label with Privileges installed.
 # Kept apart from Temp Admin Lab so the script and Privileges never run on one Mac.
 name: "Privileges Lab"
 labels:
@@ -29,7 +30,10 @@ controls:
 software:
   fleet_maintained_apps:
     - slug: privileges/darwin
-      # Self-service in the lab so we choose when it installs. In production it
-      # would install on every Mac in the fleet.
+      # Only approved Macs see Privileges in self-service. Fleet doesn't uninstall it
+      # when a Mac leaves the label, so the locked profile above keeps it from granting
+      # admin until IT support approves the Mac again.
       self_service: true
+      labels_include_any:
+        - "Privileges approved"
 settings:
