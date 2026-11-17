@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  SAP Privileges for non-engineers, approved by IT support one grant at a time.
+  LimitToGroup keeps the app locked unless the user is in the local group fleet-temp-admin,
+  which privileges-approve.sh adds them to. Grants last 20 minutes, can't be renewed, need a
+  reason, and end at login. Keys are from SAP's Managing Privileges wiki for 2.6.0, the
+  version Fleet maintains. The service management and notification payloads follow SAP's
+  Example_ApprovePrivileges.mobileconfig so the agent and daemon run without prompts.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadDisplayName</key>
+      <string>Privileges settings</string>
+      <key>PayloadIdentifier</key>
+      <string>com.fleetdm.lab.privileges-temp-admin.prefs</string>
+      <key>PayloadType</key>
+      <string>com.apple.ManagedClient.preferences</string>
+      <key>PayloadUUID</key>
+      <string>1B88E338-F2C8-4ADD-B2F9-C25221B263AF</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadContent</key>
+      <dict>
+        <key>corp.sap.privileges</key>
+        <dict>
+          <key>Forced</key>
+          <array>
+            <dict>
+              <key>mcx_preference_settings</key>
+              <dict>
+                <key>LimitToGroup</key>
+                <array>
+                  <string>fleet-temp-admin</string>
+                </array>
+                <key>ExpirationInterval</key>
+                <integer>20</integer>
+                <key>AllowPrivilegeRenewal</key>
+                <false/>
+                <key>ReasonRequired</key>
+                <true/>
+                <key>RevokePrivilegesAtLogin</key>
+                <true/>
+              </dict>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    </dict>
+    <dict>
+      <key>PayloadDisplayName</key>
+      <string>Privileges background items</string>
+      <key>PayloadIdentifier</key>
+      <string>com.fleetdm.lab.privileges-temp-admin.servicemanagement</string>
+      <key>PayloadType</key>
+      <string>com.apple.servicemanagement</string>
+      <key>PayloadUUID</key>
+      <string>9AF39120-818A-4B48-9615-38E7B8296D9C</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>Rules</key>
+      <array>
+        <dict>
+          <key>Comment</key>
+          <string>SAP Privileges agent and daemon</string>
+          <key>RuleType</key>
+          <string>TeamIdentifier</string>
+          <key>RuleValue</key>
+          <string>7R5ZEU67FQ</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>PayloadDisplayName</key>
+      <string>Privileges notifications</string>
+      <key>PayloadIdentifier</key>
+      <string>com.fleetdm.lab.privileges-temp-admin.notifications</string>
+      <key>PayloadType</key>
+      <string>com.apple.notificationsettings</string>
+      <key>PayloadUUID</key>
+      <string>1847C60F-6344-493F-A043-2F5C300F5F56</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>NotificationSettings</key>
+      <array>
+        <dict>
+          <key>AlertType</key>
+          <integer>1</integer>
+          <key>BadgesEnabled</key>
+          <false/>
+          <key>BundleIdentifier</key>
+          <string>corp.sap.privileges.agent</string>
+          <key>NotificationsEnabled</key>
+          <true/>
+          <key>ShowInLockScreen</key>
+          <false/>
+          <key>ShowInNotificationCenter</key>
+          <true/>
+          <key>SoundsEnabled</key>
+          <false/>
+        </dict>
+      </array>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>SAP Privileges temp admin</string>
+  <key>PayloadIdentifier</key>
+  <string>com.fleetdm.lab.privileges-temp-admin</string>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>A4D2E46D-F2EE-4E6D-9F11-03C67E5C6A76</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>

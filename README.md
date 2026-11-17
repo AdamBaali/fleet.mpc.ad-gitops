@@ -33,7 +33,8 @@ A push to `main` applies the configuration to Fleet (`.github/workflows/workflow
 | ServiceNow ITAM Lab | Test software fields for a ServiceNow ITAM export (fleetdm/fleet#38864) | `fleets/servicenow-itam-lab.yml` | `fleets/servicenow-itam-lab/`, `testing/servicenow-itam-38864/` |
 | Windows Reset Lab | Test resetting a Windows host set up with a provisioning package, with end user authentication on (fleetdm/fleet#55003) | `fleets/windows-reset-lab.yml` | `testing/ppkg-wipe-55003/` |
 | android-pin-test-block0 | Android PIN at enrollment: PIN profile in the enrollment fleet, with an unblock message (fleetdm/fleet#57607) | `fleets/android-pin-test-block0.yml` | `testing/android-pin-57607/` |
-| Temp Admin Lab | Test 20-minute admin rights on macOS from a saved script that IT support runs | `fleets/temp-admin-lab.yml` | `testing/macos-temp-admin/` |
+| Temp Admin Lab | Test 20-minute admin rights on macOS: IT support approves with a saved script, the user runs it once from self-service | `fleets/temp-admin-lab.yml` | `testing/macos-temp-admin/` |
+| Privileges Lab | Option 2 for 20-minute admin on macOS: SAP Privileges locked to a local group, IT support approves one grant with a saved script | `fleets/privileges-lab.yml` | `testing/macos-temp-admin/` |
 | Home devices | Family Macs, kept apart from the lab fleets. Chrome HTTP/3 off and a unified log script for Wi-Fi trouble | `fleets/home-devices.yml` | `fleets/home-devices/` |
 | Device IDs Lab | Report Intune and Entra device IDs on Windows hosts (fleetdm/fleet#44916) | `fleets/device-ids-lab.yml` | `testing/intune-entra-ids-44916/` |
 

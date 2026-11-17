@@ -1,22 +1,33 @@
-Hey! Here's how I'd set up your "Temp 20 mins admin" in Fleet for non-Engineering. It works like your Jamf policy (once per computer, IT support flushes it) but uses only Fleet: no extra app and no static group to manage.
+Hey! Here are two ways to do your "Temp 20 mins admin" in Fleet for non-Engineering. Both follow your Jamf flow: IT support approves a Mac when someone needs admin, the user gets 20 minutes once, and there's no flush step. The next approval is the next grant.
 
-*How it works*
-1. *The user runs it when they need it:* Fleet Desktop > Self-service > "Admin rights for 20 minutes". The script adds them to `admin` and loads a LaunchDaemon that makes them standard again after 20 minutes. It still demotes after sleep or a restart, and it never demotes someone who was already an admin.
-2. *Once per Mac:* the grant leaves a marker file on the Mac. While it's there, the script refuses to run again and tells the user to ask IT support.
-3. *The button disappears:* a dynamic label on the marker ("Temp admin used") hides the item from Self-service. The script asks Fleet to refetch the Mac right away, so the button disappears within minutes.
-4. *IT support flushes it:* when the user needs admin again, IT support runs the reset script from the Mac's page in Fleet. It deletes the marker, and the button is back within minutes. IT support can also run the grant for the user, for example on a call.
+*Option 1: Fleet only (no extra app)*
+1. IT support opens the Mac in Fleet and runs the "Approve temp admin" script. That's your "add to the static group".
+2. "Admin rights for 20 minutes" appears in Fleet Desktop > Self-service, driven by a dynamic label on the approval.
+3. The user runs it once when they're ready. A LaunchDaemon makes them standard again after 20 minutes, even after sleep or a restart.
+4. The grant uses up the approval and the button disappears within minutes.
+Assets:
+• Approve script: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/scripts/temp-admin-approve.sh
+• Grant script (the self-service item): https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/scripts/temp-admin.sh
+• Fleet YAML: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/fleets/temp-admin-lab.yml
 
-*Why it fits IT support and GitOps*
-• It's two scripts, one dynamic label and one self-service item, all in your GitOps repo.
-• The *Technician* role can run saved scripts but can't edit them or run its own, and GitOps mode doesn't block running scripts.
-• Every grant and reset is in Fleet's activity log: which Mac, when, and who ran it.
+*Option 2: SAP Privileges, the tool your engineers already use*
+1. Every non-Engineering Mac gets Privileges (a Fleet-maintained app) with one profile: `LimitToGroup` set to a local group, 20 minutes, no renewal, reason required, revoked at login. Until IT support approves, Privileges is locked.
+2. IT support runs the "Approve Privileges" script from the Mac's page. It adds the user to that local group.
+3. The user opens Privileges, enters a reason, and gets 20 minutes.
+4. When the grant ends, a small watcher takes the user out of the group, so the approval is used once.
+Assets:
+• Approve script: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/scripts/privileges-approve.sh
+• Privileges profile: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/configuration-profiles/privileges-temp-admin.mobileconfig
+• Fleet YAML: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/fleets/privileges-lab.yml
+Privileges 2.6.0 has no built-in "once per approval", which is why the watcher is there. SAP documents a daily admin budget for 2.7.0, but it isn't released yet.
 
-*Assets*
-• Grant script: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/scripts/temp-admin.sh
-• Reset script for IT support: https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/lib/macos/scripts/temp-admin-reset.sh
-• Example fleet YAML (label, self-service item, saved scripts): https://github.com/AdamBaali/fleet.mpc.ad-gitops/blob/main/fleets/temp-admin-lab.yml
-Copy the `labels`, `controls.scripts` and `software.packages` parts into your non-Engineering fleet file.
+*Which to pick*
+• *Option 1* has fewer parts and no third-party app.
+• *Option 2* gives users the Privileges app they may know from Engineering, makes them type a reason, and can send every grant to your log platform with Privileges' `RemoteLogging`.
 
-*Why not Privileges for this?* Your engineers keep it as is. For "once until IT resets", Privileges 2.6.0 has no setting. SAP documents a daily admin budget, but it's for 2.7.0, which isn't out yet, and it resets every day rather than waiting for IT.
+*In both options*
+• IT support approves from the Mac's page in Fleet. The *Technician* role can run saved scripts but can't edit them or run its own, and GitOps mode doesn't block running scripts.
+• Every approval is in Fleet's activity log: which Mac, when, and who approved it.
+• Neither ever demotes someone who was already an admin.
 
-I'm finishing the end-to-end test on a Mac in our lab and will confirm here once it's done. Happy to jump on a call to walk through it.
+I'm finishing end-to-end tests of both on a Mac in our lab and will confirm here once they're done. Happy to jump on a call to walk through them.

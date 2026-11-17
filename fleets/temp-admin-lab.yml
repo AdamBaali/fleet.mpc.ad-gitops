@@ -1,27 +1,26 @@
 # Lab fleet for testing temporary admin rights on macOS.
-# The user clicks Run in Fleet Desktop self-service when they need admin. Each Mac gets one
-# 20-minute grant, then the item disappears until IT support runs temp-admin-reset.sh.
-# That matches a policy that runs once per computer and gets flushed. IT support can also
-# run the grant from the host page.
+# IT support approves a Mac by running temp-admin-approve.sh from its page, the same as
+# adding it to a static group. The user then sees "Admin rights for 20 minutes" in
+# Fleet Desktop self-service and runs it once. The grant uses up the approval, so the item
+# disappears again with nothing for IT support to remove.
 name: "Temp Admin Lab"
 labels:
-  # Matches Macs that used their grant, from the marker temp-admin.sh writes. It hides
-  # the self-service item until IT support's reset deletes the marker. Both scripts ask
-  # Fleet to refetch the host, so the label updates within minutes, not at the hourly refresh.
-  - name: "Temp admin used"
-    description: "Macs that used their temporary admin grant. Hides the self-service item until IT support resets it."
+  # Matches Macs with an unused approval, from the file temp-admin-approve.sh writes and
+  # temp-admin.sh deletes. Both scripts ask Fleet to refetch the host, so the label updates
+  # within minutes, not at the hourly refresh.
+  - name: "Temp admin approved"
+    description: "Macs IT support approved for one temporary admin grant. Shows the self-service item."
     label_membership_type: dynamic
     platform: darwin
     query: >-
       SELECT 1 FROM file
-      WHERE path = '/Library/Application Support/Fleet/temp-admin-last-run';
+      WHERE path = '/Library/Application Support/Fleet/temp-admin-approved';
 policies:
 reports:
 agent_options:
 controls:
   scripts:
-    - path: ../lib/macos/scripts/temp-admin.sh
-    - path: ../lib/macos/scripts/temp-admin-reset.sh
+    - path: ../lib/macos/scripts/temp-admin-approve.sh
 software:
   packages:
     - path: ../lib/macos/scripts/temp-admin.sh
@@ -29,6 +28,6 @@ software:
       self_service: true
       categories:
         - "🛟 Support"
-      labels_exclude_any:
-        - "Temp admin used"
+      labels_include_any:
+        - "Temp admin approved"
 settings:

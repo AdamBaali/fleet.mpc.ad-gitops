@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs temp-admin.sh and temp-admin-reset.sh against stubs, without root and without
+# Runs temp-admin.sh and temp-admin-approve.sh against stubs, without root and without
 # touching the Mac. It checks the marker logic and the order of steps, not macOS itself:
 # dseditgroup, launchctl, curl, and the console user are fakes. The real macOS behavior
 # is tested on a lab Mac (TEST_PLAN.md T-2 to T-12).
@@ -23,7 +23,8 @@ case "\$*" in
   *"-d "*) grep -vx "\$4" "$ADMINS" > "$ADMINS.tmp"; mv "$ADMINS.tmp" "$ADMINS" ;;
 esac
 EOF
-printf '#!/bin/bash\nexit 0\n' > "$T/bin/launchctl"
+# Fake launchctl: fails when the test creates a "launchctl-fails" file.
+printf '#!/bin/bash\n[ -f "%s/launchctl-fails" ] && [ "$1" = bootstrap ] && exit 5\nexit 0\n' "$T" > "$T/bin/launchctl"
 printf '#!/bin/bash\nexit 0\n' > "$T/bin/chown"
 printf '#!/bin/bash\necho https://fleet.example.invalid\n' > "$T/bin/PlistBuddy"
 printf '#!/bin/bash\necho "$*" >> "%s/curl-calls"\necho 200\n' "$T" > "$T/bin/curl"
@@ -45,62 +46,67 @@ stub() {
       "$1" > "$2"
 }
 stub "$REPO/lib/macos/scripts/temp-admin.sh" "$T/grant.sh"
-stub "$REPO/lib/macos/scripts/temp-admin-reset.sh" "$T/reset.sh"
+stub "$REPO/lib/macos/scripts/temp-admin-approve.sh" "$T/approve.sh"
 
-MARKER="$T/Fleet/temp-admin-last-run"
+APPROVAL="$T/Fleet/temp-admin-approved"
 STATE="$T/Fleet/temp-admin/state"
 PLIST="$T/LaunchDaemons/com.fleetdm.temp-admin.plist"
 pass=0; fail=0
 check() { if eval "$2"; then echo "PASS  $1"; pass=$((pass+1)); else echo "FAIL  $1"; fail=$((fail+1)); fi; }
 is_admin() { grep -qx "$1" "$ADMINS"; }
 calls() { [ -f "$T/curl-calls" ] && wc -l < "$T/curl-calls" | tr -d ' ' || echo 0; }
+grant() { out=$(bash "$T/grant.sh" 2>&1); rc=$?; }
+approve() { out=$(bash "$T/approve.sh" 2>&1); rc=$?; }
 
-echo "== 1. First grant for a standard user"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
-check "exits 0" '[ $rc -eq 0 ]'
-check "user is an admin" 'is_admin testuser'
-check "marker written" '[ -f "$MARKER" ]'
-check "LaunchDaemon written" '[ -f "$PLIST" ]'
-check "refetch requested once, at the device refetch endpoint" '[ "$(calls)" = 1 ] && grep -q "/api/latest/fleet/device/fake-device-token/refetch" "$T/curl-calls"'
+echo "== 1. Not approved"
+grant
+check "refused with exit 1" '[ $rc -eq 1 ] && grep -q "isn.t approved" <<<"$out"'
+check "stays standard, no LaunchDaemon, no refetch" '! is_admin testuser && [ ! -f "$PLIST" ] && [ "$(calls)" = 0 ]'
 
-echo "== 2. Second run while the marker exists"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
-check "exits 1" '[ $rc -eq 1 ]'
-check "says it was already used" 'grep -q "already used on this Mac" <<<"$out"'
-check "no second refetch" '[ "$(calls)" = 1 ]'
+echo "== 2. IT support approves"
+approve
+check "exits 0, approval file written, one refetch" '[ $rc -eq 0 ] && [ -f "$APPROVAL" ] && [ "$(calls)" = 1 ]'
+check "refetch uses the device refetch endpoint" 'grep -q "/api/latest/fleet/device/fake-device-token/refetch" "$T/curl-calls"'
+approve
+check "approving again changes nothing" 'grep -q "Nothing changed" <<<"$out" && [ "$(calls)" = 1 ]'
 
-echo "== 3. Grant expires and the LaunchDaemon's script runs"
+echo "== 3. User takes the grant"
+grant
+check "exits 0 and user is an admin" '[ $rc -eq 0 ] && is_admin testuser'
+check "approval used up" '[ ! -f "$APPROVAL" ]'
+check "LaunchDaemon written and a refetch requested" '[ -f "$PLIST" ] && [ "$(calls)" = 2 ]'
+
+echo "== 4. A second run without a new approval"
+grant
+check "refused, no refetch" '[ $rc -eq 1 ] && [ "$(calls)" = 2 ]'
+
+echo "== 5. Grant expires and the LaunchDaemon's script runs"
 sed -i '' "s/^expires=.*/expires=1/" "$STATE"
 bash "$T/Fleet/temp-admin/demote.sh"
 check "user is standard again" '! is_admin testuser'
 check "state and LaunchDaemon removed" '[ ! -e "$STATE" ] && [ ! -f "$PLIST" ]'
-check "marker kept after the grant ends" '[ -f "$MARKER" ]'
+grant
+check "still refused after expiry" '[ $rc -eq 1 ] && ! is_admin testuser'
 
-echo "== 4. A run after expiry is still refused"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
-check "exits 1 and stays standard" '[ $rc -eq 1 ] && ! is_admin testuser'
+echo "== 6. A new approval allows one more grant"
+approve; grant
+check "admin again, approval used up" '[ $rc -eq 0 ] && is_admin testuser && [ ! -f "$APPROVAL" ]'
 
-echo "== 5. IT support resets"
-out=$(bash "$T/reset.sh" 2>&1); rc=$?
-check "exits 0 and removes the marker" '[ $rc -eq 0 ] && [ ! -f "$MARKER" ]'
-check "reset requests a refetch" '[ "$(calls)" = 2 ]'
-out=$(bash "$T/reset.sh" 2>&1)
-check "a second reset changes nothing" 'grep -q "Nothing changed" <<<"$out" && [ "$(calls)" = 2 ]'
+echo "== 7. A failed grant keeps the approval"
+sed -i '' "s/^expires=.*/expires=1/" "$STATE"; bash "$T/Fleet/temp-admin/demote.sh"
+approve; touch "$T/launchctl-fails"; grant; rm -f "$T/launchctl-fails"
+check "exits 1, stays standard, approval kept" '[ $rc -eq 1 ] && ! is_admin testuser && [ -f "$APPROVAL" ]'
 
-echo "== 6. Grant works again after the reset"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
-check "exits 0, admin again, marker back" '[ $rc -eq 0 ] && is_admin testuser && [ -f "$MARKER" ]'
-
-echo "== 7. Negative control: a permanent admin"
-rm -rf "$T/Fleet/temp-admin" "$MARKER" "$PLIST"; : > "$ADMINS"; echo permadmin > "$ADMINS"; echo permadmin > "$CONSOLE"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
+echo "== 8. Negative control: a permanent admin with an approval"
+rm -rf "$T/Fleet/temp-admin" "$PLIST"; echo permadmin > "$ADMINS"; echo permadmin > "$CONSOLE"
+grant
 check "exits 0 with no change" '[ $rc -eq 0 ] && grep -q "already an admin" <<<"$out"'
-check "no marker, no LaunchDaemon, still admin" '[ ! -f "$MARKER" ] && [ ! -f "$PLIST" ] && is_admin permadmin'
+check "approval kept, no LaunchDaemon, still admin" '[ -f "$APPROVAL" ] && [ ! -f "$PLIST" ] && is_admin permadmin'
 
-echo "== 8. Negative control: nobody signed in"
+echo "== 9. Negative control: nobody signed in"
 echo root > "$CONSOLE"
-out=$(bash "$T/grant.sh" 2>&1); rc=$?
-check "exits 1 with no marker" '[ $rc -eq 1 ] && [ ! -f "$MARKER" ]'
+grant
+check "exits 1, approval kept" '[ $rc -eq 1 ] && [ -f "$APPROVAL" ]'
 
 echo "== $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
