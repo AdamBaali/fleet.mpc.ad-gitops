@@ -1,8 +1,13 @@
 #!/bin/bash
 # Gives the logged-in user admin rights for a set time, then makes them standard again.
 #
-# Run it from Fleet as a saved script (IT support with the Technician role can run saved
-# scripts but can't edit them), or as a self-service script-only package scoped by a label.
+# The user runs it from Fleet Desktop self-service, or IT support runs it as a saved script.
+#
+# One grant per Mac per cooldown. Each grant writes a marker file. The script refuses
+# while the marker is newer than the cooldown, and a dynamic label on the same marker
+# hides the self-service item meanwhile. The label refreshes about hourly, so this
+# script's check is what enforces the limit. IT support clears the marker with
+# temp-admin-reset.sh to allow another grant early.
 #
 # The demotion runs from a LaunchDaemon that checks an expiry time every minute. A timer
 # that sleeps for 20 minutes would stop counting while the Mac sleeps and would be lost
@@ -10,6 +15,10 @@
 # time passes, including right after a restart.
 
 DURATION_MINUTES=20
+COOLDOWN_HOURS=24
+
+# Kept outside STATE_DIR, which the demotion deletes, so the marker outlives the grant.
+MARKER="/Library/Application Support/Fleet/temp-admin-last-run"
 
 LABEL="com.fleetdm.temp-admin"
 STATE_DIR="/Library/Application Support/Fleet/temp-admin"
@@ -48,7 +57,19 @@ if /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>&1
     log "$console_user is already an admin without a temporary grant. Nothing changed."
     exit 0
   fi
-  # A repeat run during an active grant restarts the clock.
+fi
+
+if [ -f "$MARKER" ]; then
+  last_run=$(/usr/bin/stat -f %m "$MARKER")
+  next_allowed=$(( last_run + COOLDOWN_HOURS * 3600 ))
+  if [ "$(date +%s)" -lt "$next_allowed" ]; then
+    log "Admin rights were already used on this Mac. Next available at $(date -r "$next_allowed" '+%Y-%m-%d %H:%M %Z'). Ask IT support if you need them sooner."
+    exit 1
+  fi
+fi
+
+# Reached during an active grant only after IT support cleared the marker.
+if [ "$granted_user" = "$console_user" ]; then
   log "$console_user has an active grant. Restarting the clock."
 fi
 
@@ -149,6 +170,8 @@ if ! /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>
     exit 1
   fi
 fi
+
+/usr/bin/touch "$MARKER"
 
 log "$console_user is an admin until $(date -r "$expires" '+%Y-%m-%d %H:%M:%S %Z')."
 exit 0

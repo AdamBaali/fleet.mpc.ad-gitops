@@ -1,17 +1,14 @@
-Yes, Fleet can do this, and we have two ways. I'm testing both in our lab now and will confirm once each is proven end to end.
+Thanks for the details! Yes, and in Fleet it's simpler than the Jamf setup: users help themselves, and nobody has to remember to flush anything. I'm testing it in our lab now and will confirm once it works end to end.
 
-*Option 1: SAP Privileges, the tool you already use (my pick).*
-Install Privileges on the non-Engineering Macs too (it's a Fleet-maintained app). Each Mac gets one of two profiles, chosen by a manual label such as "Privileges approved":
-• *Not in the label:* `EnforcePrivileges` = `user`. The app is there but can't grant admin.
-• *In the label:* `ExpirationInterval` = 20, no renewal, reason required, revoked at login.
-IT support adds the Mac to the label, and the user clicks Privileges when they need it. Remove the Mac from the label and the locked profile comes back. That also ends a grant that's still running. Your engineers keep their own Privileges profile in their fleet.
+*How it works*
+• *The user runs it when they need it:* Fleet Desktop > Self-service > "Admin rights for 20 minutes". It's your MakeMeAdmin idea: the script makes them an admin and a LaunchDaemon makes them standard again after 20 minutes.
+• *Once per Mac per 24 hours:* each run leaves a timestamp on the Mac. The script refuses a second run within 24 hours and tells the user when they can use it again. A dynamic label on that timestamp hides the item from self-service in the meantime, and it comes back on its own after 24 hours.
+• *IT support handles exceptions:* if someone needs a second grant the same day, IT support runs a small reset script from the Mac's page in Fleet. That's your flush. IT support can also run the grant for the user, for example on a call.
 
-*Option 2: a script, closest to your current policy.*
-Same idea as your MakeMeAdmin script. It promotes the user and a LaunchDaemon demotes them after 20 minutes. It checks a stored expiry every minute, so sleep and restarts don't skip the demotion, and it never demotes someone who was already an admin. IT support either runs it from the host page as a saved script, or the user runs it from Fleet Desktop when their Mac is in a label. There's no "flush" step: just run it again.
+*Why it fits IT support and GitOps*
+• Everything is in your GitOps repo: two scripts, one dynamic label, one self-service item. Nothing has to be added to or removed from a group by hand.
+• The *Technician* role can run saved scripts but can't edit them, and GitOps mode doesn't block running scripts.
+• Every run is in Fleet's activity log: which Mac, when, and whether the user or IT support ran it.
+• The demotion still happens after sleep or a restart, and the script never demotes someone who was already an admin.
 
-*How IT support approves and clears, with GitOps:*
-• Define the label in your GitOps YAML with `hosts: []`. Every GitOps run then empties it, so your 6am run clears all approvals each morning, like your flush.
-• During the day, IT support adds a Mac with the API: `POST /api/v1/fleet/hosts/:id/labels` with `{"labels": ["Privileges approved"]}`, and removes it with `DELETE` on the same path. The UI works too when GitOps mode is off. GitOps mode only restricts the UI, not the API.
-• One thing to know: any GitOps run clears the label, not only the 6am one. A merge during the day ends that day's approvals early. If that's a problem, leave `hosts` out of the YAML (Fleet then keeps the membership) and clear the label at 6am with one API call instead: `PATCH /api/v1/fleet/labels/:id` with `{"host_ids": []}`.
-
-The *Technician* role can add Macs to labels and run saved scripts, but can't edit scripts or run its own. Every change is in the activity log.
+Your engineers keep SAP Privileges as they have it today. If you'd like a different window than 24 hours, it's one number in the script and one in the label.
