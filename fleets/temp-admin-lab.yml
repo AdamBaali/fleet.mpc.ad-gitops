@@ -1,20 +1,20 @@
 # Lab fleet for testing temporary admin rights on macOS.
-# The user clicks Run in Fleet Desktop self-service when they need admin. Each run is one
-# 20-minute grant, then a 24-hour cooldown on that Mac. IT support can run the same script
-# from the host page, and can clear the cooldown with temp-admin-reset.sh.
+# The user clicks Run in Fleet Desktop self-service when they need admin. Each Mac gets one
+# 20-minute grant, then the item disappears until IT support runs temp-admin-reset.sh.
+# That matches a policy that runs once per computer and gets flushed. IT support can also
+# run the grant from the host page.
 name: "Temp Admin Lab"
 labels:
-  # Matches Macs that took admin rights in the last 24 hours, from the marker temp-admin.sh
-  # writes. It hides the self-service item meanwhile. The script enforces the same limit,
-  # since label membership only refreshes about hourly.
-  - name: "Temp admin used in last 24 hours"
-    description: "Macs that took temporary admin rights in the last 24 hours. Hides the self-service item."
+  # Matches Macs that used their grant, from the marker temp-admin.sh writes. It hides
+  # the self-service item until IT support's reset deletes the marker. Both scripts ask
+  # Fleet to refetch the host, so the label updates within minutes, not at the hourly refresh.
+  - name: "Temp admin used"
+    description: "Macs that used their temporary admin grant. Hides the self-service item until IT support resets it."
     label_membership_type: dynamic
     platform: darwin
     query: >-
       SELECT 1 FROM file
-      WHERE path = '/Library/Application Support/Fleet/temp-admin-last-run'
-      AND mtime > (SELECT unix_time - 86400 FROM time);
+      WHERE path = '/Library/Application Support/Fleet/temp-admin-last-run';
 policies:
 reports:
 agent_options:
@@ -30,5 +30,5 @@ software:
       categories:
         - "🛟 Support"
       labels_exclude_any:
-        - "Temp admin used in last 24 hours"
+        - "Temp admin used"
 settings:

@@ -3,11 +3,13 @@
 #
 # The user runs it from Fleet Desktop self-service, or IT support runs it as a saved script.
 #
-# One grant per Mac per cooldown. Each grant writes a marker file. The script refuses
-# while the marker is newer than the cooldown, and a dynamic label on the same marker
-# hides the self-service item meanwhile. The label refreshes about hourly, so this
-# script's check is what enforces the limit. IT support clears the marker with
-# temp-admin-reset.sh to allow another grant early.
+# One grant per Mac until IT support resets it, like a policy that runs once per computer
+# and gets flushed. Each grant writes a marker file. The script refuses while the marker
+# exists, and a dynamic label on the same marker hides the self-service item. Labels
+# refresh about hourly, so after writing the marker the script asks Fleet to refetch the
+# host, which runs the label queries on the next check-in. The script's own check still
+# enforces the limit if the refetch fails. IT support deletes the marker with
+# temp-admin-reset.sh to allow another grant.
 #
 # The demotion runs from a LaunchDaemon that checks an expiry time every minute. A timer
 # that sleeps for 20 minutes would stop counting while the Mac sleeps and would be lost
@@ -15,7 +17,6 @@
 # time passes, including right after a restart.
 
 DURATION_MINUTES=20
-COOLDOWN_HOURS=24
 
 # Kept outside STATE_DIR, which the demotion deletes, so the marker outlives the grant.
 MARKER="/Library/Application Support/Fleet/temp-admin-last-run"
@@ -29,6 +30,26 @@ LOG_FILE="/var/log/fleet-temp-admin.log"
 
 log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$LOG_FILE"
+}
+
+# Asks Fleet to refetch this host with its Fleet Desktop token, the same call Fleet
+# Desktop's Refetch button makes. The token file is readable by every local user
+# already, so putting it in the URL exposes nothing new. Best effort: a failure only
+# delays the label update until the next hourly refresh.
+request_refetch() {
+  local url token code
+  url=$(/usr/libexec/PlistBuddy -c 'Print :EnvironmentVariables:ORBIT_FLEET_URL' /Library/LaunchDaemons/com.fleetdm.orbit.plist 2>/dev/null)
+  token=$(/bin/cat /opt/orbit/identifier 2>/dev/null)
+  if [ -z "$url" ] || [ -z "$token" ]; then
+    log "Couldn't find the Fleet URL or device token. The label updates at the next refresh."
+    return
+  fi
+  code=$(/usr/bin/curl -s -o /dev/null -w '%{http_code}' --max-time 15 -X POST "${url%/}/api/latest/fleet/device/$token/refetch")
+  if [ "$code" = "200" ]; then
+    log "Asked Fleet to refetch this host."
+  else
+    log "Refetch request returned HTTP $code. The label updates at the next refresh."
+  fi
 }
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -60,12 +81,8 @@ if /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>&1
 fi
 
 if [ -f "$MARKER" ]; then
-  last_run=$(/usr/bin/stat -f %m "$MARKER")
-  next_allowed=$(( last_run + COOLDOWN_HOURS * 3600 ))
-  if [ "$(date +%s)" -lt "$next_allowed" ]; then
-    log "Admin rights were already used on this Mac. Next available at $(date -r "$next_allowed" '+%Y-%m-%d %H:%M %Z'). Ask IT support if you need them sooner."
-    exit 1
-  fi
+  log "Admin rights were already used on this Mac on $(date -r "$(/usr/bin/stat -f %m "$MARKER")" '+%Y-%m-%d %H:%M %Z'). Ask IT support to reset it."
+  exit 1
 fi
 
 # Reached during an active grant only after IT support cleared the marker.
@@ -174,4 +191,5 @@ fi
 /usr/bin/touch "$MARKER"
 
 log "$console_user is an admin until $(date -r "$expires" '+%Y-%m-%d %H:%M:%S %Z')."
+request_refetch
 exit 0
