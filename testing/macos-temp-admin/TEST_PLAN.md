@@ -3,48 +3,48 @@
 Issue: none (customer question) · Owner: Adam · Environment: lab Fleet, Temp Admin Lab fleet · Started: 2026-11-17
 
 ## Scope
-A customer gives non-engineers admin rights for 20 minutes from their old MDM. IT support scopes a policy to a static
-group, the policy runs a script that promotes the user, and a LaunchDaemon demotes them after 20 minutes. IT support
-flushes the policy to allow another grant.
+A customer gives non-engineers admin rights for 20 minutes from their old MDM. When someone needs admin, IT support adds
+their Mac to a static group. A policy scoped to that group runs once per computer: its script promotes the user, and a
+LaunchDaemon demotes them after 20 minutes. IT support flushes the policy run to allow another grant.
 
-The Fleet version is one script, `lib/macos/scripts/temp-admin.sh`, offered two ways from the same file:
-- Self-service: a script-only package, "Admin rights for 20 minutes". The user clicks Run in Fleet Desktop when they need
-  admin. Fleet labels script packages Run, then Rerun (`TileActionStatus.tsx` at `fleet-v4.95.0`), so the item hides itself
-  after use (below) rather than relying on the button.
-- Saved script: IT support runs it from the host page for a user who can't. The Technician role can run saved scripts but
-  can't edit them or run arbitrary scripts (`articles/role-based-access.md` at `fleet-v4.95.0`, lines 118 to 122). GitOps
-  mode doesn't block running scripts: `RunScriptModal.tsx` and `ConfirmRunScriptModal.tsx` have no GitOps mode check,
-  while label editing (`HostsFilterBlock.tsx`) and script deletion (`ScriptDetailsModal.tsx`) do.
-
-Each Mac gets one grant until IT support resets it, the same as the customer's policy that "runs once per computer" and
-gets flushed:
-- Each grant writes `/Library/Application Support/Fleet/temp-admin-last-run`. The marker sits outside the folder the
-  demotion deletes, so it outlives the grant.
-- The script refuses while that marker exists.
-- A dynamic label, "Temp admin used", matches Macs where the marker exists (`file.path`, a macOS column in Fleet's schema at
-  `fleet-v4.95.0`). The self-service item excludes that label, so it disappears after a grant.
+The Fleet version, in `fleets/temp-admin-lab.yml`:
+- IT support approves a Mac by running the saved script `lib/macos/scripts/temp-admin-approve.sh` from its page. It writes
+  `/Library/Application Support/Fleet/temp-admin-approved`. That's adding the Mac to the static group.
+- A dynamic label, "Temp admin approved", matches Macs where that file exists (`file.path`, a macOS column in Fleet's schema
+  at `fleet-v4.95.0`). The self-service item "Admin rights for 20 minutes" (`lib/macos/scripts/temp-admin.sh`, a
+  script-only package) only shows for that label.
+- The user runs the item from Fleet Desktop. The script refuses without the approval file. After a successful grant it
+  deletes the file, so the approval is used up and the item disappears. There's nothing to remove or flush: the next
+  approval is the next grant.
 - Labels refresh about hourly by default (`docs/Configuration/fleet-server-configuration.md`,
-  `osquery_label_update_interval`). So after writing the marker, the script asks Fleet to refetch the host with the Fleet
+  `osquery_label_update_interval`). So both scripts ask Fleet to refetch the host after changing the file, with the Fleet
   Desktop token (`/opt/orbit/identifier`) and the Fleet URL (`ORBIT_FLEET_URL` in the orbit LaunchDaemon), using
   `POST /api/latest/fleet/device/{token}/refetch`. A refetch makes Fleet send the label queries on the next check-in
-  regardless of the interval (`server/service/osquery.go` line 1525 at `fleet-v4.95.0`). The script's own check still
-  enforces the limit if the refetch fails. The refetch call alone returned HTTP 200 from a lab Mac on 2026-11-17.
-- IT support runs the saved script `temp-admin-reset.sh` to delete the marker. That's the flush. It also requests a
-  refetch, so the item comes back within minutes.
+  regardless of the interval (`server/service/osquery.go` line 1525 at `fleet-v4.95.0`). The grant script's own check
+  still enforces the limit if the refetch fails. The refetch call alone returned HTTP 200 from a lab Mac on 2026-11-17.
+
+Why this fits IT support:
+- The Technician role can run saved scripts but can't edit them or run arbitrary scripts (`articles/role-based-access.md`
+  at `fleet-v4.95.0`, lines 118 to 122).
+- GitOps mode doesn't block running scripts: `RunScriptModal.tsx` and `ConfirmRunScriptModal.tsx` have no GitOps mode check,
+  while label editing (`HostsFilterBlock.tsx`) and script deletion (`ScriptDetailsModal.tsx`) do. A manual label would need
+  the API to change under GitOps mode. An approval file set by a saved script doesn't.
 
 Checked without a Mac (2026-11-17):
 - `scripts/harness.sh` runs both scripts against stubs for `dseditgroup`, `launchctl`, `curl` and the console user, with
-  every path in a scratch folder. 19 of 19 checks pass: grant, refusal while the marker exists, demotion at expiry with the
-  marker kept, refusal after expiry, reset, grant after reset, a permanent admin left alone, and nobody signed in. With the
-  marker check removed from the script, 6 checks fail, so the harness catches that break.
-- The label query, run in osqueryi 5.18.1: a marker dated 2020 matches, a missing marker doesn't.
+  every path in a scratch folder. 17 of 17 checks pass: refusal without approval, approval and a repeat approval, grant
+  using up the approval, refusal after that, demotion at expiry, a new approval allowing one more grant, a failed grant
+  keeping its approval, a permanent admin left alone, and nobody signed in. With the approval check removed, 7 checks fail.
+  With the line that uses up the approval removed, 4 fail.
+- The same label query shape, run in osqueryi 5.18.1 against a stand-in file, matches when the file exists and not when
+  it's missing.
 
-Why not SAP Privileges for this: its 2.6.0 release (the latest, and Fleet's maintained version) has no setting for one
-grant until a reset. `AdminBudget` limits admin minutes per day, but SAP's wiki marks it Privileges 2.7.0+, which isn't
-released. `PostChangeExecutablePath` runs as the user's `PrivilegesAgent`, not root, so it can't end an approval on its own.
+Why not SAP Privileges for this: its 2.6.0 release (the latest, and Fleet's maintained version) has no setting for one grant
+per approval. `AdminBudget` limits admin minutes per day, but SAP's wiki marks it Privileges 2.7.0+, which isn't released.
+`PostChangeExecutablePath` runs as the user's `PrivilegesAgent`, not root, so it can't end an approval on its own.
 
-An earlier version of this lab tried label-gated self-service and SAP Privileges with label-switched profiles. Under
-GitOps mode both needed the API to approve and a daily clear, so they were dropped.
+An earlier version of this lab tried a manual label with a daily clear, and SAP Privileges with label-switched profiles.
+Both needed the API to approve under GitOps mode, so they were dropped.
 
 ## Environment
 | Item | Value |
@@ -58,21 +58,20 @@ GitOps mode both needed the API to approve and a daily clear, so they were dropp
 | ID | Test | Steps | Expected | Pass when |
 |---|---|---|---|---|
 | T-1 | Host facts | Run `hosts/host-facts.sh` | Versions recorded | Output saved |
-| T-2 | Promote from saved script | Standard user signed in. Run the saved script from the host page | Script exits 0, user is in admin | `dseditgroup -o checkmember -m <user> admin` says yes, script output shows the expiry |
-| T-3 | Demote after 20 minutes | Wait 21 minutes after T-2 | User is standard again, daemon and state removed | checkmember says no, `launchctl print system/com.fleetdm.temp-admin` fails, log line "standard user again" |
-| T-4 | Demote survives a restart | Run T-2, restart the Mac before 20 minutes, sign in after expiry | User demoted within a minute of boot | Log line within 60 s of expiry or boot, whichever is later |
-| T-5 | Permanent admin left alone (negative control) | Sign in as an admin that was never granted. Run the script | Nothing changes | Exit 0, output says "already an admin", no daemon loaded, user still admin after 21 minutes |
-| T-6 | Second grant refused | After T-3, run the script again | Refused, nothing changes | Exit 1, output says "already used on this Mac", user stays standard |
-| T-7 | Technician with GitOps mode on | Turn GitOps mode on. Sign in as a Technician. Run the saved script on the host. Try to edit or delete it | Run works, edit and delete are blocked | UI shows each outcome, the activity log names the Technician |
-| T-8 | Nobody signed in | Run the script at the login window | Nothing changes | Exit 1, output says "No user is signed in" |
-| T-9 | Self-service run | Standard user opens Fleet Desktop > Self-service and clicks Run on "Admin rights for 20 minutes" | Script runs, user is in admin, the tile then shows Rerun | checkmember says yes, the activity log shows the run, the tile says Rerun |
-| T-10 | Item hides right after a grant | After T-9, read the script output and watch the host's labels | Output says "Asked Fleet to refetch this host". Within a few minutes the Mac joins "Temp admin used" and the item leaves self-service | Label membership changes well before the hourly refresh, Fleet Desktop no longer shows the item |
-| T-11 | IT support resets | Run `temp-admin-reset.sh` from the host page, then run `temp-admin.sh` from self-service | Marker removed, refetch requested, the item comes back within minutes, second grant works | Reset output says "Reset done" and "Asked Fleet to refetch", the Mac leaves the label, second promotion logged |
-| T-12 | No expiry without a reset | Set the marker's mtime to 30 days ago with `touch -t`, then refetch the host | Mac stays in the label, item stays hidden, a run is refused | Label still lists the Mac, self-service has no item, script exits 1 |
+| T-2 | Not approved | Standard user opens Fleet Desktop > Self-service | No "Admin rights for 20 minutes" item | Item absent, Mac not in "Temp admin approved" |
+| T-3 | IT support approves | Run `temp-admin-approve.sh` from the host page | Approval file written, refetch requested, item shows within minutes | Output says "Approved" and "Asked Fleet to refetch", Mac joins the label well before the hourly refresh, item shows |
+| T-4 | User takes the grant | User clicks Run on the item | User is an admin, approval used up, item disappears within minutes | `dseditgroup -o checkmember -m <user> admin` says yes, approval file gone, Mac leaves the label, item gone |
+| T-5 | Demote after 20 minutes | Wait 21 minutes after T-4 | User is standard again, daemon and state removed | checkmember says no, `launchctl print system/com.fleetdm.temp-admin` fails, log line "standard user again" |
+| T-6 | Demote survives a restart | Approve, grant, restart the Mac before 20 minutes, sign in after expiry | User demoted within a minute of boot | Log line within 60 s of expiry or boot, whichever is later |
+| T-7 | Technician with GitOps mode on | Turn GitOps mode on. Sign in as a Technician. Run `temp-admin-approve.sh` on the host. Try to edit or delete it | Run works, edit and delete are blocked | UI shows each outcome, the activity log names the Technician |
+| T-8 | Permanent admin left alone (negative control) | Approve, sign in as an admin that was never granted, run the item | Nothing changes | Exit 0, output says "already an admin", no daemon loaded, approval kept |
+| T-9 | Nobody signed in (negative control) | Approve, run `temp-admin.sh` at the login window | Nothing changes | Exit 1, output says "No user is signed in", approval kept |
+| T-10 | A new approval allows one more grant | After T-5, approve again and run the item | Second grant, item disappears again | Second promotion and demotion logged |
 
 ## Out of scope / not tested
+- Approvals don't expire. An unused approval stays until the user runs the item, like a Mac left in a static group.
 - Ending a grant early. It runs to its expiry.
-- A user deleting the marker while they're an admin to get another grant. Any admin can do this, the same as removing the LaunchDaemon.
+- A user who is an admin during their 20 minutes writing their own approval file, or removing the LaunchDaemon. Any admin
+  can do this, the same as with the old MDM's script. A Fleet policy on the `users`, `groups` and `user_groups` tables
+  could catch leftover admins (later work).
 - macOS versions other than the lab Mac's.
-- A user removing the LaunchDaemon while they're an admin. Any admin can do this. A Fleet policy on the `users`, `groups`
-  and `user_groups` tables could catch it (later work).
