@@ -1,7 +1,9 @@
-# Lab fleet for testing temporary admin rights on macOS, run by IT support.
-# IT support runs the saved script from the host page. The Technician role can run
-# saved scripts but can't edit them, and GitOps mode doesn't block running them.
-# No label, profile, or app: each run is one 20-minute grant, so nothing needs clearing.
+# Lab fleet for testing temporary admin rights on macOS.
+# One script, offered two ways from the same file:
+# - Self-service: the user clicks Run in Fleet Desktop when they need admin. Fleet shows
+#   script packages as Run, then Rerun, so each click is one 20-minute grant.
+# - Saved script: IT support runs it from the host page, for a user who can't.
+# No label or profile, so there's nothing for IT support to approve or clear.
 name: "Temp Admin Lab"
 policies:
 reports:
@@ -10,4 +12,10 @@ controls:
   scripts:
     - path: ../lib/macos/scripts/temp-admin.sh
 software:
+  packages:
+    - path: ../lib/macos/scripts/temp-admin.sh
+      display_name: "Admin rights for 20 minutes"
+      self_service: true
+      categories:
+        - "🛟 Support"
 settings:

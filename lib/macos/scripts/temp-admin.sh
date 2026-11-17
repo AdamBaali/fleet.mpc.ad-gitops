@@ -1,8 +1,8 @@
 #!/bin/bash
 # Gives the logged-in user admin rights for a set time, then makes them standard again.
 #
-# IT support runs it from Fleet as a saved script. The Technician role can run saved scripts
-# but can't edit them. Each run is one grant, so there's nothing to reset between grants.
+# The user runs it from Fleet Desktop self-service, or IT support runs it as a saved script.
+# Each run is one grant, so there's nothing to reset between grants.
 #
 # The demotion runs from a LaunchDaemon that checks an expiry time every minute. A timer
 # that sleeps for 20 minutes would stop counting while the Mac sleeps and would be lost
