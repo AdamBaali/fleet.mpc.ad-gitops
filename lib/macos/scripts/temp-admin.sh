@@ -3,13 +3,14 @@
 #
 # The user runs it from Fleet Desktop self-service, or IT support runs it as a saved script.
 #
-# One grant per Mac until IT support resets it, like a policy that runs once per computer
-# and gets flushed. Each grant writes a marker file. The script refuses while the marker
-# exists, and a dynamic label on the same marker hides the self-service item. Labels
-# refresh about hourly, so after writing the marker the script asks Fleet to refetch the
-# host, which runs the label queries on the next check-in. The script's own check still
-# enforces the limit if the refetch fails. IT support deletes the marker with
-# temp-admin-reset.sh to allow another grant.
+# One grant per approval, like a policy scoped to a static group that IT support adds the
+# Mac to when someone needs admin. IT support approves the Mac with temp-admin-approve.sh,
+# which writes an approval file. A dynamic label on that file shows the self-service item.
+# This script refuses without the file and deletes it after a successful grant, so the
+# approval is used up and the item disappears. Labels refresh about hourly, so after
+# deleting the file the script asks Fleet to refetch the host, which runs the label
+# queries on the next check-in. The script's own check still enforces the limit if the
+# refetch fails.
 #
 # The demotion runs from a LaunchDaemon that checks an expiry time every minute. A timer
 # that sleeps for 20 minutes would stop counting while the Mac sleeps and would be lost
@@ -18,8 +19,8 @@
 
 DURATION_MINUTES=20
 
-# Kept outside STATE_DIR, which the demotion deletes, so the marker outlives the grant.
-MARKER="/Library/Application Support/Fleet/temp-admin-last-run"
+# Written by temp-admin-approve.sh. Kept outside STATE_DIR, which the demotion deletes.
+APPROVAL="/Library/Application Support/Fleet/temp-admin-approved"
 
 LABEL="com.fleetdm.temp-admin"
 STATE_DIR="/Library/Application Support/Fleet/temp-admin"
@@ -80,12 +81,12 @@ if /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>&1
   fi
 fi
 
-if [ -f "$MARKER" ]; then
-  log "Admin rights were already used on this Mac on $(date -r "$(/usr/bin/stat -f %m "$MARKER")" '+%Y-%m-%d %H:%M %Z'). Ask IT support to reset it."
+if [ ! -f "$APPROVAL" ]; then
+  log "This Mac isn't approved for temporary admin rights. Ask IT support."
   exit 1
 fi
 
-# Reached during an active grant only after IT support cleared the marker.
+# Reached during an active grant only if IT support approved the Mac again.
 if [ "$granted_user" = "$console_user" ]; then
   log "$console_user has an active grant. Restarting the clock."
 fi
@@ -188,7 +189,8 @@ if ! /usr/sbin/dseditgroup -o checkmember -m "$console_user" admin >/dev/null 2>
   fi
 fi
 
-/usr/bin/touch "$MARKER"
+# The approval is used up. Deleted only after the grant succeeded, so a failed run keeps it.
+/bin/rm -f "$APPROVAL"
 
 log "$console_user is an admin until $(date -r "$expires" '+%Y-%m-%d %H:%M:%S %Z')."
 request_refetch
