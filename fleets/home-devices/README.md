@@ -65,6 +65,31 @@ The reports keep the latest result per host. History comes from the hourly check
 A local scheduled task on the lab Mac (`~/.claude/scheduled-tasks/home-wifi-quic-check/`) runs hourly and only reads. It reads the saved report results above, plus the lab Mac's own Chrome QUIC failure count, against a baseline of 373 hosts and 4772 failures.
 It appends one line per run to `~/Library/Logs/home-wifi-quic-check.log`. A flat failure count means the network has settled.
 
+## Failed ChatGPT install (2026-11-17)
+
+The ChatGPT desktop installer failed on the home Wi-Fi with "installation was interrupted" and worked on a phone hotspot.
+The unified log on host 36 shows why:
+
+```
+10:56:01 ChatGPTInstaller [com.apple.network:quic] quic_conn_send_frames_for_key_state no frames fit in current MSS
+10:56:01 ChatGPTInstaller nw_read_request_report [C2] Receive failed with error "Software caused connection abort"
+10:56:01 ChatGPTInstaller HTTP load failed, 127/10918788 bytes (error code: -1005 [1:53])
+10:56:02 ChatGPTInstaller HTTP load failed, 162/8699839 bytes (error code: -1005 [1:53])
+10:59    Wi-Fi network changed (phone hotspot), install completes
+```
+
+- The installer downloads over HTTP/3 (QUIC), like Chrome. Apple's own networking uses QUIC too, so the Chrome policy doesn't cover it.
+- "No frames fit in current MSS" means QUIC's usable packet size collapsed. Full-size UDP packets aren't getting through, while small ones are.
+- TCP is unaffected, because the router clamps TCP segment size. UDP gets no such adjustment.
+- DNS over UDP times out 3 to 8 times an hour on the same Mac, which fits the same loss of larger UDP packets.
+
+So the fault is large UDP packets being dropped somewhere between the Mac and the internet: the Wi-Fi, the Deco mesh, or the ISP. This explains all symptoms: Chrome and the Claude app (HTTP/3), the installer (HTTP/3), and Safari mostly fine (short page loads fall back to TCP quickly).
+
+### Where to look first
+
+1. **Deco wireless backhaul.** The two units (Bedroom, Living Room) may link over Wi-Fi. A wireless backhaul adds overhead and can drop full-size UDP. Test the Mac next to the main unit, or link the units with a cable (Ethernet backhaul).
+2. **The wired tests above.** A cable to a Deco port, then straight to the ONT. If large UDP still fails at the ONT, report it to the ISP as "UDP packets near 1500 bytes are dropped; QUIC fails with no frames fitting the MSS".
+
 ## Is it the Deco or the ISP?
 
 Chrome on the lab Mac keeps counting QUIC failures. Run each test for a day and compare the count:
