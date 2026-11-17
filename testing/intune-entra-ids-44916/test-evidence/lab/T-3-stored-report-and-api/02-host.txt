@@ -1,0 +1,5 @@
+# 2026-11-09T15:40:08Z
+$ scripts/fleet-api.sh '/api/v1/fleet/hosts/35' | python3 -c 'import sys,json; h=json.load(sys.stdin)["host"]; print({k: h.get(k) for k in ("id","hostname","platform","os_version","osquery_version","fleet_name","team_name","status")})'
+
+{'id': 35, 'hostname': 'DESKTOP-JVO75AD', 'platform': 'windows', 'os_version': 'Windows 11 Pro 26H2 10.0.26300.9457', 'osquery_version': '5.24.1', 'fleet_name': 'Device IDs Lab', 'team_name': 'Device IDs Lab', 'status': 'online'}
+[exit 0]
