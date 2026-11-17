@@ -22,8 +22,12 @@ Each Mac gets one grant per 24 hours, with nothing for IT support to remember:
 - A dynamic label, "Temp admin used in last 24 hours", matches the same marker (`file.mtime` against `time.unix_time`,
   both macOS columns in Fleet's schema at `fleet-v4.95.0`). The self-service item excludes that label, so it disappears
   after a grant and comes back after the cooldown. Labels refresh about hourly by default
-  (`docs/Configuration/fleet-server-configuration.md`, `osquery_label_update_interval`), which is why the script check is
-  what enforces the limit.
+  (`docs/Configuration/fleet-server-configuration.md`, `osquery_label_update_interval`). So after writing the marker, the
+  script asks Fleet to refetch the host with the Fleet Desktop token (`/opt/orbit/identifier`) and the Fleet URL
+  (`ORBIT_FLEET_URL` in the orbit LaunchDaemon), using `POST /api/latest/fleet/device/{token}/refetch`. A refetch makes Fleet
+  send the label queries on the next check-in regardless of the interval (`server/service/osquery.go` line 1525 at
+  `fleet-v4.95.0`). The reset script does the same after deleting the marker. The script's own check still enforces the
+  limit if the refetch fails. The refetch call alone returned HTTP 200 from a lab Mac on 2026-11-17.
 - IT support runs the saved script `temp-admin-reset.sh` to clear the marker when a user needs a second grant early. That's
   the Fleet version of the flush.
 
@@ -53,8 +57,8 @@ GitOps mode both needed the API to approve and a daily clear, so they were dropp
 | T-7 | Technician with GitOps mode on | Turn GitOps mode on. Sign in as a Technician. Run the saved script on the host. Try to edit or delete it | Run works, edit and delete are blocked | UI shows each outcome, the activity log names the Technician |
 | T-8 | Nobody signed in | Run the script at the login window | Nothing changes | Exit 1, output says "No user is signed in" |
 | T-9 | Self-service run | Standard user opens Fleet Desktop > Self-service and clicks Run on "Admin rights for 20 minutes" | Script runs, user is in admin, the tile then shows Rerun | checkmember says yes, the activity log shows the run, the tile says Rerun |
-| T-10 | Item hides during cooldown | After T-9, wait for the next label refresh | Mac joins "Temp admin used in last 24 hours", the item leaves self-service | Host's labels list it, Fleet Desktop no longer shows the item |
-| T-11 | IT support clears the cooldown | Run `temp-admin-reset.sh` from the host page, then run `temp-admin.sh` | Marker removed, second grant works | Reset output says "Cooldown cleared", second promotion logged |
+| T-10 | Item hides right after a grant | After T-9, read the script output and watch the host's labels | Output says "Asked Fleet to refetch this host". Within a few minutes the Mac joins "Temp admin used in last 24 hours" and the item leaves self-service | Label membership changes well before the hourly refresh, Fleet Desktop no longer shows the item |
+| T-11 | IT support clears the cooldown | Run `temp-admin-reset.sh` from the host page, then run `temp-admin.sh` from self-service | Marker removed, refetch requested, the item comes back within minutes, second grant works | Reset output says "Cooldown cleared" and "Asked Fleet to refetch", the Mac leaves the label, second promotion logged |
 | T-12 | Cooldown ends on its own | Set the marker's mtime to 25 hours ago with `touch -t`, wait for the label refresh | Item comes back and a run works | Mac leaves the label, self-service shows the item, run promotes the user |
 
 ## Out of scope / not tested
