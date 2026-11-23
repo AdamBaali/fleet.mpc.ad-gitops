@@ -139,6 +139,7 @@ Local MDM commands (no Fleet needed):
 
 | Step | Time |
 |---|---|
+| `qemu-install.sh` to "Please keep your computer on" (macOS 27, QEMU 11.1.2) | about 57 minutes. Setup read 9.25 GB from the USB CD-ROM at about 2.7 MB/s on average. In that phase the vCPUs were about 20% busy, the disk had no flushes, and QEMU's main thread sat at 100% CPU emulating USB storage. Next time, try `usb-uas` instead of `usb-storage` for the CDs |
 | sysprep generalize to the region screen | about 1 minute |
 | `doWipePersistProvisionedData` to the region screen | 11.5 to 13 minutes |
 | `doWipeCloudPersistProvisionedData` | about 36 minutes download, then about 21 minutes reset |
