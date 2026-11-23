@@ -1,0 +1,17 @@
+# 2026-11-09T15:40:52Z
+$ scripts/t3-control.sh ids1
+
+expected IDs replaced with zeros
+PASS  intune report: one row for host 35: 1 rows
+FAIL  intune report: value: got d812b7d6-c324-42a5-9633-f0e5f74a417a, want 00000000-0000-0000-0000-000000000000
+PASS  intune report: not clipped: report_clipped=False
+FAIL  intune host endpoint: value: 1 rows, got d812b7d6-c324-42a5-9633-f0e5f74a417a
+PASS  entra report: one row for host 35: 1 rows
+FAIL  entra report: value: got 92f3f713-13af-440f-b8d9-5c4f82f07c0d, want 00000000-0000-0000-0000-000000000000
+PASS  entra report: not clipped: report_clipped=False
+FAIL  entra host endpoint: value: 1 rows, got 92f3f713-13af-440f-b8d9-5c4f82f07c0d
+PASS  intune report: enrollment key returned: 2769B5E0-4FB6-4297-B7BB-5D55B1CFEE1B
+SOME FAILED
+restored
+compare exit 1 (1 expected)
+[exit 0]

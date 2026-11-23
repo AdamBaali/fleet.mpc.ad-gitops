@@ -1,0 +1,9 @@
+# 2026-11-09T15:40:03Z
+$ tools/qga.sh ids1 'Get-Content C:\ids\expected.json'
+
+{
+    "entra_device_id":  "92f3f713-13af-440f-b8d9-5c4f82f07c0d",
+    "intune_device_id":  "d812b7d6-c324-42a5-9633-f0e5f74a417a",
+    "enrollment_key":  "2769B5E0-4FB6-4297-B7BB-5D55B1CFEE1B"
+}
+[exit 0]

@@ -1,0 +1,26 @@
+# 2026-11-09T15:40:09Z
+$ scripts/fleet-api.sh '/api/v1/fleet/reports/2794/report?page=0&per_page=500' | python3 -m json.tool
+
+{
+    "query_id": 2794,
+    "results": [
+        {
+            "host_id": 35,
+            "host_name": "DESKTOP-JVO75AD",
+            "last_fetched": "2026-11-09T15:39:41Z",
+            "columns": {
+                "cert_not_valid_after": "2109857564",
+                "cert_subject": "92f3f713-13af-440f-b8d9-5c4f82f07c0d",
+                "entra_device_id": "92f3f713-13af-440f-b8d9-5c4f82f07c0d"
+            }
+        }
+    ],
+    "report_clipped": false,
+    "count": 1,
+    "meta": {
+        "has_next_results": false,
+        "has_previous_results": false
+    },
+    "report_id": 2794
+}
+[exit 0]

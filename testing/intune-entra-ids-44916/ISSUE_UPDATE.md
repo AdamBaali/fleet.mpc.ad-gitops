@@ -8,4 +8,6 @@
 
 **Not tested:** values on a real Entra-joined, Intune-enrolled host, and which enrollment Windows keeps after a re-image.
 
-Next: stored reports through the API in the lab, then confirm on a real host.
+- **API:** with both reports stored in a lab fleet, `GET /api/v1/fleet/reports/:id/report` and `GET /api/v1/fleet/hosts/:id/reports/:id` return the right IDs per host, and `report_clipped` stays false.
+
+Next: confirm on a real Entra-joined, Intune-enrolled host.
