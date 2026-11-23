@@ -1,0 +1,23 @@
+AutoEnrollMDM policy removed
+exit_code=0 runtime_s=73
+----- output -----
+[04:27:31] Step 1/4: preflight (no changes)
+[04:27:32] Fleet currently reports MDM: On (manual) (Fleet)
+[04:27:32] Entra joined: False
+[04:27:33] MDM enrollments before : none
+[04:27:33] Step 2/4: no active MDM enrollment; skipping unenroll.
+[04:27:34] Step 3/4: asking Fleet to refetch and waiting for MDM Off
+[04:28:37] Fleet reports MDM Off.
+[04:28:38] Step 4/4: enrolling in Fleet MDM
+[04:28:40] RegisterDeviceWithManagement returned 0x00000000
+[04:28:42] MDM enrollments after :
+
+Id                                   ProviderID State OMADM Active FleetSeesOn
+--                                   ---------- ----- ----- ------ -----------
+94A28F73-58DA-4161-9B1A-0B8E7B970E50 Fleet          1  True   True        True
+
+
+
+[04:28:42] RESULT exit=0 : Enrolled in Fleet MDM. First management session with Fleet succeeded.
+
+12:29:57 fleet_view=[On (manual) Fleet refetch_requested=False] registry_fleet_enrollments=1

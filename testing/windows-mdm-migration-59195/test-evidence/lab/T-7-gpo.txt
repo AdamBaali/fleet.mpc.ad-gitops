@@ -1,0 +1,15 @@
+exit 0
+UnregisterDeviceWithManagement=0x00000000 arch=ARM64
+8345CBE6-CEFC-462A-8219-78F3FC0377C1 Deploy Authority state=1
+C429BE2D-071B-4E13-B616-4141C334ECDF Cloud Authority state=1
+E17005D5-A50E-4E57-BE94-1D4FA69C6F93 Local Authority state=1
+
+AutoEnrollMDM set to 1
+exit_code=2 runtime_s=4
+----- output -----
+[04:27:01] Step 1/4: preflight (no changes)
+[04:27:02] Fleet currently reports MDM: On (manual) (Fleet)
+[04:27:03] RESULT exit=2 : Group Policy "Enable automatic MDM enrollment using default Azure AD credentials" is set (AutoEnrollMDM=1). It would re-enroll the device into the old MDM. Remove the GPO from this device first.
+
+script execution error: exit status 2
+(no non-built-in enrollments listed above means nothing changed)

@@ -1,0 +1,6 @@
+12:20:23 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0
+12:20:59 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0
+12:21:34 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0
+12:22:10 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0
+12:22:46 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0
+12:23:21 fleet_view=[On (manual) Intune refetch_requested=False] registry_fleet_enrollments=0

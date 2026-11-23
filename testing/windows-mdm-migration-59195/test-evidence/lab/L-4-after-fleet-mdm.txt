@@ -1,0 +1,20 @@
+proc_arch=AMD64
+ENROLL 8345CBE6-CEFC-462A-8219-78F3FC0377C1 provider=Deploy Authority state=1 upn_present=False upn='' disco='' omadm=False
+ENROLL C429BE2D-071B-4E13-B616-4141C334ECDF provider=Cloud Authority state=1 upn_present=False upn='' disco='' omadm=False
+ENROLL E17005D5-A50E-4E57-BE94-1D4FA69C6F93 provider=Local Authority state=1 upn_present=False upn='' disco='' omadm=False
+ENROLL F7A83921-7499-4E1F-8BEB-DB3EBA49BCE0 provider=Fleet state=1 upn_present=True upn='' disco='https://fleet.mpc.ad/api/mdm/microsoft/discovery' omadm=True
+OMADM F7A83921-7499-4E1F-8BEB-DB3EBA49BCE0
+  Protected subkeys: AddrInfo, AuthInfo0, AuthInfo1, ConnInfo
+  AddrInfo\Flags = 14
+  AddrInfo\AddrRootName = 1
+  AddrInfo\Addr = https://fleet.mpc.ad/api/mdm/microsoft/management
+  AddrInfo\AddrType = URI
+  ConnInfo\Flags = 623
+  ConnInfo\ConnRetryFreq = 6
+  ConnInfo\InitialBackOffTime = 30000
+  ConnInfo\MaxBackOffTime = 120000
+  ConnInfo\BackCompatRetryDisabled = 65535
+  ConnInfo\ServerLastAccessTime = 20261123T040900Z
+  ConnInfo\LastSessionResult = 0
+  ConnInfo\ServerLastSuccessTime = 20261123T040901Z
+MmpcEnrollmentFlag=

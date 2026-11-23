@@ -1,0 +1,10 @@
+msi=D:\fleet-osquery-arm64.msi
+B7CED088F7F4FBE97EAF2968272501B0BE63BE12D2E27A1DAE1E6087A31EA0A3
+msiexec_exit=0
+
+Name           Status
+----           ------
+Fleet osquery Running
+
+
+

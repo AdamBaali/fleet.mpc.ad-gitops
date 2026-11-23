@@ -1,0 +1,5 @@
+proc_arch=AMD64
+ENROLL 8345CBE6-CEFC-462A-8219-78F3FC0377C1 provider=Deploy Authority state=1 upn_present=False upn='' disco='' omadm=False
+ENROLL C429BE2D-071B-4E13-B616-4141C334ECDF provider=Cloud Authority state=1 upn_present=False upn='' disco='' omadm=False
+ENROLL E17005D5-A50E-4E57-BE94-1D4FA69C6F93 provider=Local Authority state=1 upn_present=False upn='' disco='' omadm=False
+MmpcEnrollmentFlag=

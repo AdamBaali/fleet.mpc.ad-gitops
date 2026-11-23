@@ -1,0 +1,24 @@
+removed
+exit_code=0 runtime_s=25
+----- output -----
+[04:23:59] Step 1/4: preflight (no changes)
+[04:24:00] Fleet currently reports MDM: On (manual) (Intune)
+[04:24:01] Entra joined: False
+[04:24:01] MDM enrollments before : none
+[04:24:02] Step 2/4: no active MDM enrollment; skipping unenroll.
+[04:24:02] Step 3/4: asking Fleet to refetch and waiting for MDM Off
+[04:24:18] Fleet reports MDM Off.
+[04:24:19] Step 4/4: enrolling in Fleet MDM
+[04:24:21] RegisterDeviceWithManagement returned 0x00000000
+[04:24:22] MDM enrollments after :
+
+Id                                   ProviderID State OMADM Active FleetSeesOn
+--                                   ---------- ----- ----- ------ -----------
+1CC584FB-6177-4339-9F22-0285FBA93B1D Fleet          1  True   True        True
+
+
+
+[04:24:22] RESULT exit=0 : Enrolled in Fleet MDM. First management session with Fleet succeeded.
+
+12:25:04 fleet_view=[On (manual) Fleet refetch_requested=True] registry_fleet_enrollments=1
+12:25:40 fleet_view=[On (manual) Fleet refetch_requested=False] registry_fleet_enrollments=1

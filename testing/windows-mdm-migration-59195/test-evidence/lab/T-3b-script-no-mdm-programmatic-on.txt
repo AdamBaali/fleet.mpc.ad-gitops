@@ -1,0 +1,24 @@
+exit_code=0 runtime_s=56
+----- output -----
+[04:14:25] Step 1/4: preflight (no changes)
+[04:14:26] Fleet currently reports MDM: Off ()
+[04:14:27] Entra joined: False
+[04:14:27] MDM enrollments before : none
+[04:14:28] Step 2/4: no active MDM enrollment; skipping unenroll.
+[04:14:28] Step 3/4: asking Fleet to refetch and waiting for MDM Off
+[04:15:16] Fleet reports MDM Off.
+[04:15:17] Step 4/4: enrolling in Fleet MDM
+[04:15:18] RegisterDeviceWithManagement returned 0x00000000
+[04:15:20] MDM enrollments after :
+
+Id                                   ProviderID State OMADM Active FleetSeesOn
+--                                   ---------- ----- ----- ------ -----------
+2CC6BC7F-F9EE-4FE7-A111-55B06E71FBCF Fleet          1  True   True        True
+
+
+
+[04:15:20] RESULT exit=0 : Enrolled in Fleet MDM. First management session with Fleet succeeded.
+
+ENROLL 2CC6BC7F-F9EE-4FE7-A111-55B06E71FBCF provider=Fleet state=1 upn_present=True upn='' disco='https://fleet.mpc.ad/api/mdm/microsoft/discovery' omadm=True
+  AddrInfo\Addr = https://fleet.mpc.ad/api/mdm/microsoft/management
+  ConnInfo\LastSessionResult = 0

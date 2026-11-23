@@ -1,0 +1,13 @@
+exit_code=0 runtime_s=4
+----- output -----
+[04:10:23] Step 1/4: preflight (no changes)
+[04:10:26] MDM enrollments after :
+
+Id                                   ProviderID State OMADM Active FleetSeesOn
+--                                   ---------- ----- ----- ------ -----------
+F7A83921-7499-4E1F-8BEB-DB3EBA49BCE0 Fleet          1  True   True        True
+
+
+
+[04:10:26] RESULT exit=0 : Already enrolled in Fleet MDM; no changes made. First management session with Fleet succeeded.
+

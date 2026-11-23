@@ -1,0 +1,6 @@
+exit 0
+UnregisterDeviceWithManagement=0x00000000 arch=ARM64
+8345CBE6-CEFC-462A-8219-78F3FC0377C1 Deploy Authority state=1
+C429BE2D-071B-4E13-B616-4141C334ECDF Cloud Authority state=1
+E17005D5-A50E-4E57-BE94-1D4FA69C6F93 Local Authority state=1
+

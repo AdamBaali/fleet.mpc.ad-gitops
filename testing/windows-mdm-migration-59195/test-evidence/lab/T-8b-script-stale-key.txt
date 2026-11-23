@@ -1,0 +1,25 @@
+exit_code=5 runtime_s=5
+----- output -----
+[04:19:27] Step 1/4: preflight (no changes)
+[04:19:28] Fleet currently reports MDM: Off ()
+[04:19:29] Entra joined: False
+[04:19:29] MDM enrollments before :
+
+Id                                   ProviderID   State OMADM Active FleetSeesOn
+--                                   ----------   ----- ----- ------ -----------
+0B5E1E57-0000-4000-8000-00000000FA7E MS DM Server     3 False  False        True
+
+
+
+[04:19:30] Step 2/4: no active MDM enrollment; skipping unenroll.
+[04:19:31] MDM enrollments :
+
+Id                                   ProviderID   State OMADM Active FleetSeesOn
+--                                   ----------   ----- ----- ------ -----------
+0B5E1E57-0000-4000-8000-00000000FA7E MS DM Server     3 False  False        True
+
+
+
+[04:19:31] RESULT exit=5 : Registry holds an enrollment Fleet reports as MDM On (stale or failed key with a discovery URL). Fleet will refuse enrollment until it is gone. Investigate before deleting anything.
+
+script execution error: exit status 5
