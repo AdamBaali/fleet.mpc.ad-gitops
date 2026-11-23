@@ -13,6 +13,7 @@ Facts for the first evidence item: `hosts/host-facts.sh`.
 - Display: use `virtio-gpu-pci`. Fedora needs `nomodeset console=tty0 console=ttyAMA0`.
 - Installer ISO still attached: `testing/linux-luks-54871/tools/boot-vm.sh <vm>`.
 - Commands: ssh, or `utmctl exec` (it exits 0 on errors, so read the output).
+- On macOS 27, Claude Code can't read UTM's folder (`~/Library/Containers/com.utmapp.UTM`), so it can't copy or inspect a UTM disk. Check that `utmctl list` shows the VM before planning on it, or use Docker.
 - Never screenshot installer pages that print secrets. One 4 GB VM at a time.
 
 ## fleetd

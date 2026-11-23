@@ -3,7 +3,7 @@
 # Usage: qga-push.sh <name> <local file> <guest path>
 # Lab shortcut for putting the MSI or package on a host, in place of a download or a Fleet software package.
 set -euo pipefail
-sock=${VM_ROOT:-$PWD/out/qemu}/$1/qga.sock
+sock=${VM_ROOT:-$HOME/Documents/fleet-lab/vm}/$1/qga.sock
 exec python3 -I - "$sock" "$2" "$3" <<'PY'
 import base64,json,socket,sys,hashlib
 sock,src,dst=sys.argv[1:4]

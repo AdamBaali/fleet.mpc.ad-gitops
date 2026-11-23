@@ -5,12 +5,12 @@
 #
 # UTM 4.7.5 hangs at "Start boot option" on the first boot after a reset or generalize.
 # This runs the same disk on a newer QEMU and edk2 to tell a UTM fault from a Windows one.
-# The base disk stays untouched: QEMU writes to an overlay in $VM_ROOT/<name>/ (default out/qemu).
+# The base disk stays untouched: QEMU writes to an overlay in $VM_ROOT/<name>/ (default ~/Documents/fleet-lab/vm: socket paths must stay under 104 bytes).
 # Control is headless: QMP socket for screendumps and keys, the guest agent socket for commands
 # (qga.sh), and VNC on localhost for a person.
 set -euo pipefail
 name=$1 base=$2 vars=${3:-fresh}
-root=${VM_ROOT:-$PWD/out/qemu}
+root=${VM_ROOT:-$HOME/Documents/fleet-lab/vm}
 dir=$root/$name
 mkdir -p "$dir/tpm"
 share=/opt/homebrew/share/qemu

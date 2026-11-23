@@ -4,9 +4,11 @@ Windows 11 arm64 on the Mac. Read [../vm/README.md](../vm/README.md) for the QEM
 
 | Job | Use |
 |---|---|
-| Install Windows once | UTM with an answer ISO (`testing/ppkg-wipe-55003/vm/answer/Autounattend.xml`, en-US, `PreventDeviceEncryption`) |
+| Before anything | Check the base disk exists: `ls ~/Documents/fleet-lab/base/`. The macOS 27 upgrade lost the last one |
+| Install Windows once | Homebrew QEMU: `FG=1 vm/qemu-install.sh <vm> <base.qcow2> <windows.iso> <answer.iso>` with `vm/answer/` (en-US, TPM bypass, `PreventDeviceEncryption`). See "Base disk" in the VM README |
 | Run test hosts | Homebrew QEMU: `FG=1 vm/qemu-boot.sh <vm> <base.qcow2>` (UTM hangs after a reset or generalize) |
-| Needs a TPM (BitLocker) | UTM with its TPM. QEMU's TPM is unusable under HVF |
+| Needs a TPM (BitLocker) | UTM with its TPM. QEMU's TPM is unusable under HVF. On macOS 27, Claude can't reach UTM's folder, so a person drives UTM |
+| Where files live | `~/Documents/fleet-lab/`: `base/` disks, `iso/` installers, `vm/` VM folders and sockets. Never inside a UTM bundle |
 
 ## Use
 ```bash

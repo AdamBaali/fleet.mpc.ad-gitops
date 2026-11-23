@@ -7,8 +7,8 @@
 # answers with any hostname other than <name> (a reset gives Windows a new one).
 set -uo pipefail
 out=$1 name=$2 mins=$3 stop=${4:-}
-tools=$(cd "$(dirname "$0")" && pwd)
-pid=$(cat "${VM_ROOT:-$PWD/out/qemu}/$name/pid")
+tools=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
+pid=$(cat "${VM_ROOT:-$HOME/Documents/fleet-lab/vm}/$name/pid")
 mkdir -p "$out"; log=$out/watch.log; last=""; n=$(ls "$out"/*.png 2>/dev/null | wc -l | tr -d ' ')
 end=$(( $(date +%s) + mins * 60 ))
 while [ "$(date +%s)" -lt "$end" ]; do
