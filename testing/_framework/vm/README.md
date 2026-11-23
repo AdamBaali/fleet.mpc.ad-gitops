@@ -71,8 +71,11 @@ Socket files per VM: `qmp.sock` (QEMU control), `qga.sock` (guest agent). VNC li
    `FG=1 vm/qemu-install.sh <name> ~/Documents/fleet-lab/base/<name>.qcow2 <windows.iso> answer.iso` as a background
    task, then `qmp.sh <name> keys spc` a few times so the firmware boots the CD. Send no more keys after setup starts:
    stray spaces opened a "Support Link" dialog. Setup stops at the region screen.
-4. At the region screen, put the guest tools installer on a USB image (`usb-files.sh`), hot-plug it as removable, open
-   `qmp.sh <name> shell`, and run the installer with `/S`.
+4. At the region screen, put the guest tools installer on a USB image (`usb-files.sh`), hot-plug it as removable
+   (`qmp.sh <name> usb <img> true`), open `qmp.sh <name> shell`, and run
+   `start /wait <drive>:\utm-guest-tools-<version>.exe /S`. It exits 0 in about a minute, and the guest agent and
+   VirtIO network work at once, still at the region screen. The agent runs as x64 PowerShell under emulation: use the
+   64-bit registry view in scripts it runs.
 5. Shut down. The disk image is the base. `qemu-boot.sh` never writes to it.
 
 Every VM gets its own SMBIOS UUID and serial, but clones of a disk that already ran specialize share a Windows MDM
@@ -139,7 +142,7 @@ Local MDM commands (no Fleet needed):
 
 | Step | Time |
 |---|---|
-| `qemu-install.sh` to "Please keep your computer on" (macOS 27, QEMU 11.1.2) | about 57 minutes. Setup read 9.25 GB from the USB CD-ROM at about 2.7 MB/s on average. In that phase the vCPUs were about 20% busy, the disk had no flushes, and QEMU's main thread sat at 100% CPU emulating USB storage. Next time, try `usb-uas` instead of `usb-storage` for the CDs |
+| `qemu-install.sh` to the region screen (macOS 27, QEMU 11.1.2, Windows 26300) | about 61 minutes. The first 57 minutes went to reading the ISO. Setup read 9.25 GB from the USB CD-ROM at about 2.7 MB/s on average. In that phase the vCPUs were about 20% busy, the disk had no flushes, and QEMU's main thread sat at 100% CPU emulating USB storage. Next time, try `usb-uas` instead of `usb-storage` for the CDs |
 | sysprep generalize to the region screen | about 1 minute |
 | `doWipePersistProvisionedData` to the region screen | 11.5 to 13 minutes |
 | `doWipeCloudPersistProvisionedData` | about 36 minutes download, then about 21 minutes reset |
