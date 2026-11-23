@@ -5,7 +5,7 @@
 # Keys use QEMU names (ret, shift, f10, a, ...); several keys in one call are pressed together.
 set -euo pipefail
 name=$1 cmd=$2; shift 2
-sock=${VM_ROOT:-$PWD/out/qemu}/$name/qmp.sock
+sock=${VM_ROOT:-$HOME/Documents/fleet-lab/vm}/$name/qmp.sock
 send() { python3 -I - "$sock" "$1" <<'EOF'
 import json,socket,sys
 s=socket.socket(socket.AF_UNIX); s.connect(sys.argv[1]); f=s.makefile("rw")
@@ -27,7 +27,7 @@ case $cmd in
         fi
         sips -s format png "$1.ppm" --out "$1" >/dev/null && rm "$1.ppm" && echo "$1" ;;
   keys) k=$(printf '{"type":"qcode","data":"%s"},' "$@"); send "{\"execute\":\"send-key\",\"arguments\":{\"keys\":[${k%,}]}}" ;;
-  type) python3 -I "$(dirname "$0")/qmp-keys.py" "$1" | while read -r j; do send "$j" >/dev/null; done ;;
+  type) python3 -I "$(dirname "$(readlink -f "$0")")/qmp-keys.py" "$1" | while read -r j; do send "$j" >/dev/null; done ;;
   click) # x y in screenshot pixels; the tablet takes 0..32767 across the current screen size.
         t=$(mktemp -t qmpsize).png; "$0" "$name" shot "$t" >/dev/null
         read -r w h < <(sips -g pixelWidth -g pixelHeight "$t" 2>/dev/null | awk '/pixel/{print $2}' | paste -sd' ' -); rm -f "$t"

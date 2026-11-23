@@ -3,7 +3,7 @@
 # Usage: qga.sh <name> '<powershell>' [timeout seconds]
 # The script goes in base64 so quoting and the guest keyboard layout don't matter.
 set -euo pipefail
-sock=${VM_ROOT:-$PWD/out/qemu}/$1/qga.sock
+sock=${VM_ROOT:-$HOME/Documents/fleet-lab/vm}/$1/qga.sock
 exec python3 -I - "$sock" "$2" "${3:-120}" <<'PY'
 import base64,json,socket,sys,time
 sock,ps,timeout=sys.argv[1],sys.argv[2],int(sys.argv[3])

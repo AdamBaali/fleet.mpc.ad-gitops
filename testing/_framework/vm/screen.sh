@@ -12,13 +12,15 @@
 # Needs tesseract and Pillow (see ocr.py). SHOT_CMD='cp some.png' replaces the QMP screendump, for tests.
 set -euo pipefail
 vm=$1 cmd=$2; shift 2
-here=$(cd "$(dirname "$0")" && pwd)
-dir=${SCREEN_DIR:-${VM_ROOT:-$PWD/out/qemu}/../screen/$vm}; mkdir -p "$dir"
+# readlink -f: projects link this script into their tools/; the siblings live next to the real file.
+here=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
+dir=${SCREEN_DIR:-${VM_ROOT:-$HOME/Documents/fleet-lab/vm}/../screen/$vm}; mkdir -p "$dir"
 
 shot() { # out.png
   if [ -n "${SHOT_CMD:-}" ]; then $SHOT_CMD "$1"; else "$here/qmp.sh" "$vm" shot "$1" >/dev/null; fi
 }
-ocr() { python3 -I "$here/ocr.py" "$@"; }
+# -E, not -I: -I also hides user site-packages, where `pip install --user pillow` puts Pillow.
+ocr() { python3 -E "$here/ocr.py" "$@"; }
 
 case $cmd in
   look)  t="$dir/.look.png"; shot "$t"; ocr small "$t" "$1" "${2:-1024}" ;;
