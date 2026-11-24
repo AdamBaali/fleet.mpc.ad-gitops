@@ -1,0 +1,68 @@
+script_id=125 execution_id=e405e36f-8ef7-4c53-9df5-d7f290cac5e3 queued 2026-11-24T20:46:09Z (host 38 lost the proxy until 20:55; ran then)
+exit_code=0 runtime=1s host_timeout=false
+============================================================
+ Fleet fleetd Health Check
+ Host:      vm
+ Date:      Tue Nov 24 20:55:58 UTC 2026
+ Kernel:    6.18.44-fc-v819
+ OS:        Ubuntu 24.04.5 LTS
+============================================================
+
+── 1. systemd service (orbit.service) ──────────────────────
+  [OK]    orbit.service is active (running)
+  [OK]    orbit.service is enabled
+
+── 2. Processes ────────────────────────────────────────────
+  [OK]    orbit is running
+    546 /opt/orbit/bin/orbit/linux/stable/orbit
+  [OK]    osqueryd (fleetd) is running
+    700 /opt/orbit/bin/osqueryd/linux/stable/osqueryd
+    702 /opt/orbit/bin/osqueryd/linux/stable/osqueryd
+  [WARN]  fleet-desktop is NOT running (expected if not packaged with --fleet-desktop)
+
+── 3. Key files and directories ────────────────────────────
+  [OK]    orbit binary: /opt/orbit/bin/orbit/orbit
+  [OK]    orbit symlink: /usr/local/bin/orbit
+  [OK]    osquery pidfile: /opt/orbit/osquery.pid
+  [OK]    env file: /etc/default/orbit
+  [OK]    enroll secret is configured (/etc/default/orbit or /opt/orbit/secret.txt)
+  [OK]    orbit node key is non-empty (enrolled)
+
+── 4. Orbit environment (/etc/default/orbit) ───────────────
+    ORBIT_UPDATE_URL=https://updates.fleetdm.com
+    ORBIT_ORBIT_CHANNEL=stable
+    ORBIT_OSQUERYD_CHANNEL=stable
+    ORBIT_UPDATE_INTERVAL=15m0s
+    ORBIT_FLEET_URL=https://fleet.mpc.ad
+    ORBIT_FLEET_CERTIFICATE=/opt/orbit/fleet.pem
+    ORBIT_UPDATE_TLS_CERTIFICATE=/opt/orbit/update.pem
+    ORBIT_ENROLL_SECRET=<redacted>
+    ORBIT_ENABLE_SCRIPTS=true
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+── 5. Orbit version ────────────────────────────────────────
+    orbit 1.64.0
+    commit - 593fed52311e2ef53660d648397a2397b407f3c8
+    date - 2026-11-18T20:47:05Z
+    fleet-osquery 1.64.0 install ok installed
+
+── 6. Log collection ───────────────────────────────────────
+  [OK]    Collected orbit logs directory: /var/log/orbit
+  [OK]    Collected osquery logs directory: /var/log/osquery
+  [OK]    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [OK]    Collected systemd journal (last 500 lines)
+
+── 7. System events, last 72h ───────────────
+  [OK]    Collected reboot/shutdown history
+  [WARN]  37 package install/upgrade/remove event(s) in last 72h
+  [WARN]  systemd reports failed units:
+    ● getty-static.service loaded failed failed getty on tty2-tty6 if dbus and logind are not available
+  [WARN]  12 journal error-level line(s) in last 72h (see journal_errors.log)
+
+============================================================
+ Result: ALL CHECKS PASSED
+============================================================
+ Archive: /tmp/fleetd_healthcheck_vm_20261124_205558.tar.gz
+ Send this file to Fleet support.
+============================================================
+

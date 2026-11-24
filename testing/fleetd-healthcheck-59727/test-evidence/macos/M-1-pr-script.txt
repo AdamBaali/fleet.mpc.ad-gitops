@@ -1,0 +1,190 @@
+script_id=126 execution_id=a1715c7f-bd3c-4287-8c6e-665be267ebdf queued 2026-11-24T20:19:32Z
+exit_code=-1 runtime=300s host_timeout=False
+rue OSQUERY_WORKER=2158 ptr_munge= main_stack= executable_file=0x1a0100000d,0x3e59a0b dyld_file=0x1a0100000d,0xfffffff000b33ce executable_cdhash=b240140405e599ba47119e3f282767d311e0bf6e executable_boothash=3a2c67523e6d67b19c7ab7c32ddd1c86356a1cff th_port= security_config=0x0
+  [OK]    fleet-desktop is running
+    2162 /opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app/Contents/MacOS/fleet-desktop
+
+── 3. Key files and directories ────────────────────────────
+  [OK]    orbit binary: /opt/orbit/bin/orbit/orbit
+  [OK]    orbit symlink: /usr/local/bin/orbit
+  [OK]    osquery pidfile: /opt/orbit/osquery.pid
+  [INFO]  enroll secret not on disk (expected after enrollment — stored in keychain)
+  [OK]    orbit node key is non-empty (enrolled)
+
+── 4. LaunchDaemon configuration (redacted) ────────────────
+  [OK]    Collected redacted LaunchDaemon plist contents (in summary.txt)
+
+── 5. Orbit version ────────────────────────────────────────
+    orbit 1.64.0
+    commit - 593fed52311e2ef53660d648397a2397b407f3c8
+    date - 2026-11-18T20:48:10Z
+
+── 6. fleetd installation, MDM, and connectivity ──────────
+  [OK]    fleetd package receipt(s) found:
+    com.fleetdm.orbit.base.pkg
+    com.fleetdm.fleetctl
+  [INFO]  73 line(s) mentioning fleet/orbit in /var/log/install.log* (last 20 below, all in logs/install/install_log_fleet.log)
+    2026-10-07 14:37:59+02 lab-mac package_script_service[66906]: ./postinstall: Successfully bootstrap system /Library/LaunchDaemons/com.fleetdm.orbit.plist
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Writing receipt for com.fleetdm.orbit.base.pkg to /
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Touched bundle /opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Touched bundle /opt/orbit/bin/osqueryd/macos-app/stable/osquery.app
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: Installed "Fleet osquery" ()
+    2026-10-07 14:37:59+02 lab-mac installer[66903]: PackageKit: Registered bundle file:///opt/orbit/bin/desktop/macos/stable/Fleet%20Desktop.app/ for uid 0
+    2026-10-07 14:38:00+02 lab-mac installer[66903]: PackageKit: Registered bundle file:///opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/ for uid 0
+    2026-10-07 14:39:09+02 lab-mac installer[67448]: Current Path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-07 14:39:09+02 lab-mac package_script_service[66906]: Set responsibility to pid: 66917, responsible_path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-07 14:39:10+02 lab-mac package_script_service[66906]: Set responsibility to pid: 66917, responsible_path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-26 17:05:34+01 lab-mac Installer[82501]: fleetctl_v4.93.2_mac  Installation Log
+    2026-10-26 17:05:34+01 lab-mac Installer[82501]: Opened from: /Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: 	Upgrade: "fleetctl_v4.93.2_mac"
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: 		fleetctl_v4.93.2_mac.pkg : com.fleetdm.fleetctl : 4.93.2
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: -[IFDInstallController(Private) _buildInstallPlanReturningError:]: file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg
+    	    "PKLeopardPackage <id=com.fleetdm.fleetctl, version=4.93.2, url=file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg>"
+    2026-10-26 17:05:40+01 lab-mac installd[66624]: PackageKit: Will do receipt-based obsoleting for package identifier com.fleetdm.fleetctl (prefix path=)
+    2026-10-26 17:05:40+01 lab-mac installd[66624]: PackageKit: Extracting file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg (destination=/Library/InstallerSandboxes/.PKInstallSandboxManager/7C87770B-C9C8-4E20-BCBA-44BA0E6E3CE2.activeSandbox/Root, uid=0)
+    2026-10-26 17:05:41+01 lab-mac installd[66624]: PackageKit: Writing receipt for com.fleetdm.fleetctl to /
+    2026-10-26 17:05:41+01 lab-mac installd[66624]: Installed "fleetctl_v4.93.2_mac" ()
+  [OK]    Mac is MDM enrolled
+    Enrolled via DEP: No
+    MDM enrollment: Yes (User Approved)
+    MDM server: https://fleet.mpc.ad/mdm/apple/mdm
+  [INFO]  824 unified log line(s) about MDM delivery/install of fleetd in last 14d (logs/install/mdm_fleetd_delivery.log)
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+── 7. Log collection ───────────────────────────────────────
+  [OK]    Collected orbit stdout log: /var/log/orbit/orbit.stdout.log
+  [OK]    Collected orbit stderr log: /var/log/orbit/orbit.stderr.log
+  [OK]    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [OK]    Collected fleet-desktop log for user <user1>: /Users/<user1>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected fleet-desktop log for user <user2>: /Users/<user2>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected unified log entries mentioning orbit/osquery/fleet (last 72h, 824822 lines)
+
+── 8. System events, last 72h ───────────────
+  [OK]    Collected reboot/shutdown history
+  [OK]    No package installs in last 72h
+  [WARN]  launchd reports jobs with non-zero last exit status:
+    -	-9	com.apple.security.cryptexd
+    71648	-9	com.apple.modelcatalogd
+    72417	-9	com.apple.deleted_helper
+    72413	-9	com.apple.storagekitd
+    71692	-9	com.apple.ospredictiond
+    71985	-9	com.apple.mobileactivationd
+    -	-9	com.apple.seld
+    -	-9	com.apple.fpassetmanagerd
+    71717	-9	com.apple.PerfPowerTelemetryClientRegistrationService
+    71751	-9	com.apple.ecosystemd
+    -	-9	com.apple.iconservices.iconservicesagent
+    73326	-9	com.apple.symptomsd-diag
+    -	-9	com.apple.systemstats.microstackshot_periodic
+    71948	-9	com.apple.diagnosticservicesd
+    -	255	com.googlecode.munki.managedsoftwareupdate-check
+    -	-9	com.apple.griddatad
+    71944	-9	com.apple.coresymbolicationd
+    18083	-9	com.apple.AirPlayXPCHelper
+    -	-9	com.apple.accessoryaccessd
+    72407	-9	com.apple.accessoryupdaterd
+    -	-9	com.apple.sysdiagnose
+    72420	-9	com.apple.installd
+    72426	-9	com.apple.system_installd
+    73257	-9	com.apple.AppStoreDaemon.StorePrivilegedODRService
+    -	-9	com.apple.libsqlite3.dbtelemetryd
+    -	-9	com.apple.accessoryd
+    73344	-9	com.apple.memory-maintenance
+    -	-9	com.apple.applekeystored
+    -	-9	com.apple.ValidUpdater
+    71650	-9	com.apple.countryd
+    72878	-9	com.apple.online-auth-agent.xpc
+    72422	-9	com.apple.cloudd
+    -	-9	com.apple.secinitd
+    -	-9	com.apple.fskit.fskit_helper
+    -	-9	com.apple.aslmanager
+    -	-9	com.apple.hidd
+    -	-9	com.apple.kernelmanager_helper
+    -	-9	com.apple.tzlinkd
+    72415	-9	com.apple.filesystems.fskitd
+    72427	-9	com.apple.AssetCacheTetheratorService
+    38431	-9	com.apple.PowerUIAgent
+    -	-9	com.apple.corekdld
+    -	-9	com.apple.betaenrollmentd
+    -	-9	com.apple.filesystems.doubleagentd
+    -	-9	com.apple.akd
+    -	-9	com.apple.iconservices.iconservicesd
+    32344	-9	com.apple.securityd.system
+    71754	-9	com.apple.containermanagerd.system
+    -	-9	com.apple.appinstalld
+    72392	-9	com.apple.MobileSoftwareUpdate.CleanupPreparePathService
+    -	-9	com.apple.corerepaird
+    72091	-9	com.apple.logd_helper
+    68663	-9	com.apple.usbpowerd
+    -	-9	com.apple.GSSCred
+    71919	-9	com.apple.audio.systemsoundserverd
+    -	-9	com.apple.uarpd
+    72882	-9	com.apple.prngseedd
+    -	-9	com.apple.captiveagent
+    73295	-9	com.apple.aneuserd
+    72411	-9	com.apple.icloud.findmydeviced
+    -	-9	com.apple.MobileInstallationHelperService
+    73302	-9	com.apple.timezoneupdates.tzd
+    72425	-9	com.apple.AssetCache.builtin
+    71921	-9	com.apple.rtcreportingd
+    -	-9	com.apple.MobileAsset.ManifestStorageService
+    71768	-9	com.apple.sysextd
+    -	1	com.apple.wifiFirmwareLoader
+    -	-9	com.apple.ReportSystemMemory
+    71721	-9	com.apple.assetsubscriptiond
+    -	-9	com.apple.wifianalyticsd
+    -	-9	com.apple.managedappdistributiond
+    71920	-9	com.apple.audio.AudioComponentRegistrar
+    71918	-9	com.apple.audioanalyticsd
+    73304	-9	com.apple.AssetCacheLocatorService
+    72374	-9	com.apple.softwareupdated
+    -	-9	com.apple.systemadministration.writeconfig
+    -	-9	com.apple.usbaudiod
+    72384	-9	com.apple.AppSSODaemon
+    -	-9	com.apple.bootinstalld
+    73157	-9	com.apple.ReportCrash.Root
+    -	-9	com.apple.bsd.dirhelper
+    -	-9	com.apple.findmymacd
+    -	-9	com.apple.lskdd
+    -	-9	com.apple.colorsync.displayservices
+    -	-9	com.apple.endpointsecurity.endpointsecurityd
+    -	-9	com.apple.colorsyncd
+    71951	-9	com.apple.MobileFileIntegrity
+    73249	-9	com.apple.mobile.keybagd
+    72390	-9	com.apple.mobile.softwareupdated
+    72952	-9	com.apple.spindump
+    -	-9	com.apple.misagent
+    71750	-9	com.apple.ecosystemanalyticsd
+    -	-9	com.apple.remotemanagementd
+    -	-9	com.apple.deviceconfigurationd
+    -	-9	com.apple.deviceinterfaced
+    874	-9	com.apple.Kerberos.kdc
+    31932	-9	com.apple.aned
+    71738	-9	com.apple.AppleCredentialManagerDaemon
+    -	-9	com.apple.peakpowermanagerd
+    71949	-9	com.apple.osanalytics.osanalyticshelper
+    -	-9	com.apple.XProtect.daemon.scan
+    -	-9	com.apple.uarpassetmanagerd
+    35623	-9	com.apple.mobileassetd
+    -	-9	com.apple.nand.aspcarry
+    72408	-9	com.apple.liquiddetectiond
+    71652	-9	com.apple.nfcd
+    73341	-9	com.apple.dprivacyd
+    72373	-9	com.apple.backupd-helper
+    73255	-9	com.apple.installcoordinationd
+    73259	-9	com.apple.fairplaydeviceidentityd
+    71990	-9	com.apple.findmy.findmybeaconingd
+    -	-9	com.apple.ifdreader
+    73256	-9	com.apple.appstored
+    -	-9	com.apple.DataDetectorsSourceAccess
+    -	-9	com.apple.GameController.gamecontrollerd
+    -	-9	com.apple.wallpaper.export
+    -	-9	com.apple.AppStoreDaemon.StorePrivilegedTaskService
+    18000	-9	com.apple.powerexperienced
+    72419	-9	com.apple.triald.system
+    -	-9	com.apple.AssetCacheManagerService
+    73290	-9	com.apple.cloudtelemetryd
+    69165	-9	com.apple.sandboxd
+    35716	-9	com.apple.sysmond
+
+script execution error: signal: killed

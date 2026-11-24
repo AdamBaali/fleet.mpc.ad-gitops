@@ -1,0 +1,183 @@
+script_id=127 execution_id=404d53e5-8475-478b-8b8b-f2934d855dda queued 2026-11-24T21:05:29Z
+exit_code=1 runtime=0s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      lab-mac
+ Date:      Tue Nov 24 22:05:38 CET 2026
+ macOS:     macOS 27.2.1 (26B131)
+ Kernel:    27.2.0
+============================================================
+
+── 1. LaunchDaemon (com.fleetdm.orbit) ─────────────────
+  [0;32m[OK][0m    LaunchDaemon plist found: /Library/LaunchDaemons/com.fleetdm.orbit.plist
+  [0;32m[OK][0m    com.fleetdm.orbit is running
+  [0;32m[OK][0m    RunAtLoad is true — will start on boot
+  [INFO]  KeepAlive: true
+
+── 2. Processes ────────────────────────────────────────────
+  [0;32m[OK][0m    orbit is running
+    1232
+  [0;32m[OK][0m    osqueryd is running
+    2155
+2158
+  [0;32m[OK][0m    fleet-desktop is running
+    2162
+
+── 3. Key files and directories ────────────────────────────
+  [0;32m[OK][0m    orbit binary: /opt/orbit/bin/orbit/orbit
+  [0;32m[OK][0m    orbit symlink: /usr/local/bin/orbit
+  [0;32m[OK][0m    osquery pidfile: /opt/orbit/osquery.pid
+  [INFO]  enroll secret not on disk (expected after enrollment — stored in keychain)
+  [0;32m[OK][0m    orbit node key is non-empty (enrolled)
+
+── 4. LaunchDaemon configuration (redacted) ────────────────
+  [0;32m[OK][0m    Collected redacted LaunchDaemon plist contents
+
+── 5. Orbit version ────────────────────────────────────────
+  [1;33m[WARN][0m  orbit not found on PATH (/usr/local/bin/orbit missing or not in PATH)
+
+── 6. Log collection ───────────────────────────────────────
+  [0;32m[OK][0m    Collected orbit stdout log: /var/log/orbit/orbit.stdout.log
+  [0;32m[OK][0m    Collected orbit stderr log: /var/log/orbit/orbit.stderr.log
+  [0;32m[OK][0m    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [0;32m[OK][0m    Collected fleet-desktop log for user <user1>: /Users/<user1>/Library/Logs/Fleet/fleet-desktop.log
+  [0;32m[OK][0m    Collected fleet-desktop log for user <user2>: /Users/<user2>/Library/Logs/Fleet/fleet-desktop.log
+  [0;32m[OK][0m    Collected unified log entries mentioning orbit/osquery/fleet (last 72h)
+
+── 7. System events, last 72h ───────────────
+  [0;32m[OK][0m    Collected reboot/shutdown history
+/tmp/fleet-404d53e5-8475-478b-8b8b-f2934d855dda-2264616459/script: line 304: [[: 0
+0: syntax error in expression (error token is "0")
+  [0;32m[OK][0m    No installer activity in last 72h
+  [1;33m[WARN][0m  launchd reports jobs with non-zero last exit status:
+    -	-9	com.apple.security.cryptexd
+    71648	-9	com.apple.modelcatalogd
+    75595	-9	com.apple.deleted_helper
+    75586	-9	com.apple.storagekitd
+    71692	-9	com.apple.ospredictiond
+    71985	-9	com.apple.mobileactivationd
+    -	-9	com.apple.seld
+    -	-9	com.apple.fpassetmanagerd
+    -	-9	com.apple.PerfPowerTelemetryClientRegistrationService
+    -	-9	com.apple.ecosystemd
+    -	-9	com.apple.iconservices.iconservicesagent
+    -	-9	com.apple.symptomsd-diag
+    -	-9	com.apple.systemstats.microstackshot_periodic
+    -	-9	com.apple.diagnosticservicesd
+    -	255	com.googlecode.munki.managedsoftwareupdate-check
+    -	-9	com.apple.griddatad
+    75621	-9	com.apple.coresymbolicationd
+    75568	-9	com.apple.AirPlayXPCHelper
+    -	-9	com.apple.accessoryaccessd
+    72407	-9	com.apple.accessoryupdaterd
+    -	-9	com.apple.sysdiagnose
+    75602	-9	com.apple.installd
+    75600	-9	com.apple.system_installd
+    -	-9	com.apple.AppStoreDaemon.StorePrivilegedODRService
+    -	-9	com.apple.libsqlite3.dbtelemetryd
+    -	-9	com.apple.accessoryd
+    -	-9	com.apple.memory-maintenance
+    -	-9	com.apple.applekeystored
+    -	-9	com.apple.ValidUpdater
+    75556	-9	com.apple.countryd
+    75569	-9	com.apple.online-auth-agent.xpc
+    75598	-9	com.apple.cloudd
+    -	-9	com.apple.secinitd
+    -	-9	com.apple.fskit.fskit_helper
+    -	-9	com.apple.aslmanager
+    -	-9	com.apple.hidd
+    -	-9	com.apple.kernelmanager_helper
+    -	-9	com.apple.tzlinkd
+    75591	-9	com.apple.filesystems.fskitd
+    75610	-9	com.apple.AssetCacheTetheratorService
+    38431	-9	com.apple.PowerUIAgent
+    -	-9	com.apple.corekdld
+    -	-9	com.apple.betaenrollmentd
+    -	-9	com.apple.filesystems.doubleagentd
+    -	-9	com.apple.akd
+    75348	-9	com.apple.iconservices.iconservicesd
+    32344	-9	com.apple.securityd.system
+    71754	-9	com.apple.containermanagerd.system
+    -	-9	com.apple.appinstalld
+    -	-9	com.apple.MobileSoftwareUpdate.CleanupPreparePathService
+    -	-9	com.apple.corerepaird
+    75590	-9	com.apple.logd_helper
+    68663	-9	com.apple.usbpowerd
+    -	-9	com.apple.GSSCred
+    -	-9	com.apple.audio.systemsoundserverd
+    -	-9	com.apple.uarpd
+    75570	-9	com.apple.prngseedd
+    -	-9	com.apple.captiveagent
+    75834	-9	com.apple.aneuserd
+    72411	-9	com.apple.icloud.findmydeviced
+    -	-9	com.apple.MobileInstallationHelperService
+    -	-9	com.apple.timezoneupdates.tzd
+    75599	-9	com.apple.AssetCache.builtin
+    71921	-9	com.apple.rtcreportingd
+    -	-9	com.apple.MobileAsset.ManifestStorageService
+    -	-9	com.apple.sysextd
+    -	1	com.apple.wifiFirmwareLoader
+    -	-9	com.apple.ReportSystemMemory
+    -	-9	com.apple.assetsubscriptiond
+    -	-9	com.apple.wifianalyticsd
+    -	-9	com.apple.managedappdistributiond
+    -	-9	com.apple.audio.AudioComponentRegistrar
+    73705	-9	com.apple.audioanalyticsd
+    -	-9	com.apple.AssetCacheLocatorService
+    -	-9	com.apple.softwareupdated
+    -	-9	com.apple.systemadministration.writeconfig
+    -	-9	com.apple.usbaudiod
+    72384	-9	com.apple.AppSSODaemon
+    -	-9	com.apple.bootinstalld
+    75623	-9	com.apple.ReportCrash.Root
+    -	-9	com.apple.bsd.dirhelper
+    -	-9	com.apple.findmymacd
+    -	-9	com.apple.lskdd
+    -	-9	com.apple.colorsync.displayservices
+    -	-9	com.apple.endpointsecurity.endpointsecurityd
+    -	-9	com.apple.colorsyncd
+    71951	-9	com.apple.MobileFileIntegrity
+    73249	-9	com.apple.mobile.keybagd
+    -	-9	com.apple.mobile.softwareupdated
+    -	-9	com.apple.spindump
+    -	-9	com.apple.misagent
+    -	-9	com.apple.ecosystemanalyticsd
+    -	-9	com.apple.remotemanagementd
+    -	-9	com.apple.deviceconfigurationd
+    -	-9	com.apple.deviceinterfaced
+    874	-9	com.apple.Kerberos.kdc
+    31932	-9	com.apple.aned
+    71738	-9	com.apple.AppleCredentialManagerDaemon
+    -	-9	com.apple.peakpowermanagerd
+    71949	-9	com.apple.osanalytics.osanalyticshelper
+    -	-9	com.apple.XProtect.daemon.scan
+    -	-9	com.apple.uarpassetmanagerd
+    35623	-9	com.apple.mobileassetd
+    -	-9	com.apple.nand.aspcarry
+    72408	-9	com.apple.liquiddetectiond
+    75540	-9	com.apple.nfcd
+    -	-9	com.apple.dprivacyd
+    73612	-9	com.apple.backupd-helper
+    -	-9	com.apple.installcoordinationd
+    -	-9	com.apple.fairplaydeviceidentityd
+    75787	-9	com.apple.findmy.findmybeaconingd
+    -	-9	com.apple.ifdreader
+    73256	-9	com.apple.appstored
+    -	-9	com.apple.DataDetectorsSourceAccess
+    -	-9	com.apple.GameController.gamecontrollerd
+    -	-9	com.apple.wallpaper.export
+    -	-9	com.apple.AppStoreDaemon.StorePrivilegedTaskService
+    73609	-9	com.apple.powerexperienced
+    75596	-9	com.apple.triald.system
+    -	-9	com.apple.AssetCacheManagerService
+    73290	-9	com.apple.cloudtelemetryd
+    75647	-9	com.apple.sandboxd
+    35716	-9	com.apple.sysmond
+  [1;33m[WARN][0m         1 error/fault-level log line(s) in last 72h (see log_errors.log)
+
+── 8. Packaging archive ────────────────────────────────────
+  [INFO]  Archive created: /tmp/fleetd_healthcheck_lab-mac_20261124_220538.tar.gz
+tee: /tmp/fleetd_healthcheck_lab-mac_20261124_220538.6wfnCM/summary.txt: No such file or directory
+
+
+script execution error: exit status 1
