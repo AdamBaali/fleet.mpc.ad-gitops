@@ -147,8 +147,9 @@ fi
 out ""
 out "── 2. Processes ────────────────────────────────────────────"
 
-# PID and executable only: command lines can be very long, and a manually
-# started orbit can carry --enroll-secret. macOS `ps -o comm=` prints the full path.
+# PID and executable only. On macOS, `pgrep -l`/`ps -o args` can also show a
+# process's environment, and osqueryd's includes ENROLL_SECRET.
+# macOS `ps -o comm=` prints the full executable path.
 show_pids() {
   local pid
   for pid in $1; do ps -o pid=,comm= -p "${pid}" 2>/dev/null; done | sed 's/^ *//' | indent
@@ -158,7 +159,9 @@ check_process() {
   local label="$1"
   local pattern="$2"
   local pids
-  pids=$(pgrep -f "${pattern}" 2>/dev/null || true)
+  # -a: macOS pgrep skips its own ancestors by default, and when Fleet runs this
+  # script, orbit is an ancestor.
+  pids=$(pgrep -a -f "${pattern}" 2>/dev/null || true)
   if [[ -n "${pids}" ]]; then
     ok "${label} is running"
     show_pids "${pids}"
@@ -176,12 +179,18 @@ check_process "orbit"    "$(dirname "${ORBIT_BIN}")/"
 # another vendor's agent) must not count as fleetd being healthy.
 check_process "osqueryd (fleetd)" "${ORBIT_ROOT}/bin/osqueryd/"
 
-# Two steps, not a pipe: a concurrent `grep ... osqueryd` would match itself.
-ALL_OSQUERYD=$(pgrep -lf "osqueryd" 2>/dev/null || true)
-OTHER_OSQUERYD=$(printf '%s\n' "${ALL_OSQUERYD}" | grep -v -e "${ORBIT_ROOT}/bin/osqueryd/" -e '^$' || true)
-if [[ -n "${OTHER_OSQUERYD}" ]]; then
+# Decide by executable path, not command line: osqueryd's command line output
+# on macOS can include its environment, ENROLL_SECRET among it.
+OTHER_OSQUERYD=""
+for pid in $(pgrep -x osqueryd 2>/dev/null || true); do
+  case "$(ps -o comm= -p "${pid}" 2>/dev/null)" in
+    "${ORBIT_ROOT}/bin/osqueryd/"*) ;;
+    *) OTHER_OSQUERYD="${OTHER_OSQUERYD} ${pid}" ;;
+  esac
+done
+if [[ -n "${OTHER_OSQUERYD// /}" ]]; then
   warn "osqueryd running from outside ${ORBIT_ROOT} (another osquery install?):"
-  show_pids "$(printf '%s\n' "${OTHER_OSQUERYD}" | awk '{print $1}')"
+  show_pids "${OTHER_OSQUERYD}"
 fi
 
 # fleet-desktop: only present if package was built with --fleet-desktop;
