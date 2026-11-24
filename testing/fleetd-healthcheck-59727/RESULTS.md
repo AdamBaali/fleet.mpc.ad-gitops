@@ -119,3 +119,10 @@ path, systemd-style parsing of `/etc/default/orbit`, `ORBIT_INSECURE` read as or
 `ALL CHECKS PASSED` with exit code 0 (4 s, 1 s, 44 s). On the Ubuntu host, an env file with quoted values,
 `ORBIT_INSECURE=1`, and the enroll secret split across a backslash continuation gave a redacted secret in both the output
 and the archive, and `--cacert` plus `-k` on the probe.
+
+## M-7, L-5 Unchecked success messages
+## Result: PASS
+[M-7](test-evidence/macos/M-7-unchecked-ok.txt), [L-5](test-evidence/linux/L-5-unchecked-ok.txt). Removing `set -e`
+left steps that printed "Collected" or "Grepped" whatever the command before them returned. An audit of both shell
+scripts found four more besides the Fleet Desktop copy that review flagged: the plist read (macOS), `last` (both) and
+the syslog grep (Linux). Each now checks its result. Both hosts still report `ALL CHECKS PASSED`, exit 0 (44 s, 1 s).

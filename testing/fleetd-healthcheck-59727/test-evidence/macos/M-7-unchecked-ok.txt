@@ -1,0 +1,96 @@
+script_id=126 execution_id=bd2e851f-779b-424c-af29-db3abab746a7 queued 2026-11-24T21:58:15Z
+exit_code=0 runtime=44s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      lab-mac
+ Date:      Tue Nov 24 22:58:33 CET 2026
+ macOS:     macOS 27.2.1 (26B131)
+ Kernel:    27.2.0
+ Serial:    <serial>
+============================================================
+
+── 1. LaunchDaemon (com.fleetdm.orbit) ─────────────────
+  [OK]    LaunchDaemon plist found: /Library/LaunchDaemons/com.fleetdm.orbit.plist
+  [OK]    com.fleetdm.orbit is running
+  [OK]    RunAtLoad is true — will start on boot
+  [INFO]  KeepAlive: true
+
+── 2. Processes ────────────────────────────────────────────
+  [OK]    orbit is running
+    1232 /opt/orbit/bin/orbit/orbit
+  [OK]    osqueryd (fleetd) is running
+    2155 /opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/Contents/MacOS/osqueryd
+    2158 /opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/Contents/MacOS/osqueryd
+  [OK]    fleet-desktop is running
+    2162 /opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app/Contents/MacOS/fleet-desktop
+
+── 3. Key files and directories ────────────────────────────
+  [OK]    orbit binary: /opt/orbit/bin/orbit/orbit
+  [OK]    orbit symlink: /usr/local/bin/orbit
+  [OK]    osquery pidfile: /opt/orbit/osquery.pid
+  [INFO]  enroll secret not on disk (expected after enrollment — stored in keychain)
+  [OK]    orbit node key is non-empty (enrolled)
+
+── 4. LaunchDaemon configuration (redacted) ────────────────
+  [OK]    Collected redacted LaunchDaemon plist contents (in summary.txt)
+
+── 5. Orbit version ────────────────────────────────────────
+    orbit 1.64.0
+    commit - 593fed52311e2ef53660d648397a2397b407f3c8
+    date - 2026-11-18T20:48:10Z
+
+── 6. fleetd installation, MDM, and connectivity ──────────
+  [OK]    fleetd package receipt(s) found:
+    com.fleetdm.orbit.base.pkg
+    com.fleetdm.fleetctl
+  [INFO]  73 line(s) mentioning fleet/orbit in /var/log/install.log* (last 20 below, all in logs/install/install_log_fleet.log)
+    2026-10-07 14:37:59+02 lab-mac package_script_service[66906]: ./postinstall: Successfully bootstrap system /Library/LaunchDaemons/com.fleetdm.orbit.plist
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Writing receipt for com.fleetdm.orbit.base.pkg to /
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Touched bundle /opt/orbit/bin/desktop/macos/stable/Fleet Desktop.app
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: PackageKit: Touched bundle /opt/orbit/bin/osqueryd/macos-app/stable/osquery.app
+    2026-10-07 14:37:59+02 lab-mac installd[38845]: Installed "Fleet osquery" ()
+    2026-10-07 14:37:59+02 lab-mac installer[66903]: PackageKit: Registered bundle file:///opt/orbit/bin/desktop/macos/stable/Fleet%20Desktop.app/ for uid 0
+    2026-10-07 14:38:00+02 lab-mac installer[66903]: PackageKit: Registered bundle file:///opt/orbit/bin/osqueryd/macos-app/stable/osquery.app/ for uid 0
+    2026-10-07 14:39:09+02 lab-mac installer[67448]: Current Path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-07 14:39:09+02 lab-mac package_script_service[66906]: Set responsibility to pid: 66917, responsible_path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-07 14:39:10+02 lab-mac package_script_service[66906]: Set responsibility to pid: 66917, responsible_path: /opt/orbit/bin/orbit/macos/stable/orbit
+    2026-10-26 17:05:34+01 lab-mac Installer[82501]: fleetctl_v4.93.2_mac  Installation Log
+    2026-10-26 17:05:34+01 lab-mac Installer[82501]: Opened from: /Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: 	Upgrade: "fleetctl_v4.93.2_mac"
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: 		fleetctl_v4.93.2_mac.pkg : com.fleetdm.fleetctl : 4.93.2
+    2026-10-26 17:05:40+01 lab-mac Installer[82501]: -[IFDInstallController(Private) _buildInstallPlanReturningError:]: file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg
+    	    "PKLeopardPackage <id=com.fleetdm.fleetctl, version=4.93.2, url=file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg>"
+    2026-10-26 17:05:40+01 lab-mac installd[66624]: PackageKit: Will do receipt-based obsoleting for package identifier com.fleetdm.fleetctl (prefix path=)
+    2026-10-26 17:05:40+01 lab-mac installd[66624]: PackageKit: Extracting file://localhost/Users/<user1>/Downloads/fleetctl_v4.93.2_mac.pkg (destination=/Library/InstallerSandboxes/.PKInstallSandboxManager/7C87770B-C9C8-4E20-BCBA-44BA0E6E3CE2.activeSandbox/Root, uid=0)
+    2026-10-26 17:05:41+01 lab-mac installd[66624]: PackageKit: Writing receipt for com.fleetdm.fleetctl to /
+    2026-10-26 17:05:41+01 lab-mac installd[66624]: Installed "fleetctl_v4.93.2_mac" ()
+  [OK]    Mac is MDM enrolled
+    Enrolled via DEP: No
+    MDM enrollment: Yes (User Approved)
+    MDM server: https://fleet.mpc.ad/mdm/apple/mdm
+  [INFO]  841 unified log line(s) about MDM delivery/install of fleetd in last 14d (logs/install/mdm_fleetd_delivery.log)
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+── 7. Log collection ───────────────────────────────────────
+  [OK]    Collected orbit stdout log: /var/log/orbit/orbit.stdout.log
+  [OK]    Collected orbit stderr log: /var/log/orbit/orbit.stderr.log
+  [OK]    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [OK]    Collected fleet-desktop log for user <user1>: /Users/<user1>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected fleet-desktop log for user <user2>: /Users/<user2>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected unified log entries from fleetd processes (last 72h, 362890 lines)
+
+── 8. System events, last 72h ───────────────
+  [OK]    Collected reboot/shutdown history
+  [OK]    No package installs in last 72h
+  [WARN]  launchd reports jobs with non-zero last exit status:
+    -	255	com.googlecode.munki.managedsoftwareupdate-check
+    -	1	com.apple.wifiFirmwareLoader
+  [INFO]  80 error/fault-level log line(s) from fleetd processes in last 72h (see fleetd_errors.log)
+
+============================================================
+ Result: ALL CHECKS PASSED
+============================================================
+ Archive: /tmp/fleetd_healthcheck_lab-mac_20261124_225833.tar.gz
+ Send this file to Fleet support.
+============================================================
+
