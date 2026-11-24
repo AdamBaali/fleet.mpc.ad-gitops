@@ -104,3 +104,9 @@ no logs are collected, prints `0 0: syntax error in expression`, raw colour code
 | Processes running from `/opt/orbit/` (final) | 15 s | 362,897 |
 | Error/fault, whole system | 108 s | 1,221,263 |
 | Error/fault, fleetd processes only (final) | 9 s | 79 |
+
+## T-8 Windows, after the --insecure fix
+## Result: PASS
+[test-evidence/windows/T-8-insecure-flag.txt](test-evidence/windows/T-8-insecure-flag.txt). `--insecure="False"` no
+longer counts as insecure mode. Host 37 has no `--insecure`, so its result is unchanged: `ALL CHECKS PASSED`, exit 0.
+The final GitOps copies of all three scripts are identical to the pull request head.
