@@ -1,0 +1,70 @@
+script_id=121 execution_id=1989b172-2221-4fdf-83c0-6e3fd280e2ec queued 2026-11-24T18:05:37Z
+exit_code=1 runtime=7s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      DESKTOP-6OUEH8Q
+ Date:      11/24/2026 10:05:57
+ OS:        Microsoft Windows 11 Pro
+============================================================
+
+-- 1. Windows service ("Fleet osquery") --------------------
+  [OK]    Fleet osquery is running
+  [OK]    Fleet osquery start mode is Automatic
+
+-- 2. Processes ---------------------------------------------
+  [OK]    orbit is running
+  [OK]    osqueryd is running
+  [WARN]  fleet-desktop is NOT running (expected if not packaged with --fleet-desktop)
+
+-- 3. Key files, directories, and registry -------------------
+  [OK]    Orbit root directory: C:\Program Files\Orbit
+  [OK]    osquery pidfile: C:\Program Files\Orbit\osquery.pid
+  [OK]    orbit node key: C:\Program Files\Orbit\secret-orbit-node-key.txt
+  [FAIL]  enroll secret not found: C:\Program Files\Orbit\secret.txt
+  [OK]    orbit binary: C:\Program Files\Orbit\bin\orbit\orbit.exe
+  [OK]    osqueryd binary: C:\Program Files\Orbit\bin\osqueryd\windows-arm64\stable\osqueryd.exe
+  [OK]    orbit node key is non-empty (enrolled)
+  [WARN]  Registry key not found: HKLM:\SOFTWARE\FleetDM\Orbit
+
+-- 4. Service configuration (redacted) ------------------------
+    "C:\Program Files\Orbit\bin\orbit\orbit.exe"
+    Environment:
+      ORBIT_ROOT_DIR=C:\Program Files\Orbit\.
+      ORBIT_LOG_FILE=C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+      ORBIT_FLEET_URL=https://fleet.mpc.ad
+      ORBIT_ENROLL_SECRET_PATH=C:\Program Files\Orbit\secret.txt
+      ORBIT_UPDATE_URL=https://updates.fleetdm.com
+      ORBIT_UPDATE_INTERVAL=15m0s
+      ORBIT_FLEET_DESKTOP=False
+      ORBIT_DESKTOP_CHANNEL=stable
+      ORBIT_ORBIT_CHANNEL=stable
+      ORBIT_OSQUERYD_CHANNEL=stable
+      ORBIT_ENABLE_SCRIPTS=True
+      ORBIT_END_USER_EMAIL=dummy
+      ORBIT_EUA_TOKEN=<redacted>
+
+-- 5. Orbit version --------------------------------------------
+  [INFO]  orbit 1.64.0
+commit - 593fed52311e2ef53660d648397a2397b407f3c8
+date - 2026-11-18T20:48:42Z
+
+-- 6. Log collection ---------------------------------------------
+  [OK]    Collected orbit/osquery log: C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+  [OK]    Collected osquery filesystem logger directory: C:\Program Files\Orbit\osquery_log
+  [WARN]  No fleet-desktop.log found under any user profile (expected if fleet-desktop is not installed)
+  [OK]    Collected 7 System/Application event(s) mentioning orbit/osquery/fleet
+
+-- 7. System events, last 72h -----------------------
+  [OK]    Collected reboot/shutdown history
+  [WARN]  18 install/uninstall event(s) in last 72h
+  [WARN]  6 Automatic-start service(s) not running:
+  [WARN]  13 error-level event(s) in last 72h (see error_events.csv)
+
+-- 8. Packaging archive ----------------------------------------
+============================================================
+ Result: ONE OR MORE CHECKS FAILED -- review summary above
+ Archive: C:\WINDOWS\TEMP\fleetd_healthcheck_DESKTOP-6OUEH8Q_20261124_100556.zip
+============================================================
+  [INFO]  Archive created: C:\WINDOWS\TEMP\fleetd_healthcheck_DESKTOP-6OUEH8Q_20261124_100556.zip
+
+script execution error: exit status 1

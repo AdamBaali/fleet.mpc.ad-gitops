@@ -29,7 +29,8 @@ changes these Windows results:
 | T-2 | Scripts saved | Merge, let GitOps apply, list scripts in fleet 15 | Both scripts listed | `run-script.sh` finds both by name |
 | T-3 | Negative control | `tools/run-script.sh 37 fleetd-healthcheck-main.ps1` | `[FAIL] enroll secret not found`, `[WARN] Registry key not found` | Both lines in the output |
 | T-4 | Pull request version | `tools/run-script.sh 37 fleetd-healthcheck.ps1` | No `[FAIL]` lines; `secret.txt` and registry lines are `[INFO]`; MDM section lists the enrollment; Fleet server reachable; `Result: ALL CHECKS PASSED`; exit code 0 | All true |
-| T-5 | Archive | Live query `C:\Windows\SystemTemp\fleetd_healthcheck_*.zip` after T-4 | One archive from the T-4 run | Row present with the T-4 time |
+| T-4b | MDM enrollment filter | Re-run T-4 after the filter fix | MDM section lists only the Fleet enrollment | No "Authority" lines |
+| T-5 | Archive | List `C:\Windows\Temp\fleetd_healthcheck_*` after T-4 | One archive per run, no leftover work folders | Archives present with the run times |
 
 ## Out of scope / not tested
 - Running by hand in an elevated session (no console access from the cloud session). Do it on the VM over VNC if needed.

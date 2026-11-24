@@ -18,4 +18,4 @@ Host 37: QEMU VM `mig1` on the lab Mac, shared with another test. Don't shut it 
 ## Teardown
 - Remove the two `controls.scripts` entries from `fleets/device-ids-lab.yml` and delete both scripts from
   `lib/windows/scripts/`.
-- Delete `C:\Windows\SystemTemp\fleetd_healthcheck_*.zip` on host 37.
+- Delete `C:\Windows\Temp\fleetd_healthcheck_*.zip` on host 37.
