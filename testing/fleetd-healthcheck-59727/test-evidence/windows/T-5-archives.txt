@@ -1,0 +1,31 @@
+exit_code=0 host_timeout=false
+
+Name                                                   Length LastWriteUtc        Type
+----                                                   ------ ------------        ----
+fleetd_healthcheck_DESKTOP-6OUEH8Q_20261124_100556.zip  14252 2026-11-24T18:06:01 file
+fleetd_healthcheck_DESKTOP-6OUEH8Q_20261124_100626.zip  16317 2026-11-24T18:06:30 file
+
+
+
+
+FullName                                               Length
+--------                                               ------
+logs\event_log\orbit_osquery_fleet_events.csv            1620
+logs\mdm\dsregcmd_status.txt                             2311
+logs\mdm\mdm_admin_events.csv                            5705
+logs\orbit\orbit-osquery.log                            35423
+logs\osquery_log\osqueryd.INFO.20261123-040851.1356      8181
+logs\osquery_log\osqueryd.INFO.20261124-175048.6792       790
+logs\osquery_log\osqueryd.results.log                       0
+logs\osquery_log\osqueryd.snapshots.log                 27546
+logs\osquery_log\osqueryd.WARNING.20261123-040900.1356    510
+logs\osquery_log\osqueryd.WARNING.20261124-095100.6792    299
+logs\system_events\error_events.csv                      4149
+logs\system_events\msi_install_events.csv                3198
+logs\system_events\reboots.csv                           1272
+logs\system_events\stopped_auto_services.csv              447
+summary.txt                                              6387
+
+
+
+
