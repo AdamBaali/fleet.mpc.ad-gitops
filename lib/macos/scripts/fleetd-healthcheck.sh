@@ -168,7 +168,9 @@ check_process() {
   fi
 }
 
-check_process "orbit"    "${ORBIT_BIN}"
+# After an auto-update, orbit runs from bin/orbit/<platform>/<channel>/orbit,
+# not the bin/orbit/orbit path in the LaunchDaemon, so match the folder.
+check_process "orbit"    "$(dirname "${ORBIT_BIN}")/"
 
 # Match orbit's own osqueryd only: another osquery install (standalone osquery,
 # another vendor's agent) must not count as fleetd being healthy.

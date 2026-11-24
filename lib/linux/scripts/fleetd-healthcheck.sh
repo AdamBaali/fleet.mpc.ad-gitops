@@ -120,7 +120,9 @@ check_process() {
 
 # orbit binary path is /opt/orbit/bin/orbit/orbit
 # Source: linux_shared.go ExecStart=/opt/orbit/bin/orbit/orbit
-check_process "orbit"        "/opt/orbit/bin/orbit/orbit"
+# After an auto-update, orbit can run from bin/orbit/<platform>/<channel>/orbit,
+# so match the folder rather than the bin/orbit/orbit launcher path.
+check_process "orbit"        "/opt/orbit/bin/orbit/"
 
 # Match orbit's own osqueryd only: another osquery install must not count as
 # fleetd being healthy.
