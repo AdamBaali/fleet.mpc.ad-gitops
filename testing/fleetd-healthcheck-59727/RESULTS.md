@@ -110,3 +110,12 @@ no logs are collected, prints `0 0: syntax error in expression`, raw colour code
 [test-evidence/windows/T-8-insecure-flag.txt](test-evidence/windows/T-8-insecure-flag.txt). `--insecure="False"` no
 longer counts as insecure mode. Host 37 has no `--insecure`, so its result is unchanged: `ALL CHECKS PASSED`, exit 0.
 The final GitOps copies of all three scripts are identical to the pull request head.
+
+## T-9, L-4, M-6 Second review round
+## Result: PASS
+[T-9](test-evidence/windows/T-9-review2.txt), [L-4](test-evidence/linux/L-4-review2.txt),
+[M-6](test-evidence/macos/M-6-review2.txt). After the second round of review fixes (processes confirmed by executable
+path, systemd-style parsing of `/etc/default/orbit`, `ORBIT_INSECURE` read as orbit reads it), all three hosts report
+`ALL CHECKS PASSED` with exit code 0 (4 s, 1 s, 44 s). On the Ubuntu host, an env file with quoted values,
+`ORBIT_INSECURE=1`, and the enroll secret split across a backslash continuation gave a redacted secret in both the output
+and the archive, and `--cacert` plus `-k` on the probe.
