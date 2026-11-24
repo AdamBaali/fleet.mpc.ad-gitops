@@ -11,6 +11,8 @@ controls:
   scripts:
     - path: ../lib/windows/scripts/fleetd-healthcheck.ps1
     - path: ../lib/windows/scripts/fleetd-healthcheck-main.ps1
+    # Run on a Docker Ubuntu host enrolled here for this test only.
+    - path: ../lib/linux/scripts/fleetd-healthcheck.sh
 software:
 settings:
   secrets:
