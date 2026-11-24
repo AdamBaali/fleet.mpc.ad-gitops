@@ -35,7 +35,9 @@ One flaw: the MDM section also listed the built-in Local, Cloud and Deploy Autho
 `ProviderID` but no server URL. The pull request now lists only entries with a server URL. T-4b re-runs it.
 
 ## T-4b MDM enrollment filter
-## Result: NOT-RUN
+## Result: PASS
+[test-evidence/windows/T-4b-pr-script-mdm-filter.txt](test-evidence/windows/T-4b-pr-script-mdm-filter.txt). After the fix,
+the MDM section lists only the Fleet enrollment. Still `ALL CHECKS PASSED`, exit code 0.
 
 ## T-5 Archive
 ## Result: PASS
