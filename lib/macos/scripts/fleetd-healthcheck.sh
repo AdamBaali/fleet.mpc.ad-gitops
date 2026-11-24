@@ -147,16 +147,21 @@ fi
 out ""
 out "── 2. Processes ────────────────────────────────────────────"
 
-# macOS pgrep has no Linux-style -a (on macOS -a means "include ancestors");
-# -l -f prints PID plus full command line.
+# PID and executable only: command lines can be very long, and a manually
+# started orbit can carry --enroll-secret. macOS `ps -o comm=` prints the full path.
+show_pids() {
+  local pid
+  for pid in $1; do ps -o pid=,comm= -p "${pid}" 2>/dev/null; done | sed 's/^ *//' | indent
+}
+
 check_process() {
   local label="$1"
   local pattern="$2"
-  local result
-  result=$(pgrep -lf "${pattern}" 2>/dev/null || true)
-  if [[ -n "${result}" ]]; then
+  local pids
+  pids=$(pgrep -f "${pattern}" 2>/dev/null || true)
+  if [[ -n "${pids}" ]]; then
     ok "${label} is running"
-    echo "${result}" | indent
+    show_pids "${pids}"
   else
     fail "${label} is NOT running (pattern: ${pattern})"
     OVERALL_EXIT=1
@@ -174,15 +179,15 @@ ALL_OSQUERYD=$(pgrep -lf "osqueryd" 2>/dev/null || true)
 OTHER_OSQUERYD=$(printf '%s\n' "${ALL_OSQUERYD}" | grep -v -e "${ORBIT_ROOT}/bin/osqueryd/" -e '^$' || true)
 if [[ -n "${OTHER_OSQUERYD}" ]]; then
   warn "osqueryd running from outside ${ORBIT_ROOT} (another osquery install?):"
-  echo "${OTHER_OSQUERYD}" | indent
+  show_pids "$(printf '%s\n' "${OTHER_OSQUERYD}" | awk '{print $1}')"
 fi
 
 # fleet-desktop: only present if package was built with --fleet-desktop;
 # started by orbit itself rather than its own LaunchAgent
-DESKTOP_PROCS=$(pgrep -lf "fleet-desktop" 2>/dev/null || true)
-if [[ -n "${DESKTOP_PROCS}" ]]; then
+DESKTOP_PIDS=$(pgrep -f "fleet-desktop" 2>/dev/null || true)
+if [[ -n "${DESKTOP_PIDS}" ]]; then
   ok "fleet-desktop is running"
-  echo "${DESKTOP_PROCS}" | indent
+  show_pids "${DESKTOP_PIDS}"
 else
   warn "fleet-desktop is NOT running (expected if not packaged with --fleet-desktop)"
 fi
@@ -413,16 +418,17 @@ if [[ "${DESKTOP_LOGS_FOUND}" -eq 0 ]]; then
   warn "No fleet-desktop.log found under any user's Library/Logs/Fleet (expected if fleet-desktop is not installed)"
 fi
 
-# Unified log entries mentioning orbit/osquery/fleet in the lookback window.
-# `log show` over a wide window can take a while and produce a large file, so
-# this is bounded to the same LOOKBACK_HOURS as the system-events section.
+# Unified log entries from fleetd's own processes (orbit, osqueryd,
+# fleet-desktop all run from /opt/orbit). Matching message text instead
+# ("fleet", "osquery") pulls in most of the system log: about 800,000 lines and
+# several minutes for 72h on a lab Mac, past Fleet's script timeout.
 mkdir -p "${WORK_DIR}/logs/unified_log"
-UNIFIED_LOG="${WORK_DIR}/logs/unified_log/orbit_osquery_fleet.log"
-if "${LOG_BIN}" show --predicate 'eventMessage CONTAINS[c] "orbit" OR eventMessage CONTAINS[c] "osquery" OR eventMessage CONTAINS[c] "fleet"' \
+UNIFIED_LOG="${WORK_DIR}/logs/unified_log/fleetd.log"
+if "${LOG_BIN}" show --predicate "processImagePath BEGINSWITH \"${ORBIT_ROOT}/\" OR senderImagePath BEGINSWITH \"${ORBIT_ROOT}/\"" \
     --style syslog --last "${LOOKBACK_HOURS}h" > "${UNIFIED_LOG}" 2>&1; then
-  ok "Collected unified log entries mentioning orbit/osquery/fleet (last ${LOOKBACK_HOURS}h, $(wc -l < "${UNIFIED_LOG}" | tr -d ' ') lines)"
+  ok "Collected unified log entries from fleetd processes (last ${LOOKBACK_HOURS}h, $(wc -l < "${UNIFIED_LOG}" | tr -d ' ') lines)"
 else
-  warn "Failed to query unified log (log show) — see unified_log/orbit_osquery_fleet.log for details"
+  warn "Failed to query unified log (log show) — see unified_log/fleetd.log for details"
 fi
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -460,8 +466,9 @@ else
 fi
 
 # launchd jobs with a non-zero last exit status (unrelated failures often
-# explain "it stopped working")
-FAILED_JOBS=$(launchctl list | awk 'NR>1 && $2 != "0" && $2 != "-" {print}' || true)
+# explain "it stopped working"). -9 and -15 are launchd stopping idle on-demand
+# daemons, which is normal: a lab Mac listed over 100 of them.
+FAILED_JOBS=$(launchctl list | awk 'NR>1 && $2 != "0" && $2 != "-" && $2 != "-9" && $2 != "-15" {print}' || true)
 echo "${FAILED_JOBS}" > "${SYSEV_DIR}/launchd_failed_jobs.log"
 if [[ -n "${FAILED_JOBS}" ]]; then
   warn "launchd reports jobs with non-zero last exit status:"
@@ -470,25 +477,27 @@ else
   ok "No launchd jobs with a non-zero last exit status"
 fi
 
-# Unified log errors/faults in the window
-if "${LOG_BIN}" show --predicate 'messageType == error OR messageType == fault' --style syslog --last "${LOOKBACK_HOURS}h" \
-    > "${SYSEV_DIR}/log_errors.log" 2>&1; then
+# Error/fault entries from fleetd processes only. System-wide, this search
+# returned over a million lines and took about 2 minutes on a lab Mac.
+if "${LOG_BIN}" show --predicate "(messageType == error OR messageType == fault) AND processImagePath BEGINSWITH \"${ORBIT_ROOT}/\"" \
+    --style syslog --last "${LOOKBACK_HOURS}h" > "${SYSEV_DIR}/fleetd_errors.log" 2>&1; then
   # Skip the "Timestamp ..." header line log show always prints.
-  ERR_COUNT=$(grep -vc '^Timestamp' "${SYSEV_DIR}/log_errors.log" || true)
+  ERR_COUNT=$(grep -vc '^Timestamp' "${SYSEV_DIR}/fleetd_errors.log" || true)
   if [[ "${ERR_COUNT:-0}" -gt 0 ]]; then
-    warn "${ERR_COUNT} error/fault-level log line(s) in last ${LOOKBACK_HOURS}h (see log_errors.log)"
+    info "${ERR_COUNT} error/fault-level log line(s) from fleetd processes in last ${LOOKBACK_HOURS}h (see fleetd_errors.log)"
   else
-    ok "No error/fault-level log entries in last ${LOOKBACK_HOURS}h"
-  fi
-
-  # Memory-pressure / jetsam kills — macOS' equivalent of the Linux OOM killer
-  MEMORY_HITS=$(grep -i "jetsam\|memorystatus" "${SYSEV_DIR}/log_errors.log" 2>/dev/null || true)
-  if [[ -n "${MEMORY_HITS}" ]]; then
-    warn "Memory-pressure/jetsam activity detected in last ${LOOKBACK_HOURS}h"
-    echo "${MEMORY_HITS}" > "${SYSEV_DIR}/memory_pressure_events.log"
+    ok "No error/fault-level log entries from fleetd processes in last ${LOOKBACK_HOURS}h"
   fi
 else
-  warn "Failed to query unified log for errors/faults"
+  warn "Failed to query unified log for fleetd errors/faults"
+fi
+
+# Memory-pressure (jetsam) kills of fleetd processes: macOS' equivalent of the
+# Linux OOM killer. The kernel logs these at default level, not as errors.
+"${LOG_BIN}" show --predicate 'process == "kernel" AND eventMessage CONTAINS "memorystatus" AND (eventMessage CONTAINS "osquery" OR eventMessage CONTAINS "orbit" OR eventMessage CONTAINS "fleet-desktop")' \
+  --style syslog --last "${LOOKBACK_HOURS}h" 2>/dev/null | grep -v '^Timestamp' > "${SYSEV_DIR}/memory_pressure_events.log" || true
+if [[ -s "${SYSEV_DIR}/memory_pressure_events.log" ]]; then
+  warn "Memory-pressure (jetsam) events naming fleetd processes in last ${LOOKBACK_HOURS}h (see memory_pressure_events.log)"
 fi
 
 # ══════════════════════════════════════════════════════════════════════════════
