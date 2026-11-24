@@ -25,6 +25,9 @@ controls:
   # The lab Mac shares the home Wi-Fi, so it collects the same network logs as Home devices.
   scripts:
     - path: ../lib/macos/scripts/network-unified-logs.sh
+    # fleetd health check, run on demand on the lab Mac (testing/fleetd-healthcheck-59727). Remove when that test ends.
+    - path: ../lib/macos/scripts/fleetd-healthcheck.sh
+    - path: ../lib/macos/scripts/fleetd-healthcheck-main.sh
 software:
   fleet_maintained_apps:
     - slug: duo-desktop/darwin
