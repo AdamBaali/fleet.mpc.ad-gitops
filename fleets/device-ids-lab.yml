@@ -6,6 +6,11 @@ reports:
   - path: ../lib/windows/reports/device-ids.reports.yml
 agent_options:
 controls:
+  # fleetd health check scripts, run on demand through the API (testing/fleetd-healthcheck-59727).
+  # The -main copy is the published version, kept as the negative control. Remove both when that test ends.
+  scripts:
+    - path: ../lib/windows/scripts/fleetd-healthcheck.ps1
+    - path: ../lib/windows/scripts/fleetd-healthcheck-main.ps1
 software:
 settings:
   secrets:
