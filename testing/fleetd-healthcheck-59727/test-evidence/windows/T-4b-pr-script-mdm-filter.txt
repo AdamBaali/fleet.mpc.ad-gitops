@@ -1,0 +1,72 @@
+script_id=122 execution_id=b5769b51-01cb-4788-a5bb-057745f82aa9 queued 2026-11-24T18:13:43Z
+exit_code=0 runtime=7s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      DESKTOP-6OUEH8Q
+ Date:      11/24/2026 10:14:00
+ OS:        Microsoft Windows 11 Pro
+============================================================
+
+-- 1. Windows service ("Fleet osquery") --------------------
+  [OK]    Fleet osquery is running
+  [OK]    Fleet osquery start mode is Automatic
+
+-- 2. Processes ---------------------------------------------
+  [OK]    orbit is running
+  [OK]    osqueryd is running
+  [WARN]  fleet-desktop is NOT running (expected if not packaged with --fleet-desktop)
+
+-- 3. Key files, directories, and registry -------------------
+  [OK]    Orbit root directory: C:\Program Files\Orbit
+  [OK]    osquery pidfile: C:\Program Files\Orbit\osquery.pid
+  [INFO]  enroll secret not on disk (expected after enrollment - stored in Credential Manager)
+  [OK]    orbit binary: C:\Program Files\Orbit\bin\orbit\orbit.exe
+  [OK]    osqueryd binary: C:\Program Files\Orbit\bin\osqueryd\windows-arm64\stable\osqueryd.exe
+  [OK]    orbit node key is non-empty (enrolled)
+  [INFO]  Registry key not found: HKLM:\SOFTWARE\FleetDM\Orbit
+
+-- 4. Service configuration (redacted) ------------------------
+    "C:\Program Files\Orbit\bin\orbit\orbit.exe"
+    Environment:
+      ORBIT_ROOT_DIR=C:\Program Files\Orbit\.
+      ORBIT_LOG_FILE=C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+      ORBIT_FLEET_URL=https://fleet.mpc.ad
+      ORBIT_ENROLL_SECRET_PATH=C:\Program Files\Orbit\secret.txt
+      ORBIT_UPDATE_URL=https://updates.fleetdm.com
+      ORBIT_UPDATE_INTERVAL=15m0s
+      ORBIT_FLEET_DESKTOP=False
+      ORBIT_DESKTOP_CHANNEL=stable
+      ORBIT_ORBIT_CHANNEL=stable
+      ORBIT_OSQUERYD_CHANNEL=stable
+      ORBIT_ENABLE_SCRIPTS=True
+      ORBIT_END_USER_EMAIL=dummy
+      ORBIT_EUA_TOKEN=<redacted>
+
+-- 5. Orbit version --------------------------------------------
+  [INFO]  orbit 1.64.0
+commit - 593fed52311e2ef53660d648397a2397b407f3c8
+date - 2026-11-18T20:48:42Z
+
+-- 5b. MDM enrollment and Fleet connectivity --------------------
+  [INFO]  MDM enrollment: ProviderID=Fleet URL=https://fleet.mpc.ad/api/mdm/microsoft/discovery UPN=
+  [OK]    Collected MDM diagnostics events (last 72h)
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+-- 6. Log collection ---------------------------------------------
+  [OK]    Collected orbit/osquery log: C:\WINDOWS\system32\config\systemprofile\AppData\Local\FleetDM\Orbit\Logs\orbit-osquery.log
+  [OK]    Collected osquery filesystem logger directory: C:\Program Files\Orbit\osquery_log
+  [WARN]  No fleet-desktop.log found under any user profile (expected if fleet-desktop is not installed)
+  [OK]    Collected 7 System/Application event(s) mentioning orbit/osquery/fleet
+
+-- 7. System events, last 72h -----------------------
+  [OK]    Collected reboot/shutdown history
+  [WARN]  18 install/uninstall event(s) in last 72h
+  [INFO]  7 Automatic-start service(s) not running (see stopped_auto_services.csv)
+  [WARN]  13 error-level event(s) in last 72h (see error_events.csv)
+
+============================================================
+ Result: ALL CHECKS PASSED
+============================================================
+ Archive: C:\WINDOWS\TEMP\fleetd_healthcheck_DESKTOP-6OUEH8Q_20261124_101400.zip
+ Send this file to Fleet support.
+
