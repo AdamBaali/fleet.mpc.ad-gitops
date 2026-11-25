@@ -126,3 +126,10 @@ and the archive, and `--cacert` plus `-k` on the probe.
 left steps that printed "Collected" or "Grepped" whatever the command before them returned. An audit of both shell
 scripts found four more besides the Fleet Desktop copy that review flagged: the plist read (macOS), `last` (both) and
 the syslog grep (Linux). Each now checks its result. Both hosts still report `ALL CHECKS PASSED`, exit 0 (44 s, 1 s).
+
+## T-10, L-6, M-8 Status lines only on the console
+## Result: PASS
+[T-10](test-evidence/windows/T-10-quiet-console.txt), [L-6](test-evidence/linux/L-6-quiet-console.txt),
+[M-8](test-evidence/macos/M-8-quiet-console.txt). Review feedback: PIDs, paths and other command output made the console
+hard to scan. Detail lines now go to `summary.txt` only, and lines that introduced a list give a count instead. Each
+host's console output has no indented detail lines, and each reports `ALL CHECKS PASSED`, exit 0.

@@ -1,0 +1,53 @@
+script_id=125 execution_id=c896f629-62db-490e-9e39-a1635ded396e queued 2026-11-25T10:20:46Z
+exit_code=0 runtime=1s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      vm
+ Date:      Wed Nov 25 10:21:14 UTC 2026
+ Kernel:    6.18.44-fc-v880
+ OS:        Ubuntu 24.04.5 LTS
+============================================================
+
+── 1. systemd service (orbit.service) ──────────────────────
+  [OK]    orbit.service is active (running)
+  [OK]    orbit.service is enabled
+
+── 2. Processes ────────────────────────────────────────────
+  [OK]    orbit is running
+  [OK]    osqueryd (fleetd) is running
+  [WARN]  fleet-desktop is NOT running (expected if not packaged with --fleet-desktop)
+
+── 3. Key files and directories ────────────────────────────
+  [OK]    orbit binary: /opt/orbit/bin/orbit/orbit
+  [OK]    orbit symlink: /usr/local/bin/orbit
+  [OK]    osquery pidfile: /opt/orbit/osquery.pid
+  [OK]    env file: /etc/default/orbit
+  [OK]    enroll secret is configured (ORBIT_ENROLL_SECRET in /etc/default/orbit)
+  [OK]    orbit node key is non-empty (enrolled)
+
+── 4. Orbit environment (/etc/default/orbit) ───────────────
+  [INFO]  Orbit environment recorded in summary.txt (secrets redacted)
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+── 5. Orbit version ────────────────────────────────────────
+  [INFO]  orbit 1.64.0
+
+── 6. Log collection ───────────────────────────────────────
+  [OK]    Collected orbit logs directory: /var/log/orbit
+  [OK]    Collected osquery logs directory: /var/log/osquery
+  [OK]    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [OK]    Collected systemd journal (last 500 lines)
+
+── 7. System events, last 72h ───────────────
+  [OK]    Collected reboot/shutdown history
+  [WARN]  37 package install/upgrade/remove event(s) in last 72h
+  [WARN]  1 failed systemd unit(s), listed in summary.txt
+  [WARN]  24 journal error-level line(s) in last 72h (see journal_errors.log)
+
+============================================================
+ Result: ALL CHECKS PASSED
+============================================================
+ Archive: /tmp/fleetd_healthcheck_vm_20261125_102114.tar.gz
+ Send this file to Fleet support.
+============================================================
+
