@@ -1,0 +1,63 @@
+script_id=126 execution_id=f8c8aab6-ceab-487f-8cbc-51fe6b621e6e queued 2026-11-25T10:20:47Z
+exit_code=0 runtime=46s host_timeout=False
+============================================================
+ Fleet fleetd Health Check
+ Host:      lab-mac
+ Date:      Wed Nov 25 11:21:15 CET 2026
+ macOS:     macOS 27.2.1 (26B131)
+ Kernel:    27.2.0
+ Serial:    <serial>
+============================================================
+
+── 1. LaunchDaemon (com.fleetdm.orbit) ─────────────────
+  [OK]    LaunchDaemon plist found: /Library/LaunchDaemons/com.fleetdm.orbit.plist
+  [OK]    com.fleetdm.orbit is running
+  [OK]    RunAtLoad is true — will start on boot
+  [INFO]  KeepAlive: true
+
+── 2. Processes ────────────────────────────────────────────
+  [OK]    orbit is running
+  [OK]    osqueryd (fleetd) is running
+  [OK]    fleet-desktop is running
+
+── 3. Key files and directories ────────────────────────────
+  [OK]    orbit binary: /opt/orbit/bin/orbit/orbit
+  [OK]    orbit symlink: /usr/local/bin/orbit
+  [OK]    osquery pidfile: /opt/orbit/osquery.pid
+  [INFO]  enroll secret not on disk (expected after enrollment — stored in keychain)
+  [OK]    orbit node key is non-empty (enrolled)
+
+── 4. LaunchDaemon configuration (redacted) ────────────────
+  [OK]    Collected redacted LaunchDaemon plist contents (in summary.txt)
+
+── 5. Orbit version ────────────────────────────────────────
+  [INFO]  orbit 1.64.0
+
+── 6. fleetd installation, MDM, and connectivity ──────────
+  [OK]    fleetd package receipt(s) found: com.fleetdm.orbit.base.pkg, com.fleetdm.fleetctl
+  [INFO]  73 line(s) mentioning fleet/orbit in /var/log/install.log* (last 20 in summary.txt, all in logs/install/install_log_fleet.log)
+  [OK]    Mac is MDM enrolled
+  [INFO]  964 unified log line(s) about MDM delivery/install of fleetd in last 14d (logs/install/mdm_fleetd_delivery.log)
+  [OK]    Fleet server reachable: https://fleet.mpc.ad (HTTP 200 from /healthz)
+
+── 7. Log collection ───────────────────────────────────────
+  [OK]    Collected orbit stdout log: /var/log/orbit/orbit.stdout.log
+  [OK]    Collected orbit stderr log: /var/log/orbit/orbit.stderr.log
+  [OK]    Collected osquery filesystem logger directory: /opt/orbit/osquery_log
+  [OK]    Collected fleet-desktop log for user <user1>: /Users/<user1>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected fleet-desktop log for user <user2>: /Users/<user2>/Library/Logs/Fleet/fleet-desktop.log
+  [OK]    Collected unified log entries from fleetd processes (last 72h, 430852 lines)
+
+── 8. System events, last 72h ───────────────
+  [OK]    Collected reboot/shutdown history
+  [OK]    No package installs in last 72h
+  [WARN]  2 launchd job(s) with a non-zero last exit status, listed in summary.txt
+  [INFO]  72 error/fault-level log line(s) from fleetd processes in last 72h (see fleetd_errors.log)
+
+============================================================
+ Result: ALL CHECKS PASSED
+============================================================
+ Archive: /tmp/fleetd_healthcheck_lab-mac_20261125_112115.tar.gz
+ Send this file to Fleet support.
+============================================================
+
