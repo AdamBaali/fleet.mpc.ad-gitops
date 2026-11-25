@@ -41,7 +41,9 @@ ok()   { status "[OK]"   "${GREEN}"  "$*"; }
 warn() { status "[WARN]" "${YELLOW}" "$*"; }
 fail() { status "[FAIL]" "${RED}"    "$*"; }
 info() { status "[INFO]" ""          "$*"; }
-indent() { sed 's/^/    /' | tee -a "${SUMMARY}"; }
+# Detail lines (PIDs, paths, command output) go to summary.txt only, so the
+# console shows just the status lines.
+indent() { sed 's/^/    /' >> "${SUMMARY}"; }
 
 # /etc/default/orbit read the way systemd's EnvironmentFile reads it, never
 # sourced: backslash continuations joined, KEY=value lines only, surrounding
@@ -239,6 +241,7 @@ if [[ -f /etc/default/orbit ]]; then
       if (name ~ /SECRET|PASSWORD|TOKEN|KEY/ && name !~ /_PATH$/) print substr($0, 1, index($0, "=")) "<redacted>"
       else print
     }' | indent
+  info "Orbit environment recorded in summary.txt (secrets redacted)"
   ORBIT_FLEET_URL=$(orbit_env ORBIT_FLEET_URL)
   FLEET_CERT=$(orbit_env ORBIT_FLEET_CERTIFICATE)
   FLEET_INSECURE=$(orbit_env ORBIT_INSECURE)
@@ -270,7 +273,9 @@ log "── 5. Orbit version ─────────────────
 # Call the real binary rather than the PATH symlink, so a missing symlink
 # doesn't hide the version.
 if [[ -x /opt/orbit/bin/orbit/orbit ]]; then
-  /opt/orbit/bin/orbit/orbit version 2>/dev/null | indent
+  ORBIT_VERSION=$(/opt/orbit/bin/orbit/orbit version 2>/dev/null || echo "unknown")
+  info "$(echo "${ORBIT_VERSION}" | head -1)"
+  echo "${ORBIT_VERSION}" | indent
 else
   warn "orbit binary not found at /opt/orbit/bin/orbit/orbit"
 fi
@@ -434,7 +439,7 @@ log "============================================================"
 if [[ ${OVERALL_EXIT} -eq 0 ]]; then
   log " Result: ALL CHECKS PASSED"
 else
-  log " Result: ONE OR MORE CHECKS FAILED — review summary above"
+  log " Result: ONE OR MORE CHECKS FAILED — details in summary.txt in the archive"
 fi
 log "============================================================"
 
