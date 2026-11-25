@@ -167,7 +167,7 @@ for pid in $(pgrep -x osqueryd 2>/dev/null || true); do
   [[ -z "${exe}" || "${exe}" == /opt/orbit/bin/osqueryd/* ]] || OTHER_OSQUERYD="${OTHER_OSQUERYD} ${pid}"
 done
 if [[ -n "${OTHER_OSQUERYD// /}" ]]; then
-  warn "osqueryd running from outside /opt/orbit (another osquery install?):"
+  warn "osqueryd running from outside /opt/orbit (another osquery install?), PIDs in summary.txt"
   show_pids "${OTHER_OSQUERYD}"
 fi
 
@@ -400,8 +400,8 @@ fi
 FAILED_UNITS=$(systemctl --failed --no-legend 2>/dev/null || true)
 echo "${FAILED_UNITS}" > "${WORK_DIR}/logs/system_events/systemd_failed_units.log"
 if [[ -n "${FAILED_UNITS}" ]]; then
-  warn "systemd reports failed units:"
-  echo "${FAILED_UNITS}" | tee -a "${SUMMARY}" | sed 's/^/    /'
+  warn "$(printf '%s\n' "${FAILED_UNITS}" | grep -c .) failed systemd unit(s), listed in summary.txt"
+  echo "${FAILED_UNITS}" | indent
 else
   ok "No failed systemd units"
 fi
