@@ -1,0 +1,16 @@
+# Lab fleet for testing how Fleet decides that a new package belongs to an existing title
+# when only the filename changes. See testing/package-filename-identity/.
+# The fleet holds one script-only package because Fleet names script, .zip and .tar.gz
+# titles after the filename. Packages with metadata (.deb, .rpm, .pkg, .msi) are named from
+# that metadata, so a rename doesn't change their title.
+# A GitOps apply removes packages that the tests add to the title by API. That resets the lab.
+name: "Package Identity Lab"
+policies:
+reports:
+agent_options:
+controls:
+software:
+  packages:
+    - path: ../lib/linux/software/package-identity-probe.sh
+      self_service: true
+settings:
